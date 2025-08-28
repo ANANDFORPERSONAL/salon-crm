@@ -1030,362 +1030,494 @@ export function CashRegistryReport({ isVerificationModalOpen, onVerificationModa
 
   const getStatusBadge = (status: string, isVerified: boolean) => {
     if (isVerified) {
-      return <Badge variant="default" className="bg-green-100 text-green-800">Verified</Badge>
+      return (
+        <Badge className="bg-gradient-to-r from-green-500 to-emerald-600 text-white border-0 shadow-md px-3 py-1 rounded-full font-medium">
+          ✅ Verified
+        </Badge>
+      )
     }
     
     switch (status) {
       case "active":
-        return <Badge variant="secondary">Active</Badge>
+        return (
+          <Badge className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white border-0 shadow-md px-3 py-1 rounded-full font-medium">
+            🔄 Active
+          </Badge>
+        )
       case "closed":
-        return <Badge variant="outline">Closed</Badge>
+        return (
+          <Badge className="bg-gradient-to-r from-slate-500 to-gray-600 text-white border-0 shadow-md px-3 py-1 rounded-full font-medium">
+            🔒 Closed
+          </Badge>
+        )
       case "verified":
-        return <Badge variant="default" className="bg-green-100 text-green-800">Verified</Badge>
+        return (
+          <Badge className="bg-gradient-to-r from-green-500 to-emerald-600 text-white border-0 shadow-md px-3 py-1 rounded-full font-medium">
+            ✅ Verified
+          </Badge>
+        )
       default:
-        return <Badge variant="outline">{status}</Badge>
+        return (
+          <Badge className="bg-gradient-to-r from-slate-400 to-gray-500 text-white border-0 shadow-md px-3 py-1 rounded-full font-medium">
+            {status}
+          </Badge>
+        )
     }
   }
 
   const getShiftBadge = (shiftType: string) => {
     switch (shiftType) {
       case "opening":
-        return <Badge variant="default" className="bg-blue-100 text-blue-800">Opening</Badge>
+        return (
+          <Badge className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white border-0 shadow-md px-3 py-1 rounded-full font-medium">
+            🌅 Opening
+          </Badge>
+        )
       case "closing":
-        return <Badge variant="default" className="bg-orange-100 text-orange-800">Closing</Badge>
+        return (
+          <Badge className="bg-gradient-to-r from-orange-500 to-red-600 text-white border-0 shadow-md px-3 py-1 rounded-full font-medium">
+            🌆 Closing
+          </Badge>
+        )
       default:
-        return <Badge variant="outline">{shiftType}</Badge>
+        return (
+          <Badge className="bg-gradient-to-r from-slate-400 to-gray-500 text-white border-0 shadow-md px-3 py-1 rounded-full font-medium">
+            {shiftType}
+          </Badge>
+        )
     }
   }
 
   if (loading) {
-    return <div className="flex items-center justify-center h-64">Loading...</div>
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center space-y-6">
+          <div className="relative">
+            <div className="w-16 h-16 border-4 border-slate-200 rounded-full"></div>
+            <div className="absolute top-0 left-0 w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+          </div>
+          <div className="space-y-2">
+            <h3 className="text-lg font-semibold text-slate-700">Loading Cash Registry...</h3>
+            <p className="text-slate-500">Fetching your financial data</p>
+          </div>
+          <div className="flex items-center justify-center space-x-1">
+            <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '0ms'}}></div>
+            <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '150ms'}}></div>
+            <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '300ms'}}></div>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
-    <div className="space-y-8">
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
-        <Card className="border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Cash Sales</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+    <div className="space-y-8 w-full">
+      {/* Enhanced Stats Cards - Full Width Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+        <Card className="group relative overflow-hidden border-0 bg-gradient-to-br from-green-50 to-emerald-50 hover:from-green-100 hover:to-emerald-100 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+          <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-green-400/20 to-emerald-400/20 rounded-full blur-xl" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+            <CardTitle className="text-sm font-semibold text-green-800">Total Cash Sales</CardTitle>
+            <div className="p-2.5 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl shadow-md">
+              <DollarSign className="h-4 w-4 text-white" />
+            </div>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">₹{totalCashSales.toFixed(2)}</div>
-            <p className="text-xs text-muted-foreground">Real-time cash transactions</p>
+          <CardContent className="space-y-4">
+            <div className="text-3xl font-bold text-green-700">₹{totalCashSales.toFixed(2)}</div>
+            <p className="text-xs text-green-600 font-medium">Real-time cash transactions</p>
+            <div className="w-full bg-green-200 rounded-full h-1.5">
+              <div className="bg-gradient-to-r from-green-500 to-emerald-600 h-1.5 rounded-full" style={{width: '75%'}}></div>
+            </div>
           </CardContent>
         </Card>
         
-        <Card className="border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Online Sales</CardTitle>
-            <CreditCard className="h-4 w-4 text-muted-foreground" />
+        <Card className="group relative overflow-hidden border-0 bg-gradient-to-br from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+          <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-blue-400/20 to-indigo-400/20 rounded-full blur-xl" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+            <CardTitle className="text-sm font-semibold text-blue-800">Total Online Sales</CardTitle>
+            <div className="p-2.5 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-md">
+              <CreditCard className="h-4 w-4 text-white" />
+            </div>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">₹{totalOnlineSales.toFixed(2)}</div>
-            <p className="text-xs text-muted-foreground">Real-time online payments</p>
+          <CardContent className="space-y-4">
+            <div className="text-3xl font-bold text-blue-700">₹{totalOnlineSales.toFixed(2)}</div>
+            <p className="text-xs text-blue-600 font-medium">Real-time online payments</p>
+            <div className="w-full bg-blue-200 rounded-full h-1.5">
+              <div className="bg-gradient-to-r from-blue-500 to-indigo-600 h-1.5 rounded-full" style={{width: '60%'}}></div>
+            </div>
           </CardContent>
         </Card>
         
-        <Card className="border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Expenses</CardTitle>
-            <Receipt className="h-4 w-4 text-muted-foreground" />
+        <Card className="group relative overflow-hidden border-0 bg-gradient-to-br from-orange-50 to-red-50 hover:from-orange-100 hover:to-red-100 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+          <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-orange-400/20 to-red-400/20 rounded-full blur-xl" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+            <CardTitle className="text-sm font-semibold text-orange-800">Total Expenses</CardTitle>
+            <div className="p-2.5 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl shadow-md">
+              <Receipt className="h-4 w-4 text-white" />
+            </div>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">₹{totalExpenses.toFixed(2)}</div>
-            <p className="text-xs text-muted-foreground">Real-time business expenses</p>
+          <CardContent className="space-y-4">
+            <div className="text-3xl font-bold text-orange-700">₹{totalExpenses.toFixed(2)}</div>
+            <p className="text-xs text-orange-600 font-medium">Real-time business expenses</p>
+            <div className="w-full bg-orange-200 rounded-full h-1.5">
+              <div className="bg-gradient-to-r from-orange-500 to-red-600 h-1.5 rounded-full" style={{width: '45%'}}></div>
+            </div>
           </CardContent>
         </Card>
 
-        <Card className="border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Cash Difference</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+        <Card className="group relative overflow-hidden border-0 bg-gradient-to-br from-purple-50 to-violet-50 hover:from-purple-100 hover:to-violet-100 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+          <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-purple-400/20 to-violet-400/20 rounded-full blur-xl" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+            <CardTitle className="text-sm font-semibold text-purple-800">Cash Difference</CardTitle>
+            <div className="p-2.5 bg-gradient-to-br from-purple-500 to-violet-600 rounded-xl shadow-md">
+              <TrendingUp className="h-4 w-4 text-white" />
+            </div>
           </CardHeader>
-          <CardContent>
-            <div className={`text-2xl font-bold ${
+          <CardContent className="space-y-4">
+            <div className={`text-3xl font-bold ${
               cashDifference > 0 ? 'text-green-600' : 
               cashDifference < 0 ? 'text-red-600' : 
-              'text-gray-900'
+              'text-purple-700'
             }`}>
               ₹{cashDifference.toFixed(2)}
             </div>
-            <p className="text-xs text-muted-foreground">
-              Closing Balance - (Opening + Cash Sales - Expenses)
+            <p className="text-xs text-purple-600 font-medium">
+              Closing - (Opening + Sales - Expenses)
             </p>
             {cashDifference !== 0 && (
-              <p className={`text-xs mt-1 ${
-                cashDifference > 0 ? 'text-green-600' : 'text-red-600'
+              <div className={`px-3 py-1 rounded-full text-xs font-medium ${
+                cashDifference > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
               }`}>
-                {cashDifference > 0 ? 'Surplus' : 'Shortage'}
-              </p>
+                {cashDifference > 0 ? '💰 Surplus' : '⚠️ Shortage'}
+              </div>
             )}
           </CardContent>
         </Card>
 
-        <Card className="border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Online Cash Difference</CardTitle>
-            <CreditCard className="h-4 w-4 text-muted-foreground" />
+        <Card className="group relative overflow-hidden border-0 bg-gradient-to-br from-cyan-50 to-teal-50 hover:from-cyan-100 hover:to-teal-100 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+          <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-cyan-400/20 to-teal-400/20 rounded-full blur-xl" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+            <CardTitle className="text-sm font-semibold text-cyan-800">Online Cash Diff.</CardTitle>
+            <div className="p-2.5 bg-gradient-to-br from-cyan-500 to-teal-600 rounded-xl shadow-md">
+              <CreditCard className="h-4 w-4 text-white" />
+            </div>
           </CardHeader>
-          <CardContent>
-            <div className={`text-2xl font-bold ${
+          <CardContent className="space-y-4">
+            <div className={`text-3xl font-bold ${
               onlineCashDifference > 0 ? 'text-green-600' : 
               onlineCashDifference < 0 ? 'text-red-600' : 
-              'text-gray-900'
+              'text-cyan-700'
             }`}>
               ₹{onlineCashDifference.toFixed(2)}
             </div>
-            <p className="text-xs text-muted-foreground">
-              Online Cash Collected - Total Online Sales
+            <p className="text-xs text-cyan-600 font-medium">
+              Online Cash - Online Sales
             </p>
             {onlineCashDifference !== 0 && (
-              <p className={`text-xs mt-1 ${
-                onlineCashDifference > 0 ? 'text-green-600' : 'text-red-600'
+              <div className={`px-3 py-1 rounded-full text-xs font-medium ${
+                onlineCashDifference > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
               }`}>
-                {onlineCashDifference > 0 ? 'Surplus' : 'Shortage'}
-              </p>
+                {onlineCashDifference > 0 ? '💰 Surplus' : '⚠️ Shortage'}
+              </div>
             )}
           </CardContent>
         </Card>
       </div>
 
-      {/* Balance Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Opening Balance</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+      {/* Enhanced Balance Summary Cards - Full Width */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <Card className="group relative overflow-hidden border-0 bg-gradient-to-br from-amber-50 to-yellow-50 hover:from-amber-100 hover:to-yellow-100 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-amber-400/20 to-yellow-400/20 rounded-full blur-xl" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+            <CardTitle className="text-sm font-semibold text-amber-800">Total Opening Balance</CardTitle>
+            <div className="p-2.5 bg-gradient-to-br from-amber-500 to-yellow-600 rounded-xl shadow-md">
+              <DollarSign className="h-4 w-4 text-white" />
+            </div>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">₹{totalOpeningBalance.toFixed(2)}</div>
-            <p className="text-xs text-muted-foreground">From all opening shifts</p>
+          <CardContent className="space-y-4">
+            <div className="text-3xl font-bold text-amber-700">₹{totalOpeningBalance.toFixed(2)}</div>
+            <p className="text-xs text-amber-600 font-medium">From all opening shifts</p>
+            <div className="flex items-center space-x-2">
+              <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></div>
+              <span className="text-xs text-amber-600">Active tracking</span>
+            </div>
           </CardContent>
         </Card>
         
-        <Card className="border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Closing Balance</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+        <Card className="group relative overflow-hidden border-0 bg-gradient-to-br from-rose-50 to-pink-50 hover:from-rose-100 hover:to-pink-100 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-rose-400/20 to-pink-400/20 rounded-full blur-xl" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+            <CardTitle className="text-sm font-semibold text-rose-800">Total Closing Balance</CardTitle>
+            <div className="p-2.5 bg-gradient-to-br from-rose-500 to-pink-600 rounded-xl shadow-md">
+              <DollarSign className="h-4 w-4 text-white" />
+            </div>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">₹{totalClosingBalance.toFixed(2)}</div>
-            <p className="text-xs text-muted-foreground">From all closing shifts</p>
+          <CardContent className="space-y-4">
+            <div className="text-3xl font-bold text-rose-700">₹{totalClosingBalance.toFixed(2)}</div>
+            <p className="text-xs text-rose-600 font-medium">From all closing shifts</p>
+            <div className="flex items-center space-x-2">
+              <div className="w-2 h-2 bg-rose-500 rounded-full animate-pulse"></div>
+              <span className="text-xs text-rose-600">End of day totals</span>
+            </div>
           </CardContent>
         </Card>
 
-        <Card className="border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Online Cash Collected</CardTitle>
-            <CreditCard className="h-4 w-4 text-muted-foreground" />
+        <Card className="group relative overflow-hidden border-0 bg-gradient-to-br from-sky-50 to-blue-50 hover:from-sky-100 hover:to-blue-100 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-sky-400/20 to-blue-400/20 rounded-full blur-xl" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+            <CardTitle className="text-sm font-semibold text-sky-800">Online Cash Collected</CardTitle>
+            <div className="p-2.5 bg-gradient-to-br from-sky-500 to-blue-600 rounded-xl shadow-md">
+              <CreditCard className="h-4 w-4 text-white" />
+            </div>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">₹{totalOnlineCashCollected.toFixed(2)}</div>
-            <p className="text-xs text-muted-foreground">From Cash in POS Machine during closing shifts</p>
+          <CardContent className="space-y-4">
+            <div className="text-3xl font-bold text-sky-700">₹{totalOnlineCashCollected.toFixed(2)}</div>
+            <p className="text-xs text-sky-600 font-medium">From Cash in POS Machine during closing shifts</p>
+            <div className="flex items-center space-x-2">
+              <div className="w-2 h-2 bg-sky-500 rounded-full animate-pulse"></div>
+              <span className="text-xs text-sky-600">Digital payments</span>
+            </div>
           </CardContent>
         </Card>
       </div>
 
 
 
-      {/* Filters and Actions */}
-      <div className="flex items-center justify-between p-6 bg-gray-50 border border-gray-200 rounded-lg">
-        <div className="flex items-center space-x-4">
-          <div className="flex items-center space-x-2">
-            <Search className="h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search entries..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-64"
-            />
-          </div>
-          
-          {/* Date Period Dropdown */}
-          <Select value={datePeriod} onValueChange={handleDatePeriodChange}>
-            <SelectTrigger className="w-40">
-              <SelectValue placeholder="Quick periods" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="today">Today</SelectItem>
-              <SelectItem value="yesterday">Yesterday</SelectItem>
-              <SelectItem value="last7days">Last 7 days</SelectItem>
-              <SelectItem value="last30days">Last 30 days</SelectItem>
-              <SelectItem value="currentMonth">Current month</SelectItem>
-              <SelectItem value="all">All time</SelectItem>
-            </SelectContent>
-          </Select>
-          
-          {/* Date Range Picker */}
-          <div className="flex items-center space-x-2">
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className="w-[280px] justify-start text-left font-normal"
-                >
-                  {dateRange?.from ? (
-                    dateRange.to ? (
-                      <>
-                        {format(dateRange.from, "LLL dd, y")} -{" "}
-                        {format(dateRange.to, "LLL dd, y")}
-                      </>
-                    ) : (
-                      format(dateRange.from, "LLL dd, y")
-                    )
-                  ) : (
-                    <span>Pick a date range</span>
-                  )}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                                 <CalendarComponent
-                   initialFocus
-                   mode="range"
-                   defaultMonth={dateRange?.from}
-                   selected={dateRange}
-                   onSelect={(range) => setDateRange(range)}
-                   numberOfMonths={2}
-                 />
-              </PopoverContent>
-            </Popover>
-          </div>
-
-          {/* Shift Filter */}
-          <Select value={shiftFilter} onValueChange={setShiftFilter}>
-            <SelectTrigger className="w-32">
-              <SelectValue placeholder="Shift" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Shifts</SelectItem>
-              <SelectItem value="opening">Opening</SelectItem>
-              <SelectItem value="closing">Closing</SelectItem>
-            </SelectContent>
-          </Select>
-
-          {/* Report Type Filter */}
-          <Select value={reportType} onValueChange={setReportType}>
-            <SelectTrigger className="w-40">
-              <SelectValue placeholder="Report Type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="activity">Activity Report</SelectItem>
-              <SelectItem value="summary">Summary By Day</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="flex items-center space-x-2">
-          <Button
-            variant="outline"
-            onClick={handleExport}
-            className="flex items-center space-x-2"
-          >
-            <Download className="h-4 w-4" />
-            Export
-          </Button>
-          
-          <Button
-            variant="outline"
-            onClick={async () => {
-              console.log("🔄 Manual refresh of real-time data...")
-              await fetchSalesData()
-              await fetchExpensesData()
-              // Regenerate daily summaries after refreshing data
-              setTimeout(() => {
-                generateDailySummaries()
-              }, 100)
-              toast({
-                title: "Data Refreshed",
-                description: "Real-time sales and expenses data has been updated.",
-              })
-            }}
-            className="flex items-center space-x-2"
-          >
-            <RefreshCw className="h-4 w-4" />
-            Refresh Data
-          </Button>
-          
-          <Button
-            onClick={() => {
-              console.log("🔄 Manual trigger for generateDailySummaries...")
-              generateDailySummaries()
-              toast({
-                title: "Summaries Regenerated",
-                description: "Daily summaries have been recalculated with latest data.",
-              })
-            }}
-            variant="outline"
-            className="flex items-center space-x-2"
-          >
-            <RefreshCw className="h-4 w-4" />
-            <span>Regenerate Summaries</span>
-          </Button>
-          
-          <Button
-            onClick={() => setIsAddModalOpen(true)}
-            className="flex items-center space-x-2"
-          >
-            <Banknote className="h-4 w-4" />
-            Add Entry
-          </Button>
-        </div>
-      </div>
-
-            {/* Cash Registry Table */}
-            <div className="border border-gray-200 rounded-lg shadow-sm overflow-hidden">
-              <div className="p-6 border-b border-gray-200 bg-gray-50">
-                <h3 className="text-lg font-semibold">
-                  {reportType === "summary" ? "Summary By Day Report" : "Activity Report"}
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  {reportType === "summary" 
-                    ? "Showing consolidated daily summaries with opening and closing balances"
-                    : "Showing detailed activity entries for each shift"
-                  }
-                </p>
+      {/* All Filters and Actions in Single Row */}
+      <div className="relative overflow-hidden bg-white border border-slate-200 rounded-2xl shadow-lg">
+        {/* Background Pattern */}
+        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-400/5 to-indigo-400/5 rounded-full blur-2xl" />
+        <div className="absolute bottom-0 left-0 w-40 h-40 bg-gradient-to-tr from-purple-400/5 to-blue-400/5 rounded-full blur-2xl" />
+        
+        <div className="relative p-6">
+          {/* Everything in Single Row */}
+          <div className="flex items-center justify-between">
+            {/* Left Side - Filters */}
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2">
+                <Search className="h-4 w-4 text-slate-500" />
+                <Input
+                  placeholder="Search entries..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-48"
+                />
               </div>
-              <div className="overflow-x-auto">
+              
+              <Select value={datePeriod} onValueChange={handleDatePeriodChange}>
+                <SelectTrigger className="w-32">
+                  <SelectValue placeholder="Quick periods" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="today">Today</SelectItem>
+                  <SelectItem value="yesterday">Yesterday</SelectItem>
+                  <SelectItem value="last7days">Last 7 days</SelectItem>
+                  <SelectItem value="last30days">Last 30 days</SelectItem>
+                  <SelectItem value="currentMonth">Current month</SelectItem>
+                  <SelectItem value="all">All time</SelectItem>
+                </SelectContent>
+              </Select>
+              
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="w-[220px] justify-start text-left font-normal"
+                  >
+                    {dateRange?.from ? (
+                      dateRange.to ? (
+                        <>
+                          {format(dateRange.from, "MMM dd")} - {format(dateRange.to, "MMM dd, y")}
+                        </>
+                      ) : (
+                        format(dateRange.from, "MMM dd, y")
+                      )
+                    ) : (
+                      <span>Pick a date range</span>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <CalendarComponent
+                    initialFocus
+                    mode="range"
+                    defaultMonth={dateRange?.from}
+                    selected={dateRange}
+                    onSelect={(range) => setDateRange(range)}
+                    numberOfMonths={2}
+                  />
+                </PopoverContent>
+              </Popover>
+              
+              <Select value={shiftFilter} onValueChange={setShiftFilter}>
+                <SelectTrigger className="w-28">
+                  <SelectValue placeholder="Shift" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Shifts</SelectItem>
+                  <SelectItem value="opening">Opening</SelectItem>
+                  <SelectItem value="closing">Closing</SelectItem>
+                </SelectContent>
+              </Select>
+              
+              <Select value={reportType} onValueChange={setReportType}>
+                <SelectTrigger className="w-36">
+                  <SelectValue placeholder="Report Type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="activity">Activity Report</SelectItem>
+                  <SelectItem value="summary">Summary By Day</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            {/* Right Side - Actions */}
+            <div className="flex items-center space-x-3">
+              <Button
+                variant="outline"
+                onClick={handleExport}
+                className="flex items-center space-x-2 bg-white border-slate-300 hover:bg-slate-50 hover:border-slate-400 hover:shadow-md transition-all duration-200 rounded-xl px-4 py-2"
+              >
+                <Download className="h-4 w-4 text-slate-600" />
+                <span className="font-medium">Export</span>
+              </Button>
+              
+              <Button
+                variant="outline"
+                onClick={async () => {
+                  console.log("🔄 Manual refresh of real-time data...")
+                  await fetchSalesData()
+                  await fetchExpensesData()
+                  setTimeout(() => {
+                    generateDailySummaries()
+                  }, 100)
+                  toast({
+                    title: "Data Refreshed",
+                    description: "Real-time sales and expenses data has been updated.",
+                  })
+                }}
+                className="flex items-center space-x-2 bg-white border-slate-300 hover:bg-slate-50 hover:border-slate-400 hover:shadow-md transition-all duration-200 rounded-xl px-4 py-2"
+              >
+                <RefreshCw className="h-4 w-4 text-slate-600" />
+                <span className="font-medium">Refresh Data</span>
+              </Button>
+              
+              <Button
+                onClick={() => {
+                  console.log("🔄 Manual trigger for generateDailySummaries...")
+                  generateDailySummaries()
+                  toast({
+                    title: "Summaries Regenerated",
+                    description: "Daily summaries have been recalculated with latest data.",
+                  })
+                }}
+                variant="outline"
+                className="flex items-center space-x-2 bg-white border-slate-300 hover:bg-slate-50 hover:border-slate-400 hover:shadow-md transition-all duration-200 rounded-xl px-4 py-2"
+              >
+                <RefreshCw className="h-4 w-4 text-slate-600" />
+                <span className="font-medium">Regenerate Summaries</span>
+              </Button>
+              
+              <Button
+                onClick={() => setIsAddModalOpen(true)}
+                className="flex items-center space-x-2 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 rounded-xl px-6 py-2"
+              >
+                <Banknote className="h-4 w-4" />
+                <span className="font-semibold">Add Entry</span>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+            {/* Compact Cash Registry Table Header */}
+            <div className="relative overflow-hidden border-0 bg-white rounded-2xl shadow-xl">
+              {/* Background Pattern */}
+              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-400/5 to-purple-400/5 rounded-full blur-2xl" />
+              
+              <div className="relative p-4 border-b border-slate-200/50 bg-gradient-to-r from-slate-50 via-blue-50/30 to-indigo-50/30">
+                <div className="flex items-center space-x-3">
+                  <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg shadow-sm">
+                    <Receipt className="h-4 w-4 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-slate-800">
+                      {reportType === "summary" ? "Summary By Day Report" : "Activity Report"}
+                    </h3>
+                    <p className="text-slate-500 text-xs mt-0.5">
+                      {reportType === "summary" 
+                        ? "Showing consolidated daily summaries with opening and closing balances"
+                        : "Showing detailed activity entries for each shift"
+                      }
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="overflow-x-auto p-6">
                 <Table className="w-full">
                 <TableHeader>
-                  <TableRow className="bg-gray-50 hover:bg-gray-50">
+                  <TableRow className="bg-gradient-to-r from-slate-100 to-blue-100/50 hover:from-slate-100 hover:to-blue-100/50 border-0">
                     {reportType === "summary" ? (
                       <>
-                        <TableHead>Date</TableHead>
-                        <TableHead className="text-right">Opening Balance</TableHead>
-                        <TableHead className="text-right">Cash Collected</TableHead>
-                        <TableHead className="text-right">Expense</TableHead>
-                        <TableHead className="text-right">Cash Balance</TableHead>
-                        <TableHead className="text-right">Closing Balance</TableHead>
-                        <TableHead className="text-right">Cash Difference</TableHead>
-                        <TableHead className="text-center">Reason for Cash Diff.</TableHead>
-                        <TableHead className="text-right">Total Online Sales</TableHead>
-                        <TableHead className="text-right">Cash in POS</TableHead>
-                        <TableHead className="text-right">Online Cash Difference</TableHead>
-                        <TableHead className="text-center">Reason for Online Diff.</TableHead>
-                        <TableHead className="text-center">Status</TableHead>
-                        <TableHead className="text-center">Actions</TableHead>
+                        <TableHead className="font-semibold text-slate-700 py-4">Date</TableHead>
+                        <TableHead className="text-right font-semibold text-slate-700 py-4">Opening Balance</TableHead>
+                        <TableHead className="text-right font-semibold text-slate-700 py-4">Cash Collected</TableHead>
+                        <TableHead className="text-right font-semibold text-slate-700 py-4">Expense</TableHead>
+                        <TableHead className="text-right font-semibold text-slate-700 py-4">Cash Balance</TableHead>
+                        <TableHead className="text-right font-semibold text-slate-700 py-4">Closing Balance</TableHead>
+                        <TableHead className="text-right font-semibold text-slate-700 py-4">Cash Difference</TableHead>
+                        <TableHead className="text-center font-semibold text-slate-700 py-4">Reason for Cash Diff.</TableHead>
+                        <TableHead className="text-right font-semibold text-slate-700 py-4">Total Online Sales</TableHead>
+                        <TableHead className="text-right font-semibold text-slate-700 py-4">Cash in POS</TableHead>
+                        <TableHead className="text-right font-semibold text-slate-700 py-4">Online Cash Difference</TableHead>
+                        <TableHead className="text-center font-semibold text-slate-700 py-4">Reason for Online Diff.</TableHead>
+                        <TableHead className="text-center font-semibold text-slate-700 py-4">Status</TableHead>
+                        <TableHead className="text-center font-semibold text-slate-700 py-4">Actions</TableHead>
                       </>
                     ) : (
                       <>
-                        <TableHead>Date & Time</TableHead>
-                        <TableHead>Created By</TableHead>
-                        <TableHead>Shift Type</TableHead>
-                        <TableHead className="text-right">Total Amount</TableHead>
-                        <TableHead>Denominations</TableHead>
-                        <TableHead className="text-center">Actions</TableHead>
+                        <TableHead className="font-semibold text-slate-700 py-4">Date & Time</TableHead>
+                        <TableHead className="font-semibold text-slate-700 py-4">Created By</TableHead>
+                        <TableHead className="font-semibold text-slate-700 py-4">Shift Type</TableHead>
+                        <TableHead className="text-right font-semibold text-slate-700 py-4">Total Amount</TableHead>
+                        <TableHead className="font-semibold text-slate-700 py-4">Denominations</TableHead>
+                        <TableHead className="text-center font-semibold text-slate-700 py-4">Actions</TableHead>
                       </>
                     )}
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {(reportType === "summary" ? dailySummaries.length === 0 : filteredData.length === 0) ? (
-                    <TableRow>
-                      <TableCell colSpan={reportType === "summary" ? 14 : 6} className="text-center py-12 text-muted-foreground border-b border-gray-200">
-                        {reportType === "summary" 
-                          ? "No daily summaries found. Complete a verification to see summaries here."
-                          : "No cash registry entries found"
-                        }
+                    <TableRow className="border-0">
+                      <TableCell colSpan={reportType === "summary" ? 14 : 6} className="text-center py-16 border-0">
+                        <div className="flex flex-col items-center space-y-5">
+                          <div className="w-20 h-20 bg-gradient-to-br from-slate-100 to-blue-100 rounded-full flex items-center justify-center">
+                            <Receipt className="h-10 w-10 text-slate-400" />
+                          </div>
+                          <div className="text-center space-y-2">
+                            <h3 className="text-lg font-semibold text-slate-700">
+                              {reportType === "summary" 
+                                ? "No Daily Summaries Found"
+                                : "No Cash Registry Entries Found"
+                              }
+                            </h3>
+                            <p className="text-slate-500 max-w-md text-sm leading-relaxed">
+                              {reportType === "summary" 
+                                ? "Complete a verification to see daily summaries here. Summaries provide consolidated views of opening and closing balances."
+                                : "Get started by adding your first cash registry entry. Track opening and closing balances for each shift."
+                              }
+                            </p>
+                          </div>
+                          {reportType === "summary" && (
+                            <Button
+                              onClick={() => setIsAddModalOpen(true)}
+                              className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 rounded-xl px-6 py-2.5 text-sm"
+                            >
+                              <Banknote className="h-4 w-4 mr-2" />
+                              Add First Entry
+                            </Button>
+                          )}
+                        </div>
                       </TableCell>
                     </TableRow>
                   ) : (
@@ -1515,13 +1647,13 @@ export function CashRegistryReport({ isVerificationModalOpen, onVerificationModa
                                   </PopoverContent>
                                 </Popover>
                               </TableCell>
-                              <TableCell className="text-center min-w-[80px]">
+                                                              <TableCell className="text-center min-w-[80px]">
                                 <div className="flex items-center justify-center space-x-2">
                                   <Button
                                     variant="ghost"
                                     size="sm"
                                     onClick={() => handleDeleteDailySummary(entry)}
-                                    className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                                    className="h-9 w-9 p-0 text-destructive hover:text-destructive hover:bg-red-50 transition-all duration-200 rounded-xl hover:shadow-md transform hover:scale-105"
                                     title="Delete daily summary"
                                   >
                                     <Trash2 className="h-4 w-4" />
@@ -1571,7 +1703,7 @@ export function CashRegistryReport({ isVerificationModalOpen, onVerificationModa
                                     variant="ghost"
                                     size="sm"
                                     onClick={() => handleDeleteEntry(entry)}
-                                    className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                                    className="h-9 w-9 p-0 text-destructive hover:text-destructive hover:bg-red-50 transition-all duration-200 rounded-xl hover:shadow-md transform hover:scale-105"
                                     title="Delete entry"
                                   >
                                     <Trash2 className="h-4 w-4" />
@@ -1614,7 +1746,7 @@ export function CashRegistryReport({ isVerificationModalOpen, onVerificationModa
                                     variant="ghost"
                                     size="sm"
                                     onClick={() => handleDeleteEntry(entry)}
-                                    className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                                    className="h-9 w-9 p-0 text-destructive hover:text-destructive hover:bg-red-50 transition-all duration-200 rounded-xl hover:shadow-md transform hover:scale-105"
                                     title="Delete entry"
                                   >
                                     <Trash2 className="h-4 w-4" />
