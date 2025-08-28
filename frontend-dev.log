@@ -1,0 +1,351 @@
+   ▲ Next.js 15.2.4
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.0.5:3000
+   - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 2.8s
+ ○ Compiling /login ...
+ ✓ Compiled /login in 2.2s (1072 modules)
+ GET /login 200 in 2603ms
+ ✓ Compiled in 410ms (481 modules)
+ GET /login 200 in 66ms
+ GET /login 200 in 60ms
+ ○ Compiling / ...
+ ✓ Compiled / in 1286ms (2114 modules)
+ GET / 200 in 1417ms
+ GET / 200 in 20ms
+ ○ Compiling /appointments ...
+ ✓ Compiled /appointments in 768ms (2215 modules)
+ GET /appointments 200 in 860ms
+ ○ Compiling /appointments/new ...
+ ✓ Compiled /appointments/new in 1396ms (3022 modules)
+ GET /appointments/new 200 in 1498ms
+ GET /appointments 200 in 38ms
+ GET / 200 in 182ms
+ ⚠ Cross origin request detected from 192.168.0.5 to /_next/* resource. In a future major version of Next.js, you will need to explicitly configure "allowedDevOrigins" in next.config to allow this.
+Read more: https://nextjs.org/docs/app/api-reference/config/next-config-js/allowedDevOrigins
+ GET /login 200 in 12ms
+ GET /appointments/new 200 in 29ms
+ GET /appointments 200 in 10ms
+ ✓ Compiled in 1184ms (3036 modules)
+ GET /appointments 200 in 61ms
+ ✓ Compiled in 664ms (3036 modules)
+ GET /appointments 200 in 74ms
+ ✓ Compiled in 602ms (3036 modules)
+ GET /appointments 200 in 31ms
+ GET /appointments/new 200 in 51ms
+ GET /appointments 200 in 10ms
+ GET /appointments/new 200 in 11ms
+ GET /appointments 200 in 11ms
+ GET /appointments/new 200 in 9ms
+ ✓ Compiled in 1065ms (3036 modules)
+ GET /appointments/new 200 in 30ms
+ ✓ Compiled in 899ms (3036 modules)
+ GET /appointments/new 200 in 28ms
+ ✓ Compiled in 662ms (3036 modules)
+ GET /appointments/new 200 in 28ms
+ GET /appointments/new 200 in 145ms
+ ○ Compiling /settings ...
+ ✓ Compiled /settings in 1533ms (3088 modules)
+ GET /settings 200 in 1613ms
+ GET /appointments 200 in 28ms
+ GET /appointments/new 200 in 25ms
+ GET /appointments 200 in 19ms
+ ✓ Compiled in 1267ms (3102 modules)
+ GET /appointments 200 in 62ms
+ ✓ Compiled in 682ms (3102 modules)
+ GET /appointments 200 in 41ms
+ GET /appointments 200 in 147ms
+ ✓ Compiled in 1007ms (3102 modules)
+ GET /appointments 200 in 33ms
+ ✓ Compiled in 718ms (1451 modules)
+ GET /appointments 200 in 398ms
+ ✓ Compiled in 660ms (1451 modules)
+ GET /appointments 200 in 44ms
+ ✓ Compiled in 606ms (1451 modules)
+ GET /appointments 200 in 32ms
+ ✓ Compiled in 671ms (1451 modules)
+ GET /appointments 200 in 91ms
+ ✓ Compiled in 813ms (1451 modules)
+ GET /appointments 200 in 84ms
+ ✓ Compiled in 619ms (1451 modules)
+ GET /appointments 200 in 68ms
+ ✓ Compiled in 580ms (1451 modules)
+ GET /appointments 200 in 21ms
+ ✓ Compiled in 941ms (1451 modules)
+ GET /appointments 200 in 130ms
+ ✓ Compiled in 675ms (1451 modules)
+ GET /appointments 200 in 70ms
+ ✓ Compiled in 481ms (1451 modules)
+ GET /appointments 200 in 77ms
+ ○ Compiling /quick-sale ...
+ ✓ Compiled /quick-sale in 1513ms (3127 modules)
+ GET /quick-sale 200 in 1609ms
+ ✓ Compiled in 1248ms (3133 modules)
+ GET /quick-sale 200 in 86ms
+ GET /appointments 200 in 38ms
+ GET /quick-sale 200 in 9ms
+ ✓ Compiled in 1364ms (3133 modules)
+API not available, using local storage fallback
+ GET /quick-sale 200 in 342ms
+ ✓ Compiled in 764ms (3133 modules)
+ GET /quick-sale 200 in 58ms
+ ✓ Compiled in 932ms (3133 modules)
+ GET /quick-sale 200 in 46ms
+ ✓ Compiled in 1068ms (3133 modules)
+ GET /quick-sale 200 in 23ms
+ GET /appointments 200 in 83ms
+ GET /quick-sale 200 in 30ms
+ GET /appointments 200 in 30ms
+ GET /appointments/new 200 in 24ms
+ GET /appointments 200 in 14ms
+ GET /appointments 200 in 151ms
+API not available, using local storage fallback
+ GET /quick-sale 200 in 133ms
+ GET /appointments 200 in 9ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ✓ Compiled in 1164ms (3133 modules)
+ GET /appointments 200 in 590ms
+ ✓ Compiled in 744ms (3133 modules)
+ GET /appointments 200 in 30ms
+ ○ Compiling /clients ...
+ ✓ Compiled /clients in 929ms (3141 modules)
+ GET /clients 200 in 975ms
+ GET /clients 200 in 81ms
+ ○ Compiling /services ...
+ ✓ Compiled /services in 768ms (2740 modules)
+ GET /services 200 in 839ms
+ ○ Compiling /products ...
+ ✓ Compiled /products in 801ms (2754 modules)
+ GET /products 200 in 839ms
+ ○ Compiling /analytics ...
+ ✓ Compiled /analytics in 1456ms (3279 modules)
+ GET /analytics 200 in 1612ms
+ ○ Compiling /reports ...
+ ✓ Compiled /reports in 750ms (3305 modules)
+ GET /reports 200 in 804ms
+ GET /settings 200 in 20ms
+ ○ Compiling / ...
+ ✓ Compiled / in 771ms (1778 modules)
+ GET / 200 in 818ms
+ GET /reports 200 in 70ms
+ GET / 200 in 17ms
+ GET /reports 200 in 73ms
+ ✓ Compiled in 1924ms (3228 modules)
+ GET /reports 200 in 103ms
+ ✓ Compiled in 743ms (3228 modules)
+ GET /reports 200 in 34ms
+ GET / 200 in 61ms
+ GET /reports 200 in 11ms
+ GET / 200 in 46ms
+ ✓ Compiled in 1228ms (3228 modules)
+ GET / 200 in 121ms
+ ✓ Compiled in 696ms (3228 modules)
+ GET / 200 in 44ms
+ GET / 200 in 214ms
+ ✓ Compiled in 1289ms (3228 modules)
+ GET / 200 in 58ms
+ ✓ Compiled in 1071ms (3215 modules)
+ GET / 200 in 36ms
+ ✓ Compiled in 758ms (3229 modules)
+ GET / 200 in 39ms
+ GET / 200 in 154ms
+ ○ Compiling /appointments ...
+ ✓ Compiled /appointments in 873ms (1684 modules)
+ GET /appointments 200 in 992ms
+ GET /quick-sale 200 in 24ms
+ GET /appointments 200 in 9ms
+ GET /clients 200 in 29ms
+ GET /clients 200 in 6ms
+ ✓ Compiled /services in 353ms (1694 modules)
+ GET /services 200 in 394ms
+ GET /quick-sale 200 in 65ms
+ GET /appointments 200 in 36ms
+ ○ Compiling /appointments/new ...
+ ✓ Compiled /appointments/new in 692ms (1678 modules)
+ GET /appointments/new 200 in 736ms
+ GET /services 200 in 72ms
+ ○ Compiling /products ...
+ ✓ Compiled /products in 530ms (1688 modules)
+ GET /products 200 in 569ms
+ ○ Compiling /analytics ...
+ ✓ Compiled /analytics in 1070ms (1740 modules)
+ GET /analytics 200 in 1176ms
+ GET /reports 200 in 36ms
+ ✓ Compiled /settings in 351ms (1766 modules)
+ GET /settings 200 in 401ms
+ GET / 200 in 86ms
+ ○ Compiling /login ...
+ ✓ Compiled /login in 967ms (1683 modules)
+ GET /login 200 in 1090ms
+ GET /login 200 in 56ms
+ GET / 200 in 124ms
+ GET / 200 in 17ms
+ GET /login 200 in 9ms
+ GET /login 200 in 20ms
+ GET / 200 in 46ms
+ GET / 200 in 18ms
+ GET / 200 in 55ms
+ ✓ Compiled /quick-sale in 448ms (1672 modules)
+ GET /quick-sale 200 in 522ms
+ GET / 200 in 17ms
+ GET /quick-sale 200 in 9ms
+ ✓ Compiled /appointments in 268ms (1682 modules)
+ GET /appointments 200 in 312ms
+ ✓ Compiled /clients in 419ms (1695 modules)
+ GET /clients 200 in 484ms
+ GET / 200 in 29ms
+ ✓ Compiled in 1782ms (2788 modules)
+ GET / 200 in 78ms
+ ✓ Compiled in 1104ms (2788 modules)
+ GET / 200 in 101ms
+ ✓ Compiled in 1004ms (1555 modules)
+ GET / 200 in 21ms
+ GET /login 200 in 156ms
+ ✓ Compiled in 386ms (1555 modules)
+ GET / 200 in 25ms
+ ✓ Compiled in 1606ms (2774 modules)
+ GET / 200 in 57ms
+ ✓ Compiled in 406ms (1555 modules)
+ GET / 200 in 22ms
+ ✓ Compiled in 370ms (1555 modules)
+ GET / 200 in 24ms
+ ✓ Compiled in 448ms (1555 modules)
+ GET / 200 in 45ms
+ ✓ Compiled in 411ms (1555 modules)
+ GET / 200 in 33ms
+ ✓ Compiled in 2.9s (2772 modules)
+ GET / 200 in 44ms
+ ✓ Compiled in 471ms (1555 modules)
+ GET / 200 in 19ms
+ ✓ Compiled in 768ms (1555 modules)
+ GET / 200 in 17ms
+ ✓ Compiled in 452ms (1555 modules)
+ GET / 200 in 31ms
+ ✓ Compiled in 559ms (1555 modules)
+ GET / 200 in 24ms
+ ✓ Compiled in 485ms (1555 modules)
+ GET / 200 in 46ms
+ ✓ Compiled in 5.2s (2786 modules)
+ GET / 200 in 3609ms
+ GET / 200 in 282ms
+ ○ Compiling /quick-sale ...
+ ✓ Compiled /quick-sale in 1108ms (1674 modules)
+ GET /quick-sale 200 in 1162ms
+ ○ Compiling /appointments ...
+ ✓ Compiled /appointments in 526ms (3225 modules)
+ GET /appointments 200 in 568ms
+ GET /appointments 200 in 14ms
+ GET /clients 200 in 12ms
+ ✓ Compiled /services in 497ms (3235 modules)
+ GET /services 200 in 527ms
+ GET /services 200 in 10ms
+ ○ Compiling /reports ...
+ ✓ Compiled /reports in 820ms (3252 modules)
+ GET /reports 200 in 877ms
+ GET /reports 200 in 22ms
+ GET /settings 200 in 21ms
+ GET / 200 in 32ms
+ ✓ Compiled in 2.1s (2786 modules)
+ GET / 200 in 117ms
+ ✓ Compiled in 2.7s (2786 modules)
+ GET / 200 in 99ms
+ ✓ Compiled in 950ms (2786 modules)
+ GET / 200 in 51ms
+ ✓ Compiled in 1109ms (2786 modules)
+ GET / 200 in 36ms
+ GET /login 200 in 918ms
+ GET /login 200 in 154ms
+ GET / 200 in 358ms
+ ○ Compiling /clients/new ...
+ ✓ Compiled /clients/new in 4.1s (2788 modules)
+ GET /clients/new 200 in 4271ms
+ GET / 200 in 66ms
+ ○ Compiling /staff/new ...
+ ✓ Compiled /staff/new in 1127ms (2794 modules)
+ GET /staff/new 200 in 1241ms
+ GET /settings 200 in 49ms
+ GET / 200 in 48ms
+ GET /settings 200 in 17ms
+ ○ Compiling /quick-sale ...
+ ✓ Compiled /quick-sale in 1570ms (1677 modules)
+ GET /quick-sale 200 in 1646ms
+ GET /clients 200 in 31ms
+ GET /settings 200 in 31ms
+ ○ Compiling /reports ...
+ ✓ Compiled /reports in 697ms (1694 modules)
+ GET /reports 200 in 746ms
+ GET / 200 in 31ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 1138ms (3241 modules)
+ GET /expenses/new 404 in 1176ms
+ GET /expenses/new 404 in 100ms
+ GET / 200 in 147ms
+ ✓ Compiled in 1276ms (3239 modules)
+ GET / 200 in 153ms
+ ✓ Compiled in 3.7s (3239 modules)
+ GET / 200 in 67ms
+ ✓ Compiled in 1986ms (1566 modules)
+ GET / 200 in 44ms
+ ⨯ ./components/top-nav.tsx:9:1
+Module not found: Can't resolve '@/components/ui/dropdown'
+   7 | import { Badge } from "@/components/ui/badge"
+   8 | import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+>  9 | import {
+     | ^
+  10 |   DropdownMenu,
+  11 |   DropdownMenuContent,
+  12 |   DropdownMenuItem,
+
+https://nextjs.org/docs/messages/module-not-found
+ ✓ Compiled in 2.3s (3243 modules)
+ GET / 200 in 71ms
+ ✓ Compiled in 990ms (1568 modules)
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 765ms (3233 modules)
+ GET / 404 in 837ms
+ GET / 200 in 587ms
+ GET /_next/static/css/app/layout.css?v=1754779520543 404 in 52ms
+ GET /_next/static/chunks/main-app.js?v=1754779520543 404 in 65ms
+ GET /_next/static/chunks/app-pages-internals.js 404 in 65ms
+ GET /_next/static/chunks/app/page.js 404 in 21ms
+ GET / 200 in 118ms
+ ✓ Compiled in 1753ms (3243 modules)
+ ✓ Compiled in 1291ms (3243 modules)
+ GET / 200 in 308ms
+ ✓ Compiled /_not-found in 444ms (3233 modules)
+ GET /_next/static/chunks/main-app.js?v=1754779625688 404 in 465ms
+ GET /_next/static/css/app/layout.css?v=1754779625688 404 in 559ms
+ GET /_next/static/chunks/app-pages-internals.js 404 in 48ms
+ GET /_next/static/chunks/app/page.js 404 in 48ms
+ ✓ Compiled in 1104ms (3233 modules)
+ ✓ Compiled in 358ms (1571 modules)
+ ✓ Compiled in 2.2s (3247 modules)
+ ✓ Compiled in 7.2s (3243 modules)
+ ✓ Compiled in 1084ms (3229 modules)
+ ✓ Compiled in 409ms (1568 modules)
+ ✓ Compiled in 1573ms (3243 modules)
+ ✓ Compiled in 3.6s (3243 modules)
+ ✓ Compiled in 1905ms (1568 modules)
+ ✓ Compiled in 468ms (1568 modules)
+ ✓ Compiled in 451ms (1568 modules)
+ ✓ Compiled in 355ms (1568 modules)
+ ✓ Compiled in 581ms (1568 modules)
+ ✓ Compiled in 412ms (1568 modules)
+ ✓ Compiled in 4.4s (3243 modules)
+ ○ Compiling /login ...
+ ✓ Compiled /login in 2.9s (1683 modules)
+ GET /login 200 in 3213ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 1502ms (3241 modules)
+ GET /_next/static/css/app/layout.css?v=1754779841309 404 in 1644ms
+ GET /_next/static/chunks/main-app.js?v=1754779841309 404 in 1085ms
+ GET /_next/static/chunks/app-pages-internals.js 404 in 39ms
+ GET /_next/static/chunks/app/login/page.js 404 in 39ms
+ GET /login 200 in 125ms
+ GET /_next/static/css/app/layout.css?v=1754779858118 404 in 27ms
+ GET /_next/static/chunks/main-app.js?v=1754779858118 404 in 61ms
+ GET /_next/static/chunks/app-pages-internals.js 404 in 61ms
+ GET /_next/static/chunks/app/login/page.js 404 in 61ms
+[?25h

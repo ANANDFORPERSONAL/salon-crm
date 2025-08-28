@@ -1,0 +1,1610 @@
+[33m[nodemon] 3.1.10[39m
+[33m[nodemon] to restart at any time, enter `rs`[39m
+[33m[nodemon] watching path(s): *.*[39m
+[33m[nodemon] watching extensions: js,mjs,cjs,json[39m
+[32m[nodemon] starting `node server.js`[39m
+(node:40181) [MONGOOSE] Warning: Duplicate schema index on {"phone":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:40181) [MONGODB DRIVER] Warning: useNewUrlParser is a deprecated option: useNewUrlParser has no effect since Node.js Driver version 4.0.0 and will be removed in the next major version
+(node:40181) [MONGODB DRIVER] Warning: useUnifiedTopology is a deprecated option: useUnifiedTopology has no effect since Node.js Driver version 4.0.0 and will be removed in the next major version
+🚀 Salon CRM Backend running on port 3001
+📊 Health check: http://localhost:3001/api/health
+🔐 API Base: http://localhost:3001/api
+MongoDB Connected: localhost
+::1 - - [09/Aug/2025:19:04:13 +0000] "GET /api/auth/profile HTTP/1.1" 403 41 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:04:14 +0000] "POST /api/auth/login HTTP/1.1" 401 47 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:04:18 +0000] "POST /api/auth/login HTTP/1.1" 401 47 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:04:25 +0000] "POST /api/auth/login HTTP/1.1" 200 747 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Dashboard stats requested
+Total services: 1
+Total products: 1
+Total staff: 1
+Total clients: 5
+Total appointments: 0
+Total receipts: 0
+Total revenue: 0
+::1 - - [09/Aug/2025:19:04:27 +0000] "GET /api/reports/dashboard HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Dashboard stats requested
+Total services: 1
+Total products: 1
+Total staff: 1
+Total clients: 5
+Total appointments: 0
+Total receipts: 0
+Total revenue: 0
+::1 - - [09/Aug/2025:19:04:27 +0000] "GET /api/reports/dashboard HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:05:39 +0000] "GET /api/appointments?limit=100 HTTP/1.1" 200 87 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:05:39 +0000] "GET /api/appointments?limit=100 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:08:29 +0000] "GET /api/clients HTTP/1.1" 200 1253 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:08:29 +0000] "GET /api/staff HTTP/1.1" 200 408 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:08:29 +0000] "GET /api/staff HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:08:29 +0000] "GET /api/services HTTP/1.1" 200 308 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:08:29 +0000] "GET /api/services HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:09:01 +0000] "POST /api/appointments HTTP/1.1" 201 603 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:09:01 +0000] "GET /api/appointments?limit=100 HTTP/1.1" 200 618 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:09:01 +0000] "GET /api/appointments?limit=100 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:09:09 +0000] "GET /api/appointments?limit=100 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:09:12 +0000] "GET /api/appointments?limit=100 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:09:15 +0000] "GET /api/appointments?limit=100 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:09:16 +0000] "GET /api/appointments?limit=100 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:09:16 +0000] "GET /api/appointments?limit=100 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:13:40 +0000] "GET /api/services HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:13:40 +0000] "GET /api/clients HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:13:40 +0000] "GET /api/staff HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:13:40 +0000] "GET /api/services HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:13:40 +0000] "GET /api/staff HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:13:41 +0000] "GET /api/appointments?limit=100 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:13:41 +0000] "GET /api/appointments?limit=100 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:18:59 +0000] "GET /api/services HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:18:59 +0000] "GET /api/staff HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:18:59 +0000] "GET /api/clients HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:18:59 +0000] "GET /api/services HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:18:59 +0000] "GET /api/staff HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:19:04 +0000] "GET /api/appointments?limit=100 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:19:04 +0000] "GET /api/appointments?limit=100 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:19:06 +0000] "GET /api/appointments?limit=100 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:19:07 +0000] "GET /api/appointments?limit=100 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:19:08 +0000] "GET /api/services HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:19:08 +0000] "GET /api/staff HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:19:08 +0000] "GET /api/clients HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:19:08 +0000] "GET /api/services HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:19:08 +0000] "GET /api/staff HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:19:24 +0000] "POST /api/appointments HTTP/1.1" 201 566 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:19:24 +0000] "GET /api/appointments?limit=100 HTTP/1.1" 200 1113 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:19:24 +0000] "GET /api/appointments?limit=100 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:19:26 +0000] "GET /api/appointments?limit=100 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:19:32 +0000] "GET /api/services HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:19:32 +0000] "GET /api/clients HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:19:32 +0000] "GET /api/staff HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:19:32 +0000] "GET /api/services HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:19:32 +0000] "GET /api/staff HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:25:48 +0000] "GET /api/auth/profile HTTP/1.1" 200 502 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:25:48 +0000] "GET /api/clients HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:25:48 +0000] "GET /api/services HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:25:48 +0000] "GET /api/users HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:25:48 +0000] "GET /api/services HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:25:48 +0000] "GET /api/users HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:26:01 +0000] "GET /api/users?search= HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:26:01 +0000] "GET /api/users?search= HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:26:07 +0000] "PUT /api/users/688d44b7687dc132d0e75014 HTTP/1.1" 200 495 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:26:07 +0000] "GET /api/users?search= HTTP/1.1" 200 2935 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:26:08 +0000] "GET /api/appointments?limit=100 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:26:08 +0000] "GET /api/appointments?limit=100 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:26:10 +0000] "GET /api/services HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:26:10 +0000] "GET /api/users HTTP/1.1" 200 2935 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:26:10 +0000] "GET /api/clients HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:26:10 +0000] "GET /api/services HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:26:10 +0000] "GET /api/users HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:26:16 +0000] "GET /api/appointments?limit=100 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:26:16 +0000] "GET /api/appointments?limit=100 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:29:03 +0000] "GET /api/appointments?limit=100 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:30:32 +0000] "GET /api/auth/profile HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:30:32 +0000] "GET /api/appointments?limit=100 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:30:32 +0000] "GET /api/appointments?limit=100 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:34:30 +0000] "GET /api/appointments?limit=100 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+=== POS SETTINGS DEBUG ===
+Full settings object: {
+  _id: new ObjectId('6891bfd586fa07625a5da32a'),
+  name: 'Style Sparsh',
+  email: 'stylesparsh@gmail.com',
+  phone: '9879879879',
+  website: '',
+  description: 'Premium salon and spa services in the heart of the city',
+  address: '123 Beauty Street',
+  city: 'New York',
+  state: 'NY',
+  zipCode: '10001',
+  receiptPrefix: 'INV',
+  receiptNumber: 4,
+  autoIncrementReceipt: true,
+  socialMedia: '@stylesparsh',
+  createdAt: 2025-08-05T08:24:53.874Z,
+  updatedAt: 2025-08-06T18:00:36.297Z,
+  __v: 0,
+  invoicePrefix: 'STYLESPARSH-01-',
+  currency: 'USD',
+  enableCurrency: true,
+  enableProcessingFees: true,
+  enableTax: false,
+  processingFee: 2.9,
+  taxRate: 8.25
+}
+settings.invoicePrefix: STYLESPARSH-01-
+settings.receiptPrefix: INV
+settings.receiptNumber: 4
+::1 - - [09/Aug/2025:19:39:14 +0000] "GET /api/settings/pos HTTP/1.1" 200 102 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:39:14 +0000] "GET /api/settings/business HTTP/1.1" 200 634 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:39:14 +0000] "GET /api/settings/payment HTTP/1.1" 200 145 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+=== POS SETTINGS DEBUG ===
+Full settings object: {
+  _id: new ObjectId('6891bfd586fa07625a5da32a'),
+  name: 'Style Sparsh',
+  email: 'stylesparsh@gmail.com',
+  phone: '9879879879',
+  website: '',
+  description: 'Premium salon and spa services in the heart of the city',
+  address: '123 Beauty Street',
+  city: 'New York',
+  state: 'NY',
+  zipCode: '10001',
+  receiptPrefix: 'INV',
+  receiptNumber: 4,
+  autoIncrementReceipt: true,
+  socialMedia: '@stylesparsh',
+  createdAt: 2025-08-05T08:24:53.874Z,
+  updatedAt: 2025-08-06T18:00:36.297Z,
+  __v: 0,
+  invoicePrefix: 'STYLESPARSH-01-',
+  currency: 'USD',
+  enableCurrency: true,
+  enableProcessingFees: true,
+  enableTax: false,
+  processingFee: 2.9,
+  taxRate: 8.25
+}
+settings.invoicePrefix: STYLESPARSH-01-
+settings.receiptPrefix: INV
+settings.receiptNumber: 4
+::1 - - [09/Aug/2025:19:39:14 +0000] "GET /api/settings/pos HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:39:14 +0000] "GET /api/settings/business HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:39:14 +0000] "GET /api/settings/payment HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:39:14 +0000] "GET /api/users HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:39:14 +0000] "GET /api/products HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:39:14 +0000] "GET /api/services HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:39:14 +0000] "GET /api/users HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:39:14 +0000] "GET /api/products HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:39:14 +0000] "GET /api/services HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:39:14 +0000] "GET /api/clients HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:40:08 +0000] "GET /api/appointments?limit=100 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:40:08 +0000] "GET /api/appointments?limit=100 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:40:11 +0000] "GET /api/settings/business HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+=== POS SETTINGS DEBUG ===
+Full settings object: {
+  _id: new ObjectId('6891bfd586fa07625a5da32a'),
+  name: 'Style Sparsh',
+  email: 'stylesparsh@gmail.com',
+  phone: '9879879879',
+  website: '',
+  description: 'Premium salon and spa services in the heart of the city',
+  address: '123 Beauty Street',
+  city: 'New York',
+  state: 'NY',
+  zipCode: '10001',
+  receiptPrefix: 'INV',
+  receiptNumber: 4,
+  autoIncrementReceipt: true,
+  socialMedia: '@stylesparsh',
+  createdAt: 2025-08-05T08:24:53.874Z,
+  updatedAt: 2025-08-06T18:00:36.297Z,
+  __v: 0,
+  invoicePrefix: 'STYLESPARSH-01-',
+  currency: 'USD',
+  enableCurrency: true,
+  enableProcessingFees: true,
+  enableTax: false,
+  processingFee: 2.9,
+  taxRate: 8.25
+}
+settings.invoicePrefix: STYLESPARSH-01-
+settings.receiptPrefix: INV
+settings.receiptNumber: 4
+::1 - - [09/Aug/2025:19:40:11 +0000] "GET /api/settings/pos HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:40:11 +0000] "GET /api/services HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:40:11 +0000] "GET /api/products HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:40:11 +0000] "GET /api/users HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:40:11 +0000] "GET /api/settings/payment HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:40:11 +0000] "GET /api/settings/business HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+=== POS SETTINGS DEBUG ===
+Full settings object: {
+  _id: new ObjectId('6891bfd586fa07625a5da32a'),
+  name: 'Style Sparsh',
+  email: 'stylesparsh@gmail.com',
+  phone: '9879879879',
+  website: '',
+  description: 'Premium salon and spa services in the heart of the city',
+  address: '123 Beauty Street',
+  city: 'New York',
+  state: 'NY',
+  zipCode: '10001',
+  receiptPrefix: 'INV',
+  receiptNumber: 4,
+  autoIncrementReceipt: true,
+  socialMedia: '@stylesparsh',
+  createdAt: 2025-08-05T08:24:53.874Z,
+  updatedAt: 2025-08-06T18:00:36.297Z,
+  __v: 0,
+  invoicePrefix: 'STYLESPARSH-01-',
+  currency: 'USD',
+  enableCurrency: true,
+  enableProcessingFees: true,
+  enableTax: false,
+  processingFee: 2.9,
+  taxRate: 8.25
+}
+settings.invoicePrefix: STYLESPARSH-01-
+settings.receiptPrefix: INV
+settings.receiptNumber: 4
+::1 - - [09/Aug/2025:19:40:11 +0000] "GET /api/settings/pos HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:40:11 +0000] "GET /api/clients HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:40:11 +0000] "GET /api/services HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:40:11 +0000] "GET /api/products HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:40:11 +0000] "GET /api/users HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:40:11 +0000] "GET /api/settings/payment HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:41:17 +0000] "GET /api/clients HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:41:17 +0000] "GET /api/auth/profile HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:41:17 +0000] "GET /api/services HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:41:17 +0000] "GET /api/settings/business HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+=== POS SETTINGS DEBUG ===
+Full settings object: {
+  _id: new ObjectId('6891bfd586fa07625a5da32a'),
+  name: 'Style Sparsh',
+  email: 'stylesparsh@gmail.com',
+  phone: '9879879879',
+  website: '',
+  description: 'Premium salon and spa services in the heart of the city',
+  address: '123 Beauty Street',
+  city: 'New York',
+  state: 'NY',
+  zipCode: '10001',
+  receiptPrefix: 'INV',
+  receiptNumber: 4,
+  autoIncrementReceipt: true,
+  socialMedia: '@stylesparsh',
+  createdAt: 2025-08-05T08:24:53.874Z,
+  updatedAt: 2025-08-06T18:00:36.297Z,
+  __v: 0,
+  invoicePrefix: 'STYLESPARSH-01-',
+  currency: 'USD',
+  enableCurrency: true,
+  enableProcessingFees: true,
+  enableTax: false,
+  processingFee: 2.9,
+  taxRate: 8.25
+}
+settings.invoicePrefix: STYLESPARSH-01-
+settings.receiptPrefix: INV
+settings.receiptNumber: 4
+::1 - - [09/Aug/2025:19:41:17 +0000] "GET /api/settings/pos HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:41:17 +0000] "GET /api/clients HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:41:17 +0000] "GET /api/users HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:41:17 +0000] "GET /api/products HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:41:17 +0000] "GET /api/settings/payment HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:41:17 +0000] "GET /api/settings/business HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+=== POS SETTINGS DEBUG ===
+Full settings object: {
+  _id: new ObjectId('6891bfd586fa07625a5da32a'),
+  name: 'Style Sparsh',
+  email: 'stylesparsh@gmail.com',
+  phone: '9879879879',
+  website: '',
+  description: 'Premium salon and spa services in the heart of the city',
+  address: '123 Beauty Street',
+  city: 'New York',
+  state: 'NY',
+  zipCode: '10001',
+  receiptPrefix: 'INV',
+  receiptNumber: 4,
+  autoIncrementReceipt: true,
+  socialMedia: '@stylesparsh',
+  createdAt: 2025-08-05T08:24:53.874Z,
+  updatedAt: 2025-08-06T18:00:36.297Z,
+  __v: 0,
+  invoicePrefix: 'STYLESPARSH-01-',
+  currency: 'USD',
+  enableCurrency: true,
+  enableProcessingFees: true,
+  enableTax: false,
+  processingFee: 2.9,
+  taxRate: 8.25
+}
+settings.invoicePrefix: STYLESPARSH-01-
+settings.receiptPrefix: INV
+settings.receiptNumber: 4
+::1 - - [09/Aug/2025:19:41:17 +0000] "GET /api/settings/pos HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:41:17 +0000] "GET /api/settings/payment HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:41:17 +0000] "GET /api/services HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:41:17 +0000] "GET /api/users HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:41:17 +0000] "GET /api/products HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:46:02 +0000] "GET /api/appointments?limit=100 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:46:02 +0000] "GET /api/appointments?limit=100 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:46:04 +0000] "GET /api/settings/business HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+=== POS SETTINGS DEBUG ===
+Full settings object: {
+  _id: new ObjectId('6891bfd586fa07625a5da32a'),
+  name: 'Style Sparsh',
+  email: 'stylesparsh@gmail.com',
+  phone: '9879879879',
+  website: '',
+  description: 'Premium salon and spa services in the heart of the city',
+  address: '123 Beauty Street',
+  city: 'New York',
+  state: 'NY',
+  zipCode: '10001',
+  receiptPrefix: 'INV',
+  receiptNumber: 4,
+  autoIncrementReceipt: true,
+  socialMedia: '@stylesparsh',
+  createdAt: 2025-08-05T08:24:53.874Z,
+  updatedAt: 2025-08-06T18:00:36.297Z,
+  __v: 0,
+  invoicePrefix: 'STYLESPARSH-01-',
+  currency: 'USD',
+  enableCurrency: true,
+  enableProcessingFees: true,
+  enableTax: false,
+  processingFee: 2.9,
+  taxRate: 8.25
+}
+settings.invoicePrefix: STYLESPARSH-01-
+settings.receiptPrefix: INV
+settings.receiptNumber: 4
+::1 - - [09/Aug/2025:19:46:04 +0000] "GET /api/settings/pos HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:46:04 +0000] "GET /api/products HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:46:04 +0000] "GET /api/clients HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:46:04 +0000] "GET /api/users HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:46:04 +0000] "GET /api/services HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:46:04 +0000] "GET /api/settings/payment HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:46:04 +0000] "GET /api/settings/business HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+=== POS SETTINGS DEBUG ===
+Full settings object: {
+  _id: new ObjectId('6891bfd586fa07625a5da32a'),
+  name: 'Style Sparsh',
+  email: 'stylesparsh@gmail.com',
+  phone: '9879879879',
+  website: '',
+  description: 'Premium salon and spa services in the heart of the city',
+  address: '123 Beauty Street',
+  city: 'New York',
+  state: 'NY',
+  zipCode: '10001',
+  receiptPrefix: 'INV',
+  receiptNumber: 4,
+  autoIncrementReceipt: true,
+  socialMedia: '@stylesparsh',
+  createdAt: 2025-08-05T08:24:53.874Z,
+  updatedAt: 2025-08-06T18:00:36.297Z,
+  __v: 0,
+  invoicePrefix: 'STYLESPARSH-01-',
+  currency: 'USD',
+  enableCurrency: true,
+  enableProcessingFees: true,
+  enableTax: false,
+  processingFee: 2.9,
+  taxRate: 8.25
+}
+settings.invoicePrefix: STYLESPARSH-01-
+settings.receiptPrefix: INV
+settings.receiptNumber: 4
+::1 - - [09/Aug/2025:19:46:04 +0000] "GET /api/settings/pos HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:46:04 +0000] "GET /api/products HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:46:04 +0000] "GET /api/services HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:46:04 +0000] "GET /api/users HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:46:04 +0000] "GET /api/settings/payment HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:46:30 +0000] "GET /api/appointments?limit=100 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:46:30 +0000] "GET /api/appointments?limit=100 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:46:37 +0000] "GET /api/services HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:46:37 +0000] "GET /api/users HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:46:37 +0000] "GET /api/clients HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:46:37 +0000] "GET /api/services HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:46:37 +0000] "GET /api/users HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:46:55 +0000] "POST /api/appointments HTTP/1.1" 201 501 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:46:55 +0000] "GET /api/appointments?limit=100 HTTP/1.1" 200 1543 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:46:55 +0000] "GET /api/appointments?limit=100 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:47:27 +0000] "GET /api/auth/profile HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:47:27 +0000] "GET /api/appointments?limit=100 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:47:27 +0000] "GET /api/appointments?limit=100 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:47:33 +0000] "GET /api/clients HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:47:33 +0000] "GET /api/auth/profile HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:47:33 +0000] "GET /api/products HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:47:33 +0000] "GET /api/settings/business HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+=== POS SETTINGS DEBUG ===
+Full settings object: {
+  _id: new ObjectId('6891bfd586fa07625a5da32a'),
+  name: 'Style Sparsh',
+  email: 'stylesparsh@gmail.com',
+  phone: '9879879879',
+  website: '',
+  description: 'Premium salon and spa services in the heart of the city',
+  address: '123 Beauty Street',
+  city: 'New York',
+  state: 'NY',
+  zipCode: '10001',
+  receiptPrefix: 'INV',
+  receiptNumber: 4,
+  autoIncrementReceipt: true,
+  socialMedia: '@stylesparsh',
+  createdAt: 2025-08-05T08:24:53.874Z,
+  updatedAt: 2025-08-06T18:00:36.297Z,
+  __v: 0,
+  invoicePrefix: 'STYLESPARSH-01-',
+  currency: 'USD',
+  enableCurrency: true,
+  enableProcessingFees: true,
+  enableTax: false,
+  processingFee: 2.9,
+  taxRate: 8.25
+}
+settings.invoicePrefix: STYLESPARSH-01-
+settings.receiptPrefix: INV
+settings.receiptNumber: 4
+::1 - - [09/Aug/2025:19:47:33 +0000] "GET /api/settings/pos HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:47:33 +0000] "GET /api/clients HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:47:33 +0000] "GET /api/services HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:47:33 +0000] "GET /api/users HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:47:33 +0000] "GET /api/settings/payment HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:47:33 +0000] "GET /api/products HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+=== POS SETTINGS DEBUG ===
+Full settings object: {
+  _id: new ObjectId('6891bfd586fa07625a5da32a'),
+  name: 'Style Sparsh',
+  email: 'stylesparsh@gmail.com',
+  phone: '9879879879',
+  website: '',
+  description: 'Premium salon and spa services in the heart of the city',
+  address: '123 Beauty Street',
+  city: 'New York',
+  state: 'NY',
+  zipCode: '10001',
+  receiptPrefix: 'INV',
+  receiptNumber: 4,
+  autoIncrementReceipt: true,
+  socialMedia: '@stylesparsh',
+  createdAt: 2025-08-05T08:24:53.874Z,
+  updatedAt: 2025-08-06T18:00:36.297Z,
+  __v: 0,
+  invoicePrefix: 'STYLESPARSH-01-',
+  currency: 'USD',
+  enableCurrency: true,
+  enableProcessingFees: true,
+  enableTax: false,
+  processingFee: 2.9,
+  taxRate: 8.25
+}
+settings.invoicePrefix: STYLESPARSH-01-
+settings.receiptPrefix: INV
+settings.receiptNumber: 4
+::1 - - [09/Aug/2025:19:47:33 +0000] "GET /api/settings/pos HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:47:33 +0000] "GET /api/settings/business HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:47:33 +0000] "GET /api/settings/payment HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:47:33 +0000] "GET /api/services HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:47:33 +0000] "GET /api/users HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:47:34 +0000] "GET /api/appointments?limit=100 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:47:34 +0000] "GET /api/appointments?limit=100 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:49:02 +0000] "GET /api/auth/profile HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:49:02 +0000] "GET /api/appointments?limit=100 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:49:02 +0000] "GET /api/appointments?limit=100 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:49:37 +0000] "GET /api/appointments?limit=100 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:49:39 +0000] "GET /api/appointments?limit=100 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:49:56 +0000] "GET /api/appointments?limit=100 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:49:58 +0000] "GET /api/appointments?limit=100 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:50:09 +0000] "GET /api/clients HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:50:14 +0000] "GET /api/clients HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:50:14 +0000] "GET /api/auth/profile HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:50:17 +0000] "GET /api/services HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:50:17 +0000] "GET /api/services HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:50:17 +0000] "GET /api/services HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:50:17 +0000] "GET /api/services HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:50:20 +0000] "GET /api/products HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:50:20 +0000] "GET /api/products HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:50:20 +0000] "GET /api/products HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:50:20 +0000] "GET /api/products HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:50:27 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:50:27 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Dashboard stats requested
+Total services: 1
+Total products: 1
+Total staff: 1
+Total clients: 5
+Total appointments: 3
+Total receipts: 0
+Total revenue: 0
+::1 - - [09/Aug/2025:19:50:32 +0000] "GET /api/reports/dashboard HTTP/1.1" 200 150 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Dashboard stats requested
+Total services: 1
+Total products: 1
+Total staff: 1
+Total clients: 5
+Total appointments: 3
+Total receipts: 0
+Total revenue: 0
+::1 - - [09/Aug/2025:19:50:32 +0000] "GET /api/reports/dashboard HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:50:44 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:50:44 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Dashboard stats requested
+Total services: 1
+Total products: 1
+Total staff: 1
+Total clients: 5
+Total appointments: 3
+Total receipts: 0
+Total revenue: 0
+::1 - - [09/Aug/2025:19:50:48 +0000] "GET /api/reports/dashboard HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Dashboard stats requested
+Total services: 1
+Total products: 1
+Total staff: 1
+Total clients: 5
+Total appointments: 3
+Total receipts: 0
+Total revenue: 0
+::1 - - [09/Aug/2025:19:50:48 +0000] "GET /api/reports/dashboard HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:54:03 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:54:03 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Dashboard stats requested
+::1 - - [09/Aug/2025:19:56:26 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:56:26 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total services: 1
+Total products: 1
+Total staff: 1
+Total clients: 5
+Total appointments: 3
+Total receipts: 0
+Total revenue: 0
+::1 - - [09/Aug/2025:19:56:26 +0000] "GET /api/reports/dashboard HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Dashboard stats requested
+Total services: 1
+Total products: 1
+Total staff: 1
+Total clients: 5
+Total appointments: 3
+Total receipts: 0
+Total revenue: 0
+::1 - - [09/Aug/2025:19:56:26 +0000] "GET /api/reports/dashboard HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:56:29 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:19:56:29 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Dashboard stats requested
+Total services: 1
+::1 - - [09/Aug/2025:19:56:30 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total products: 1
+Total staff: 1
+::1 - - [09/Aug/2025:19:56:30 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total clients: 5
+Total appointments: 3
+Total receipts: 0
+Total revenue: 0
+::1 - - [09/Aug/2025:19:56:30 +0000] "GET /api/reports/dashboard HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Dashboard stats requested
+Total services: 1
+Total products: 1
+Total staff: 1
+Total clients: 5
+Total appointments: 3
+Total receipts: 0
+Total revenue: 0
+::1 - - [09/Aug/2025:19:56:30 +0000] "GET /api/reports/dashboard HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:01:32 +0000] "GET /api/auth/profile HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Dashboard stats requested
+::1 - - [09/Aug/2025:20:01:32 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:01:32 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total services: 1
+Total products: 1
+Total staff: 1
+Total clients: 5
+Total appointments: 3
+Total receipts: 0
+Total revenue: 0
+::1 - - [09/Aug/2025:20:01:32 +0000] "GET /api/reports/dashboard HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:01:32 +0000] "GET /api/appointments?limit=200&date=2025-08-10 HTTP/1.1" 200 516 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Dashboard stats requested
+Total services: 1
+Total products: 1
+Total staff: 1
+::1 - - [09/Aug/2025:20:01:32 +0000] "GET /api/appointments?limit=200&date=2025-08-10 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total clients: 5
+Total appointments: 3
+Total receipts: 0
+Total revenue: 0
+::1 - - [09/Aug/2025:20:01:32 +0000] "GET /api/reports/dashboard HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:04:13 +0000] "GET /api/appointments?limit=5 HTTP/1.1" 200 1541 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:04:13 +0000] "GET /api/appointments?limit=5 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:04:42 +0000] "GET /api/auth/profile HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Dashboard stats requested
+Total services: 1
+::1 - - [09/Aug/2025:20:04:42 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total products: 1
+::1 - - [09/Aug/2025:20:04:42 +0000] "GET /api/appointments?limit=500 HTTP/1.1" 200 1543 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:04:42 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total staff: 1
+Total clients: 5
+::1 - - [09/Aug/2025:20:04:42 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:04:42 +0000] "GET /api/appointments?limit=5 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total appointments: 3
+::1 - - [09/Aug/2025:20:04:42 +0000] "GET /api/appointments?limit=200&date=2025-08-10 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total receipts: 0
+::1 - - [09/Aug/2025:20:04:42 +0000] "GET /api/appointments?limit=500 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total revenue: 0
+::1 - - [09/Aug/2025:20:04:42 +0000] "GET /api/reports/dashboard HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:04:42 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Dashboard stats requested
+::1 - - [09/Aug/2025:20:04:42 +0000] "GET /api/appointments?limit=5 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total services: 1
+::1 - - [09/Aug/2025:20:04:42 +0000] "GET /api/appointments?limit=200&date=2025-08-10 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total products: 1
+Total staff: 1
+Total clients: 5
+Total appointments: 3
+Total receipts: 0
+Total revenue: 0
+::1 - - [09/Aug/2025:20:04:42 +0000] "GET /api/reports/dashboard HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:05:54 +0000] "GET /api/appointments?limit=100 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:05:54 +0000] "GET /api/appointments?limit=100 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:05:56 +0000] "GET /api/clients HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:05:56 +0000] "GET /api/settings/business HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:05:56 +0000] "GET /api/clients HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:05:56 +0000] "GET /api/services HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+=== POS SETTINGS DEBUG ===
+Full settings object: {
+  _id: new ObjectId('6891bfd586fa07625a5da32a'),
+  name: 'Style Sparsh',
+  email: 'stylesparsh@gmail.com',
+  phone: '9879879879',
+  website: '',
+  description: 'Premium salon and spa services in the heart of the city',
+  address: '123 Beauty Street',
+  city: 'New York',
+  state: 'NY',
+  zipCode: '10001',
+  receiptPrefix: 'INV',
+  receiptNumber: 4,
+  autoIncrementReceipt: true,
+  socialMedia: '@stylesparsh',
+  createdAt: 2025-08-05T08:24:53.874Z,
+  updatedAt: 2025-08-06T18:00:36.297Z,
+  __v: 0,
+  invoicePrefix: 'STYLESPARSH-01-',
+  currency: 'USD',
+  enableCurrency: true,
+  enableProcessingFees: true,
+  enableTax: false,
+  processingFee: 2.9,
+  taxRate: 8.25
+}
+settings.invoicePrefix: STYLESPARSH-01-
+settings.receiptPrefix: INV
+settings.receiptNumber: 4
+::1 - - [09/Aug/2025:20:05:56 +0000] "GET /api/settings/pos HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:05:56 +0000] "GET /api/users HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:05:56 +0000] "GET /api/products HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:05:56 +0000] "GET /api/settings/business HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:05:56 +0000] "GET /api/settings/payment HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:05:56 +0000] "GET /api/services HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+=== POS SETTINGS DEBUG ===
+Full settings object: {
+  _id: new ObjectId('6891bfd586fa07625a5da32a'),
+  name: 'Style Sparsh',
+  email: 'stylesparsh@gmail.com',
+  phone: '9879879879',
+  website: '',
+  description: 'Premium salon and spa services in the heart of the city',
+  address: '123 Beauty Street',
+  city: 'New York',
+  state: 'NY',
+  zipCode: '10001',
+  receiptPrefix: 'INV',
+  receiptNumber: 4,
+  autoIncrementReceipt: true,
+  socialMedia: '@stylesparsh',
+  createdAt: 2025-08-05T08:24:53.874Z,
+  updatedAt: 2025-08-06T18:00:36.297Z,
+  __v: 0,
+  invoicePrefix: 'STYLESPARSH-01-',
+  currency: 'USD',
+  enableCurrency: true,
+  enableProcessingFees: true,
+  enableTax: false,
+  processingFee: 2.9,
+  taxRate: 8.25
+}
+settings.invoicePrefix: STYLESPARSH-01-
+settings.receiptPrefix: INV
+settings.receiptNumber: 4
+::1 - - [09/Aug/2025:20:05:56 +0000] "GET /api/settings/pos HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:05:56 +0000] "GET /api/users HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:05:56 +0000] "GET /api/settings/payment HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:05:56 +0000] "GET /api/products HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:06:00 +0000] "GET /api/appointments?limit=100 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:06:00 +0000] "GET /api/appointments?limit=100 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:06:03 +0000] "GET /api/services HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:06:03 +0000] "GET /api/services HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:06:03 +0000] "GET /api/services HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:06:03 +0000] "GET /api/services HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:06:34 +0000] "POST /api/services HTTP/1.1" 201 246 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:06:35 +0000] "GET /api/services HTTP/1.1" 200 531 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:06:35 +0000] "GET /api/services HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:06:36 +0000] "GET /api/settings/business HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:06:36 +0000] "GET /api/services HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:06:36 +0000] "GET /api/products HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:06:36 +0000] "GET /api/settings/payment HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+=== POS SETTINGS DEBUG ===
+Full settings object: {
+  _id: new ObjectId('6891bfd586fa07625a5da32a'),
+  name: 'Style Sparsh',
+  email: 'stylesparsh@gmail.com',
+  phone: '9879879879',
+  website: '',
+  description: 'Premium salon and spa services in the heart of the city',
+  address: '123 Beauty Street',
+  city: 'New York',
+  state: 'NY',
+  zipCode: '10001',
+  receiptPrefix: 'INV',
+  receiptNumber: 4,
+  autoIncrementReceipt: true,
+  socialMedia: '@stylesparsh',
+  createdAt: 2025-08-05T08:24:53.874Z,
+  updatedAt: 2025-08-06T18:00:36.297Z,
+  __v: 0,
+  invoicePrefix: 'STYLESPARSH-01-',
+  currency: 'USD',
+  enableCurrency: true,
+  enableProcessingFees: true,
+  enableTax: false,
+  processingFee: 2.9,
+  taxRate: 8.25
+}
+settings.invoicePrefix: STYLESPARSH-01-
+settings.receiptPrefix: INV
+settings.receiptNumber: 4
+::1 - - [09/Aug/2025:20:06:36 +0000] "GET /api/settings/pos HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:06:36 +0000] "GET /api/users HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:06:36 +0000] "GET /api/settings/business HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:06:36 +0000] "GET /api/clients HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:06:36 +0000] "GET /api/settings/payment HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+=== POS SETTINGS DEBUG ===
+Full settings object: {
+  _id: new ObjectId('6891bfd586fa07625a5da32a'),
+  name: 'Style Sparsh',
+  email: 'stylesparsh@gmail.com',
+  phone: '9879879879',
+  website: '',
+  description: 'Premium salon and spa services in the heart of the city',
+  address: '123 Beauty Street',
+  city: 'New York',
+  state: 'NY',
+  zipCode: '10001',
+  receiptPrefix: 'INV',
+  receiptNumber: 4,
+  autoIncrementReceipt: true,
+  socialMedia: '@stylesparsh',
+  createdAt: 2025-08-05T08:24:53.874Z,
+  updatedAt: 2025-08-06T18:00:36.297Z,
+  __v: 0,
+  invoicePrefix: 'STYLESPARSH-01-',
+  currency: 'USD',
+  enableCurrency: true,
+  enableProcessingFees: true,
+  enableTax: false,
+  processingFee: 2.9,
+  taxRate: 8.25
+}
+settings.invoicePrefix: STYLESPARSH-01-
+settings.receiptPrefix: INV
+settings.receiptNumber: 4
+::1 - - [09/Aug/2025:20:06:36 +0000] "GET /api/settings/pos HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:06:36 +0000] "GET /api/products HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:06:36 +0000] "GET /api/services HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:06:36 +0000] "GET /api/users HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:06:45 +0000] "GET /api/appointments?limit=100 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:06:45 +0000] "GET /api/appointments?limit=100 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:06:47 +0000] "GET /api/users HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:06:47 +0000] "GET /api/clients HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:06:47 +0000] "GET /api/services HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:06:47 +0000] "GET /api/users HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:06:47 +0000] "GET /api/services HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:07:01 +0000] "GET /api/services HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:07:01 +0000] "GET /api/services HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:07:01 +0000] "GET /api/services HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:07:01 +0000] "GET /api/services HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:07:02 +0000] "GET /api/products HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:07:02 +0000] "GET /api/products HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:07:02 +0000] "GET /api/products HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:07:02 +0000] "GET /api/products HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:07:17 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:07:17 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Dashboard stats requested
+::1 - - [09/Aug/2025:20:14:38 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:14:38 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:14:38 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:14:38 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total services: 2
+Total products: 1
+::1 - - [09/Aug/2025:20:14:38 +0000] "GET /api/appointments?limit=5 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:14:38 +0000] "GET /api/appointments?limit=200&date=2025-08-10 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:14:38 +0000] "GET /api/appointments?limit=500 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total staff: 1
+Total clients: 5
+Total appointments: 3
+Total receipts: 0
+::1 - - [09/Aug/2025:20:14:38 +0000] "GET /api/appointments?limit=200&date=2025-08-10 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total revenue: 0
+::1 - - [09/Aug/2025:20:14:38 +0000] "GET /api/reports/dashboard HTTP/1.1" 200 150 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:14:38 +0000] "GET /api/appointments?limit=5 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:14:38 +0000] "GET /api/appointments?limit=500 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Dashboard stats requested
+Total services: 2
+Total products: 1
+Total staff: 1
+Total clients: 5
+Total appointments: 3
+Total receipts: 0
+Total revenue: 0
+::1 - - [09/Aug/2025:20:14:38 +0000] "GET /api/reports/dashboard HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:14:41 +0000] "POST /api/auth/logout HTTP/1.1" 200 52 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:14:50 +0000] "POST /api/auth/login HTTP/1.1" 200 747 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Dashboard stats requested
+Total services: 2
+::1 - - [09/Aug/2025:20:14:50 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total products: 1
+Total staff: 1
+::1 - - [09/Aug/2025:20:14:50 +0000] "GET /api/appointments?limit=500 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:14:50 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total clients: 5
+::1 - - [09/Aug/2025:20:14:50 +0000] "GET /api/appointments?limit=5 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total appointments: 3
+::1 - - [09/Aug/2025:20:14:50 +0000] "GET /api/appointments?limit=200&date=2025-08-10 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total receipts: 0
+Total revenue: 0
+::1 - - [09/Aug/2025:20:14:50 +0000] "GET /api/reports/dashboard HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:14:50 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Dashboard stats requested
+::1 - - [09/Aug/2025:20:14:50 +0000] "GET /api/appointments?limit=500 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total services: 2
+Total products: 1
+::1 - - [09/Aug/2025:20:14:50 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:14:50 +0000] "GET /api/appointments?limit=200&date=2025-08-10 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total staff: 1
+::1 - - [09/Aug/2025:20:14:50 +0000] "GET /api/appointments?limit=5 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total clients: 5
+Total appointments: 3
+Total receipts: 0
+Total revenue: 0
+::1 - - [09/Aug/2025:20:14:50 +0000] "GET /api/reports/dashboard HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:14:53 +0000] "POST /api/auth/logout HTTP/1.1" 200 52 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:15:16 +0000] "POST /api/auth/login HTTP/1.1" 200 747 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Dashboard stats requested
+Total services: 2
+::1 - - [09/Aug/2025:20:15:16 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total products: 1
+Total staff: 1
+::1 - - [09/Aug/2025:20:15:16 +0000] "GET /api/appointments?limit=200&date=2025-08-10 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total clients: 5
+::1 - - [09/Aug/2025:20:15:16 +0000] "GET /api/appointments?limit=500 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:15:16 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total appointments: 3
+::1 - - [09/Aug/2025:20:15:16 +0000] "GET /api/appointments?limit=5 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total receipts: 0
+Total revenue: 0
+::1 - - [09/Aug/2025:20:15:16 +0000] "GET /api/reports/dashboard HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:15:16 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Dashboard stats requested
+::1 - - [09/Aug/2025:20:15:16 +0000] "GET /api/appointments?limit=200&date=2025-08-10 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:15:16 +0000] "GET /api/appointments?limit=500 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:15:16 +0000] "GET /api/appointments?limit=5 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total services: 2
+::1 - - [09/Aug/2025:20:15:16 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total products: 1
+Total staff: 1
+Total clients: 5
+Total appointments: 3
+Total receipts: 0
+Total revenue: 0
+::1 - - [09/Aug/2025:20:15:16 +0000] "GET /api/reports/dashboard HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:16:43 +0000] "GET /api/settings/business HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+=== POS SETTINGS DEBUG ===
+Full settings object: {
+  _id: new ObjectId('6891bfd586fa07625a5da32a'),
+  name: 'Style Sparsh',
+  email: 'stylesparsh@gmail.com',
+  phone: '9879879879',
+  website: '',
+  description: 'Premium salon and spa services in the heart of the city',
+  address: '123 Beauty Street',
+  city: 'New York',
+  state: 'NY',
+  zipCode: '10001',
+  receiptPrefix: 'INV',
+  receiptNumber: 4,
+  autoIncrementReceipt: true,
+  socialMedia: '@stylesparsh',
+  createdAt: 2025-08-05T08:24:53.874Z,
+  updatedAt: 2025-08-06T18:00:36.297Z,
+  __v: 0,
+  invoicePrefix: 'STYLESPARSH-01-',
+  currency: 'USD',
+  enableCurrency: true,
+  enableProcessingFees: true,
+  enableTax: false,
+  processingFee: 2.9,
+  taxRate: 8.25
+}
+settings.invoicePrefix: STYLESPARSH-01-
+settings.receiptPrefix: INV
+settings.receiptNumber: 4
+::1 - - [09/Aug/2025:20:16:43 +0000] "GET /api/settings/pos HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:16:43 +0000] "GET /api/clients HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:16:43 +0000] "GET /api/products HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:16:43 +0000] "GET /api/services HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:16:43 +0000] "GET /api/users HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+=== POS SETTINGS DEBUG ===
+Full settings object: {
+  _id: new ObjectId('6891bfd586fa07625a5da32a'),
+  name: 'Style Sparsh',
+  email: 'stylesparsh@gmail.com',
+  phone: '9879879879',
+  website: '',
+  description: 'Premium salon and spa services in the heart of the city',
+  address: '123 Beauty Street',
+  city: 'New York',
+  state: 'NY',
+  zipCode: '10001',
+  receiptPrefix: 'INV',
+  receiptNumber: 4,
+  autoIncrementReceipt: true,
+  socialMedia: '@stylesparsh',
+  createdAt: 2025-08-05T08:24:53.874Z,
+  updatedAt: 2025-08-06T18:00:36.297Z,
+  __v: 0,
+  invoicePrefix: 'STYLESPARSH-01-',
+  currency: 'USD',
+  enableCurrency: true,
+  enableProcessingFees: true,
+  enableTax: false,
+  processingFee: 2.9,
+  taxRate: 8.25
+}
+settings.invoicePrefix: STYLESPARSH-01-
+settings.receiptPrefix: INV
+settings.receiptNumber: 4
+::1 - - [09/Aug/2025:20:16:43 +0000] "GET /api/settings/pos HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:16:43 +0000] "GET /api/settings/payment HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:16:43 +0000] "GET /api/settings/business HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:16:43 +0000] "GET /api/products HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:16:43 +0000] "GET /api/services HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:16:43 +0000] "GET /api/settings/payment HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:16:43 +0000] "GET /api/users HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Dashboard stats requested
+::1 - - [09/Aug/2025:20:16:45 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total services: 2
+::1 - - [09/Aug/2025:20:16:45 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total products: 1
+::1 - - [09/Aug/2025:20:16:45 +0000] "GET /api/appointments?limit=200&date=2025-08-10 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:16:45 +0000] "GET /api/appointments?limit=500 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:16:45 +0000] "GET /api/appointments?limit=5 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:16:45 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total staff: 1
+Total clients: 5
+Total appointments: 3
+Total receipts: 0
+::1 - - [09/Aug/2025:20:16:45 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:16:45 +0000] "GET /api/appointments?limit=200&date=2025-08-10 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total revenue: 0
+::1 - - [09/Aug/2025:20:16:45 +0000] "GET /api/reports/dashboard HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:16:45 +0000] "GET /api/appointments?limit=500 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Dashboard stats requested
+::1 - - [09/Aug/2025:20:16:45 +0000] "GET /api/appointments?limit=5 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total services: 2
+Total products: 1
+Total staff: 1
+Total clients: 5
+Total appointments: 3
+Total receipts: 0
+Total revenue: 0
+::1 - - [09/Aug/2025:20:16:45 +0000] "GET /api/reports/dashboard HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:16:46 +0000] "GET /api/settings/business HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:16:46 +0000] "GET /api/services HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:16:46 +0000] "GET /api/products HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:16:46 +0000] "GET /api/users HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+=== POS SETTINGS DEBUG ===
+Full settings object: {
+  _id: new ObjectId('6891bfd586fa07625a5da32a'),
+  name: 'Style Sparsh',
+  email: 'stylesparsh@gmail.com',
+  phone: '9879879879',
+  website: '',
+  description: 'Premium salon and spa services in the heart of the city',
+  address: '123 Beauty Street',
+  city: 'New York',
+  state: 'NY',
+  zipCode: '10001',
+  receiptPrefix: 'INV',
+  receiptNumber: 4,
+  autoIncrementReceipt: true,
+  socialMedia: '@stylesparsh',
+  createdAt: 2025-08-05T08:24:53.874Z,
+  updatedAt: 2025-08-06T18:00:36.297Z,
+  __v: 0,
+  invoicePrefix: 'STYLESPARSH-01-',
+  currency: 'USD',
+  enableCurrency: true,
+  enableProcessingFees: true,
+  enableTax: false,
+  processingFee: 2.9,
+  taxRate: 8.25
+}
+settings.invoicePrefix: STYLESPARSH-01-
+settings.receiptPrefix: INV
+settings.receiptNumber: 4
+::1 - - [09/Aug/2025:20:16:46 +0000] "GET /api/settings/pos HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:16:46 +0000] "GET /api/settings/payment HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:16:46 +0000] "GET /api/settings/business HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+=== POS SETTINGS DEBUG ===
+Full settings object: {
+  _id: new ObjectId('6891bfd586fa07625a5da32a'),
+  name: 'Style Sparsh',
+  email: 'stylesparsh@gmail.com',
+  phone: '9879879879',
+  website: '',
+  description: 'Premium salon and spa services in the heart of the city',
+  address: '123 Beauty Street',
+  city: 'New York',
+  state: 'NY',
+  zipCode: '10001',
+  receiptPrefix: 'INV',
+  receiptNumber: 4,
+  autoIncrementReceipt: true,
+  socialMedia: '@stylesparsh',
+  createdAt: 2025-08-05T08:24:53.874Z,
+  updatedAt: 2025-08-06T18:00:36.297Z,
+  __v: 0,
+  invoicePrefix: 'STYLESPARSH-01-',
+  currency: 'USD',
+  enableCurrency: true,
+  enableProcessingFees: true,
+  enableTax: false,
+  processingFee: 2.9,
+  taxRate: 8.25
+}
+settings.invoicePrefix: STYLESPARSH-01-
+settings.receiptPrefix: INV
+settings.receiptNumber: 4
+::1 - - [09/Aug/2025:20:16:46 +0000] "GET /api/settings/pos HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:16:46 +0000] "GET /api/clients HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:16:46 +0000] "GET /api/users HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:16:46 +0000] "GET /api/services HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:16:46 +0000] "GET /api/products HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:16:46 +0000] "GET /api/settings/payment HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:16:47 +0000] "GET /api/appointments?limit=100 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:16:47 +0000] "GET /api/appointments?limit=100 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Dashboard stats requested
+Total services: 2
+::1 - - [09/Aug/2025:20:16:51 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total products: 1
+Total staff: 1
+::1 - - [09/Aug/2025:20:16:51 +0000] "GET /api/appointments?limit=200&date=2025-08-10 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total clients: 5
+::1 - - [09/Aug/2025:20:16:51 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:16:51 +0000] "GET /api/appointments?limit=5 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:16:51 +0000] "GET /api/appointments?limit=500 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total appointments: 3
+Total receipts: 0
+::1 - - [09/Aug/2025:20:16:51 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total revenue: 0
+::1 - - [09/Aug/2025:20:16:51 +0000] "GET /api/reports/dashboard HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Dashboard stats requested
+::1 - - [09/Aug/2025:20:16:52 +0000] "GET /api/appointments?limit=200&date=2025-08-10 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:16:52 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total services: 2
+::1 - - [09/Aug/2025:20:16:52 +0000] "GET /api/appointments?limit=5 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:16:52 +0000] "GET /api/appointments?limit=500 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total products: 1
+Total staff: 1
+Total clients: 5
+Total appointments: 3
+Total receipts: 0
+Total revenue: 0
+::1 - - [09/Aug/2025:20:16:52 +0000] "GET /api/reports/dashboard HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:26:33 +0000] "GET /api/auth/profile HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Dashboard stats requested
+::1 - - [09/Aug/2025:20:26:33 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:26:33 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:26:33 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:26:33 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total services: 2
+Total products: 1
+Total staff: 1
+Total clients: 5
+::1 - - [09/Aug/2025:20:26:33 +0000] "GET /api/appointments?limit=5 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:26:33 +0000] "GET /api/appointments?limit=500 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:26:33 +0000] "GET /api/appointments?limit=200&date=2025-08-10 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total appointments: 3
+Total receipts: 0
+Total revenue: 0
+::1 - - [09/Aug/2025:20:26:33 +0000] "GET /api/reports/dashboard HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Dashboard stats requested
+Total services: 2
+::1 - - [09/Aug/2025:20:26:33 +0000] "GET /api/appointments?limit=200&date=2025-08-10 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:26:33 +0000] "GET /api/appointments?limit=5 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total products: 1
+::1 - - [09/Aug/2025:20:26:33 +0000] "GET /api/appointments?limit=500 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total staff: 1
+Total clients: 5
+Total appointments: 3
+Total receipts: 0
+Total revenue: 0
+::1 - - [09/Aug/2025:20:26:33 +0000] "GET /api/reports/dashboard HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:26:41 +0000] "GET /api/clients HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:26:41 +0000] "GET /api/settings/business HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+=== POS SETTINGS DEBUG ===
+Full settings object: {
+  _id: new ObjectId('6891bfd586fa07625a5da32a'),
+  name: 'Style Sparsh',
+  email: 'stylesparsh@gmail.com',
+  phone: '9879879879',
+  website: '',
+  description: 'Premium salon and spa services in the heart of the city',
+  address: '123 Beauty Street',
+  city: 'New York',
+  state: 'NY',
+  zipCode: '10001',
+  receiptPrefix: 'INV',
+  receiptNumber: 4,
+  autoIncrementReceipt: true,
+  socialMedia: '@stylesparsh',
+  createdAt: 2025-08-05T08:24:53.874Z,
+  updatedAt: 2025-08-06T18:00:36.297Z,
+  __v: 0,
+  invoicePrefix: 'STYLESPARSH-01-',
+  currency: 'USD',
+  enableCurrency: true,
+  enableProcessingFees: true,
+  enableTax: false,
+  processingFee: 2.9,
+  taxRate: 8.25
+}
+settings.invoicePrefix: STYLESPARSH-01-
+settings.receiptPrefix: INV
+settings.receiptNumber: 4
+::1 - - [09/Aug/2025:20:26:41 +0000] "GET /api/settings/pos HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:26:41 +0000] "GET /api/services HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:26:41 +0000] "GET /api/clients HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:26:41 +0000] "GET /api/settings/payment HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:26:41 +0000] "GET /api/users HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:26:41 +0000] "GET /api/products HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+=== POS SETTINGS DEBUG ===
+Full settings object: {
+  _id: new ObjectId('6891bfd586fa07625a5da32a'),
+  name: 'Style Sparsh',
+  email: 'stylesparsh@gmail.com',
+  phone: '9879879879',
+  website: '',
+  description: 'Premium salon and spa services in the heart of the city',
+  address: '123 Beauty Street',
+  city: 'New York',
+  state: 'NY',
+  zipCode: '10001',
+  receiptPrefix: 'INV',
+  receiptNumber: 4,
+  autoIncrementReceipt: true,
+  socialMedia: '@stylesparsh',
+  createdAt: 2025-08-05T08:24:53.874Z,
+  updatedAt: 2025-08-06T18:00:36.297Z,
+  __v: 0,
+  invoicePrefix: 'STYLESPARSH-01-',
+  currency: 'USD',
+  enableCurrency: true,
+  enableProcessingFees: true,
+  enableTax: false,
+  processingFee: 2.9,
+  taxRate: 8.25
+}
+settings.invoicePrefix: STYLESPARSH-01-
+settings.receiptPrefix: INV
+settings.receiptNumber: 4
+::1 - - [09/Aug/2025:20:26:41 +0000] "GET /api/settings/pos HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:26:41 +0000] "GET /api/settings/business HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:26:41 +0000] "GET /api/settings/payment HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:26:41 +0000] "GET /api/users HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:26:41 +0000] "GET /api/services HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:26:41 +0000] "GET /api/products HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:26:43 +0000] "GET /api/appointments?limit=100 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:26:43 +0000] "GET /api/appointments?limit=100 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:26:46 +0000] "GET /api/services HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:26:46 +0000] "GET /api/services HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:26:46 +0000] "GET /api/services HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:26:46 +0000] "GET /api/services HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:26:48 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:26:48 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Dashboard stats requested
+::1 - - [09/Aug/2025:20:26:50 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total services: 2
+Total products: 1
+::1 - - [09/Aug/2025:20:26:50 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total staff: 1
+::1 - - [09/Aug/2025:20:26:50 +0000] "GET /api/appointments?limit=200&date=2025-08-10 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:26:50 +0000] "GET /api/appointments?limit=500 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total clients: 5
+::1 - - [09/Aug/2025:20:26:50 +0000] "GET /api/appointments?limit=5 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total appointments: 3
+::1 - - [09/Aug/2025:20:26:50 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total receipts: 0
+Total revenue: 0
+::1 - - [09/Aug/2025:20:26:50 +0000] "GET /api/reports/dashboard HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:26:50 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Dashboard stats requested
+::1 - - [09/Aug/2025:20:26:50 +0000] "GET /api/appointments?limit=500 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:20:26:50 +0000] "GET /api/appointments?limit=200&date=2025-08-10 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total services: 2
+Total products: 1
+::1 - - [09/Aug/2025:20:26:50 +0000] "GET /api/appointments?limit=5 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total staff: 1
+Total clients: 5
+Total appointments: 3
+Total receipts: 0
+Total revenue: 0
+::1 - - [09/Aug/2025:20:26:50 +0000] "GET /api/reports/dashboard HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:22:33:57 +0000] "GET /api/auth/profile HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Dashboard stats requested
+::1 - - [09/Aug/2025:22:33:57 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:22:33:57 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:22:33:57 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:22:33:57 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total services: 2
+Total products: 1
+::1 - - [09/Aug/2025:22:33:57 +0000] "GET /api/appointments?limit=5 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:22:33:57 +0000] "GET /api/appointments?limit=500 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:22:33:57 +0000] "GET /api/appointments?limit=200&date=2025-08-10 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total staff: 1
+Total clients: 5
+Total appointments: 3
+::1 - - [09/Aug/2025:22:33:57 +0000] "GET /api/appointments?limit=5 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:22:33:57 +0000] "GET /api/appointments?limit=500 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total receipts: 0
+::1 - - [09/Aug/2025:22:33:57 +0000] "GET /api/appointments?limit=200&date=2025-08-10 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total revenue: 0
+::1 - - [09/Aug/2025:22:33:57 +0000] "GET /api/reports/dashboard HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Dashboard stats requested
+Total services: 2
+Total products: 1
+Total staff: 1
+Total clients: 5
+Total appointments: 3
+Total receipts: 0
+Total revenue: 0
+::1 - - [09/Aug/2025:22:33:57 +0000] "GET /api/reports/dashboard HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:22:34:10 +0000] "GET /api/clients HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Dashboard stats requested
+Total services: 2
+::1 - - [09/Aug/2025:22:34:14 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total products: 1
+Total staff: 1
+::1 - - [09/Aug/2025:22:34:14 +0000] "GET /api/appointments?limit=500 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:22:34:14 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total clients: 5
+::1 - - [09/Aug/2025:22:34:14 +0000] "GET /api/appointments?limit=5 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total appointments: 3
+Total receipts: 0
+::1 - - [09/Aug/2025:22:34:14 +0000] "GET /api/appointments?limit=200&date=2025-08-10 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:22:34:14 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total revenue: 0
+::1 - - [09/Aug/2025:22:34:14 +0000] "GET /api/reports/dashboard HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Dashboard stats requested
+::1 - - [09/Aug/2025:22:34:14 +0000] "GET /api/appointments?limit=500 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:22:34:14 +0000] "GET /api/appointments?limit=5 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:22:34:14 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total services: 2
+Total products: 1
+::1 - - [09/Aug/2025:22:34:14 +0000] "GET /api/appointments?limit=200&date=2025-08-10 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total staff: 1
+Total clients: 5
+Total appointments: 3
+Total receipts: 0
+Total revenue: 0
+::1 - - [09/Aug/2025:22:34:14 +0000] "GET /api/reports/dashboard HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:22:34:26 +0000] "GET /api/users?search= HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:22:34:26 +0000] "GET /api/users?search= HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Dashboard stats requested
+Total services: 2
+::1 - - [09/Aug/2025:22:34:41 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total products: 1
+::1 - - [09/Aug/2025:22:34:41 +0000] "GET /api/appointments?limit=200&date=2025-08-10 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total staff: 1
+Total clients: 5
+::1 - - [09/Aug/2025:22:34:41 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:22:34:41 +0000] "GET /api/appointments?limit=500 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:22:34:41 +0000] "GET /api/appointments?limit=5 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total appointments: 3
+Total receipts: 0
+::1 - - [09/Aug/2025:22:34:41 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total revenue: 0
+::1 - - [09/Aug/2025:22:34:41 +0000] "GET /api/reports/dashboard HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:22:34:41 +0000] "GET /api/appointments?limit=200&date=2025-08-10 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Dashboard stats requested
+::1 - - [09/Aug/2025:22:34:41 +0000] "GET /api/appointments?limit=500 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:22:34:41 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total services: 2
+::1 - - [09/Aug/2025:22:34:41 +0000] "GET /api/appointments?limit=5 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total products: 1
+Total staff: 1
+Total clients: 5
+Total appointments: 3
+Total receipts: 0
+Total revenue: 0
+::1 - - [09/Aug/2025:22:34:41 +0000] "GET /api/reports/dashboard HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:22:35:41 +0000] "GET /api/settings/business HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:22:35:41 +0000] "GET /api/settings/business HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:22:35:43 +0000] "GET /api/settings/payment HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:22:35:43 +0000] "GET /api/settings/payment HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+=== POS SETTINGS DEBUG ===
+Full settings object: {
+  _id: new ObjectId('6891bfd586fa07625a5da32a'),
+  name: 'Style Sparsh',
+  email: 'stylesparsh@gmail.com',
+  phone: '9879879879',
+  website: '',
+  description: 'Premium salon and spa services in the heart of the city',
+  address: '123 Beauty Street',
+  city: 'New York',
+  state: 'NY',
+  zipCode: '10001',
+  receiptPrefix: 'INV',
+  receiptNumber: 4,
+  autoIncrementReceipt: true,
+  socialMedia: '@stylesparsh',
+  createdAt: 2025-08-05T08:24:53.874Z,
+  updatedAt: 2025-08-06T18:00:36.297Z,
+  __v: 0,
+  invoicePrefix: 'STYLESPARSH-01-',
+  currency: 'USD',
+  enableCurrency: true,
+  enableProcessingFees: true,
+  enableTax: false,
+  processingFee: 2.9,
+  taxRate: 8.25
+}
+settings.invoicePrefix: STYLESPARSH-01-
+settings.receiptPrefix: INV
+settings.receiptNumber: 4
+::1 - - [09/Aug/2025:22:35:47 +0000] "GET /api/settings/pos HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+=== POS SETTINGS DEBUG ===
+Full settings object: {
+  _id: new ObjectId('6891bfd586fa07625a5da32a'),
+  name: 'Style Sparsh',
+  email: 'stylesparsh@gmail.com',
+  phone: '9879879879',
+  website: '',
+  description: 'Premium salon and spa services in the heart of the city',
+  address: '123 Beauty Street',
+  city: 'New York',
+  state: 'NY',
+  zipCode: '10001',
+  receiptPrefix: 'INV',
+  receiptNumber: 4,
+  autoIncrementReceipt: true,
+  socialMedia: '@stylesparsh',
+  createdAt: 2025-08-05T08:24:53.874Z,
+  updatedAt: 2025-08-06T18:00:36.297Z,
+  __v: 0,
+  invoicePrefix: 'STYLESPARSH-01-',
+  currency: 'USD',
+  enableCurrency: true,
+  enableProcessingFees: true,
+  enableTax: false,
+  processingFee: 2.9,
+  taxRate: 8.25
+}
+settings.invoicePrefix: STYLESPARSH-01-
+settings.receiptPrefix: INV
+settings.receiptNumber: 4
+::1 - - [09/Aug/2025:22:35:47 +0000] "GET /api/settings/pos HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:22:36:40 +0000] "GET /api/settings/business HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:22:36:40 +0000] "GET /api/settings/business HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+=== POS SETTINGS DEBUG ===
+Full settings object: {
+  _id: new ObjectId('6891bfd586fa07625a5da32a'),
+  name: 'Style Sparsh',
+  email: 'stylesparsh@gmail.com',
+  phone: '9879879879',
+  website: '',
+  description: 'Premium salon and spa services in the heart of the city',
+  address: '123 Beauty Street',
+  city: 'New York',
+  state: 'NY',
+  zipCode: '10001',
+  receiptPrefix: 'INV',
+  receiptNumber: 4,
+  autoIncrementReceipt: true,
+  socialMedia: '@stylesparsh',
+  createdAt: 2025-08-05T08:24:53.874Z,
+  updatedAt: 2025-08-06T18:00:36.297Z,
+  __v: 0,
+  invoicePrefix: 'STYLESPARSH-01-',
+  currency: 'USD',
+  enableCurrency: true,
+  enableProcessingFees: true,
+  enableTax: false,
+  processingFee: 2.9,
+  taxRate: 8.25
+}
+settings.invoicePrefix: STYLESPARSH-01-
+settings.receiptPrefix: INV
+settings.receiptNumber: 4
+::1 - - [09/Aug/2025:22:36:41 +0000] "GET /api/settings/pos HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+=== POS SETTINGS DEBUG ===
+Full settings object: {
+  _id: new ObjectId('6891bfd586fa07625a5da32a'),
+  name: 'Style Sparsh',
+  email: 'stylesparsh@gmail.com',
+  phone: '9879879879',
+  website: '',
+  description: 'Premium salon and spa services in the heart of the city',
+  address: '123 Beauty Street',
+  city: 'New York',
+  state: 'NY',
+  zipCode: '10001',
+  receiptPrefix: 'INV',
+  receiptNumber: 4,
+  autoIncrementReceipt: true,
+  socialMedia: '@stylesparsh',
+  createdAt: 2025-08-05T08:24:53.874Z,
+  updatedAt: 2025-08-06T18:00:36.297Z,
+  __v: 0,
+  invoicePrefix: 'STYLESPARSH-01-',
+  currency: 'USD',
+  enableCurrency: true,
+  enableProcessingFees: true,
+  enableTax: false,
+  processingFee: 2.9,
+  taxRate: 8.25
+}
+settings.invoicePrefix: STYLESPARSH-01-
+settings.receiptPrefix: INV
+settings.receiptNumber: 4
+::1 - - [09/Aug/2025:22:36:41 +0000] "GET /api/settings/pos HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:22:36:52 +0000] "GET /api/settings/payment HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:22:36:53 +0000] "GET /api/settings/payment HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:22:37:02 +0000] "PUT /api/settings/payment HTTP/1.1" 200 684 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:22:37:06 +0000] "GET /api/settings/payment HTTP/1.1" 200 145 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:22:37:06 +0000] "GET /api/settings/business HTTP/1.1" 200 634 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:22:37:06 +0000] "GET /api/services HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:22:37:06 +0000] "GET /api/clients HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:22:37:06 +0000] "GET /api/users HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:22:37:06 +0000] "GET /api/products HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:22:37:06 +0000] "GET /api/settings/business HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:22:37:06 +0000] "GET /api/settings/payment HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+=== POS SETTINGS DEBUG ===
+Full settings object: {
+  _id: new ObjectId('6891bfd586fa07625a5da32a'),
+  name: 'Style Sparsh',
+  email: 'stylesparsh@gmail.com',
+  phone: '9879879879',
+  website: '',
+  description: 'Premium salon and spa services in the heart of the city',
+  address: '123 Beauty Street',
+  city: 'New York',
+  state: 'NY',
+  zipCode: '10001',
+  receiptPrefix: 'INV',
+  receiptNumber: 4,
+  autoIncrementReceipt: true,
+  socialMedia: '@stylesparsh',
+  createdAt: 2025-08-05T08:24:53.874Z,
+  updatedAt: 2025-08-09T22:37:02.280Z,
+  __v: 0,
+  invoicePrefix: 'STYLESPARSH-01-',
+  currency: 'EUR',
+  enableCurrency: true,
+  enableProcessingFees: true,
+  enableTax: false,
+  processingFee: 2.9,
+  taxRate: 8.25
+}
+settings.invoicePrefix: STYLESPARSH-01-
+settings.receiptPrefix: INV
+settings.receiptNumber: 4
+::1 - - [09/Aug/2025:22:37:06 +0000] "GET /api/settings/pos HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:22:37:06 +0000] "GET /api/users HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:22:37:06 +0000] "GET /api/services HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+=== POS SETTINGS DEBUG ===
+Full settings object: {
+  _id: new ObjectId('6891bfd586fa07625a5da32a'),
+  name: 'Style Sparsh',
+  email: 'stylesparsh@gmail.com',
+  phone: '9879879879',
+  website: '',
+  description: 'Premium salon and spa services in the heart of the city',
+  address: '123 Beauty Street',
+  city: 'New York',
+  state: 'NY',
+  zipCode: '10001',
+  receiptPrefix: 'INV',
+  receiptNumber: 4,
+  autoIncrementReceipt: true,
+  socialMedia: '@stylesparsh',
+  createdAt: 2025-08-05T08:24:53.874Z,
+  updatedAt: 2025-08-09T22:37:02.280Z,
+  __v: 0,
+  invoicePrefix: 'STYLESPARSH-01-',
+  currency: 'EUR',
+  enableCurrency: true,
+  enableProcessingFees: true,
+  enableTax: false,
+  processingFee: 2.9,
+  taxRate: 8.25
+}
+settings.invoicePrefix: STYLESPARSH-01-
+settings.receiptPrefix: INV
+settings.receiptNumber: 4
+::1 - - [09/Aug/2025:22:37:06 +0000] "GET /api/settings/pos HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:22:37:06 +0000] "GET /api/products HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:22:37:18 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:22:37:18 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Dashboard stats requested
+::1 - - [09/Aug/2025:22:37:21 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total services: 2
+Total products: 1
+::1 - - [09/Aug/2025:22:37:21 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:22:37:21 +0000] "GET /api/appointments?limit=500 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total staff: 1
+::1 - - [09/Aug/2025:22:37:21 +0000] "GET /api/appointments?limit=200&date=2025-08-10 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:22:37:21 +0000] "GET /api/appointments?limit=5 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:22:37:21 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total clients: 5
+Total appointments: 3
+Total receipts: 0
+Total revenue: 0
+::1 - - [09/Aug/2025:22:37:21 +0000] "GET /api/reports/dashboard HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:22:37:21 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:22:37:21 +0000] "GET /api/appointments?limit=500 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Dashboard stats requested
+::1 - - [09/Aug/2025:22:37:21 +0000] "GET /api/appointments?limit=5 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:22:37:21 +0000] "GET /api/appointments?limit=200&date=2025-08-10 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total services: 2
+Total products: 1
+Total staff: 1
+Total clients: 5
+Total appointments: 3
+Total receipts: 0
+Total revenue: 0
+::1 - - [09/Aug/2025:22:37:21 +0000] "GET /api/reports/dashboard HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:22:37:30 +0000] "GET /api/auth/profile HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:22:37:33 +0000] "GET /api/auth/profile HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Dashboard stats requested
+Total services: 2
+::1 - - [09/Aug/2025:22:37:33 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total products: 1
+::1 - - [09/Aug/2025:22:37:33 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:22:37:33 +0000] "GET /api/appointments?limit=500 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total staff: 1
+::1 - - [09/Aug/2025:22:37:33 +0000] "GET /api/appointments?limit=5 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:22:37:33 +0000] "GET /api/appointments?limit=200&date=2025-08-10 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total clients: 5
+::1 - - [09/Aug/2025:22:37:33 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total appointments: 3
+Total receipts: 0
+Total revenue: 0
+::1 - - [09/Aug/2025:22:37:33 +0000] "GET /api/reports/dashboard HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:22:37:33 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:22:37:33 +0000] "GET /api/appointments?limit=500 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Dashboard stats requested
+::1 - - [09/Aug/2025:22:37:33 +0000] "GET /api/appointments?limit=200&date=2025-08-10 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:22:37:33 +0000] "GET /api/appointments?limit=5 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+Total services: 2
+Total products: 1
+Total staff: 1
+Total clients: 5
+Total appointments: 3
+Total receipts: 0
+Total revenue: 0
+::1 - - [09/Aug/2025:22:37:33 +0000] "GET /api/reports/dashboard HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:22:48:13 +0000] "GET /api/auth/profile HTTP/1.1" 403 41 "http://localhost:3002/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
+::1 - - [09/Aug/2025:22:48:47 +0000] "POST /api/auth/login HTTP/1.1" 200 747 "http://localhost:3002/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
