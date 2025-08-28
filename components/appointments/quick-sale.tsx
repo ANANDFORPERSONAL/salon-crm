@@ -2556,77 +2556,123 @@ export function QuickSale() {
           left: 0,
           right: 0,
           bottom: 0,
-          backgroundColor: 'rgba(0,0,0,0.8)',
+          backgroundColor: 'rgba(0,0,0,0.6)',
           zIndex: 99999,
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'center'
+          justifyContent: 'center',
+          padding: '20px'
         }}>
           <div style={{
             backgroundColor: 'white',
-            padding: '24px',
-            borderRadius: '12px',
-            border: '3px solid #3b82f6',
-            maxWidth: '500px',
-            width: '90%',
-            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
+            padding: '32px',
+            borderRadius: '20px',
+            maxWidth: '520px',
+            width: '100%',
+            boxShadow: '0 32px 64px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.1)',
+            border: '1px solid rgba(255, 255, 255, 0.2)',
+            backdropFilter: 'blur(20px)',
+            animation: 'slideIn 0.3s ease-out'
           }}>
+            {/* Header with Icon */}
             <div style={{
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              marginBottom: '20px'
+              marginBottom: '24px',
+              paddingBottom: '20px',
+              borderBottom: '2px solid #f3f4f6'
             }}>
-              <h2 style={{
-                color: '#1f2937',
-                fontSize: '24px',
-                fontWeight: 'bold',
-                margin: 0
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px'
               }}>
-                Create New Customer
-              </h2>
+                <div style={{
+                  width: '40px',
+                  height: '40px',
+                  backgroundColor: '#8b5cf6',
+                  borderRadius: '12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'white',
+                  fontSize: '20px',
+                  fontWeight: 'bold'
+                }}>
+                  👤
+                </div>
+                <div>
+                  <h2 style={{
+                    color: '#111827',
+                    fontSize: '28px',
+                    fontWeight: '700',
+                    margin: 0,
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent'
+                  }}>
+                    Create New Customer
+                  </h2>
+                  <p style={{
+                    color: '#6b7280',
+                    fontSize: '14px',
+                    margin: '4px 0 0 0',
+                    fontWeight: '500'
+                  }}>
+                    Add a new customer to your salon database
+                  </p>
+                </div>
+              </div>
               <button 
                 onClick={() => setShowNewCustomerDialog(false)}
                 style={{
-                  backgroundColor: '#6b7280',
-                  color: 'white',
+                  backgroundColor: '#f9fafb',
+                  color: '#6b7280',
                   border: 'none',
-                  borderRadius: '50%',
-                  width: '32px',
-                  height: '32px',
+                  borderRadius: '12px',
+                  width: '36px',
+                  height: '36px',
                   fontSize: '18px',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'center'
+                  justifyContent: 'center',
+                  transition: 'all 0.2s ease',
+                  fontWeight: 'bold'
+                }}
+                onMouseOver={(e) => {
+                  const target = e.target as HTMLButtonElement
+                  target.style.backgroundColor = '#ef4444'
+                  target.style.color = 'white'
+                }}
+                onMouseOut={(e) => {
+                  const target = e.target as HTMLButtonElement
+                  target.style.backgroundColor = '#f9fafb'
+                  target.style.color = '#6b7280'
                 }}
               >
                 ×
               </button>
             </div>
             
-            <p style={{
-              color: '#6b7280',
-              marginBottom: '24px',
-              fontSize: '14px'
-            }}>
-              Add a new customer to your salon database.
-            </p>
-            
-            <div style={{marginBottom: '20px'}}>
+            {/* Form Fields */}
+            <div style={{marginBottom: '28px'}}>
               <div style={{
                 display: 'grid',
                 gridTemplateColumns: '1fr 1fr',
-                gap: '16px',
-                marginBottom: '16px'
+                gap: '20px',
+                marginBottom: '20px'
               }}>
                 <div>
                   <label style={{
                     display: 'block',
                     fontSize: '14px',
-                    fontWeight: '500',
+                    fontWeight: '600',
                     color: '#374151',
-                    marginBottom: '8px'
+                    marginBottom: '10px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px'
                   }}>
                     First Name *
                   </label>
@@ -2637,10 +2683,23 @@ export function QuickSale() {
                     placeholder="Enter first name"
                     style={{
                       width: '100%',
-                      padding: '10px 12px',
-                      border: '1px solid #d1d5db',
-                      borderRadius: '6px',
-                      fontSize: '14px'
+                      padding: '14px 16px',
+                      border: '2px solid #e5e7eb',
+                      borderRadius: '12px',
+                      fontSize: '15px',
+                      backgroundColor: '#fafafa',
+                      transition: 'all 0.2s ease',
+                      outline: 'none'
+                    }}
+                    onFocus={(e) => {
+                      e.target.style.borderColor = '#8b5cf6'
+                      e.target.style.backgroundColor = 'white'
+                      e.target.style.boxShadow = '0 0 0 3px rgba(139, 92, 246, 0.1)'
+                    }}
+                    onBlur={(e) => {
+                      e.target.style.borderColor = '#e5e7eb'
+                      e.target.style.backgroundColor = '#fafafa'
+                      e.target.style.boxShadow = 'none'
                     }}
                   />
                 </div>
@@ -2648,9 +2707,11 @@ export function QuickSale() {
                   <label style={{
                     display: 'block',
                     fontSize: '14px',
-                    fontWeight: '500',
+                    fontWeight: '600',
                     color: '#374151',
-                    marginBottom: '8px'
+                    marginBottom: '10px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px'
                   }}>
                     Last Name *
                   </label>
@@ -2661,24 +2722,39 @@ export function QuickSale() {
                     placeholder="Enter last name"
                     style={{
                       width: '100%',
-                      padding: '10px 12px',
-                      border: '1px solid #d1d5db',
-                      borderRadius: '6px',
-                      fontSize: '14px'
+                      padding: '14px 16px',
+                      border: '2px solid #e5e7eb',
+                      borderRadius: '12px',
+                      fontSize: '15px',
+                      backgroundColor: '#fafafa',
+                      transition: 'all 0.2s ease',
+                      outline: 'none'
+                    }}
+                    onFocus={(e) => {
+                      e.target.style.borderColor = '#8b5cf6'
+                      e.target.style.backgroundColor = 'white'
+                      e.target.style.boxShadow = '0 0 0 3px rgba(139, 92, 246, 0.1)'
+                    }}
+                    onBlur={(e) => {
+                      e.target.style.borderColor = '#e5e7eb'
+                      e.target.style.backgroundColor = '#fafafa'
+                      e.target.style.boxShadow = 'none'
                     }}
                   />
                 </div>
               </div>
               
-              <div style={{marginBottom: '16px'}}>
+              <div style={{marginBottom: '20px'}}>
                 <label style={{
                   display: 'block',
                   fontSize: '14px',
-                  fontWeight: '500',
+                  fontWeight: '600',
                   color: '#374151',
-                  marginBottom: '8px'
+                  marginBottom: '10px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px'
                 }}>
-                  Phone
+                  Phone Number
                 </label>
                 <input
                   type="tel"
@@ -2687,23 +2763,38 @@ export function QuickSale() {
                   placeholder="Enter phone number"
                   style={{
                     width: '100%',
-                    padding: '10px 12px',
-                    border: '1px solid #d1d5db',
-                    borderRadius: '6px',
-                    fontSize: '14px'
+                    padding: '14px 16px',
+                    border: '2px solid #e5e7eb',
+                    borderRadius: '12px',
+                    fontSize: '15px',
+                    backgroundColor: '#fafafa',
+                    transition: 'all 0.2s ease',
+                    outline: 'none'
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = '#8b5cf6'
+                    e.target.style.backgroundColor = 'white'
+                    e.target.style.boxShadow = '0 0 0 3px rgba(139, 92, 246, 0.1)'
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = '#e5e7eb'
+                    e.target.style.backgroundColor = '#fafafa'
+                    e.target.style.boxShadow = 'none'
                   }}
                 />
               </div>
               
-              <div style={{marginBottom: '16px'}}>
+              <div style={{marginBottom: '20px'}}>
                 <label style={{
                   display: 'block',
                   fontSize: '14px',
-                  fontWeight: '500',
+                  fontWeight: '600',
                   color: '#374151',
-                  marginBottom: '8px'
+                  marginBottom: '10px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px'
                 }}>
-                  Email
+                  Email Address
                 </label>
                 <input
                   type="email"
@@ -2712,31 +2803,61 @@ export function QuickSale() {
                   placeholder="Enter email address"
                   style={{
                     width: '100%',
-                    padding: '10px 12px',
-                    border: '1px solid #d1d5db',
-                    borderRadius: '6px',
-                    fontSize: '14px'
+                    padding: '14px 16px',
+                    border: '2px solid #e5e7eb',
+                    borderRadius: '12px',
+                    fontSize: '15px',
+                    backgroundColor: '#fafafa',
+                    transition: 'all 0.2s ease',
+                    outline: 'none'
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = '#8b5cf6'
+                    e.target.style.backgroundColor = 'white'
+                    e.target.style.boxShadow = '0 0 0 3px rgba(139, 92, 246, 0.1)'
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = '#e5e7eb'
+                    e.target.style.backgroundColor = '#fafafa'
+                    e.target.style.boxShadow = 'none'
                   }}
                 />
               </div>
             </div>
             
+            {/* Action Buttons */}
             <div style={{
               display: 'flex',
               justifyContent: 'flex-end',
-              gap: '12px'
+              gap: '16px',
+              paddingTop: '20px',
+              borderTop: '2px solid #f3f4f6'
             }}>
               <button 
                 onClick={() => setShowNewCustomerDialog(false)}
                 style={{
                   backgroundColor: 'white',
-                  color: '#374151',
-                  border: '1px solid #d1d5db',
-                  padding: '10px 20px',
-                  borderRadius: '6px',
-                  fontSize: '14px',
-                  fontWeight: '500',
-                  cursor: 'pointer'
+                  color: '#6b7280',
+                  border: '2px solid #e5e7eb',
+                  padding: '14px 24px',
+                  borderRadius: '12px',
+                  fontSize: '15px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  minWidth: '100px'
+                }}
+                onMouseOver={(e) => {
+                  const target = e.target as HTMLButtonElement
+                  target.style.backgroundColor = '#f9fafb'
+                  target.style.borderColor = '#d1d5db'
+                  target.style.color = '#374151'
+                }}
+                onMouseOut={(e) => {
+                  const target = e.target as HTMLButtonElement
+                  target.style.backgroundColor = 'white'
+                  target.style.borderColor = '#e5e7eb'
+                  target.style.color = '#6b7280'
                 }}
               >
                 Cancel
@@ -2744,17 +2865,30 @@ export function QuickSale() {
               <button 
                 onClick={handleSaveNewCustomer}
                 style={{
-                  backgroundColor: '#3b82f6',
+                  background: 'linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)',
                   color: 'white',
                   border: 'none',
-                  padding: '10px 20px',
-                  borderRadius: '6px',
-                  fontSize: '14px',
-                  fontWeight: '500',
-                  cursor: 'pointer'
+                  padding: '14px 24px',
+                  borderRadius: '12px',
+                  fontSize: '15px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  minWidth: '140px',
+                  boxShadow: '0 4px 14px 0 rgba(139, 92, 246, 0.25)'
+                }}
+                onMouseOver={(e) => {
+                  const target = e.target as HTMLButtonElement
+                  target.style.transform = 'translateY(-2px)'
+                  target.style.boxShadow = '0 8px 25px 0 rgba(139, 92, 246, 0.35)'
+                }}
+                onMouseOut={(e) => {
+                  const target = e.target as HTMLButtonElement
+                  target.style.transform = 'translateY(0)'
+                  target.style.boxShadow = '0 4px 14px 0 rgba(139, 92, 246, 0.25)'
                 }}
               >
-                Create Customer
+                ✨ Create Customer
               </button>
             </div>
           </div>
