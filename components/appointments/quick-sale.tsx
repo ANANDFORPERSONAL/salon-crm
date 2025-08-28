@@ -477,6 +477,10 @@ export function QuickSale() {
 
   // Handle creating new customer
   const handleCreateNewCustomer = () => {
+    console.log('🎯 Create new customer clicked!')
+    console.log('🎯 Customer search value:', customerSearch)
+    console.log('🎯 Current showNewCustomerDialog state:', showNewCustomerDialog)
+    
     setNewCustomer({
       firstName: "",
       lastName: "",
@@ -485,6 +489,8 @@ export function QuickSale() {
     })
     setShowNewCustomerDialog(true)
     setShowCustomerDropdown(false)
+    
+    console.log('🎯 Set showNewCustomerDialog to true')
   }
 
   // Handle saving new customer
@@ -1497,66 +1503,99 @@ export function QuickSale() {
           </CardContent>
         </Card> */}
 
+
+
+
+
         {/* New Customer Dialog */}
-        <Dialog open={showNewCustomerDialog} onOpenChange={setShowNewCustomerDialog}>
-          <DialogContent className="border-gray-200 shadow-2xl">
-            <DialogHeader>
-              <DialogTitle className="text-xl font-bold text-gray-800">Create New Customer</DialogTitle>
-              <DialogDescription className="text-gray-600">Add a new customer to your salon database.</DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
+        {/* Simple HTML Modal for New Customer */}
+        {showNewCustomerDialog && (
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center">
+            {/* Backdrop */}
+            <div 
+              className="fixed inset-0 bg-black bg-opacity-50" 
+              onClick={() => setShowNewCustomerDialog(false)}
+            ></div>
+            
+            {/* Modal Content */}
+            <div className="relative bg-white rounded-lg shadow-2xl max-w-md w-full mx-4 p-6 border-4 border-blue-500">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-bold text-gray-800">Create New Customer</h2>
+                <button 
+                  onClick={() => setShowNewCustomerDialog(false)}
+                  className="text-gray-500 hover:text-gray-700 text-2xl leading-none w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100"
+                >
+                  ×
+                </button>
+              </div>
+              
+              <p className="text-gray-600 mb-4">Add a new customer to your salon database.</p>
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium text-gray-700">First Name *</Label>
+                    <Input
+                      value={newCustomer.firstName}
+                      onChange={(e) => setNewCustomer({ ...newCustomer, firstName: e.target.value })}
+                      placeholder="Enter first name"
+                      className="border-gray-200 focus:border-indigo-500 focus:ring-indigo-500/20"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium text-gray-700">Last Name *</Label>
+                    <Input
+                      value={newCustomer.lastName}
+                      onChange={(e) => setNewCustomer({ ...newCustomer, lastName: e.target.value })}
+                      placeholder="Enter last name"
+                      className="border-gray-200 focus:border-indigo-500 focus:ring-indigo-500/20"
+                    />
+                  </div>
+                </div>
+                
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium text-gray-700">First Name *</Label>
+                  <Label className="text-sm font-medium text-gray-700">Phone</Label>
                   <Input
-                    value={newCustomer.firstName}
-                    onChange={(e) => setNewCustomer({ ...newCustomer, firstName: e.target.value })}
-                    placeholder="Enter first name"
+                    type="tel"
+                    value={newCustomer.phone}
+                    onChange={(e) => setNewCustomer({ ...newCustomer, phone: e.target.value })}
+                    placeholder="Enter phone number"
                     className="border-gray-200 focus:border-indigo-500 focus:ring-indigo-500/20"
                   />
                 </div>
+                
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium text-gray-700">Last Name *</Label>
+                  <Label className="text-sm font-medium text-gray-700">Email</Label>
                   <Input
-                    value={newCustomer.lastName}
-                    onChange={(e) => setNewCustomer({ ...newCustomer, lastName: e.target.value })}
-                    placeholder="Enter last name"
+                    type="email"
+                    value={newCustomer.email}
+                    onChange={(e) => setNewCustomer({ ...newCustomer, email: e.target.value })}
+                    placeholder="Enter email address"
                     className="border-gray-200 focus:border-indigo-500 focus:ring-indigo-500/20"
                   />
                 </div>
               </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium text-gray-700">Phone</Label>
-                <Input
-                  type="tel"
-                  value={newCustomer.phone}
-                  onChange={(e) => setNewCustomer({ ...newCustomer, phone: e.target.value })}
-                  placeholder="Enter phone number"
-                  className="border-gray-200 focus:border-indigo-500 focus:ring-indigo-500/20"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium text-gray-700">Email</Label>
-                <Input
-                  type="email"
-                  value={newCustomer.email}
-                  onChange={(e) => setNewCustomer({ ...newCustomer, email: e.target.value })}
-                  placeholder="Enter email address"
-                  className="border-gray-200 focus:border-indigo-500 focus:ring-indigo-500/20"
-                />
+              
+              <div className="flex justify-end space-x-3 mt-6">
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={() => setShowNewCustomerDialog(false)} 
+                  className="border-gray-200 text-gray-700 hover:bg-gray-50"
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  type="button" 
+                  onClick={handleSaveNewCustomer} 
+                  className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white"
+                >
+                  <Plus className="mr-2 h-4 w-4" />
+                  Create Customer
+                </Button>
               </div>
             </div>
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setShowNewCustomerDialog(false)} className="border-gray-200 text-gray-700 hover:bg-gray-50">
-                Cancel
-              </Button>
-              <Button type="button" onClick={handleSaveNewCustomer} className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white">
-                <Plus className="mr-2 h-4 w-4" />
-                Create Customer
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+          </div>
+        )}
 
         {/* Bill Activity Dialog */}
         <Dialog open={showBillActivityDialog} onOpenChange={setShowBillActivityDialog}>
@@ -2508,6 +2547,219 @@ export function QuickSale() {
           </div>
         </div>
       </div>
+      
+      {/* New Customer Modal */}
+      {showNewCustomerDialog && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.8)',
+          zIndex: 99999,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          <div style={{
+            backgroundColor: 'white',
+            padding: '24px',
+            borderRadius: '12px',
+            border: '3px solid #3b82f6',
+            maxWidth: '500px',
+            width: '90%',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
+          }}>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '20px'
+            }}>
+              <h2 style={{
+                color: '#1f2937',
+                fontSize: '24px',
+                fontWeight: 'bold',
+                margin: 0
+              }}>
+                Create New Customer
+              </h2>
+              <button 
+                onClick={() => setShowNewCustomerDialog(false)}
+                style={{
+                  backgroundColor: '#6b7280',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '50%',
+                  width: '32px',
+                  height: '32px',
+                  fontSize: '18px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+              >
+                ×
+              </button>
+            </div>
+            
+            <p style={{
+              color: '#6b7280',
+              marginBottom: '24px',
+              fontSize: '14px'
+            }}>
+              Add a new customer to your salon database.
+            </p>
+            
+            <div style={{marginBottom: '20px'}}>
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: '1fr 1fr',
+                gap: '16px',
+                marginBottom: '16px'
+              }}>
+                <div>
+                  <label style={{
+                    display: 'block',
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    color: '#374151',
+                    marginBottom: '8px'
+                  }}>
+                    First Name *
+                  </label>
+                  <input
+                    type="text"
+                    value={newCustomer.firstName}
+                    onChange={(e) => setNewCustomer({ ...newCustomer, firstName: e.target.value })}
+                    placeholder="Enter first name"
+                    style={{
+                      width: '100%',
+                      padding: '10px 12px',
+                      border: '1px solid #d1d5db',
+                      borderRadius: '6px',
+                      fontSize: '14px'
+                    }}
+                  />
+                </div>
+                <div>
+                  <label style={{
+                    display: 'block',
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    color: '#374151',
+                    marginBottom: '8px'
+                  }}>
+                    Last Name *
+                  </label>
+                  <input
+                    type="text"
+                    value={newCustomer.lastName}
+                    onChange={(e) => setNewCustomer({ ...newCustomer, lastName: e.target.value })}
+                    placeholder="Enter last name"
+                    style={{
+                      width: '100%',
+                      padding: '10px 12px',
+                      border: '1px solid #d1d5db',
+                      borderRadius: '6px',
+                      fontSize: '14px'
+                    }}
+                  />
+                </div>
+              </div>
+              
+              <div style={{marginBottom: '16px'}}>
+                <label style={{
+                  display: 'block',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  color: '#374151',
+                  marginBottom: '8px'
+                }}>
+                  Phone
+                </label>
+                <input
+                  type="tel"
+                  value={newCustomer.phone}
+                  onChange={(e) => setNewCustomer({ ...newCustomer, phone: e.target.value })}
+                  placeholder="Enter phone number"
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '6px',
+                    fontSize: '14px'
+                  }}
+                />
+              </div>
+              
+              <div style={{marginBottom: '16px'}}>
+                <label style={{
+                  display: 'block',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  color: '#374151',
+                  marginBottom: '8px'
+                }}>
+                  Email
+                </label>
+                <input
+                  type="email"
+                  value={newCustomer.email}
+                  onChange={(e) => setNewCustomer({ ...newCustomer, email: e.target.value })}
+                  placeholder="Enter email address"
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '6px',
+                    fontSize: '14px'
+                  }}
+                />
+              </div>
+            </div>
+            
+            <div style={{
+              display: 'flex',
+              justifyContent: 'flex-end',
+              gap: '12px'
+            }}>
+              <button 
+                onClick={() => setShowNewCustomerDialog(false)}
+                style={{
+                  backgroundColor: 'white',
+                  color: '#374151',
+                  border: '1px solid #d1d5db',
+                  padding: '10px 20px',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  cursor: 'pointer'
+                }}
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={handleSaveNewCustomer}
+                style={{
+                  backgroundColor: '#3b82f6',
+                  color: 'white',
+                  border: 'none',
+                  padding: '10px 20px',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  cursor: 'pointer'
+                }}
+              >
+                Create Customer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
