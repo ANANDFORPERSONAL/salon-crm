@@ -488,6 +488,7 @@ export function SalesReport() {
         <div className="p-6">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
             <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
+              {/* Search */}
               <div className="flex items-center space-x-2">
                 <div className="p-2 bg-blue-50 rounded-lg">
                   <Search className="h-4 w-4 text-blue-600" />
@@ -515,43 +516,9 @@ export function SalesReport() {
                 </SelectContent>
               </Select>
               
-              {/* Date Range Picker */}
-              <div className="flex items-center space-x-2">
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="w-[280px] justify-start text-left font-normal border-slate-200 focus:border-blue-500 focus:ring-blue-500"
-                    >
-                      {dateRange.from ? (
-                        dateRange.to ? (
-                          <>
-                            {format(dateRange.from, "MMM dd")} -{" "}
-                            {format(dateRange.to, "MMM dd, y")}
-                          </>
-                        ) : (
-                          format(dateRange.from, "MMM dd, y")
-                        )
-                      ) : (
-                        <span>Pick a date range</span>
-                      )}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      initialFocus
-                      mode="range"
-                      defaultMonth={dateRange.from}
-                      selected={dateRange}
-                      onSelect={setDateRange}
-                      numberOfMonths={2}
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-              
+              {/* Payment Method Filter */}
               <Select value={paymentFilter} onValueChange={setPaymentFilter}>
-                <SelectTrigger className="w-32 border-slate-200 focus:border-blue-500 focus:ring-blue-500">
+                <SelectTrigger className="w-40 border-slate-200 focus:border-blue-500 focus:ring-blue-500">
                   <SelectValue placeholder="Payment" />
                 </SelectTrigger>
                 <SelectContent>
@@ -562,8 +529,9 @@ export function SalesReport() {
                 </SelectContent>
               </Select>
               
+              {/* Status Filter */}
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-32 border-slate-200 focus:border-blue-500 focus:ring-blue-500">
+                <SelectTrigger className="w-40 border-slate-200 focus:border-blue-500 focus:ring-blue-500">
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
                 <SelectContent>

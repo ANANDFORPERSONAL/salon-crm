@@ -13,7 +13,8 @@ import {
   Users,
   Crown,
   Eye,
-  EyeOff
+  EyeOff,
+  Search
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -224,88 +225,111 @@ export function UsersTable() {
   )
 
   return (
-    <Card className="shadow-sm">
-      <CardHeader className="pb-6">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <CardTitle className="text-xl font-semibold">Staff Directory</CardTitle>
-            <p className="text-sm text-gray-600 mt-1">Manage your salon staff and their permissions</p>
-          </div>
-          <Button onClick={() => setIsAddDialogOpen(true)} className="px-6">
-            <Plus className="mr-2 h-4 w-4" />
-            Add Staff
-          </Button>
+    <div className="space-y-6">
+      {/* Enhanced Header Section */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="text-lg font-semibold text-slate-800 mb-1">Staff Management</h3>
+          <p className="text-sm text-slate-600">Manage your salon staff and their permissions</p>
         </div>
-        <div className="flex items-center space-x-2">
-          <Input
-            placeholder="Search staff by name, email, or mobile..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="max-w-md"
-          />
+        <Button 
+          onClick={() => setIsAddDialogOpen(true)} 
+          className="bg-slate-900 hover:bg-slate-800 text-white px-6 py-2.5 shadow-md hover:shadow-lg transition-all duration-300 rounded-lg font-medium"
+        >
+          <Plus className="mr-2 h-4 w-4" />
+          Add Staff
+        </Button>
+      </div>
+
+      {/* Enhanced Search Section */}
+      <div className="relative">
+        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <Search className="h-5 w-5 text-slate-400" />
         </div>
-      </CardHeader>
-      <CardContent className="p-0">
+        <Input
+          placeholder="Search staff by name, email, or mobile..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="pl-10 pr-4 py-3 border-slate-200 focus:border-blue-500 focus:ring-blue-500 rounded-lg bg-white shadow-sm"
+        />
+      </div>
+
+      {/* Enhanced Table */}
+      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
         <Table>
           <TableHeader>
-            <TableRow className="bg-gray-50">
-              <TableHead className="font-semibold text-gray-700">Staff Name</TableHead>
-              <TableHead className="font-semibold text-gray-700">Mobile</TableHead>
-              <TableHead className="font-semibold text-gray-700">Email</TableHead>
-              <TableHead className="font-semibold text-gray-700">Appointment</TableHead>
-              <TableHead className="font-semibold text-gray-700">Login Access</TableHead>
-              <TableHead className="font-semibold text-gray-700">Access Control</TableHead>
-              <TableHead className="text-right font-semibold text-gray-700">Actions</TableHead>
+            <TableRow className="bg-gradient-to-r from-slate-50 to-blue-50 border-b border-slate-200">
+              <TableHead className="font-semibold text-slate-700 py-4 px-6">Staff Name</TableHead>
+              <TableHead className="font-semibold text-slate-700 py-4 px-6">Mobile</TableHead>
+              <TableHead className="font-semibold text-slate-700 py-4 px-6">Email</TableHead>
+              <TableHead className="font-semibold text-slate-700 py-4 px-6">Appointment</TableHead>
+              <TableHead className="font-semibold text-slate-700 py-4 px-6">Login Access</TableHead>
+              <TableHead className="font-semibold text-slate-700 py-4 px-6">Access Control</TableHead>
+              <TableHead className="text-right font-semibold text-slate-700 py-4 px-6">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-8">
-                  Loading...
+                <TableCell colSpan={7} className="text-center py-12">
+                  <div className="flex flex-col items-center gap-3">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                    <p className="text-slate-600 font-medium">Loading staff members...</p>
+                  </div>
                 </TableCell>
               </TableRow>
             ) : filteredUsers.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-8">
-                  No staff members found
+                <TableCell colSpan={7} className="text-center py-12">
+                  <div className="flex flex-col items-center gap-3">
+                    <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center">
+                      <Users className="h-8 w-8 text-slate-400" />
+                    </div>
+                    <p className="text-slate-600 font-medium">No staff members found</p>
+                    <p className="text-slate-500 text-sm">Try adjusting your search criteria</p>
+                  </div>
                 </TableCell>
               </TableRow>
             ) : (
               filteredUsers.map((user) => (
-                <TableRow key={user._id} className="hover:bg-gray-50">
-                  <TableCell className="font-medium py-4">
+                <TableRow key={user._id} className="hover:bg-slate-50/50 border-b border-slate-100 transition-colors duration-200">
+                  <TableCell className="py-4 px-6">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
-                        <User className="h-4 w-4 text-gray-600" />
+                      <div className="w-10 h-10 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full flex items-center justify-center shadow-sm">
+                        <User className="h-5 w-5 text-blue-600" />
                       </div>
                       <div>
-                        <div className="font-medium">
+                        <div className="font-semibold text-slate-800">
                           {user.firstName || 'N/A'} {user.lastName || 'N/A'}
                         </div>
-                        {/* Show role badge for all users */}
                         <Badge 
                           variant={user.role === 'admin' ? 'destructive' : user.role === 'manager' ? 'default' : 'secondary'} 
-                          className="text-xs mt-1"
+                          className="text-xs mt-1.5 px-2 py-1 font-medium"
                         >
                           {user.role === 'admin' ? 'Admin' : user.role === 'manager' ? 'Manager' : 'Staff'}
                         </Badge>
                       </div>
                     </div>
                   </TableCell>
-                  <TableCell className="py-4">{user.mobile || "-"}</TableCell>
-                  <TableCell className="py-4">{user.email}</TableCell>
-                  <TableCell className="py-4">
-                    <Badge variant={user.allowAppointmentScheduling ? "default" : "secondary"} className="text-xs">
+                  <TableCell className="py-4 px-6 text-slate-700 font-medium">{user.mobile || "-"}</TableCell>
+                  <TableCell className="py-4 px-6 text-slate-700">{user.email}</TableCell>
+                  <TableCell className="py-4 px-6">
+                    <Badge 
+                      variant={user.allowAppointmentScheduling ? "default" : "secondary"} 
+                      className="text-xs px-3 py-1.5 font-medium"
+                    >
                       {user.allowAppointmentScheduling ? "Enabled" : "Disabled"}
                     </Badge>
                   </TableCell>
-                  <TableCell className="py-4">
-                    <Badge variant={user.hasLoginAccess ? "default" : "secondary"} className="text-xs">
+                  <TableCell className="py-4 px-6">
+                    <Badge 
+                      variant={user.hasLoginAccess ? "default" : "secondary"} 
+                      className="text-xs px-3 py-1.5 font-medium"
+                    >
                       {user.hasLoginAccess ? "Enabled" : "Disabled"}
                     </Badge>
                   </TableCell>
-                  <TableCell className="py-4">
+                  <TableCell className="py-4 px-6">
                     <Button
                       variant="ghost"
                       size="sm"
@@ -314,32 +338,40 @@ export function UsersTable() {
                         setIsAccessControlDialogOpen(true)
                       }}
                       disabled={!user.hasLoginAccess}
-                      className={user.hasLoginAccess ? "hover:bg-blue-50" : "cursor-not-allowed opacity-50"}
+                      className={`p-2 rounded-lg transition-all duration-200 ${
+                        user.hasLoginAccess 
+                          ? "hover:bg-blue-50 hover:text-blue-700" 
+                          : "cursor-not-allowed opacity-50"
+                      }`}
                       title={user.hasLoginAccess ? "Configure access permissions" : "Login access must be enabled to configure permissions"}
                     >
                       {user.hasLoginAccess ? (
-                        <Unlock className="h-4 w-4 text-blue-600" />
+                        <Unlock className="h-5 w-5 text-blue-600" />
                       ) : (
-                        <Lock className="h-4 w-4 text-gray-400" />
+                        <Lock className="h-5 w-5 text-slate-400" />
                       )}
                     </Button>
                   </TableCell>
-                  <TableCell className="text-right py-4">
+                  <TableCell className="text-right py-4 px-6">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0 hover:bg-gray-100">
-                          <MoreHorizontal className="h-4 w-4" />
+                        <Button 
+                          variant="ghost" 
+                          className="h-9 w-9 p-0 hover:bg-slate-100 rounded-lg transition-all duration-200"
+                        >
+                          <MoreHorizontal className="h-4 w-4 text-slate-600" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
+                      <DropdownMenuContent align="end" className="w-48">
                         <DropdownMenuItem
                           onClick={() => {
                             setSelectedUser(user)
                             setIsEditDialogOpen(true)
                           }}
+                          className="flex items-center gap-2 px-3 py-2.5 hover:bg-slate-50 cursor-pointer"
                         >
-                          <Edit className="mr-2 h-4 w-4" />
-                          Edit
+                          <Edit className="h-4 w-4 text-slate-600" />
+                          <span className="font-medium">Edit</span>
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={() => {
@@ -347,22 +379,32 @@ export function UsersTable() {
                             setIsAccessControlDialogOpen(true)
                           }}
                           disabled={!user.hasLoginAccess}
-                          className={!user.hasLoginAccess ? "text-gray-400 cursor-not-allowed" : ""}
+                          className={`flex items-center gap-2 px-3 py-2.5 ${
+                            !user.hasLoginAccess 
+                              ? "text-gray-400 cursor-not-allowed" 
+                              : "hover:bg-slate-50 cursor-pointer"
+                          }`}
                           title={user.hasLoginAccess ? "Configure access permissions" : "Login access must be enabled to configure permissions"}
                         >
-                          <Eye className="mr-2 h-4 w-4" />
-                          Access Control
+                          <Eye className="h-4 w-4 text-slate-600" />
+                          <span className="font-medium">Access Control</span>
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={() => {
                             setSelectedUser(user)
                             setIsDeleteDialogOpen(true)
                           }}
-                          className={user.role === 'admin' ? "text-gray-400 cursor-not-allowed" : "text-red-600"}
+                          className={`flex items-center gap-2 px-3 py-2.5 ${
+                            user.role === 'admin' 
+                              ? "text-gray-400 cursor-not-allowed" 
+                              : "text-red-600 hover:bg-red-50 cursor-pointer"
+                          }`}
                           disabled={user.role === 'admin'}
                         >
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          {user.role === 'admin' ? 'Delete (Protected)' : 'Delete'}
+                          <Trash2 className="h-4 w-4" />
+                          <span className="font-medium">
+                            {user.role === 'admin' ? 'Delete (Protected)' : 'Delete'}
+                          </span>
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -372,14 +414,14 @@ export function UsersTable() {
             )}
           </TableBody>
         </Table>
-      </CardContent>
+      </div>
 
-      {/* Add User Dialog */}
+      {/* Enhanced Add User Dialog */}
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader className="pb-6">
-            <DialogTitle className="text-xl font-semibold">Add Staff Member</DialogTitle>
-            <DialogDescription className="text-gray-600">
+            <DialogTitle className="text-xl font-semibold text-slate-800">Add Staff Member</DialogTitle>
+            <DialogDescription className="text-slate-600">
               Create a new staff account with custom permissions and access controls
             </DialogDescription>
           </DialogHeader>
@@ -387,12 +429,12 @@ export function UsersTable() {
         </DialogContent>
       </Dialog>
 
-      {/* Edit User Dialog */}
+      {/* Enhanced Edit User Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader className="pb-6">
-            <DialogTitle className="text-xl font-semibold">Edit Staff Member</DialogTitle>
-            <DialogDescription className="text-gray-600">
+            <DialogTitle className="text-xl font-semibold text-slate-800">Edit Staff Member</DialogTitle>
+            <DialogDescription className="text-slate-600">
               Update staff information and permissions
             </DialogDescription>
           </DialogHeader>
@@ -406,28 +448,29 @@ export function UsersTable() {
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation Dialog */}
+      {/* Enhanced Delete Confirmation Dialog */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <DialogContent>
+        <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Delete Staff Member</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-lg font-semibold text-slate-800">Delete Staff Member</DialogTitle>
+            <DialogDescription className="text-slate-600">
               {selectedUser?.role === 'admin' ? (
-                <div className="text-red-600 font-medium">
+                <div className="text-red-600 font-medium bg-red-50 p-3 rounded-lg border border-red-200">
                   Cannot delete admin user. Admin account is protected and cannot be removed from the system.
                 </div>
               ) : (
                 <>
-                  Are you sure you want to delete {selectedUser?.firstName} {selectedUser?.lastName}? 
+                  Are you sure you want to delete <span className="font-semibold">{selectedUser?.firstName} {selectedUser?.lastName}</span>? 
                   This action cannot be undone.
                 </>
               )}
             </DialogDescription>
           </DialogHeader>
-          <div className="flex justify-end space-x-2">
+          <div className="flex justify-end space-x-3 pt-4">
             <Button
               variant="outline"
               onClick={() => setIsDeleteDialogOpen(false)}
+              className="px-6 py-2.5 border-slate-200 hover:bg-slate-50"
             >
               Cancel
             </Button>
@@ -435,6 +478,7 @@ export function UsersTable() {
               <Button
                 variant="destructive"
                 onClick={handleDeleteUser}
+                className="px-6 py-2.5 bg-red-600 hover:bg-red-700"
               >
                 Delete
               </Button>
@@ -456,6 +500,6 @@ export function UsersTable() {
           onUserUpdated={fetchUsers}
         />
       )}
-    </Card>
+    </div>
   )
 } 

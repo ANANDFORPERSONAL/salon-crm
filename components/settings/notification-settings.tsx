@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Switch } from "@/components/ui/switch"
 import { useToast } from "@/hooks/use-toast"
+import { Settings } from "lucide-react"
 
 export function NotificationSettings() {
   const [settings, setSettings] = useState({
@@ -45,122 +46,169 @@ export function NotificationSettings() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold tracking-tight">Notification Settings</h2>
-        <p className="text-muted-foreground">Configure email alerts, SMS settings, and reminder preferences</p>
+      {/* Header */}
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+        <div className="p-6">
+          <div className="flex items-center gap-4 mb-2">
+            <div className="p-2 bg-blue-50 rounded-lg">
+              <Settings className="h-5 w-5 text-blue-600" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold text-slate-800">Notification Settings</h2>
+              <p className="text-slate-600">Configure email alerts, SMS settings, and reminder preferences</p>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div className="grid gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Communication Channels</CardTitle>
-            <CardDescription>Choose how you want to receive notifications</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label>Email Notifications</Label>
-                <p className="text-sm text-muted-foreground">Receive notifications via email</p>
+        {/* Communication Channels Card */}
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+          <div className="p-6">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 bg-gradient-to-r from-blue-100 to-indigo-100 rounded-lg flex items-center justify-center">
+                <Settings className="h-5 w-5 text-blue-600" />
               </div>
-              <Switch
-                checked={settings.emailNotifications}
-                onCheckedChange={(checked) => setSettings({ ...settings, emailNotifications: checked })}
-              />
-            </div>
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label>SMS Notifications</Label>
-                <p className="text-sm text-muted-foreground">Receive notifications via text message</p>
+              <div>
+                <h3 className="text-lg font-semibold text-slate-800">Communication Channels</h3>
+                <p className="text-slate-600 text-sm">Choose how you want to receive notifications</p>
               </div>
-              <Switch
-                checked={settings.smsNotifications}
-                onCheckedChange={(checked) => setSettings({ ...settings, smsNotifications: checked })}
-              />
             </div>
-          </CardContent>
-        </Card>
+            
+            <div className="space-y-4">
+              <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
+                <div className="space-y-1">
+                  <Label className="text-sm font-medium text-slate-700">Email Notifications</Label>
+                  <p className="text-sm text-slate-600">Receive notifications via email</p>
+                </div>
+                <Switch
+                  checked={settings.emailNotifications}
+                  onCheckedChange={(checked) => setSettings({ ...settings, emailNotifications: checked })}
+                />
+              </div>
+              
+              <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
+                <div className="space-y-1">
+                  <Label className="text-sm font-medium text-slate-700">SMS Notifications</Label>
+                  <p className="text-sm text-slate-600">Receive notifications via text message</p>
+                </div>
+                <Switch
+                  checked={settings.smsNotifications}
+                  onCheckedChange={(checked) => setSettings({ ...settings, smsNotifications: checked })}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Appointment Notifications</CardTitle>
-            <CardDescription>Configure appointment-related alerts</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label>Appointment Reminders</Label>
-                <p className="text-sm text-muted-foreground">Send reminders to customers</p>
+        {/* Appointment Notifications Card */}
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+          <div className="p-6">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 bg-gradient-to-r from-indigo-100 to-purple-100 rounded-lg flex items-center justify-center">
+                <Settings className="h-5 w-5 text-indigo-600" />
               </div>
-              <Switch
-                checked={settings.appointmentReminders}
-                onCheckedChange={(checked) => setSettings({ ...settings, appointmentReminders: checked })}
-              />
-            </div>
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label>Booking Confirmations</Label>
-                <p className="text-sm text-muted-foreground">Send confirmation when appointments are booked</p>
+              <div>
+                <h3 className="text-lg font-semibold text-slate-800">Appointment Notifications</h3>
+                <p className="text-slate-600 text-sm">Configure appointment-related alerts</p>
               </div>
-              <Switch
-                checked={settings.bookingConfirmations}
-                onCheckedChange={(checked) => setSettings({ ...settings, bookingConfirmations: checked })}
-              />
             </div>
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label>Cancellation Alerts</Label>
-                <p className="text-sm text-muted-foreground">Get notified when appointments are cancelled</p>
+            
+            <div className="space-y-4">
+              <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
+                <div className="space-y-1">
+                  <Label className="text-sm font-medium text-slate-700">Appointment Reminders</Label>
+                  <p className="text-sm text-slate-600">Send reminders to customers</p>
+                </div>
+                <Switch
+                  checked={settings.appointmentReminders}
+                  onCheckedChange={(checked) => setSettings({ ...settings, appointmentReminders: checked })}
+                />
               </div>
-              <Switch
-                checked={settings.cancellationAlerts}
-                onCheckedChange={(checked) => setSettings({ ...settings, cancellationAlerts: checked })}
-              />
+              
+              <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
+                <div className="space-y-1">
+                  <Label className="text-sm font-medium text-slate-700">Booking Confirmations</Label>
+                  <p className="text-sm text-slate-600">Send confirmation when appointments are booked</p>
+                </div>
+                <Switch
+                  checked={settings.bookingConfirmations}
+                  onCheckedChange={(checked) => setSettings({ ...settings, bookingConfirmations: checked })}
+                />
+              </div>
+              
+              <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
+                <div className="space-y-1">
+                  <Label className="text-sm font-medium text-slate-700">Cancellation Alerts</Label>
+                  <p className="text-sm text-slate-600">Get notified when appointments are cancelled</p>
+                </div>
+                <Switch
+                  checked={settings.cancellationAlerts}
+                  onCheckedChange={(checked) => setSettings({ ...settings, cancellationAlerts: checked })}
+                />
+              </div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Business Alerts</CardTitle>
-            <CardDescription>Configure business operation notifications</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label>Low Stock Alerts</Label>
-                <p className="text-sm text-muted-foreground">Get notified when products are running low</p>
+        {/* Business Alerts Card */}
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+          <div className="p-6">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 bg-gradient-to-r from-emerald-100 to-teal-100 rounded-lg flex items-center justify-center">
+                <Settings className="h-5 w-5 text-emerald-600" />
               </div>
-              <Switch
-                checked={settings.lowStockAlerts}
-                onCheckedChange={(checked) => setSettings({ ...settings, lowStockAlerts: checked })}
-              />
-            </div>
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label>Daily Reports</Label>
-                <p className="text-sm text-muted-foreground">Receive daily business summary reports</p>
+              <div>
+                <h3 className="text-lg font-semibold text-slate-800">Business Alerts</h3>
+                <p className="text-slate-600 text-sm">Configure business operation notifications</p>
               </div>
-              <Switch
-                checked={settings.dailyReports}
-                onCheckedChange={(checked) => setSettings({ ...settings, dailyReports: checked })}
-              />
             </div>
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label>Weekly Reports</Label>
-                <p className="text-sm text-muted-foreground">Receive weekly business analytics</p>
+            
+            <div className="space-y-4">
+              <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
+                <div className="space-y-1">
+                  <Label className="text-sm font-medium text-slate-700">Low Stock Alerts</Label>
+                  <p className="text-sm text-slate-600">Get notified when products are running low</p>
+                </div>
+                <Switch
+                  checked={settings.lowStockAlerts}
+                  onCheckedChange={(checked) => setSettings({ ...settings, lowStockAlerts: checked })}
+                />
               </div>
-              <Switch
-                checked={settings.weeklyReports}
-                onCheckedChange={(checked) => setSettings({ ...settings, weeklyReports: checked })}
-              />
+              
+              <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
+                <div className="space-y-1">
+                  <Label className="text-sm font-medium text-slate-700">Daily Reports</Label>
+                  <p className="text-sm text-slate-600">Receive daily business summary reports</p>
+                </div>
+                <Switch
+                  checked={settings.dailyReports}
+                  onCheckedChange={(checked) => setSettings({ ...settings, dailyReports: checked })}
+                />
+              </div>
+              
+              <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
+                <div className="space-y-1">
+                  <Label className="text-sm font-medium text-slate-700">Weekly Reports</Label>
+                  <p className="text-sm text-slate-600">Receive weekly business analytics</p>
+                </div>
+                <Switch
+                  checked={settings.weeklyReports}
+                  onCheckedChange={(checked) => setSettings({ ...settings, weeklyReports: checked })}
+                />
+              </div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
 
+      {/* Save Button */}
       <div className="flex justify-end">
-        <Button onClick={handleSave} disabled={isLoading}>
+        <Button 
+          onClick={handleSave} 
+          disabled={isLoading}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-2.5 shadow-md hover:shadow-lg transition-all duration-300 rounded-lg font-medium"
+        >
           {isLoading ? "Saving..." : "Save Changes"}
         </Button>
       </div>

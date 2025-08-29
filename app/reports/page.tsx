@@ -10,7 +10,7 @@ export default function ReportsPage() {
   return (
     <ProtectedRoute requiredRole="manager">
       <ProtectedLayout>
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-6">
           {/* Elegant Header Section */}
           <div className="mb-8">
             <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">

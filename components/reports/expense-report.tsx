@@ -293,24 +293,25 @@ export function ExpenseReport() {
       {/* Enhanced Filters */}
       <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
         <div className="p-6">
-          <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-5">
-            {/* Search */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-700">Search</label>
-              <Input
-                placeholder="Search expenses..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="border-slate-200 focus:border-blue-500 focus:ring-blue-500"
-              />
-            </div>
-            
-            {/* Date Period */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-700">Date Period</label>
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
+              {/* Search */}
+              <div className="flex items-center space-x-2">
+                <div className="p-2 bg-blue-50 rounded-lg">
+                  <Search className="h-4 w-4 text-blue-600" />
+                </div>
+                <Input
+                  placeholder="Search expenses..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-64 border-slate-200 focus:border-blue-500 focus:ring-blue-500"
+                />
+              </div>
+              
+              {/* Date Period Dropdown */}
               <Select value={datePeriod} onValueChange={handleDatePeriodChange}>
-                <SelectTrigger className="border-slate-200 focus:border-blue-500 focus:ring-blue-500">
-                  <SelectValue placeholder="Select period" />
+                <SelectTrigger className="w-40 border-slate-200 focus:border-blue-500 focus:ring-blue-500">
+                  <SelectValue placeholder="Quick periods" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="today">Today</SelectItem>
@@ -321,14 +322,11 @@ export function ExpenseReport() {
                   <SelectItem value="all">All time</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
-            
-            {/* Category Filter */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-700">Category</label>
+              
+              {/* Category Filter */}
               <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                <SelectTrigger className="border-slate-200 focus:border-blue-500 focus:ring-blue-500">
-                  <SelectValue placeholder="All categories" />
+                <SelectTrigger className="w-40 border-slate-200 focus:border-blue-500 focus:ring-blue-500">
+                  <SelectValue placeholder="Category" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Categories</SelectItem>
@@ -340,14 +338,11 @@ export function ExpenseReport() {
                   <SelectItem value="Other">Other</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
-            
-            {/* Payment Method Filter */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-700">Payment Method</label>
+              
+              {/* Payment Method Filter */}
               <Select value={paymentMethodFilter} onValueChange={setPaymentMethodFilter}>
-                <SelectTrigger className="border-slate-200 focus:border-blue-500 focus:ring-blue-500">
-                  <SelectValue placeholder="All methods" />
+                <SelectTrigger className="w-40 border-slate-200 focus:border-blue-500 focus:ring-blue-500">
+                  <SelectValue placeholder="Payment" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Methods</SelectItem>
@@ -359,15 +354,13 @@ export function ExpenseReport() {
               </Select>
             </div>
             
-            {/* Export Button */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-700">&nbsp;</label>
+            <div className="flex items-center space-x-3">
               <Button 
                 onClick={handleExport}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 shadow-md hover:shadow-lg transition-all duration-300 rounded-lg font-medium"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 shadow-md hover:shadow-lg transition-all duration-300 rounded-lg font-medium"
               >
                 <Download className="h-4 w-4 mr-2" />
-                Export
+                Export Report
               </Button>
             </div>
           </div>

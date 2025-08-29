@@ -128,9 +128,18 @@ export function POSSettings() {
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">POS Settings</h1>
-          <p className="text-muted-foreground">Loading POS settings...</p>
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+          <div className="p-6">
+            <div className="flex items-center gap-4 mb-2">
+              <div className="p-2 bg-blue-50 rounded-lg">
+                <Receipt className="h-5 w-5 text-blue-600" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-slate-800">POS Settings</h2>
+                <p className="text-slate-600">Loading POS settings...</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     )
@@ -138,96 +147,120 @@ export function POSSettings() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">POS Settings</h1>
-        <p className="text-muted-foreground">Configure point of sale settings and invoice management</p>
+      {/* Header */}
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+        <div className="p-6">
+          <div className="flex items-center gap-4 mb-2">
+            <div className="p-2 bg-blue-50 rounded-lg">
+              <Receipt className="h-5 w-5 text-blue-600" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold text-slate-800">POS Settings</h2>
+              <p className="text-slate-600">Configure point of sale settings and invoice management</p>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Invoice Sequence Management */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Receipt className="h-5 w-5" />
-            Invoice Sequence
-          </CardTitle>
-          <CardDescription>Configure invoice sequence number</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {/* Current Receipt Number */}
-          <div className="flex items-center justify-between">
-            <div className="space-y-1">
-              <h3 className="font-semibold">Current receipt number</h3>
-              <p className="text-sm text-muted-foreground">
-                Next receipt will be: {invoicePrefix}-{currentReceiptNumber.toString().padStart(6, '0')}
-              </p>
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+        <div className="p-6">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-10 h-10 bg-gradient-to-r from-blue-100 to-indigo-100 rounded-lg flex items-center justify-center">
+              <Receipt className="h-5 w-5 text-blue-600" />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-slate-800">Invoice Sequence</h3>
+              <p className="text-slate-600 text-sm">Configure invoice sequence number</p>
             </div>
           </div>
+          
+          <div className="space-y-6">
+            {/* Current Receipt Number */}
+            <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
+              <div className="space-y-1">
+                <h3 className="font-semibold text-slate-800">Current receipt number</h3>
+                <p className="text-sm text-slate-600">
+                  Next receipt will be: {invoicePrefix}-{currentReceiptNumber.toString().padStart(6, '0')}
+                </p>
+              </div>
+            </div>
 
-          <Separator />
+            <Separator />
 
-          {/* Reset Invoice Sequence Instantly */}
-          <div className="flex items-center justify-between">
-            <div className="space-y-1">
-              <h3 className="font-semibold">Reset invoice sequence instantly</h3>
-              <p className="text-sm text-muted-foreground">
-                Instantly reset the invoice sequence number to 1.
+            {/* Reset Invoice Sequence Instantly */}
+            <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
+              <div className="space-y-1">
+                <h3 className="font-semibold text-slate-800">Reset invoice sequence instantly</h3>
+                <p className="text-sm text-slate-600">
+                  Instantly reset the invoice sequence number to 1.
+                </p>
+              </div>
+              <Button 
+                onClick={handleResetSequence}
+                disabled={isResetting}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 shadow-md hover:shadow-lg transition-all duration-300 rounded-lg font-medium"
+              >
+                {isResetting ? "Resetting..." : "Reset Now"}
+              </Button>
+            </div>
+
+            <Separator />
+
+            {/* Reset Invoice Sequence Automatically */}
+            <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
+              <div className="space-y-1">
+                <h3 className="font-semibold text-slate-800">Reset invoice sequence automatically</h3>
+                <p className="text-sm text-slate-600">
+                  Automatically reset the invoice sequence number to 1 at the beginning of each month or year.
+                </p>
+              </div>
+              <Switch
+                checked={autoReset}
+                onCheckedChange={handleAutoResetChange}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Custom Prefix Configuration */}
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+        <div className="p-6">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-10 h-10 bg-gradient-to-r from-indigo-100 to-purple-100 rounded-lg flex items-center justify-center">
+              <Settings className="h-5 w-5 text-indigo-600" />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-slate-800">Custom Prefix</h3>
+              <p className="text-slate-600 text-sm">Configure custom prefix on the invoice number</p>
+            </div>
+          </div>
+          
+          <div className="space-y-6">
+            <div className="space-y-3">
+              <Label htmlFor="invoice-prefix" className="text-sm font-medium text-slate-700">Invoice prefix</Label>
+              <Input
+                id="invoice-prefix"
+                value={invoicePrefix}
+                onChange={(e) => setInvoicePrefix(e.target.value)}
+                placeholder="Enter invoice prefix"
+                className="max-w-md border-slate-200 focus:border-blue-500 focus:ring-blue-500"
+              />
+              <p className="text-sm text-slate-600">
+                Example: Using "{invoicePrefix}" as the prefix will display as "{invoicePrefix}-000001" for the first receipt.
               </p>
             </div>
             <Button 
-              onClick={handleResetSequence}
-              disabled={isResetting}
-              variant="default"
+              onClick={handleSavePrefix} 
+              disabled={isSaving}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-2.5 shadow-md hover:shadow-lg transition-all duration-300 rounded-lg font-medium"
             >
-              {isResetting ? "Resetting..." : "Reset Now"}
+              {isSaving ? "Saving..." : "Save"}
             </Button>
           </div>
-
-          <Separator />
-
-          {/* Reset Invoice Sequence Automatically */}
-          <div className="flex items-center justify-between">
-            <div className="space-y-1">
-              <h3 className="font-semibold">Reset invoice sequence automatically</h3>
-              <p className="text-sm text-muted-foreground">
-                Automatically reset the invoice sequence number to 1 at the beginning of each month or year.
-              </p>
-            </div>
-            <Switch
-              checked={autoReset}
-              onCheckedChange={handleAutoResetChange}
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Custom Prefix Configuration */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Settings className="h-5 w-5" />
-            Custom Prefix
-          </CardTitle>
-          <CardDescription>Configure custom prefix on the invoice number</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="invoice-prefix">Invoice prefix</Label>
-            <Input
-              id="invoice-prefix"
-              value={invoicePrefix}
-              onChange={(e) => setInvoicePrefix(e.target.value)}
-              placeholder="Enter invoice prefix"
-              className="max-w-md"
-            />
-            <p className="text-sm text-muted-foreground">
-              Example: Using "{invoicePrefix}" as the prefix will display as "{invoicePrefix}-000001" for the first receipt.
-            </p>
-          </div>
-          <Button onClick={handleSavePrefix} disabled={isSaving}>
-            {isSaving ? "Saving..." : "Save"}
-          </Button>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   )
 } 
