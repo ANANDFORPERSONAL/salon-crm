@@ -131,14 +131,51 @@ export function ClientsListPage() {
         <SideNav />
         <main className="flex-1 p-6 md:p-8">
           <div className="flex flex-col space-y-6">
-            <div className="flex items-center justify-between">
-              <h1 className="text-3xl font-bold tracking-tight">Clients</h1>
-              <Button asChild>
-                <Link href="/clients/new">
-                  <PlusCircle className="mr-2 h-4 w-4" />
-                  New Client
-                </Link>
-              </Button>
+            {/* Elegant Header Section */}
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+              {/* Header Background */}
+              <div className="bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 px-8 py-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 bg-white rounded-xl shadow-sm">
+                      <Users className="h-7 w-7 text-blue-600" />
+                    </div>
+                    <div>
+                      <h1 className="text-3xl font-bold text-slate-800 mb-1">
+                        Client Management
+                      </h1>
+                      <p className="text-slate-600 text-base">
+                        Manage your salon clients, track their preferences and history
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <Button asChild className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 shadow-md hover:shadow-lg transition-all duration-300 rounded-xl font-medium">
+                    <Link href="/clients/new">
+                      <PlusCircle className="mr-2 h-5 w-5" />
+                      New Client
+                    </Link>
+                  </Button>
+                </div>
+              </div>
+              
+              {/* Feature Highlights */}
+              <div className="px-8 py-4 bg-white border-t border-slate-100">
+                <div className="flex items-center gap-8 text-sm text-slate-600">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                    <span>Customer relationship management</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>
+                    <span>Service history tracking</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                    <span>Preference management</span>
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* Stats Cards */}

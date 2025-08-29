@@ -9,38 +9,42 @@ export default function Services() {
     <ProtectedRoute requiredRole="staff">
       <ProtectedLayout>
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-4">
-          {/* Compact Hero Header Section */}
-          <div className="mb-6 animate-in fade-in" style={{ animationDelay: '200ms' }}>
-            <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 rounded-xl p-6 text-white shadow-lg hover:shadow-xl transition-all duration-300">
-              <div className="flex items-center justify-between">
-                <div className="space-y-2">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
-                      <Scissors className="h-6 w-6 text-white" />
+          {/* Elegant Header Section */}
+          <div className="mb-8">
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+              {/* Header Background */}
+              <div className="bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 px-8 py-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 bg-white rounded-xl shadow-sm">
+                      <Scissors className="h-7 w-7 text-indigo-600" />
                     </div>
                     <div>
-                      <h1 className="text-2xl font-bold tracking-tight">
+                      <h1 className="text-3xl font-bold text-slate-800 mb-1">
                         Services Management
                       </h1>
-                      <p className="text-indigo-100 text-sm">
+                      <p className="text-slate-600 text-base">
                         Manage your salon services, pricing, and categories
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4 text-xs text-indigo-100">
-                    <div className="flex items-center gap-1">
-                      <TrendingUp className="h-3 w-3" />
-                      <span>Professional management</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Sparkles className="h-3 w-3" />
-                      <span>Streamlined operations</span>
-                    </div>
-                  </div>
                 </div>
-                <div className="hidden md:block">
-                  <div className="w-16 h-16 bg-white/10 rounded-full backdrop-blur-sm flex items-center justify-center">
-                    <Scissors className="h-8 w-8 text-white/80" />
+              </div>
+              
+              {/* Feature Highlights */}
+              <div className="px-8 py-4 bg-white border-t border-slate-100">
+                <div className="flex items-center gap-8 text-sm text-slate-600">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>
+                    <span>Professional management</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                    <span>Streamlined operations</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-pink-500 rounded-full"></div>
+                    <span>Quality assurance</span>
                   </div>
                 </div>
               </div>

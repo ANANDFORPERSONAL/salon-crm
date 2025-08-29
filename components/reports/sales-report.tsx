@@ -359,270 +359,352 @@ export function SalesReport() {
   }
 
   if (loading) {
-    return <div className="flex items-center justify-center h-64">Loading...</div>
+    return (
+      <div className="space-y-8">
+        <div className="grid gap-6 md:grid-cols-5">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <Card key={i} className="animate-pulse">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium bg-slate-200 h-4 rounded"></CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold bg-slate-200 h-8 rounded"></div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+        <div className="text-center py-16">
+          <div className="flex flex-col items-center space-y-4">
+            <div className="w-20 h-20 bg-slate-200 rounded-full animate-pulse"></div>
+            <div className="text-center">
+              <h3 className="text-lg font-medium text-slate-900 mb-2">Loading sales data...</h3>
+              <p className="text-slate-500 text-sm">Please wait while we fetch your data</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
-    <div className="space-y-6">
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+    <div className="space-y-8">
+      {/* Enhanced Stats Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+        <Card className="group transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl border-0 bg-gradient-to-br from-green-50 to-emerald-100 overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-green-600/10 to-emerald-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
+            <CardTitle className="text-sm font-medium text-green-800">Total Revenue</CardTitle>
+            <div className="p-2 bg-green-100 rounded-lg group-hover:bg-green-200 transition-colors duration-300">
+              <DollarSign className="h-4 w-4 text-green-600" />
+            </div>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">₹{totalRevenue.toFixed(2)}</div>
-            <p className="text-xs text-muted-foreground">From {filteredSales.length} sales</p>
+          <CardContent className="relative z-10">
+            <div className="text-3xl font-bold text-green-900 mb-1">₹{totalRevenue.toFixed(2)}</div>
+            <p className="text-xs text-green-600 font-medium">From {filteredSales.length} sales</p>
+            <div className="w-full bg-green-200 rounded-full h-1 mt-3 overflow-hidden">
+              <div className="bg-gradient-to-r from-green-500 to-emerald-500 h-1 rounded-full transition-all duration-1000 ease-out animate-pulse" style={{ width: `${Math.min((totalRevenue / 10000) * 100, 100)}%` }} />
+            </div>
           </CardContent>
         </Card>
         
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Completed Sales</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+        <Card className="group transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl border-0 bg-gradient-to-br from-blue-50 to-indigo-100 overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-indigo-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
+            <CardTitle className="text-sm font-medium text-blue-800">Completed Sales</CardTitle>
+            <div className="p-2 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-colors duration-300">
+              <TrendingUp className="h-4 w-4 text-blue-600" />
+            </div>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{completedSales}</div>
-            <p className="text-xs text-muted-foreground">Successfully completed</p>
+          <CardContent className="relative z-10">
+            <div className="text-3xl font-bold text-blue-900 mb-1">{completedSales}</div>
+            <p className="text-xs text-blue-600 font-medium">Successfully completed</p>
+            <div className="w-full bg-blue-200 rounded-full h-1 mt-3 overflow-hidden">
+              <div className="bg-gradient-to-r from-blue-500 to-indigo-500 h-1 rounded-full transition-all duration-1000 ease-out animate-pulse" style={{ width: `${filteredSales.length > 0 ? (completedSales / filteredSales.length) * 100 : 0}%` }} />
+            </div>
           </CardContent>
         </Card>
         
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending Sales</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+        <Card className="group transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl border-0 bg-gradient-to-br from-amber-50 to-orange-100 overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-amber-600/10 to-orange-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
+            <CardTitle className="text-sm font-medium text-amber-800">Pending Sales</CardTitle>
+            <div className="p-2 bg-amber-100 rounded-lg group-hover:bg-amber-200 transition-colors duration-300">
+              <Users className="h-4 w-4 text-amber-600" />
+            </div>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{pendingSales}</div>
-            <p className="text-xs text-muted-foreground">Awaiting completion</p>
+          <CardContent className="relative z-10">
+            <div className="text-3xl font-bold text-amber-900 mb-1">{pendingSales}</div>
+            <p className="text-xs text-amber-600 font-medium">Awaiting completion</p>
+            <div className="w-full bg-amber-200 rounded-full h-1 mt-3 overflow-hidden">
+              <div className="bg-gradient-to-r from-amber-500 to-orange-500 h-1 rounded-full transition-all duration-1000 ease-out animate-pulse" style={{ width: `${filteredSales.length > 0 ? (pendingSales / filteredSales.length) * 100 : 0}%` }} />
+            </div>
           </CardContent>
         </Card>
         
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Cash Collected</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+        <Card className="group transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl border-0 bg-gradient-to-br from-emerald-50 to-teal-100 overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-emerald-600/10 to-teal-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
+            <CardTitle className="text-sm font-medium text-emerald-800">Cash Collected</CardTitle>
+            <div className="p-2 bg-emerald-100 rounded-lg group-hover:bg-emerald-200 transition-colors duration-300">
+              <DollarSign className="h-4 w-4 text-emerald-600" />
+            </div>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">₹{cashCollected.toFixed(2)}</div>
-            <p className="text-xs text-muted-foreground">
+          <CardContent className="relative z-10">
+            <div className="text-3xl font-bold text-emerald-900 mb-1">₹{cashCollected.toFixed(2)}</div>
+            <p className="text-xs text-emerald-600 font-medium">
               {paymentFilter === "all" ? "Cash payments only" : 
                paymentFilter === "Cash" ? "Filtered: Cash only" : "All cash payments"}
             </p>
+            <div className="w-full bg-emerald-200 rounded-full h-1 mt-3 overflow-hidden">
+              <div className="bg-gradient-to-r from-emerald-500 to-teal-500 h-1 rounded-full transition-all duration-1000 ease-out animate-pulse" style={{ width: `${totalRevenue > 0 ? (cashCollected / totalRevenue) * 100 : 0}%` }} />
+            </div>
           </CardContent>
         </Card>
         
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Online Cash Collected</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+        <Card className="group transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl border-0 bg-gradient-to-br from-purple-50 to-indigo-100 overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-purple-600/10 to-indigo-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
+            <CardTitle className="text-sm font-medium text-purple-800">Online Cash Collected</CardTitle>
+            <div className="p-2 bg-purple-100 rounded-lg group-hover:bg-purple-200 transition-colors duration-300">
+              <TrendingUp className="h-4 w-4 text-purple-600" />
+            </div>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">₹{onlineCashCollected.toFixed(2)}</div>
-            <p className="text-xs text-muted-foreground">
+          <CardContent className="relative z-10">
+            <div className="text-3xl font-bold text-purple-900 mb-1">₹{onlineCashCollected.toFixed(2)}</div>
+            <p className="text-xs text-purple-600 font-medium">
               {paymentFilter === "all" ? "Card + Online/Paytm" : 
                paymentFilter === "Card" ? "Filtered: Card only" : 
                paymentFilter === "Online" ? "Filtered: Online only" : "All online payments"}
             </p>
+            <div className="w-full bg-purple-200 rounded-full h-1 mt-3 overflow-hidden">
+              <div className="bg-gradient-to-r from-purple-500 to-indigo-500 h-1 rounded-full transition-all duration-1000 ease-out animate-pulse" style={{ width: `${totalRevenue > 0 ? (onlineCashCollected / totalRevenue) * 100 : 0}%` }} />
+            </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Filters and Actions */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <div className="flex items-center space-x-2">
-            <Search className="h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search sales..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-64"
-            />
-          </div>
-          
-          {/* Date Period Dropdown - ADDED */}
-          <Select value={datePeriod} onValueChange={handleDatePeriodChange}>
-            <SelectTrigger className="w-40">
-              <SelectValue placeholder="Quick periods" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="today">Today</SelectItem>
-              <SelectItem value="yesterday">Yesterday</SelectItem>
-              <SelectItem value="last7days">Last 7 days</SelectItem>
-              <SelectItem value="last30days">Last 30 days</SelectItem>
-              <SelectItem value="currentMonth">Current month</SelectItem>
-              <SelectItem value="all">All time</SelectItem>
-            </SelectContent>
-          </Select>
-          
-          {/* Date Range Picker - EXISTING */}
-          <div className="flex items-center space-x-2">
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className="w-[280px] justify-start text-left font-normal"
-                >
-                  {dateRange.from ? (
-                    dateRange.to ? (
-                      <>
-                        {format(dateRange.from, "LLL dd, y")} -{" "}
-                        {format(dateRange.to, "LLL dd, y")}
-                      </>
-                    ) : (
-                      format(dateRange.from, "LLL dd, y")
-                    )
-                  ) : (
-                    <span>Pick a date range</span>
-                  )}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  initialFocus
-                  mode="range"
-                  defaultMonth={dateRange.from}
-                  selected={dateRange}
-                  onSelect={setDateRange}
-                  numberOfMonths={2}
+      {/* Enhanced Filters and Actions */}
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+        <div className="p-6">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
+              <div className="flex items-center space-x-2">
+                <div className="p-2 bg-blue-50 rounded-lg">
+                  <Search className="h-4 w-4 text-blue-600" />
+                </div>
+                <Input
+                  placeholder="Search sales..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-64 border-slate-200 focus:border-blue-500 focus:ring-blue-500"
                 />
-              </PopoverContent>
-            </Popover>
+              </div>
+              
+              {/* Date Period Dropdown */}
+              <Select value={datePeriod} onValueChange={handleDatePeriodChange}>
+                <SelectTrigger className="w-40 border-slate-200 focus:border-blue-500 focus:ring-blue-500">
+                  <SelectValue placeholder="Quick periods" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="today">Today</SelectItem>
+                  <SelectItem value="yesterday">Yesterday</SelectItem>
+                  <SelectItem value="last7days">Last 7 days</SelectItem>
+                  <SelectItem value="last30days">Last 30 days</SelectItem>
+                  <SelectItem value="currentMonth">Current month</SelectItem>
+                  <SelectItem value="all">All time</SelectItem>
+                </SelectContent>
+              </Select>
+              
+              {/* Date Range Picker */}
+              <div className="flex items-center space-x-2">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="w-[280px] justify-start text-left font-normal border-slate-200 focus:border-blue-500 focus:ring-blue-500"
+                    >
+                      {dateRange.from ? (
+                        dateRange.to ? (
+                          <>
+                            {format(dateRange.from, "MMM dd")} -{" "}
+                            {format(dateRange.to, "MMM dd, y")}
+                          </>
+                        ) : (
+                          format(dateRange.from, "MMM dd, y")
+                        )
+                      ) : (
+                        <span>Pick a date range</span>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      initialFocus
+                      mode="range"
+                      defaultMonth={dateRange.from}
+                      selected={dateRange}
+                      onSelect={setDateRange}
+                      numberOfMonths={2}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+              
+              <Select value={paymentFilter} onValueChange={setPaymentFilter}>
+                <SelectTrigger className="w-32 border-slate-200 focus:border-blue-500 focus:ring-blue-500">
+                  <SelectValue placeholder="Payment" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Payments</SelectItem>
+                  <SelectItem value="Cash">Cash</SelectItem>
+                  <SelectItem value="Card">Card</SelectItem>
+                  <SelectItem value="Online">Online</SelectItem>
+                </SelectContent>
+              </Select>
+              
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-32 border-slate-200 focus:border-blue-500 focus:ring-blue-500">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="completed">Completed</SelectItem>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="cancelled">Cancelled</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="flex items-center space-x-3">
+              <Button 
+                onClick={handleExport}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 shadow-md hover:shadow-lg transition-all duration-300 rounded-lg font-medium"
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Export Report
+              </Button>
+            </div>
           </div>
-          
-          <Select value={paymentFilter} onValueChange={setPaymentFilter}>
-            <SelectTrigger className="w-32">
-              <SelectValue placeholder="Payment" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Payments</SelectItem>
-              <SelectItem value="Cash">Cash</SelectItem>
-              <SelectItem value="Card">Card</SelectItem>
-              <SelectItem value="Online">Online</SelectItem>
-            </SelectContent>
-          </Select>
-          
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-32">
-              <SelectValue placeholder="Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="completed">Completed</SelectItem>
-              <SelectItem value="pending">Pending</SelectItem>
-              <SelectItem value="cancelled">Cancelled</SelectItem>
-            </SelectContent>
-          </Select>
         </div>
-      
-        <Button onClick={handleExport}>
-          <Download className="h-4 w-4 mr-2" />
-          Export Report
-        </Button>
       </div>
 
-      {/* Sales Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Sales Records</CardTitle>
-          <CardDescription>
-            {paymentFilter === "all" 
-              ? "Detailed view of all sales transactions" 
-              : `Showing only ${paymentFilter} payments - amounts reflect ${paymentFilter} portion only`
-            }
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Bill No.</TableHead>
-                <TableHead>Customer Name</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Payment Mode</TableHead>
-                <TableHead>
-                  Net Total
-                  {paymentFilter !== "all" && (
-                    <Badge variant="secondary" className="ml-2 text-xs">
-                      {paymentFilter} only
-                    </Badge>
-                  )}
-                </TableHead>
-                <TableHead>Tax Amount</TableHead>
-                <TableHead>
-                  Gross Total
-                  {paymentFilter !== "all" && (
-                    <Badge variant="secondary" className="ml-2 text-xs">
-                      {paymentFilter} only
-                    </Badge>
-                  )}
-                </TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredSales.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
-                    No sales records found
-                  </TableCell>
+      {/* Enhanced Sales Table */}
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+        <div className="p-6">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h3 className="text-xl font-semibold text-slate-800">Sales Records</h3>
+              <p className="text-slate-600 text-sm mt-1">
+                {paymentFilter === "all" 
+                  ? "Detailed view of all sales transactions" 
+                  : `Showing only ${paymentFilter} payments - amounts reflect ${paymentFilter} portion only`
+                }
+              </p>
+            </div>
+          </div>
+          
+          <div className="overflow-hidden rounded-lg border border-slate-200">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-gradient-to-r from-slate-50 to-blue-50 hover:bg-gradient-to-r hover:from-slate-100 hover:to-blue-100">
+                  <TableHead className="py-4 text-slate-700 font-semibold">Bill No.</TableHead>
+                  <TableHead className="py-4 text-slate-700 font-semibold">Customer Name</TableHead>
+                  <TableHead className="py-4 text-slate-700 font-semibold">Date</TableHead>
+                  <TableHead className="py-4 text-slate-700 font-semibold">Payment Mode</TableHead>
+                  <TableHead className="py-4 text-slate-700 font-semibold">
+                    Net Total
+                    {paymentFilter !== "all" && (
+                      <Badge variant="secondary" className="ml-2 text-xs bg-blue-100 text-blue-700 border-blue-200">
+                        {paymentFilter} only
+                      </Badge>
+                    )}
+                  </TableHead>
+                  <TableHead className="py-4 text-slate-700 font-semibold">Tax Amount</TableHead>
+                  <TableHead className="py-4 text-slate-700 font-semibold">
+                    Gross Total
+                    {paymentFilter !== "all" && (
+                      <Badge variant="secondary" className="ml-2 text-xs bg-blue-100 text-blue-700 border-blue-200">
+                        {paymentFilter} only
+                      </Badge>
+                    )}
+                  </TableHead>
+                  <TableHead className="py-4 text-slate-700 font-semibold">Actions</TableHead>
                 </TableRow>
-              ) : (
-                filteredSales.map((sale) => (
-                  <TableRow key={sale.id}>
-                    <TableCell>
-                      <Button
-                        variant="link"
-                        className="p-0 h-auto font-medium text-blue-600 hover:text-blue-800"
-                        onClick={() => handleViewBill(sale)}
-                      >
-                        {sale.billNo}
-                      </Button>
-                    </TableCell>
-                    <TableCell className="font-medium">{sale.customerName}</TableCell>
-                    <TableCell>{new Date(sale.date).toLocaleDateString()}</TableCell>
-                    <TableCell>{getPaymentModeDisplay(sale)}</TableCell>
-                    <TableCell>₹{getFilteredAmount(sale).toFixed(2)}</TableCell>
-                    <TableCell>₹{sale.taxAmount.toFixed(2)}</TableCell>
-                    <TableCell className="font-bold">₹{getFilteredGrossTotal(sale).toFixed(2)}</TableCell>
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0">
-                            <span className="sr-only">Open menu</span>
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem onClick={() => handleViewBill(sale)}>
-                            <Eye className="mr-2 h-4 w-4" />
-                            View Bill
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleEditSale(sale)}>
-                            <Pencil className="mr-2 h-4 w-4" />
-                            Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuItem 
-                            onClick={() => handleDeleteSale(sale)}
-                            className="text-destructive"
-                          >
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+              </TableHeader>
+              <TableBody>
+                {filteredSales.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={8} className="text-center py-16">
+                      <div className="flex flex-col items-center space-y-4">
+                        <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center">
+                          <TrendingUp className="h-10 w-10 text-slate-400" />
+                        </div>
+                        <div className="text-center">
+                          <h3 className="text-lg font-medium text-slate-900 mb-2">No sales records found</h3>
+                          <p className="text-slate-500 text-sm">Try adjusting your filters or search terms</p>
+                        </div>
+                      </div>
                     </TableCell>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+                ) : (
+                  filteredSales.map((sale) => (
+                    <TableRow key={sale.id} className="hover:bg-gradient-to-r hover:from-slate-50 hover:to-blue-50 transition-all duration-200 border-b border-slate-100">
+                      <TableCell className="py-4">
+                        <Button
+                          variant="link"
+                          className="p-0 h-auto font-medium text-blue-600 hover:text-blue-800 hover:underline transition-all duration-200"
+                          onClick={() => handleViewBill(sale)}
+                        >
+                          {sale.billNo}
+                        </Button>
+                      </TableCell>
+                      <TableCell className="py-4 font-medium text-slate-800">{sale.customerName}</TableCell>
+                      <TableCell className="py-4 text-slate-600">{new Date(sale.date).toLocaleDateString()}</TableCell>
+                      <TableCell className="py-4">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                          {getPaymentModeDisplay(sale)}
+                        </span>
+                      </TableCell>
+                      <TableCell className="py-4 font-semibold text-green-700">₹{getFilteredAmount(sale).toFixed(2)}</TableCell>
+                      <TableCell className="py-4 text-slate-600">₹{sale.taxAmount.toFixed(2)}</TableCell>
+                      <TableCell className="py-4 font-bold text-emerald-700">₹{getFilteredGrossTotal(sale).toFixed(2)}</TableCell>
+                      <TableCell className="py-4">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0 hover:bg-slate-100 rounded-lg transition-colors duration-200">
+                              <span className="sr-only">Open menu</span>
+                              <MoreHorizontal className="h-4 w-4 text-slate-600" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-48">
+                            <DropdownMenuLabel className="text-slate-700">Actions</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem onClick={() => handleViewBill(sale)} className="hover:bg-blue-50">
+                              <Eye className="mr-2 h-4 w-4 text-blue-600" />
+                              <span className="text-slate-700">View Bill</span>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleEditSale(sale)} className="hover:bg-amber-50">
+                              <Pencil className="mr-2 h-4 w-4 text-amber-600" />
+                              <span className="text-slate-700">Edit</span>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => handleDeleteSale(sale)}
+                              className="text-red-600 hover:bg-red-50"
+                            >
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </div>
+      </div>
 
       {/* Bill View Dialog */}
       <Dialog open={isBillDialogOpen} onOpenChange={setIsBillDialogOpen}>
