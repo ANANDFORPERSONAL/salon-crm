@@ -8,13 +8,34 @@ import { ReceiptPreview } from "@/components/receipts/receipt-preview"
 import { Button } from "@/components/ui/button"
 import { Printer, Download, ArrowLeft } from "lucide-react"
 import Link from "next/link"
+import { SettingsAPI } from "@/lib/api"
 
 export default function ReceiptPage() {
   const params = useParams()
   const searchParams = useSearchParams()
   const [receipt, setReceipt] = useState<Receipt | null>(null)
+  const [businessSettings, setBusinessSettings] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+
+  // Load business settings
+  useEffect(() => {
+    const loadBusinessSettings = async () => {
+      try {
+        console.log('Loading business settings for receipt...')
+        const response = await SettingsAPI.getBusinessSettings()
+        console.log('Business settings response:', response)
+        if (response.success) {
+          setBusinessSettings(response.data)
+          console.log('Business settings loaded:', response.data)
+        }
+      } catch (error) {
+        console.error('Error loading business settings:', error)
+      }
+    }
+
+    loadBusinessSettings()
+  }, [])
 
   useEffect(() => {
     const loadReceipt = () => {
@@ -183,7 +204,7 @@ export default function ReceiptPage() {
       {/* Receipt Content */}
       <div className="max-w-4xl mx-auto">
         <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-          <ReceiptPreview receipt={receipt} />
+          <ReceiptPreview receipt={receipt} businessSettings={businessSettings} />
         </div>
       </div>
 
