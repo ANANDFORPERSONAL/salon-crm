@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Search, Download, Filter, TrendingUp, DollarSign, Users, MoreHorizontal, Eye, Pencil, Trash2 } from "lucide-react"
+import { Search, Download, Filter, TrendingUp, DollarSign, Users, MoreHorizontal, Eye, Pencil, Trash2, Receipt } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -15,6 +15,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { SalesAPI } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
+import { useRouter } from "next/navigation"
 
 interface SalesRecord {
   id: string
@@ -36,6 +37,7 @@ interface SalesRecord {
 type DatePeriod = "today" | "yesterday" | "last7days" | "last30days" | "currentMonth" | "all"
 
 export function SalesReport() {
+  const router = useRouter()
   const { toast } = useToast()
   const [searchTerm, setSearchTerm] = useState("")
   const [dateRange, setDateRange] = useState<{ from?: Date; to?: Date }>({})
@@ -49,6 +51,11 @@ export function SalesReport() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [selectedSale, setSelectedSale] = useState<SalesRecord | null>(null)
+
+  // Function to navigate to receipt page
+  const handleViewReceipt = (sale: SalesRecord) => {
+    router.push(`/receipt/${sale.billNo}`)
+  }
 
   // Mock data - replace with actual API call
   useEffect(() => {
@@ -621,7 +628,7 @@ export function SalesReport() {
                         <Button
                           variant="link"
                           className="p-0 h-auto font-medium text-blue-600 hover:text-blue-800 hover:underline transition-all duration-200"
-                          onClick={() => handleViewBill(sale)}
+                          onClick={() => handleViewReceipt(sale)}
                         >
                           {sale.billNo}
                         </Button>
@@ -647,9 +654,13 @@ export function SalesReport() {
                           <DropdownMenuContent align="end" className="w-48">
                             <DropdownMenuLabel className="text-slate-700">Actions</DropdownMenuLabel>
                             <DropdownMenuSeparator />
+                            <DropdownMenuItem onClick={() => handleViewReceipt(sale)} className="hover:bg-blue-50">
+                              <Receipt className="mr-2 h-4 w-4 text-blue-600" />
+                              <span className="text-slate-700">View Receipt</span>
+                            </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => handleViewBill(sale)} className="hover:bg-blue-50">
                               <Eye className="mr-2 h-4 w-4 text-blue-600" />
-                              <span className="text-slate-700">View Bill</span>
+                              <span className="text-slate-700">View Bill Details</span>
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => handleEditSale(sale)} className="hover:bg-amber-50">
                               <Pencil className="mr-2 h-4 w-4 text-amber-600" />

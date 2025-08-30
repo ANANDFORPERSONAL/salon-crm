@@ -1,6 +1,7 @@
 "use client"
 
 import type { Receipt } from "@/lib/data"
+import { formatCurrency, getCurrencySymbol } from "@/lib/currency"
 
 interface ReceiptGeneratorProps {
   receipt: Receipt
@@ -142,10 +143,10 @@ export function ReceiptGenerator({ receipt, businessSettings }: ReceiptGenerator
             <div class="item">
               <div class="item-header">
                 <span>${item.name}</span>
-                <span>$${item.total.toFixed(2)}</span>
+                <span>${formatCurrency(item.total, businessSettings)}</span>
               </div>
               <div class="item-details">
-                ${item.quantity} x $${item.price.toFixed(2)}
+                ${item.quantity} x ${formatCurrency(item.price, businessSettings)}
                 ${item.discount > 0 ? ` (${item.discountType === "percentage" ? item.discount + "%" : "$" + item.discount} off)` : ""}
                 ${item.staffName ? ` - ${item.staffName}` : ""}
               </div>
@@ -158,35 +159,35 @@ export function ReceiptGenerator({ receipt, businessSettings }: ReceiptGenerator
         <div class="totals">
           <div class="total-line">
             <span>Subtotal:</span>
-            <span>$${receipt.subtotal.toFixed(2)}</span>
+            <span>${formatCurrency(receipt.subtotal, businessSettings)}</span>
           </div>
           ${
             receipt.discount > 0
               ? `
             <div class="total-line">
               <span>Discount:</span>
-              <span>-$${receipt.discount.toFixed(2)}</span>
+              <span>-${formatCurrency(receipt.discount, businessSettings)}</span>
             </div>
           `
               : ""
           }
           <div class="total-line">
             <span>Tax:</span>
-            <span>$${receipt.tax.toFixed(2)}</span>
+            <span>${formatCurrency(receipt.tax, businessSettings)}</span>
           </div>
           ${
             receipt.tip > 0
               ? `
             <div class="total-line">
               <span>Tip:</span>
-              <span>$${receipt.tip.toFixed(2)}</span>
+              <span>${formatCurrency(receipt.tip, businessSettings)}</span>
             </div>
           `
               : ""
           }
           <div class="total-line grand-total">
             <span>TOTAL:</span>
-            <span>$${receipt.total.toFixed(2)}</span>
+            <span>${formatCurrency(receipt.total, businessSettings)}</span>
           </div>
         </div>
 
@@ -197,7 +198,7 @@ export function ReceiptGenerator({ receipt, businessSettings }: ReceiptGenerator
               (payment) => `
             <div class="payment-line">
               <span>${payment.type.charAt(0).toUpperCase() + payment.type.slice(1)}:</span>
-              <span>$${payment.amount.toFixed(2)}</span>
+              <span>${formatCurrency(payment.amount, businessSettings)}</span>
             </div>
           `,
             )

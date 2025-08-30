@@ -316,6 +316,11 @@ export class SalesAPI {
     return response.data
   }
 
+  static async getByBillNo(billNo: string): Promise<ApiResponse<any>> {
+    const response = await apiClient.get(`/sales/bill/${billNo}`)
+    return response.data
+  }
+
   static async create(data: any): Promise<ApiResponse<any>> {
     const response = await apiClient.post('/sales', data)
     return response.data

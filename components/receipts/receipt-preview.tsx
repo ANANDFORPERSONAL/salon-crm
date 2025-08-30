@@ -2,6 +2,7 @@
 
 import type { Receipt } from "@/lib/data"
 import { Card, CardContent } from "@/components/ui/card"
+import { useCurrency } from "@/hooks/use-currency"
 
 interface ReceiptPreviewProps {
   receipt: Receipt
@@ -9,6 +10,8 @@ interface ReceiptPreviewProps {
 }
 
 export function ReceiptPreview({ receipt, businessSettings }: ReceiptPreviewProps) {
+  const { formatAmount } = useCurrency()
+  
   return (
     <Card className="max-w-sm mx-auto bg-white">
       <CardContent className="p-6 font-mono text-sm">
@@ -65,12 +68,12 @@ export function ReceiptPreview({ receipt, businessSettings }: ReceiptPreviewProp
             <div key={index} className="mb-2">
               <div className="flex justify-between font-semibold">
                 <span>{item.name}</span>
-                <span>${item.total.toFixed(2)}</span>
+                <span>{formatAmount(item.total)}</span>
               </div>
               <div className="text-xs text-gray-600 ml-2">
-                {item.quantity} x ${item.price.toFixed(2)}
+                {item.quantity} x {formatAmount(item.price)}
                 {item.discount > 0 && (
-                  <span> ({item.discountType === "percentage" ? `${item.discount}%` : `$${item.discount}`} off)</span>
+                  <span> ({item.discountType === "percentage" ? `${item.discount}%` : `${formatAmount(item.discount)}`} off)</span>
                 )}
                 {item.staffName && <span> - {item.staffName}</span>}
               </div>
@@ -82,27 +85,27 @@ export function ReceiptPreview({ receipt, businessSettings }: ReceiptPreviewProp
         <div className="space-y-1 mb-4">
           <div className="flex justify-between">
             <span>Subtotal:</span>
-            <span>${receipt.subtotal.toFixed(2)}</span>
+            <span>{formatAmount(receipt.subtotal)}</span>
           </div>
           {receipt.discount > 0 && (
             <div className="flex justify-between">
               <span>Discount:</span>
-              <span>-${receipt.discount.toFixed(2)}</span>
+              <span>-{formatAmount(receipt.discount)}</span>
             </div>
           )}
           <div className="flex justify-between">
             <span>Tax:</span>
-            <span>${receipt.tax.toFixed(2)}</span>
+            <span>{formatAmount(receipt.tax)}</span>
           </div>
           {receipt.tip > 0 && (
             <div className="flex justify-between">
               <span>Tip:</span>
-              <span>${receipt.tip.toFixed(2)}</span>
+              <span>{formatAmount(receipt.tip)}</span>
             </div>
           )}
           <div className="flex justify-between font-bold text-base border-t border-black pt-2 mt-2">
             <span>TOTAL:</span>
-            <span>${receipt.total.toFixed(2)}</span>
+            <span>{formatAmount(receipt.total)}</span>
           </div>
         </div>
 
@@ -112,7 +115,7 @@ export function ReceiptPreview({ receipt, businessSettings }: ReceiptPreviewProp
           {receipt.payments.map((payment, index) => (
             <div key={index} className="flex justify-between">
               <span className="capitalize">{payment.type}:</span>
-              <span>${payment.amount.toFixed(2)}</span>
+              <span>{formatAmount(payment.amount)}</span>
             </div>
           ))}
         </div>

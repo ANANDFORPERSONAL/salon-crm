@@ -13,6 +13,7 @@ import { ReceiptPreview } from "./receipt-preview"
 import { ReceiptGenerator } from "./receipt-generator"
 import { useToast } from "@/hooks/use-toast"
 import { SettingsAPI } from "@/lib/api"
+import { useCurrency } from "@/hooks/use-currency"
 
 interface ReceiptDialogProps {
   receipt: Receipt | null
@@ -27,6 +28,7 @@ export function ReceiptDialog({ receipt, open, onOpenChange, onReceiptUpdate }: 
   const [businessSettings, setBusinessSettings] = useState<any>(null)
   const [isLoadingSettings, setIsLoadingSettings] = useState(true)
   const { toast } = useToast()
+  const { formatAmount } = useCurrency()
 
   // Debug logging
   useEffect(() => {
@@ -235,19 +237,19 @@ export function ReceiptDialog({ receipt, open, onOpenChange, onReceiptUpdate }: 
                     <div className="space-y-1 text-sm">
                       <div className="flex justify-between">
                         <span>Subtotal:</span>
-                        <span>${editedReceipt.subtotal.toFixed(2)}</span>
+                        <span>{formatAmount(editedReceipt.subtotal)}</span>
                       </div>
                       <div className="flex justify-between">
                         <span>Discount:</span>
-                        <span>-${editedReceipt.discount.toFixed(2)}</span>
+                        <span>-{formatAmount(editedReceipt.discount)}</span>
                       </div>
                       <div className="flex justify-between">
                         <span>Tax:</span>
-                        <span>${editedReceipt.tax.toFixed(2)}</span>
+                        <span>{formatAmount(editedReceipt.tax)}</span>
                       </div>
                       <div className="flex justify-between">
                         <span>Tip:</span>
-                        <span>${editedReceipt.tip.toFixed(2)}</span>
+                        <span>{formatAmount(editedReceipt.tip)}</span>
                       </div>
                       <div className="flex justify-between font-semibold border-t pt-1">
                         <span>Total:</span>

@@ -1880,6 +1880,17 @@ app.get('/api/sales/client/:clientName', authenticateToken, async (req, res) => 
   }
 });
 
+// Get sales by bill number
+app.get('/api/sales/bill/:billNo', authenticateToken, async (req, res) => {
+  try {
+    const sale = await Sale.findOne({ billNo: req.params.billNo });
+    if (!sale) return res.status(404).json({ success: false, error: 'Sale not found' });
+    res.json({ success: true, data: sale });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 // --- EXPENSES API ---
 app.get('/api/expenses', authenticateToken, requireManager, async (req, res) => {
   try {
