@@ -335,6 +335,29 @@ export class SalesAPI {
     const response = await apiClient.delete(`/sales/${id}`)
     return response.data
   }
+
+  // Add payment to a sale
+  static async addPayment(saleId: string, paymentData: {
+    amount: number
+    method: string
+    notes?: string
+    collectedBy?: string
+  }): Promise<ApiResponse<any>> {
+    const response = await apiClient.post(`/sales/${saleId}/payment`, paymentData)
+    return response.data
+  }
+
+  // Get payment summary for a sale
+  static async getPaymentSummary(saleId: string): Promise<ApiResponse<any>> {
+    const response = await apiClient.get(`/sales/${saleId}/payment-summary`)
+    return response.data
+  }
+
+  // Get unpaid/overdue bills
+  static async getUnpaidBills(params?: { page?: number; limit?: number }): Promise<PaginatedResponse<any>> {
+    const response = await apiClient.get('/sales/unpaid/overdue', { params })
+    return response.data
+  }
 }
 
 export class ExpensesAPI {

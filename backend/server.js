@@ -1891,6 +1891,112 @@ app.get('/api/sales/bill/:billNo', authenticateToken, async (req, res) => {
   }
 });
 
+// Add payment to a sale
+app.post('/api/sales/:id/payment', authenticateToken, requireStaff, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { amount, method, notes, collectedBy } = req.body;
+    
+    if (!amount || !method) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Amount and payment method are required' 
+      });
+    }
+    
+    const sale = await Sale.findById(id);
+    if (!sale) {
+      return res.status(404).json({ 
+        success: false, 
+        error: 'Sale not found' 
+      });
+    }
+    
+    // Validate payment amount
+    if (amount > sale.paymentStatus.remainingAmount) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Payment amount cannot exceed remaining balance' 
+      });
+    }
+    
+    // Add payment using the model method
+    const paymentData = {
+      date: new Date(),
+      amount: parseFloat(amount),
+      method,
+      notes: notes || '',
+      collectedBy: collectedBy || req.user.name || 'Staff'
+    };
+    
+    await sale.addPayment(paymentData);
+    
+    res.json({ 
+      success: true, 
+      data: sale,
+      message: `Payment of ₹${amount} collected successfully`,
+      paymentSummary: sale.getPaymentSummary()
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Get payment summary for a sale
+app.get('/api/sales/:id/payment-summary', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const sale = await Sale.findById(id);
+    
+    if (!sale) {
+      return res.status(404).json({ 
+        success: false, 
+        error: 'Sale not found' 
+      });
+    }
+    
+    res.json({ 
+      success: true, 
+      data: sale.getPaymentSummary(),
+      paymentHistory: sale.paymentHistory
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Get unpaid/overdue bills
+app.get('/api/sales/unpaid/overdue', authenticateToken, requireManager, async (req, res) => {
+  try {
+    const { page = 1, limit = 50 } = req.query;
+    const skip = (page - 1) * limit;
+    
+    const unpaidBills = await Sale.find({
+      status: { $in: ['unpaid', 'partial', 'overdue'] }
+    })
+    .sort({ 'paymentStatus.dueDate': 1, date: -1 })
+    .skip(skip)
+    .limit(parseInt(limit));
+    
+    const total = await Sale.countDocuments({
+      status: { $in: ['unpaid', 'partial', 'overdue'] }
+    });
+    
+    res.json({
+      success: true,
+      data: unpaidBills,
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total,
+        totalPages: Math.ceil(total / limit)
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 // --- EXPENSES API ---
 app.get('/api/expenses', authenticateToken, requireManager, async (req, res) => {
   try {

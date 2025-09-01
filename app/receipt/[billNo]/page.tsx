@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useParams } from "next/navigation"
+import { useParams, useSearchParams } from "next/navigation"
 import { ReceiptPreview } from "@/components/receipts/receipt-preview"
 import { Button } from "@/components/ui/button"
 import { Printer, Download, ArrowLeft } from "lucide-react"
@@ -38,6 +38,7 @@ interface ReceiptData {
 
 export default function ReceiptPage() {
   const params = useParams()
+  const searchParams = useSearchParams()
   const [receipt, setReceipt] = useState<ReceiptData | null>(null)
   const [businessSettings, setBusinessSettings] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -116,6 +117,48 @@ export default function ReceiptPage() {
           }
         } catch (apiError) {
           console.error('❌ API error:', apiError)
+          
+          // Fallback: Try to use data from query parameters
+          try {
+            const dataParam = searchParams.get('data')
+            if (dataParam) {
+              console.log('🔄 Falling back to query parameter data...')
+              const fallbackData = JSON.parse(decodeURIComponent(dataParam))
+              console.log('📋 Fallback data:', fallbackData)
+              
+              // Transform fallback data to receipt format
+              const receiptData: ReceiptData = {
+                id: fallbackData.id,
+                billNo: fallbackData.receiptNumber,
+                customerName: fallbackData.clientName,
+                customerPhone: fallbackData.clientPhone || 'N/A',
+                date: fallbackData.date,
+                time: fallbackData.time,
+                items: fallbackData.items.map((item: any) => ({
+                  name: item.name,
+                  type: item.type,
+                  quantity: item.quantity,
+                  price: item.price,
+                  total: item.total,
+                  staffName: fallbackData.staffName
+                })),
+                netTotal: fallbackData.subtotal,
+                taxAmount: fallbackData.tax,
+                grossTotal: fallbackData.total,
+                paymentMode: fallbackData.payments?.[0]?.type || 'Cash',
+                payments: fallbackData.payments || [{ type: 'Cash', amount: fallbackData.total }],
+                staffName: fallbackData.staffName,
+                status: 'completed'
+              }
+              
+              setReceipt(receiptData)
+              console.log('✅ Receipt loaded from fallback data')
+              return
+            }
+          } catch (fallbackError) {
+            console.error('❌ Fallback data parsing failed:', fallbackError)
+          }
+          
           setError('Failed to load receipt data')
         }
       } catch (err) {

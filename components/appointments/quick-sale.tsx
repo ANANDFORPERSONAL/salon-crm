@@ -195,6 +195,8 @@ export function QuickSale() {
   const customerSearchRef = useRef<HTMLDivElement>(null)
   const [showBillDetailsDialog, setShowBillDetailsDialog] = useState(false)
   const [selectedBill, setSelectedBill] = useState<any>(null)
+  const [confirmUnpaid, setConfirmUnpaid] = useState(false)
+  const [showPaymentModal, setShowPaymentModal] = useState(false)
 
   // State for services and products from API
   const [services, setServices] = useState<any[]>([])
@@ -806,6 +808,10 @@ export function QuickSale() {
 
   // Handle checkout
   const handleCheckout = async () => {
+    console.log('🚀 handleCheckout function called!')
+    console.log('🚀 selectedCustomer:', selectedCustomer)
+    console.log('🚀 customerSearch:', customerSearch)
+    
     if (!selectedCustomer && !customerSearch) {
       toast({
         title: "Customer Required",
@@ -859,14 +865,7 @@ export function QuickSale() {
       console.log('✅ All products have sufficient stock')
     }
 
-    if (totalPaid < grandTotal) {
-      toast({
-        title: "Insufficient Payment",
-        description: "Payment amount is less than the total amount",
-        variant: "destructive",
-      })
-      return
-    }
+
 
     setIsProcessing(true)
 
@@ -1018,11 +1017,16 @@ export function QuickSale() {
       console.log('🔍 Looking for receipt with ID:', receipt.id)
       console.log('🔍 Looking for receipt with number:', receipt.receiptNumber)
 
-      // Open receipt in new tab with more data
-      const receiptUrl = `/receipt/${receipt.id}?receiptNumber=${receipt.receiptNumber}&data=${encodeURIComponent(JSON.stringify(receipt))}`
+      // Open receipt in new tab using bill number (not receipt ID)
+      const receiptUrl = `/receipt/${receipt.receiptNumber}?data=${encodeURIComponent(JSON.stringify(receipt))}`
       console.log('🎯 Opening receipt in new tab:', receiptUrl)
+      console.log('🎯 Using bill number:', receipt.receiptNumber)
       window.open(receiptUrl, '_blank')
 
+      // Determine bill status based on payment
+      const billStatus = totalPaid === 0 ? 'unpaid' : 
+                        totalPaid < grandTotal ? 'partial' : 'completed'
+      
       // --- Add to Sales Records (backend) ---
       try {
         // Create payments array for split payments
@@ -1034,13 +1038,16 @@ export function QuickSale() {
         const saleData = {
           billNo: receipt.receiptNumber,
           customerName: receipt.clientName,
-          date: receipt.date,
-          paymentMode: payments[0]?.type === 'cash' ? 'Cash' : payments[0]?.type === 'card' ? 'Card' : 'Online', // Legacy support
+          customerPhone: receipt.clientPhone,
+          // Use actual checkout timestamp so it appears in today's reports
+          date: new Date().toISOString(),
+          // For legacy display, store a combined payment mode string; keep blank when no payments
+          paymentMode: salePayments.length > 0 ? salePayments.map(p => p.mode).join(', ') : '',
           payments: salePayments, // New split payment structure
           netTotal: receipt.subtotal,
           taxAmount: receipt.tax,
           grossTotal: receipt.total,
-          status: 'completed' as const,
+          status: billStatus,
           staffName: receipt.staffName,
           items: receipt.items.map((item: any) => ({
             name: item.name,
@@ -1049,6 +1056,16 @@ export function QuickSale() {
             price: item.price,
             total: item.total,
           })),
+          // Add payment status for unpaid/partial bills
+          paymentStatus: {
+            totalAmount: receipt.total,
+            paidAmount: totalPaid,
+            remainingAmount: receipt.total - totalPaid,
+            dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days from now
+            lastPaymentDate: totalPaid > 0 ? new Date().toISOString() : null,
+            isOverdue: false
+          },
+          notes: remarks
         }
         
         console.log('🔍 DEBUG: Starting sale creation...')
@@ -1146,9 +1163,17 @@ export function QuickSale() {
       // Reset form
       resetForm()
 
+      // Show appropriate success message based on bill status
+      const statusMessage = billStatus === 'completed' ? 
+        `Sale completed successfully! Receipt #${receipt.receiptNumber}` :
+        billStatus === 'partial' ? 
+        `Partial payment bill created! Receipt #${receipt.receiptNumber} - Remaining: ₹${(receipt.total - totalPaid).toFixed(2)}` :
+        `Unpaid bill created! Receipt #${receipt.receiptNumber} - Amount due: ₹${receipt.total.toFixed(2)}`
+      
       toast({
-        title: "Checkout Successful",
-        description: `Sale completed successfully! Receipt #${receipt.receiptNumber}`,
+        title: billStatus === 'completed' ? "Checkout Successful" : 
+               billStatus === 'partial' ? "Partial Payment Bill Created" : "Unpaid Bill Created",
+        description: statusMessage,
       })
     } catch (error) {
       toast({
@@ -1175,6 +1200,7 @@ export function QuickSale() {
     setCardAmount(0)
     setOnlineAmount(0)
     setRemarks("")
+    setConfirmUnpaid(false)
   }
 
   // Quick cash amounts
@@ -2492,36 +2518,18 @@ export function QuickSale() {
             <span className="text-lg font-bold text-emerald-600">{formatCurrency(totalPaid)}</span>
           </div>
 
-          {/* Quick Cash Amounts */}
-          <div className="space-y-2 flex-shrink-0">
-            <Label className="text-xs font-medium text-gray-700">Quick Cash Amounts:</Label>
-            <div className="grid grid-cols-2 gap-1.5">
-              {quickCashAmounts.map((amount) => (
-                <Button
-                  key={amount}
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCashAmount(amount)}
-                  className="h-7 text-xs bg-white hover:bg-gray-50 border-gray-200 hover:border-gray-300 text-gray-700 hover:text-gray-800 transition-all duration-200"
-                >
-                  ₹{amount}
-                </Button>
-              ))}
-            </div>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={() => setCashAmount(grandTotal)} 
-              className="w-full h-7 text-xs bg-gradient-to-r from-indigo-50 to-purple-50 hover:from-indigo-100 hover:to-purple-100 border-indigo-200 hover:border-indigo-300 text-indigo-700 hover:text-indigo-800 transition-all duration-200"
-            >
-              Exact Amount ({formatCurrency(grandTotal)})
-            </Button>
-          </div>
+
 
           {/* Action Buttons */}
           <div className="flex gap-2 pt-2 flex-shrink-0">
             <Button 
-              onClick={handleCheckout} 
+              onClick={() => {
+                if (grandTotal > 0 && totalPaid < grandTotal) {
+                  setShowPaymentModal(true)
+                } else {
+                  handleCheckout()
+                }
+              }} 
               disabled={isProcessing} 
               className="flex-1 h-10 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
             >
@@ -2894,6 +2902,100 @@ export function QuickSale() {
           </div>
         </div>
       )}
+
+      {/* Payment Confirmation Modal */}
+      <Dialog open={showPaymentModal} onOpenChange={setShowPaymentModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <div className="h-5 w-5 text-orange-600">⚠️</div>
+              Payment Confirmation Required
+            </DialogTitle>
+            <DialogDescription>
+              Please review the payment details before proceeding with checkout.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            {/* Payment Summary */}
+            <div className="bg-slate-50 p-4 rounded-lg border border-slate-200">
+              <h4 className="font-medium text-slate-800 mb-3">Payment Summary</h4>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span>Bill Total:</span>
+                  <span className="font-medium">₹{grandTotal.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Amount Paid:</span>
+                  <span className="font-medium text-green-600">₹{totalPaid.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between border-t border-slate-200 pt-2">
+                  <span className="font-semibold">Remaining:</span>
+                  <span className="font-bold text-red-600">₹{(grandTotal - totalPaid).toFixed(2)}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Warning Message */}
+            <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="h-5 w-5 text-orange-600">⚠️</div>
+                <span className="font-medium text-orange-800">Important Notice</span>
+              </div>
+              <p className="text-sm text-orange-700">
+                {totalPaid === 0 ? 
+                  `This will create an UNPAID bill. Customer owes ₹${grandTotal.toFixed(2)}` :
+                  `This will create a PARTIALLY PAID bill. Customer owes ₹${(grandTotal - totalPaid).toFixed(2)} more`
+                }
+              </p>
+            </div>
+
+            {/* Confirmation Checkbox */}
+            <div className="flex items-center gap-2">
+              <input 
+                type="checkbox" 
+                id="confirmUnpaid" 
+                checked={confirmUnpaid} 
+                onChange={(e) => setConfirmUnpaid(e.target.checked)}
+                className="rounded border-orange-300"
+              />
+              <label htmlFor="confirmUnpaid" className="text-sm text-orange-700 cursor-pointer">
+                I confirm this {totalPaid === 0 ? 'unpaid' : 'partially paid'} bill
+              </label>
+            </div>
+          </div>
+
+          <DialogFooter className="gap-2">
+            <Button 
+              variant="outline" 
+              onClick={() => setShowPaymentModal(false)}
+            >
+              Cancel
+            </Button>
+            <Button 
+              onClick={() => {
+                console.log('🔍 Modal button clicked!')
+                console.log('🔍 confirmUnpaid:', confirmUnpaid)
+                console.log('🔍 grandTotal:', grandTotal)
+                console.log('🔍 totalPaid:', totalPaid)
+                
+                if (confirmUnpaid) {
+                  console.log('✅ Checkbox confirmed, proceeding with checkout...')
+                  setShowPaymentModal(false)
+                  console.log('🔍 Calling handleCheckout...')
+                  handleCheckout()
+                } else {
+                  console.log('❌ Checkbox not confirmed')
+                }
+              }}
+              disabled={!confirmUnpaid}
+              className="bg-orange-600 hover:bg-orange-700"
+            >
+              Confirm & Checkout
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

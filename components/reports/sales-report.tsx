@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Search, Download, Filter, TrendingUp, DollarSign, Users, MoreHorizontal, Eye, Pencil, Trash2, Receipt } from "lucide-react"
+import { Search, Download, Filter, TrendingUp, DollarSign, Users, MoreHorizontal, Eye, Pencil, Trash2, Receipt, AlertCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -321,10 +321,13 @@ export function SalesReport() {
       // Backend combined payment mode (e.g., "Cash, Card")
       console.log(`✅ Combined payment mode for ${sale.billNo}:`, sale.paymentMode)
       return sale.paymentMode
-    } else {
+    } else if (sale.paymentMode) {
       // Legacy single payment mode
       console.log(`✅ Single payment mode for ${sale.billNo}:`, sale.paymentMode)
       return sale.paymentMode
+    } else {
+      // No payment recorded (unpaid)
+      return ''
     }
   }
 
@@ -551,6 +554,14 @@ export function SalesReport() {
             </div>
             
             <div className="flex items-center space-x-3">
+              <Button 
+                onClick={() => router.push('/reports/unpaid-bills')}
+                variant="outline"
+                className="border-red-200 text-red-700 hover:bg-red-50 hover:border-red-300"
+              >
+                <AlertCircle className="h-4 w-4 mr-2" />
+                View Unpaid Bills
+              </Button>
               <Button 
                 onClick={handleExport}
                 className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 shadow-md hover:shadow-lg transition-all duration-300 rounded-lg font-medium"
