@@ -195,12 +195,31 @@ export function ReceiptGenerator({ receipt, businessSettings }: ReceiptGenerator
           <div style="font-weight: bold; margin-bottom: 5px;">Payment Method(s):</div>
           ${receipt.payments
             .map(
-              (payment) => `
+              (payment) => {
+                // Safely handle payment types with null/undefined checks
+                if (!payment || !payment.type) {
+                  return `
             <div class="payment-line">
-              <span>${payment.type.charAt(0).toUpperCase() + payment.type.slice(1)}:</span>
+              <span>Unknown:</span>
+              <span>${formatCurrency(payment?.amount || 0, businessSettings)}</span>
+            </div>
+          `
+                }
+                
+                // Map payment types to display names
+                let displayName = 'Unknown'
+                if (payment.type === 'cash') displayName = 'Cash'
+                if (payment.type === 'card') displayName = 'Card'
+                if (payment.type === 'online') displayName = 'Online'
+                if (payment.type === 'unknown') displayName = 'Unknown'
+                
+                return `
+            <div class="payment-line">
+              <span>${displayName}:</span>
               <span>${formatCurrency(payment.amount, businessSettings)}</span>
             </div>
-          `,
+          `
+              }
             )
             .join("")}
         </div>

@@ -86,6 +86,10 @@ export default function ReceiptPage() {
             
             // Transform sale data to receipt format
             const saleData = response.data
+            console.log('🔍 Raw sale data from API:', saleData)
+            console.log('🔍 Sale payments array:', saleData.payments)
+            console.log('🔍 Sale payment mode:', saleData.paymentMode)
+            
             const receiptData: ReceiptData = {
               id: saleData._id || saleData.id,
               billNo: saleData.billNo,
@@ -105,11 +109,21 @@ export default function ReceiptPage() {
               taxAmount: saleData.taxAmount,
               grossTotal: saleData.grossTotal,
               paymentMode: saleData.paymentMode,
-              payments: saleData.payments || [{ type: saleData.paymentMode, amount: saleData.grossTotal }],
+              payments: saleData.payments?.length > 0 ? saleData.payments.map((payment: any) => {
+                // Handle both 'mode' field (from Sale model) and 'type' field (from receipt)
+                const paymentType = payment.mode || payment.type
+                console.log('🔍 Processing payment:', { payment, paymentType, mode: payment.mode, type: payment.type })
+                return {
+                  type: paymentType?.toLowerCase() || 'unknown',
+                  amount: payment.amount || 0
+                }
+              }) : [{ type: (saleData.paymentMode?.toLowerCase() || 'unknown'), amount: saleData.grossTotal }],
               staffName: saleData.staffName,
               status: saleData.status
             }
             
+            console.log('🔍 Final receipt data:', receiptData)
+            console.log('🔍 Payments array:', receiptData.payments)
             setReceipt(receiptData)
           } else {
             console.log('❌ Sale not found for bill number:', billNo)
@@ -125,6 +139,8 @@ export default function ReceiptPage() {
               console.log('🔄 Falling back to query parameter data...')
               const fallbackData = JSON.parse(decodeURIComponent(dataParam))
               console.log('📋 Fallback data:', fallbackData)
+              console.log('📋 Fallback payments:', fallbackData.payments)
+              console.log('📋 Fallback payment types:', fallbackData.payments?.map((p: any) => p.type))
               
               // Transform fallback data to receipt format
               const receiptData: ReceiptData = {
@@ -151,6 +167,8 @@ export default function ReceiptPage() {
                 status: 'completed'
               }
               
+              console.log('🔍 Fallback receipt data:', receiptData)
+              console.log('🔍 Fallback payments array:', receiptData.payments)
               setReceipt(receiptData)
               console.log('✅ Receipt loaded from fallback data')
               return
@@ -254,7 +272,7 @@ export default function ReceiptPage() {
               clientPhone: receipt.customerPhone,
               date: receipt.date,
               time: receipt.time,
-              items: receipt.items.map(item => ({
+              items: receipt.items?.map(item => ({
                 id: item.name,
                 name: item.name,
                 type: item.type as "service" | "product",
@@ -265,16 +283,16 @@ export default function ReceiptPage() {
                 staffId: receipt.id,
                 staffName: item.staffName || receipt.staffName,
                 total: item.total
-              })),
+              })) || [],
               subtotal: receipt.netTotal,
               tip: 0,
               discount: 0,
               tax: receipt.taxAmount,
               total: receipt.grossTotal,
-              payments: receipt.payments.map(payment => ({
-                type: payment.type as "cash" | "card" | "digital",
-                amount: payment.amount
-              })),
+              payments: receipt.payments?.map(payment => ({
+                type: (payment?.type || 'unknown') as "cash" | "card" | "online",
+                amount: payment?.amount || 0
+              })) || [],
               staffId: receipt.id,
               staffName: receipt.staffName,
               notes: ''

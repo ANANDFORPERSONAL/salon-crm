@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect } from "react"
 import type { Receipt } from "@/lib/data"
 import { Card, CardContent } from "@/components/ui/card"
 import { useCurrency } from "@/hooks/use-currency"
@@ -11,6 +12,12 @@ interface ReceiptPreviewProps {
 
 export function ReceiptPreview({ receipt, businessSettings }: ReceiptPreviewProps) {
   const { formatAmount } = useCurrency()
+  
+  // Debug logging
+  useEffect(() => {
+    console.log('🔍 ReceiptPreview - receipt data:', receipt)
+    console.log('🔍 ReceiptPreview - payments:', receipt.payments)
+  }, [receipt])
   
   return (
     <Card className="max-w-sm mx-auto bg-white">
@@ -112,12 +119,32 @@ export function ReceiptPreview({ receipt, businessSettings }: ReceiptPreviewProp
         {/* Payments */}
         <div className="mb-4">
           <div className="font-semibold mb-2">Payment Method(s):</div>
-          {receipt.payments.map((payment, index) => (
-            <div key={index} className="flex justify-between">
-              <span className="capitalize">{payment.type}:</span>
-              <span>{formatAmount(payment.amount)}</span>
-            </div>
-          ))}
+          {receipt.payments.map((payment, index) => {
+            // Safely handle payment types with null/undefined checks
+            if (!payment || !payment.type) {
+              console.warn(`Payment at index ${index} is missing type:`, payment)
+              return (
+                <div key={index} className="flex justify-between">
+                  <span>Unknown:</span>
+                  <span>{formatAmount(payment?.amount || 0)}</span>
+                </div>
+              )
+            }
+            
+            // Map payment types to display names
+            let displayName = 'Unknown'
+            if (payment.type === 'cash') displayName = 'Cash'
+            if (payment.type === 'card') displayName = 'Card'
+            if (payment.type === 'online') displayName = 'Online'
+            if (payment.type === 'unknown') displayName = 'Unknown'
+            
+            return (
+              <div key={index} className="flex justify-between">
+                <span>{displayName}:</span>
+                <span>{formatAmount(payment.amount)}</span>
+              </div>
+            )
+          })}
         </div>
 
         {/* Footer */}

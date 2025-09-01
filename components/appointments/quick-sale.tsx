@@ -947,9 +947,9 @@ export function QuickSale() {
 
       // Create payments array
       const payments: PaymentMethod[] = []
-      if (cashAmount > 0) payments.push({ type: "cash", amount: cashAmount })
-      if (cardAmount > 0) payments.push({ type: "card", amount: cardAmount })
-      if (onlineAmount > 0) payments.push({ type: "digital", amount: onlineAmount })
+              if (cashAmount > 0) payments.push({ type: "cash", amount: cashAmount })
+        if (cardAmount > 0) payments.push({ type: "card", amount: cardAmount })
+        if (onlineAmount > 0) payments.push({ type: "online", amount: onlineAmount })
 
       // Get the primary staff member (first staff member from items)
       const primaryStaff = receiptItems.length > 0 ? receiptItems[0] : null

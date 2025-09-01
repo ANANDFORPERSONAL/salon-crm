@@ -99,7 +99,7 @@ export interface ReceiptItem {
 }
 
 export interface PaymentMethod {
-  type: "cash" | "card" | "digital"
+  type: "cash" | "card" | "online" | "unknown"
   amount: number
 }
 
