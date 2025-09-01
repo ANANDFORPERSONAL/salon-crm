@@ -660,6 +660,37 @@ export function CashRegistryReport({ isVerificationModalOpen, onVerificationModa
     }, 0)
   }
 
+  // Get today's online sales specifically for the modal
+  const getTodayOnlineSales = () => {
+    const today = new Date()
+    const todayString = today.toISOString().split('T')[0]
+    
+    const result = salesData.reduce((sum: number, sale: any) => {
+      const saleDate = new Date(sale.date).toISOString().split('T')[0]
+      if (saleDate === todayString) {
+        if (sale.payments && sale.payments.length > 0) {
+          // Split payment structure
+          return sum + sale.payments
+            .filter((payment: any) => payment.mode === "Card" || payment.mode === "Online")
+            .reduce((paymentSum: number, payment: any) => paymentSum + payment.amount, 0)
+        } else {
+          // Legacy single payment mode
+          return sum + ((sale.paymentMode === "Card" || sale.paymentMode === "Online") ? sale.netTotal : 0)
+        }
+      }
+      return sum
+    }, 0)
+    
+    console.log("🔍 getTodayOnlineSales:", {
+      todayString,
+      salesDataCount: salesData.length,
+      availableDates: salesData.map(sale => new Date(sale.date).toISOString().split('T')[0]),
+      result
+    })
+    
+    return result
+  }
+
   // Use real-time data for stats
   const totalCashSales = getRealTimeCashSales()
   const totalOnlineSales = getRealTimeOnlineSales()
@@ -1772,7 +1803,7 @@ export function CashRegistryReport({ isVerificationModalOpen, onVerificationModa
         open={isAddModalOpen}
         onOpenChange={setIsAddModalOpen}
         onSaveSuccess={fetchCashRegistryData}
-        onlineSalesAmount={totalOnlineSales}
+        onlineSalesAmount={getTodayOnlineSales()}
         onPosCashChange={(amount) => {
           console.log("POS Cash amount changed:", amount)
           // This will be used to update the POS Cash column after saving

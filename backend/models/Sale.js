@@ -11,7 +11,7 @@ const itemSchema = new mongoose.Schema({
 const paymentHistorySchema = new mongoose.Schema({
   date: { type: Date, required: true, default: Date.now },
   amount: { type: Number, required: true, min: 0 },
-  method: { type: String, enum: ['Cash', 'Card', 'Online', 'UPI', 'Bank Transfer'], required: true },
+  method: { type: String, enum: ['Cash', 'Card', 'Online'], required: true },
   notes: { type: String, default: '' },
   collectedBy: { type: String, default: '' }
 }, { _id: false });
@@ -25,7 +25,7 @@ const saleSchema = new mongoose.Schema({
   // Enhanced payment status system
   status: { 
     type: String, 
-    enum: ['completed', 'pending', 'partial', 'unpaid', 'overdue', 'cancelled'], 
+    enum: ['completed', 'partial', 'unpaid', 'cancelled', 'pending', 'overdue', 'Completed', 'Partial', 'Unpaid', 'Cancelled', 'Pending', 'Overdue'], 
     default: 'unpaid' 
   },
   
@@ -40,9 +40,9 @@ const saleSchema = new mongoose.Schema({
   },
   
   // Support for split payments (legacy and enhanced)
-  paymentMode: { type: String, required: true }, // Can be "Cash", "Card", "Online", or "Cash, Card", etc.
+  paymentMode: { type: String, default: '' }, // Can be "Cash", "Card", "Online", or "Cash, Card", etc.
   payments: [{
-    mode: { type: String, enum: ['Cash', 'Card', 'Online', 'UPI', 'Bank Transfer'], required: true },
+    mode: { type: String, enum: ['Cash', 'Card', 'Online'], required: true },
     amount: { type: Number, required: true, min: 0 }
   }],
   
@@ -81,11 +81,8 @@ saleSchema.pre('save', function(next) {
     this.status = 'unpaid';
   }
   
-  // Check if overdue
-  if (this.paymentStatus.dueDate && new Date() > this.paymentStatus.dueDate && this.status !== 'completed') {
-    this.status = 'overdue';
-    this.paymentStatus.isOverdue = true;
-  }
+  // Note: We removed the overdue status check since we're simplifying to just Completed/Partial/Unpaid
+  // Overdue logic can be handled in the frontend by comparing dueDate with current date
   
   // If payments array is provided and has multiple payment types, update paymentMode
   if (this.payments && this.payments.length > 0) {
@@ -106,12 +103,14 @@ saleSchema.methods.addPayment = function(paymentData) {
   this.paymentStatus.paidAmount += paymentData.amount;
   this.paymentStatus.lastPaymentDate = new Date();
   
-  // Update status
-  if (this.paymentStatus.paidAmount >= this.paymentStatus.totalAmount) {
-    this.status = 'completed';
-  } else if (this.paymentStatus.paidAmount > 0) {
-    this.status = 'partial';
-  }
+  // Also update the payments array for consistency with frontend display
+  this.payments.push({
+    mode: paymentData.method,
+    amount: paymentData.amount
+  });
+  
+  // Let the pre-save middleware handle status updates
+  // This prevents conflicts and ensures consistent status logic
   
   return this.save();
 };

@@ -38,10 +38,10 @@ export function PaymentCollectionModal({ isOpen, onClose, sale, onPaymentCollect
   }, [sale, isOpen])
 
   const loadPaymentSummary = async () => {
-    if (!sale?.id) return
+    if (!sale?._id) return
     
     try {
-      const response = await SalesAPI.getPaymentSummary(sale.id)
+      const response = await SalesAPI.getPaymentSummary(sale._id)
       if (response.success) {
         setPaymentSummary(response.data)
       }
@@ -83,7 +83,7 @@ export function PaymentCollectionModal({ isOpen, onClose, sale, onPaymentCollect
 
     setIsLoading(true)
     try {
-      const response = await SalesAPI.addPayment(sale.id, {
+      const response = await SalesAPI.addPayment(sale._id, {
         amount,
         method: paymentMethod,
         notes,
@@ -107,8 +107,9 @@ export function PaymentCollectionModal({ isOpen, onClose, sale, onPaymentCollect
         // Notify parent component
         onPaymentCollected()
         
-        // Close modal if payment is complete
-        if (response.data.paymentSummary?.remainingAmount === 0) {
+        // Close modal if payment is complete (full payment or no remaining amount)
+        const paymentSummary = (response as any).paymentSummary;
+        if (paymentSummary?.remainingAmount === 0 || amount >= sale.paymentStatus?.remainingAmount) {
           onClose()
         }
       } else {
@@ -279,8 +280,6 @@ export function PaymentCollectionModal({ isOpen, onClose, sale, onPaymentCollect
                         Online
                       </div>
                     </SelectItem>
-                    <SelectItem value="UPI">UPI</SelectItem>
-                    <SelectItem value="Bank Transfer">Bank Transfer</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

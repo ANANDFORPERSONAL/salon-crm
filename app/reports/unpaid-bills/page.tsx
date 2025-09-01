@@ -23,7 +23,8 @@ import {
 import { useRouter } from "next/navigation"
 
 interface UnpaidBill {
-  id: string
+  _id: string
+  id?: string // Optional for backward compatibility
   billNo: string
   customerName: string
   customerPhone: string
@@ -111,8 +112,10 @@ export default function UnpaidBillsPage() {
     }
     
     switch (status) {
+      case "Partial":
       case "partial":
         return <Badge className="bg-blue-100 text-blue-800 border-blue-200">Partial</Badge>
+      case "Unpaid":
       case "unpaid":
         return <Badge className="bg-red-100 text-red-800 border-red-200">Unpaid</Badge>
       default:
@@ -268,7 +271,7 @@ export default function UnpaidBillsPage() {
                   </TableHeader>
                   <TableBody>
                     {filteredBills.map((bill) => (
-                      <TableRow key={bill._id || bill.id || bill.billNo} className="hover:bg-gradient-to-r hover:from-slate-50 hover:to-blue-50 transition-all duration-200 border-b border-slate-100">
+                      <TableRow key={bill._id} className="hover:bg-gradient-to-r hover:from-slate-50 hover:to-blue-50 transition-all duration-200 border-b border-slate-100">
                         <TableCell className="py-4">
                           <Button
                             variant="link"

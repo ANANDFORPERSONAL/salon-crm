@@ -30,7 +30,7 @@ interface SalesRecord {
   netTotal: number
   taxAmount: number
   grossTotal: number
-  status: "completed" | "pending" | "cancelled"
+  status: "completed" | "partial" | "unpaid" | "cancelled"
   staffName: string
 }
 
@@ -204,7 +204,8 @@ export function SalesReport() {
 
   const totalRevenue = filteredSales.reduce((sum, sale) => sum + sale.grossTotal, 0)
   const completedSales = filteredSales.filter(sale => sale.status === "completed").length
-  const pendingSales = filteredSales.filter(sale => sale.status === "pending").length
+  const partialSales = filteredSales.filter(sale => sale.status === "partial").length
+  const unpaidSales = filteredSales.filter(sale => sale.status === "unpaid").length
   
   // Calculate cash and online collections (supporting both legacy and split payments)
   const cashCollected = filteredSales.reduce((sum, sale) => {
@@ -294,8 +295,10 @@ export function SalesReport() {
     switch (status) {
       case "completed":
         return <Badge variant="default">Completed</Badge>
-      case "pending":
-        return <Badge variant="secondary">Pending</Badge>
+      case "partial":
+        return <Badge variant="secondary">Partial</Badge>
+      case "unpaid":
+        return <Badge variant="outline">Unpaid</Badge>
       case "cancelled":
         return <Badge variant="destructive">Cancelled</Badge>
       default:
@@ -307,28 +310,39 @@ export function SalesReport() {
     console.log(`🔍 Processing payment display for ${sale.billNo}:`, {
       paymentMode: sale.paymentMode,
       payments: sale.payments,
-      hasPayments: !!sale.payments?.length
+      hasPayments: !!sale.payments?.length,
+      status: sale.status
     })
     
+    // First priority: Check if there are payments (new split payment structure)
     if (sale.payments && sale.payments.length > 0) {
-      // New split payment structure
       const paymentModes = sale.payments.map(payment => payment.mode)
       const uniqueModes = [...new Set(paymentModes)]
       const display = uniqueModes.join(", ")
       console.log(`✅ Split payment for ${sale.billNo}:`, { payments: sale.payments, display })
       return display
-    } else if (sale.paymentMode && sale.paymentMode.includes(',')) {
-      // Backend combined payment mode (e.g., "Cash, Card")
-      console.log(`✅ Combined payment mode for ${sale.billNo}:`, sale.paymentMode)
+    }
+    
+    // Second priority: Check legacy paymentMode field
+    if (sale.paymentMode) {
+      console.log(`✅ Legacy payment mode for ${sale.billNo}:`, sale.paymentMode)
       return sale.paymentMode
-    } else if (sale.paymentMode) {
-      // Legacy single payment mode
-      console.log(`✅ Single payment mode for ${sale.billNo}:`, sale.paymentMode)
-      return sale.paymentMode
-    } else {
-      // No payment recorded (unpaid)
+    }
+    
+    // For unpaid bills with no payments, return empty
+    if (sale.status === 'unpaid' && (!sale.payments || sale.payments.length === 0)) {
       return ''
     }
+    
+    // For partial bills, show what's been paid
+    if (sale.status === 'partial' && sale.payments && sale.payments.length > 0) {
+      const paymentModes = sale.payments.map(payment => payment.mode)
+      const uniqueModes = [...new Set(paymentModes)]
+      return uniqueModes.join(", ")
+    }
+    
+    // Default: no payment recorded
+    return ''
   }
 
   // Get filtered amount based on payment filter
@@ -437,16 +451,33 @@ export function SalesReport() {
         <Card className="group transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl border-0 bg-gradient-to-br from-amber-50 to-orange-100 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-r from-amber-600/10 to-orange-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
-            <CardTitle className="text-sm font-medium text-amber-800">Pending Sales</CardTitle>
+            <CardTitle className="text-sm font-medium text-amber-800">Partial Payments</CardTitle>
             <div className="p-2 bg-amber-100 rounded-lg group-hover:bg-amber-200 transition-colors duration-300">
               <Users className="h-4 w-4 text-amber-600" />
             </div>
           </CardHeader>
           <CardContent className="relative z-10">
-            <div className="text-3xl font-bold text-amber-900 mb-1">{pendingSales}</div>
-            <p className="text-xs text-amber-600 font-medium">Awaiting completion</p>
+            <div className="text-3xl font-bold text-amber-900 mb-1">{partialSales}</div>
+            <p className="text-xs text-amber-600 font-medium">Partially paid bills</p>
             <div className="w-full bg-amber-200 rounded-full h-1 mt-3 overflow-hidden">
-              <div className="bg-gradient-to-r from-amber-500 to-orange-500 h-1 rounded-full transition-all duration-1000 ease-out animate-pulse" style={{ width: `${filteredSales.length > 0 ? (pendingSales / filteredSales.length) * 100 : 0}%` }} />
+              <div className="bg-gradient-to-r from-amber-500 to-orange-500 h-1 rounded-full transition-all duration-1000 ease-out animate-pulse" style={{ width: `${filteredSales.length > 0 ? (partialSales / filteredSales.length) * 100 : 0}%` }} />
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card className="group transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl border-0 bg-gradient-to-br from-red-50 to-rose-100 overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-red-600/10 to-rose-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
+            <CardTitle className="text-sm font-medium text-red-800">Unpaid Bills</CardTitle>
+            <div className="p-2 bg-red-100 rounded-lg group-hover:bg-red-200 transition-colors duration-300">
+              <Users className="h-4 w-4 text-red-600" />
+            </div>
+          </CardHeader>
+          <CardContent className="relative z-10">
+            <div className="text-3xl font-bold text-red-900 mb-1">{unpaidSales}</div>
+            <p className="text-xs text-red-600 font-medium">Awaiting payment</p>
+            <div className="w-full bg-red-200 rounded-full h-1 mt-3 overflow-hidden">
+              <div className="bg-gradient-to-r from-red-500 to-rose-500 h-1 rounded-full transition-all duration-1000 ease-out animate-pulse" style={{ width: `${filteredSales.length > 0 ? (unpaidSales / filteredSales.length) * 100 : 0}%` }} />
             </div>
           </CardContent>
         </Card>
@@ -547,7 +578,8 @@ export function SalesReport() {
                 <SelectContent>
                   <SelectItem value="all">All Status</SelectItem>
                   <SelectItem value="completed">Completed</SelectItem>
-                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="partial">Partial</SelectItem>
+                  <SelectItem value="unpaid">Unpaid</SelectItem>
                   <SelectItem value="cancelled">Cancelled</SelectItem>
                 </SelectContent>
               </Select>
@@ -596,6 +628,7 @@ export function SalesReport() {
                   <TableHead className="py-4 text-slate-700 font-semibold">Bill No.</TableHead>
                   <TableHead className="py-4 text-slate-700 font-semibold">Customer Name</TableHead>
                   <TableHead className="py-4 text-slate-700 font-semibold">Date</TableHead>
+                  <TableHead className="py-4 text-slate-700 font-semibold">Status</TableHead>
                   <TableHead className="py-4 text-slate-700 font-semibold">Payment Mode</TableHead>
                   <TableHead className="py-4 text-slate-700 font-semibold">
                     Net Total
@@ -620,7 +653,7 @@ export function SalesReport() {
               <TableBody>
                 {filteredSales.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={8} className="text-center py-16">
+                    <TableCell colSpan={9} className="text-center py-16">
                       <div className="flex flex-col items-center space-y-4">
                         <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center">
                           <TrendingUp className="h-10 w-10 text-slate-400" />
@@ -646,6 +679,7 @@ export function SalesReport() {
                       </TableCell>
                       <TableCell className="py-4 font-medium text-slate-800">{sale.customerName}</TableCell>
                       <TableCell className="py-4 text-slate-600">{new Date(sale.date).toLocaleDateString()}</TableCell>
+                      <TableCell className="py-4">{getStatusBadge(sale.status)}</TableCell>
                       <TableCell className="py-4">
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                           {getPaymentModeDisplay(sale)}

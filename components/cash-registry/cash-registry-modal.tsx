@@ -56,8 +56,16 @@ export function CashRegistryModal({ open, onOpenChange, onSaveSuccess, onlineSal
 
   // Use the online sales amount from props (stats card) instead of fetching separately
   useEffect(() => {
+    console.log("🔄 CashRegistryModal useEffect:", {
+      shift,
+      open,
+      onlineSalesAmount,
+      currentCashCollectedOnline: cashCollectedOnline
+    })
+    
     if (shift === "closing" && open) {
       setCashCollectedOnline(onlineSalesAmount)
+      console.log("✅ Set Cash Collected Online to:", onlineSalesAmount)
     }
   }, [shift, open, onlineSalesAmount])
 
@@ -403,7 +411,10 @@ export function CashRegistryModal({ open, onOpenChange, onSaveSuccess, onlineSal
 
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Fetched from "Total Online Sales" stats card (₹{cashCollectedOnline.toFixed(2)})
+                    {shift === "opening" 
+                      ? "Will be 0 for opening shifts (no online payments yet)"
+                      : `Today's online sales: Card + Online payments (₹${cashCollectedOnline.toFixed(2)})`
+                    }
                   </p>
                   {!isLoading && cashCollectedOnline > 0 && (
                     <div className="text-xs text-muted-foreground bg-blue-50 border border-blue-200 p-2 rounded">

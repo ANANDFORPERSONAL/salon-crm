@@ -1972,14 +1972,14 @@ app.get('/api/sales/unpaid/overdue', authenticateToken, requireManager, async (r
     const skip = (page - 1) * limit;
     
     const unpaidBills = await Sale.find({
-      status: { $in: ['unpaid', 'partial', 'overdue'] }
+      status: { $in: ['unpaid', 'partial', 'overdue', 'Unpaid', 'Partial', 'Overdue'] }
     })
     .sort({ 'paymentStatus.dueDate': 1, date: -1 })
     .skip(skip)
     .limit(parseInt(limit));
     
     const total = await Sale.countDocuments({
-      status: { $in: ['unpaid', 'partial', 'overdue'] }
+      status: { $in: ['unpaid', 'partial', 'overdue', 'Unpaid', 'Partial', 'Overdue'] }
     });
     
     res.json({
