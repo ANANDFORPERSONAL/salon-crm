@@ -39,9 +39,17 @@ const receiptSchema = new mongoose.Schema({
       enum: ['percentage', 'fixed'],
       default: 'percentage'
     },
+    // Legacy fields for backward compatibility
     staffId: String,
     staffName: String,
-    total: Number
+    total: Number,
+    // New multi-staff support
+    staffContributions: [{
+      staffId: { type: String, required: true },
+      staffName: { type: String, required: true },
+      percentage: { type: Number, required: true, min: 0, max: 100 },
+      amount: { type: Number, required: true, min: 0 }
+    }]
   }],
   subtotal: {
     type: Number,

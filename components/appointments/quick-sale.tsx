@@ -55,6 +55,7 @@ import {
 } from "@/lib/data"
 import { ServicesAPI, ProductsAPI, StaffAPI, SalesAPI, UsersAPI, SettingsAPI, ReceiptsAPI } from "@/lib/api"
 import { clientStore, type Client } from "@/lib/client-store"
+import { MultiStaffSelector, type StaffContribution } from "@/components/ui/multi-staff-selector"
 
 // Mock data for customers
 // const mockCustomers = [
@@ -146,7 +147,13 @@ import { clientStore, type Client } from "@/lib/client-store"
 interface ServiceItem {
   id: string
   serviceId: string
-  staffId: string
+  staffId: string // Legacy field for backward compatibility
+  staffContributions?: Array<{
+    staffId: string
+    staffName: string
+    percentage: number
+    amount: number
+  }>
   quantity: number
   price: number
   discount: number
@@ -913,6 +920,19 @@ export function QuickSale() {
           const staffMember = staff.find((s) => s._id === item.staffId || s.id === item.staffId)
           console.log('Service lookup:', { serviceId: item.serviceId, foundService: service?.name, allServices: services.map(s => ({ id: s._id || s.id, name: s.name })) })
           console.log('Staff lookup:', { staffId: item.staffId, foundStaff: staffMember?.name, allStaff: staff.map(s => ({ id: s._id || s.id, name: s.name })) })
+          
+          // Handle staff contributions
+          let staffContributions = item.staffContributions
+          if (!staffContributions && item.staffId) {
+            // Legacy support - create single staff contribution
+            staffContributions = [{
+              staffId: item.staffId,
+              staffName: staffMember?.name || "Unassigned Staff",
+              percentage: 100,
+              amount: item.total
+            }]
+          }
+          
           return {
             id: item.id,
             name: service?.name || "Unknown Service",
@@ -924,6 +944,7 @@ export function QuickSale() {
             staffId: item.staffId,
             staffName: staffMember?.name || "Unassigned Staff",
             total: item.total,
+            staffContributions: staffContributions
           }
         }),
         ...validProductItems.map((item) => {
@@ -1055,6 +1076,16 @@ export function QuickSale() {
             quantity: item.quantity,
             price: item.price,
             total: item.total,
+            // Include staff contributions if available
+            staffContributions: item.staffContributions || (item.staffId ? [{
+              staffId: item.staffId,
+              staffName: item.staffName || '',
+              percentage: 100,
+              amount: item.total
+            }] : undefined),
+            // Legacy fields for backward compatibility
+            staffId: item.staffId,
+            staffName: item.staffName
           })),
           // Add payment status for unpaid/partial bills
           paymentStatus: {
@@ -1999,7 +2030,7 @@ export function QuickSale() {
 
             {serviceItems.length > 0 && (
               <div className="border border-gray-200 rounded-xl overflow-hidden shadow-sm bg-white">
-                <div className="grid grid-cols-[2fr_1.5fr_120px_100px_100px_100px_40px] gap-4 p-4 bg-gradient-to-r from-indigo-50 to-purple-50 font-semibold text-sm text-gray-700 border-b">
+                <div className="grid grid-cols-[2fr_3fr_120px_100px_100px_100px_40px] gap-4 p-4 bg-gradient-to-r from-indigo-50 to-purple-50 font-semibold text-sm text-gray-700 border-b">
                   <div>Service *</div>
                   <div>Staff *</div>
                   <div>Qty</div>
@@ -2012,7 +2043,7 @@ export function QuickSale() {
                 {serviceItems.map((item) => (
                   <div
                     key={item.id}
-                    className="grid grid-cols-[2fr_1.5fr_120px_100px_100px_100px_40px] gap-4 p-4 border-b last:border-b-0 items-center hover:bg-gray-50/50 transition-all duration-200"
+                    className="grid grid-cols-[2fr_3fr_120px_100px_100px_100px_40px] gap-4 p-4 border-b last:border-b-0 items-center hover:bg-gray-50/50 transition-all duration-200"
                   >
                     <Select
                       value={item.serviceId}
@@ -2040,51 +2071,15 @@ export function QuickSale() {
                       </SelectContent>
                     </Select>
 
-                    <Select
-                      value={item.staffId}
-                      onValueChange={(value) => updateServiceItem(item.id, "staffId", value)}
-                    >
-                      <SelectTrigger className="h-8">
-                        <SelectValue placeholder="Select staff" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {loadingStaff ? (
-                          <SelectItem value="__loading__" disabled>
-                            Loading staff...
-                          </SelectItem>
-                        ) : staff.length === 0 ? (
-                          <SelectItem value="no-staff" disabled>
-                            No active staff available
-                          </SelectItem>
-                        ) : (
-                          (() => {
-                            const validStaff = staff.filter((member) => {
-                              const validId = member._id || member.id
-                              const isValid = validId && validId.toString().trim() !== ''
-                              console.log(`Staff member ${member.name}: ID=${validId}, Valid=${isValid}`)
-                              return isValid
-                            })
-                            
-                            if (validStaff.length === 0) {
-                              return (
-                                <SelectItem value="no-valid-staff" disabled>
-                                  No valid staff available
-                                </SelectItem>
-                              )
-                            }
-                            
-                            return validStaff.map((member) => {
-                              const staffId = member._id || member.id
-                              return (
-                                <SelectItem key={staffId} value={staffId}>
-                                  {member.name} {member.role ? `(${member.role})` : ''}
-                                </SelectItem>
-                              )
-                            })
-                          })()
-                        )}
-                      </SelectContent>
-                    </Select>
+                    <MultiStaffSelector
+                      staffList={staff}
+                      serviceTotal={item.total}
+                      onStaffContributionsChange={(contributions) => 
+                        updateServiceItem(item.id, "staffContributions", contributions)
+                      }
+                      initialContributions={item.staffContributions || []}
+                      disabled={loadingStaff}
+                    />
 
                     <div className="flex items-center gap-1">
                       <Button
@@ -2151,7 +2146,7 @@ export function QuickSale() {
 
             {productItems.length > 0 && (
               <div className="border border-gray-200 rounded-xl overflow-hidden shadow-sm bg-white">
-                <div className="grid grid-cols-[2fr_1.5fr_120px_100px_100px_100px_40px] gap-4 p-4 bg-gradient-to-r from-emerald-50 to-green-50 font-semibold text-sm text-gray-700 border-b">
+                <div className="grid grid-cols-[2fr_3fr_120px_100px_100px_100px_40px] gap-4 p-4 bg-gradient-to-r from-emerald-50 to-green-50 font-semibold text-sm text-gray-700 border-b">
                   <div>Product *</div>
                   <div>Staff *</div>
                   <div>Qty</div>
@@ -2163,7 +2158,7 @@ export function QuickSale() {
 
                 {productItems.map((item) => (
                   <div key={item.id} className="space-y-2">
-                    <div className="grid grid-cols-[2fr_1.5fr_120px_100px_100px_100px_40px] gap-4 p-4 border-b last:border-b-0 items-center hover:bg-emerald-50/30 transition-all duration-200">
+                    <div className="grid grid-cols-[2fr_3fr_120px_100px_100px_100px_40px] gap-4 p-4 border-b last:border-b-0 items-center hover:bg-emerald-50/30 transition-all duration-200">
                       <Select
                         value={item.productId}
                         onValueChange={(value) => updateProductItem(item.id, "productId", value)}

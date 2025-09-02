@@ -1,11 +1,23 @@
 const mongoose = require('mongoose');
 
+const staffContributionSchema = new mongoose.Schema({
+  staffId: { type: String, required: true },
+  staffName: { type: String, required: true },
+  percentage: { type: Number, required: true, min: 0, max: 100 }, // Percentage of service performed by this staff
+  amount: { type: Number, required: true, min: 0 } // Amount earned by this staff member
+}, { _id: false });
+
 const itemSchema = new mongoose.Schema({
   name: { type: String, required: true },
   type: { type: String, enum: ['service', 'product'], required: true },
   quantity: { type: Number, required: true },
   price: { type: Number, required: true },
   total: { type: Number, required: true },
+  // Legacy fields for backward compatibility
+  staffId: { type: String, default: '' },
+  staffName: { type: String, default: '' },
+  // New multi-staff support
+  staffContributions: [staffContributionSchema]
 }, { _id: false });
 
 const paymentHistorySchema = new mongoose.Schema({
@@ -125,6 +137,38 @@ saleSchema.methods.getPaymentSummary = function() {
     isOverdue: this.paymentStatus.isOverdue,
     dueDate: this.paymentStatus.dueDate
   };
+};
+
+// Method to calculate staff contributions for a service item
+saleSchema.methods.calculateStaffContributions = function(itemIndex) {
+  const item = this.items[itemIndex];
+  if (!item || !item.staffContributions || item.staffContributions.length === 0) {
+    return [];
+  }
+  
+  // Calculate amounts based on percentages
+  return item.staffContributions.map(contribution => ({
+    ...contribution,
+    amount: (item.total * contribution.percentage) / 100
+  }));
+};
+
+// Method to get all staff members involved in a sale
+saleSchema.methods.getAllStaffInvolved = function() {
+  const staffSet = new Set();
+  
+  this.items.forEach(item => {
+    if (item.staffContributions && item.staffContributions.length > 0) {
+      item.staffContributions.forEach(contribution => {
+        staffSet.add(contribution.staffId);
+      });
+    } else if (item.staffId) {
+      // Legacy support
+      staffSet.add(item.staffId);
+    }
+  });
+  
+  return Array.from(staffSet);
 };
 
 module.exports = mongoose.model('Sale', saleSchema);

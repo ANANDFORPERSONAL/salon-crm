@@ -1628,7 +1628,6 @@ app.post('/api/appointments', authenticateToken, async (req, res) => {
       const appointmentData = {
         clientId,
         serviceId: service.serviceId,
-        staffId: service.staffId,
         date,
         time,
         duration: service.duration,
@@ -1637,6 +1636,32 @@ app.post('/api/appointments', authenticateToken, async (req, res) => {
         price: service.price
       };
 
+      // Handle multiple staff assignments
+      if (service.staffAssignments && Array.isArray(service.staffAssignments)) {
+        appointmentData.staffAssignments = service.staffAssignments;
+        // Validate that percentages add up to 100%
+        const totalPercentage = service.staffAssignments.reduce((sum, assignment) => sum + assignment.percentage, 0);
+        if (Math.abs(totalPercentage - 100) > 0.01) {
+          return res.status(400).json({
+            success: false,
+            error: 'Staff assignment percentages must add up to 100%'
+          });
+        }
+      } else if (service.staffId) {
+        // Legacy support - single staff member
+        appointmentData.staffId = service.staffId;
+        appointmentData.staffAssignments = [{
+          staffId: service.staffId,
+          percentage: 100,
+          role: 'primary'
+        }];
+      } else {
+        return res.status(400).json({
+          success: false,
+          error: 'Either staffId or staffAssignments is required'
+        });
+      }
+
       const newAppointment = new Appointment(appointmentData);
       const savedAppointment = await newAppointment.save();
       
@@ -1644,7 +1669,8 @@ app.post('/api/appointments', authenticateToken, async (req, res) => {
       const populatedAppointment = await Appointment.findById(savedAppointment._id)
         .populate('clientId', 'name phone email')
         .populate('serviceId', 'name price duration')
-        .populate('staffId', 'name role');
+        .populate('staffId', 'name role')
+        .populate('staffAssignments.staffId', 'name role');
 
       createdAppointments.push(populatedAppointment);
     }
@@ -1716,13 +1742,36 @@ app.post('/api/receipts', authenticateToken, async (req, res) => {
       });
     }
 
+    // Process items to handle staff contributions
+    const processedItems = items.map(item => {
+      // If staffContributions is provided, calculate amounts
+      if (item.staffContributions && Array.isArray(item.staffContributions)) {
+        item.staffContributions = item.staffContributions.map(contribution => ({
+          ...contribution,
+          amount: (item.total * contribution.percentage) / 100
+        }));
+      }
+      
+      // Maintain backward compatibility - if no staffContributions but has staffId/staffName
+      if (!item.staffContributions && item.staffId && item.staffName) {
+        item.staffContributions = [{
+          staffId: item.staffId,
+          staffName: item.staffName,
+          percentage: 100,
+          amount: item.total
+        }];
+      }
+      
+      return item;
+    });
+
     const newReceipt = new Receipt({
       receiptNumber: `RCP-${Date.now()}`,
       clientId,
       staffId,
       date: new Date().toISOString().split('T')[0],
       time: new Date().toTimeString().split(' ')[0],
-      items,
+      items: processedItems,
       subtotal: parseFloat(subtotal) || 0,
       tip: parseFloat(tip) || 0,
       discount: parseFloat(discount) || 0,
@@ -1829,7 +1878,34 @@ app.get('/api/sales', authenticateToken, requireManager, async (req, res) => {
 
 app.post('/api/sales', authenticateToken, requireStaff, async (req, res) => {
   try {
-    const sale = new Sale(req.body);
+    const saleData = req.body;
+    
+    // Process items to handle staff contributions
+    if (saleData.items && Array.isArray(saleData.items)) {
+      saleData.items = saleData.items.map(item => {
+        // If staffContributions is provided, calculate amounts
+        if (item.staffContributions && Array.isArray(item.staffContributions)) {
+          item.staffContributions = item.staffContributions.map(contribution => ({
+            ...contribution,
+            amount: (item.total * contribution.percentage) / 100
+          }));
+        }
+        
+        // Maintain backward compatibility - if no staffContributions but has staffId/staffName
+        if (!item.staffContributions && item.staffId && item.staffName) {
+          item.staffContributions = [{
+            staffId: item.staffId,
+            staffName: item.staffName,
+            percentage: 100,
+            amount: item.total
+          }];
+        }
+        
+        return item;
+      });
+    }
+    
+    const sale = new Sale(saleData);
     await sale.save();
     res.status(201).json({ success: true, data: sale });
   } catch (err) {
