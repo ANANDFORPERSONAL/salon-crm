@@ -25,6 +25,7 @@ import { useAuth } from "@/lib/auth-context"
 import { SettingsAPI } from "@/lib/api"
 import { ExpenseForm } from "@/components/expenses/expense-form"
 import { CashRegistryModal } from "@/components/cash-registry/cash-registry-modal"
+import { SessionStatus } from "@/components/auth/session-status"
 
 interface TopNavProps {
   showQuickAdd?: boolean
@@ -137,6 +138,9 @@ export function TopNav({ showQuickAdd = true, rightSlot }: TopNavProps) {
             <Banknote className="h-4 w-4" />
             Cash Register
           </Button>
+
+          {/* Session Status */}
+          <SessionStatus showAlways={false} />
 
           {/* Quick Add */}
           {showQuickAdd && (isManager() || isAdmin()) && (

@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 import { useRouter } from "next/navigation"
 import { AuthAPI } from "@/lib/api"
+import { SessionTimeoutManager } from "@/components/auth/session-timeout-manager"
 
 export interface User {
   _id: string
@@ -295,6 +296,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isManager, 
       isStaff 
     }}>
+      <SessionTimeoutManager />
       {children}
     </AuthContext.Provider>
   )
