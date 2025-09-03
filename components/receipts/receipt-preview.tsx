@@ -78,10 +78,6 @@ export function ReceiptPreview({ receipt, businessSettings }: ReceiptPreviewProp
             <span className="font-semibold">Phone:</span>
             <span>{receipt.clientPhone}</span>
           </div>
-          <div className="flex justify-between">
-            <span className="font-semibold">Staff:</span>
-            <span>{receipt.staffName}</span>
-          </div>
         </div>
 
         {/* Items */}

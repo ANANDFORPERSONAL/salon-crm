@@ -969,6 +969,7 @@ export function QuickSale() {
           const product = products.find((p) => p._id === item.productId || p.id === item.productId)
           const staffMember = staff.find((s) => s._id === item.staffId || s.id === item.staffId)
           console.log('Product lookup:', { productId: item.productId, foundProduct: product?.name, allProducts: products.map(p => ({ id: p._id || p.id, name: p.name })) })
+          console.log('Product staff lookup:', { staffId: item.staffId, foundStaff: staffMember?.name, allStaff: staff.map(s => ({ id: s._id || s.id, name: s.name })) })
           return {
             id: item.id,
             name: product?.name || "Unknown Product",
@@ -991,7 +992,20 @@ export function QuickSale() {
         if (onlineAmount > 0) payments.push({ type: "online", amount: onlineAmount })
 
       // Get the primary staff member (first staff member from items)
-      const primaryStaff = receiptItems.length > 0 ? receiptItems[0] : null
+      const primaryStaff = receiptItems.length > 0 ? {
+        staffId: receiptItems[0].staffId,
+        staffName: receiptItems[0].staffName
+      } : null
+      
+      console.log('=== STAFF ASSIGNMENT DEBUG ===')
+      console.log('Service items before processing:', serviceItems)
+      console.log('Staff list:', staff)
+      console.log('Receipt items:', receiptItems)
+      console.log('Primary staff:', primaryStaff)
+      console.log('First item staff info:', receiptItems[0] ? {
+        staffId: receiptItems[0].staffId,
+        staffName: receiptItems[0].staffName
+      } : 'No items')
       
       // Calculate tax and total based on payment settings
       const taxRate = paymentSettings?.enableTax ? (paymentSettings?.taxRate || 8.25) / 100 : 0
@@ -2102,9 +2116,20 @@ export function QuickSale() {
                     <MultiStaffSelector
                       staffList={staff}
                       serviceTotal={item.total}
-                      onStaffContributionsChange={(contributions) => 
+                      onStaffContributionsChange={(contributions) => {
+                        console.log('=== MULTI STAFF SELECTOR CALLBACK ===')
+                        console.log('Item ID:', item.id)
+                        console.log('Contributions:', contributions)
                         updateServiceItem(item.id, "staffContributions", contributions)
-                      }
+                        // Also update staffId for backward compatibility (use first staff member)
+                        if (contributions.length > 0) {
+                          console.log('Setting staffId to:', contributions[0].staffId)
+                          updateServiceItem(item.id, "staffId", contributions[0].staffId)
+                        } else {
+                          console.log('Clearing staffId')
+                          updateServiceItem(item.id, "staffId", "")
+                        }
+                      }}
                       initialContributions={item.staffContributions || []}
                       disabled={loadingStaff}
                     />

@@ -135,7 +135,6 @@ export function ReceiptGenerator({ receipt, businessSettings }: ReceiptGenerator
           <div><strong>Time:</strong> ${receipt.time}</div>
           <div><strong>Client:</strong> ${receipt.clientName}</div>
           <div><strong>Phone:</strong> ${receipt.clientPhone}</div>
-          <div><strong>Staff:</strong> ${receipt.staffName}</div>
         </div>
 
         <div class="items">
