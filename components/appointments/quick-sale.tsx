@@ -789,27 +789,45 @@ export function QuickSale() {
   const productTotal = productItems.reduce((sum, item) => sum + item.total, 0)
   const subtotal = serviceTotal + productTotal
   const totalDiscount = discountValue + (subtotal * discountPercentage) / 100
-  const grandTotal = subtotal - totalDiscount + tip
+  const taxAmount = paymentSettings?.enableTax ? (subtotal - totalDiscount) * ((paymentSettings?.taxRate || 8.25) / 100) : 0
+  const grandTotal = subtotal - totalDiscount + taxAmount + tip
   const totalPaid = cashAmount + cardAmount + onlineAmount
   const change = totalPaid - grandTotal
 
   // Generate receipt number
-  const generateReceiptNumber = () => {
-    // Use POS settings for receipt number generation
+  const generateReceiptNumber = async () => {
+    try {
+      // Fetch fresh business settings to get the current receipt number
+      const response = await SettingsAPI.getBusinessSettings()
+      if (response.success) {
+        const currentSettings = response.data
+        const prefix = currentSettings?.invoicePrefix || currentSettings?.receiptPrefix || "INV"
+        const receiptNumber = currentSettings?.receiptNumber || 1
+        
+        console.log('=== RECEIPT NUMBER GENERATION DEBUG ===')
+        console.log('Fresh business settings:', currentSettings)
+        console.log('Current receipt number from server:', receiptNumber)
+        console.log('Final prefix used:', prefix)
+        console.log('Final receipt number generated:', `${prefix}-${receiptNumber.toString().padStart(6, '0')}`)
+        
+        // Format: PREFIX-000001, PREFIX-000002, etc.
+        return `${prefix}-${receiptNumber.toString().padStart(6, '0')}`
+      }
+    } catch (error) {
+      console.error('Failed to fetch fresh business settings for receipt generation:', error)
+    }
+    
+    // Fallback to cached settings if API call fails
     const prefix = posSettings?.invoicePrefix || businessSettings?.invoicePrefix || businessSettings?.receiptPrefix || "INV"
     const receiptNumber = posSettings?.receiptNumber || businessSettings?.receiptNumber || 1
     
-    console.log('=== RECEIPT NUMBER GENERATION DEBUG ===')
-    console.log('posSettings:', posSettings)
-    console.log('businessSettings:', businessSettings)
-    console.log('posSettings?.invoicePrefix:', posSettings?.invoicePrefix)
-    console.log('businessSettings?.invoicePrefix:', businessSettings?.invoicePrefix)
-    console.log('businessSettings?.receiptPrefix:', businessSettings?.receiptPrefix)
+    console.log('=== FALLBACK RECEIPT NUMBER GENERATION ===')
+    console.log('Using cached settings - posSettings:', posSettings)
+    console.log('Using cached settings - businessSettings:', businessSettings)
     console.log('Final prefix used:', prefix)
     console.log('Final receipt number used:', receiptNumber)
     console.log('Final receipt number generated:', `${prefix}-${receiptNumber.toString().padStart(6, '0')}`)
     
-    // Format: PREFIX-000001, PREFIX-000002, etc.
     return `${prefix}-${receiptNumber.toString().padStart(6, '0')}`
   }
 
@@ -977,13 +995,16 @@ export function QuickSale() {
       
       // Calculate tax and total based on payment settings
       const taxRate = paymentSettings?.enableTax ? (paymentSettings?.taxRate || 8.25) / 100 : 0
-      const calculatedTax = subtotal * taxRate
-      const calculatedTotal = subtotal + calculatedTax
+      const calculatedTax = (subtotal - totalDiscount) * taxRate
+      const calculatedTotal = subtotal - totalDiscount + calculatedTax + tip
+      
+      // Generate receipt number first
+      const receiptNumber = await generateReceiptNumber()
       
       // Create receipt
       const receipt: any = {
         id: Date.now().toString(),
-        receiptNumber: generateReceiptNumber(),
+        receiptNumber: receiptNumber,
         clientId: getCustomerId(customer),
         clientName: customer!.name,
         clientPhone: customer!.phone,
@@ -1001,19 +1022,26 @@ export function QuickSale() {
         notes: remarks,
       }
 
-      // Increment receipt number in business settings if auto increment is enabled
+      // Add receipt to storage
+      addReceipt(receipt)
+      setCurrentReceipt(receipt)
+      
+      // Increment receipt number in business settings ONLY after successful receipt creation
       if (businessSettings?.autoIncrementReceipt) {
         try {
           await SettingsAPI.incrementReceiptNumber()
           console.log('Receipt number incremented successfully')
+          
+          // Refresh business settings to get the updated receipt number
+          const updatedSettings = await SettingsAPI.getBusinessSettings()
+          if (updatedSettings.success) {
+            setBusinessSettings(updatedSettings.data)
+            console.log('Business settings refreshed with new receipt number:', updatedSettings.data.receiptNumber)
+          }
         } catch (error) {
           console.error('Failed to increment receipt number:', error)
         }
       }
-
-      // Add receipt to storage
-      addReceipt(receipt)
-      setCurrentReceipt(receipt)
       // setShowReceiptDialog(true) // Comment out modal dialog
 
       console.log('🎯 RECEIPT DIALOG DEBUG:')
@@ -2390,10 +2418,10 @@ export function QuickSale() {
               <span className="font-semibold text-red-600">-{formatCurrency(totalDiscount)}</span>
             </div>
           )}
-          {paymentSettings?.enableTax && (
+          {paymentSettings?.enableTax && taxAmount > 0 && (
             <div className="flex justify-between items-center py-1.5">
               <span className="text-sm text-gray-600">Tax ({paymentSettings?.taxRate || 8.25}%):</span>
-              <span className="font-semibold text-gray-800">{formatCurrency(subtotal * ((paymentSettings?.taxRate || 8.25) / 100))}</span>
+              <span className="font-semibold text-gray-800">{formatCurrency(taxAmount)}</span>
             </div>
           )}
           <div className="flex justify-between items-center py-2 border-t border-gray-100 pt-2">

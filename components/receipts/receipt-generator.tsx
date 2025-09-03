@@ -121,10 +121,12 @@ export function ReceiptGenerator({ receipt, businessSettings }: ReceiptGenerator
       </head>
       <body>
         <div class="header">
+          ${businessSettings.logo ? `<div class="logo-container" style="margin-bottom: 10px;"><img src="${businessSettings.logo}" alt="Business Logo" style="max-height: 60px; max-width: 60px; object-fit: contain; display: block; margin: 0 auto;"></div>` : ''}
           <div class="salon-name">${businessSettings.name}</div>
           <div class="salon-info">${businessSettings.address}, ${businessSettings.city}, ${businessSettings.state} ${businessSettings.zipCode}</div>
           <div class="salon-info">Phone: ${businessSettings.phone}</div>
           <div class="salon-info">Email: ${businessSettings.email}</div>
+          ${businessSettings.gstNumber ? `<div class="salon-info" style="font-weight: bold;">GST: ${businessSettings.gstNumber}</div>` : ''}
         </div>
 
         <div class="receipt-info">
@@ -171,10 +173,20 @@ export function ReceiptGenerator({ receipt, businessSettings }: ReceiptGenerator
           `
               : ""
           }
-          <div class="total-line">
-            <span>Tax:</span>
-            <span>${formatCurrency(receipt.tax, businessSettings)}</span>
-          </div>
+          ${
+            receipt.tax > 0
+              ? `
+            <div class="total-line">
+              <span>CGST (${(businessSettings.taxRate || 18) / 2}%):</span>
+              <span>${formatCurrency(receipt.tax / 2, businessSettings)}</span>
+            </div>
+            <div class="total-line">
+              <span>SGST (${(businessSettings.taxRate || 18) / 2}%):</span>
+              <span>${formatCurrency(receipt.tax / 2, businessSettings)}</span>
+            </div>
+          `
+              : ""
+          }
           ${
             receipt.tip > 0
               ? `

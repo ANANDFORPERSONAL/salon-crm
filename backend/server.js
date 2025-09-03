@@ -45,7 +45,7 @@ app.use(cors({
 }));
 
 app.use(morgan('combined'));
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
 
 // Handle CORS preflight for all routes
 app.options('*', cors());
@@ -2221,6 +2221,9 @@ app.get("/api/settings/business", authenticateToken, async (req, res) => {
 
 app.put("/api/settings/business", authenticateToken, async (req, res) => {
   try {
+    console.log('📝 Business settings update request received');
+    console.log('📊 Request body size:', JSON.stringify(req.body).length, 'characters');
+    
     const {
       name,
       email,
@@ -2231,8 +2234,13 @@ app.put("/api/settings/business", authenticateToken, async (req, res) => {
       city,
       state,
       zipCode,
-      socialMedia
+      socialMedia,
+      logo,
+      gstNumber
     } = req.body;
+    
+    console.log('🖼️ Logo data length:', logo ? logo.length : 0, 'characters');
+    console.log('🧾 GST Number:', gstNumber);
 
     // Validate required fields
     if (!name || !email || !phone || !address || !city || !state || !zipCode) {
@@ -2259,6 +2267,8 @@ app.put("/api/settings/business", authenticateToken, async (req, res) => {
     settings.state = state;
     settings.zipCode = zipCode;
     settings.socialMedia = socialMedia || "@glamoursalon";
+    settings.logo = logo || "";
+    settings.gstNumber = gstNumber || "";
 
     await settings.save();
 
@@ -2268,10 +2278,16 @@ app.put("/api/settings/business", authenticateToken, async (req, res) => {
       message: "Business settings updated successfully"
     });
   } catch (error) {
-    console.error("Update business settings error:", error);
+    console.error("❌ Update business settings error:", error);
+    console.error("❌ Error details:", {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    });
     res.status(500).json({
       success: false,
-      error: "Internal server error"
+      error: "Internal server error",
+      details: error.message
     });
   }
 });

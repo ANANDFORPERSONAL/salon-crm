@@ -24,6 +24,16 @@ export function ReceiptPreview({ receipt, businessSettings }: ReceiptPreviewProp
       <CardContent className="p-6 font-mono text-sm">
         {/* Header */}
         <div className="text-center border-b-2 border-black pb-3 mb-4">
+          {/* Logo */}
+          {businessSettings?.logo && (
+            <div className="mb-3">
+              <img 
+                src={businessSettings.logo} 
+                alt="Business Logo" 
+                className="mx-auto h-16 w-16 object-contain"
+              />
+            </div>
+          )}
           <div className="text-lg font-bold mb-1">
             {businessSettings?.name || "GLAMOUR SALON & SPA"}
           </div>
@@ -39,6 +49,11 @@ export function ReceiptPreview({ receipt, businessSettings }: ReceiptPreviewProp
           <div className="text-xs">
             Email: {businessSettings?.email || "info@glamoursalon.com"}
           </div>
+          {businessSettings?.gstNumber && (
+            <div className="text-xs font-semibold mt-1">
+              GST: {businessSettings.gstNumber}
+            </div>
+          )}
         </div>
 
         {/* Receipt Info */}
@@ -100,10 +115,18 @@ export function ReceiptPreview({ receipt, businessSettings }: ReceiptPreviewProp
               <span>-{formatAmount(receipt.discount)}</span>
             </div>
           )}
-          <div className="flex justify-between">
-            <span>Tax:</span>
-            <span>{formatAmount(receipt.tax)}</span>
-          </div>
+          {receipt.tax > 0 && (
+            <>
+              <div className="flex justify-between">
+                <span>CGST ({(businessSettings?.taxRate || 18) / 2}%):</span>
+                <span>{formatAmount(receipt.tax / 2)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>SGST ({(businessSettings?.taxRate || 18) / 2}%):</span>
+                <span>{formatAmount(receipt.tax / 2)}</span>
+              </div>
+            </>
+          )}
           {receipt.tip > 0 && (
             <div className="flex justify-between">
               <span>Tip:</span>

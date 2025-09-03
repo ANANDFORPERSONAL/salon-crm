@@ -145,33 +145,26 @@ export function MultiStaffSelector({
 
       {/* Selected Staff Display - Only show if more than 1 staff */}
       {selectedStaffIds.length > 1 && (
-        <div className="space-y-1">
+        <div className="flex flex-wrap gap-1">
           {selectedStaffIds.map((staffId) => {
             const staff = staffList.find(s => (s._id || s.id) === staffId)
             const contribution = contributions.find(c => c.staffId === staffId)
             return (
-              <div key={staffId} className="flex items-center justify-between bg-green-50 border border-green-200 rounded px-2 py-1">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <span className="text-xs font-medium text-green-800">{staff?.name}</span>
-                  {staff?.role && (
-                    <Badge variant="secondary" className="text-xs bg-white">
-                      {staff.role}
-                    </Badge>
-                  )}
-                  <span className="text-xs text-green-600">
-                    {contribution?.percentage?.toFixed(0)}%
-                  </span>
-                </div>
+              <div key={staffId} className="flex items-center bg-green-50 border border-green-200 rounded px-1.5 py-0.5 text-xs">
+                <div className="w-1.5 h-1.5 bg-green-500 rounded-full mr-1"></div>
+                <span className="font-medium text-green-800 mr-1">{staff?.name}</span>
+                <span className="text-green-600 mr-1">
+                  {contribution?.percentage?.toFixed(0)}%
+                </span>
                 <Button
                   type="button"
                   variant="ghost"
                   size="sm"
                   onClick={() => removeStaff(staffId)}
                   disabled={disabled}
-                  className="h-4 w-4 p-0 hover:bg-red-100 hover:text-red-600"
+                  className="h-3 w-3 p-0 hover:bg-red-100 hover:text-red-600 ml-1"
                 >
-                  <X className="h-3 w-3" />
+                  <X className="h-2 w-2" />
                 </Button>
               </div>
             )
@@ -179,13 +172,7 @@ export function MultiStaffSelector({
         </div>
       )}
 
-      {/* Multi-staff info */}
-      {selectedStaffIds.length > 1 && (
-        <div className="text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded">
-          <Users className="h-3 w-3 inline mr-1" />
-          Equally distributed among {selectedStaffIds.length} staff
-        </div>
-      )}
+
     </div>
   )
 }

@@ -31,6 +31,12 @@ const businessSettingsSchema = new mongoose.Schema({
   // Social Media
   socialMedia: { type: String, default: "@glamoursalon" },
   
+  // Branding
+  logo: { type: String, default: "" },
+  
+  // Tax Information
+  gstNumber: { type: String, default: "" },
+  
   // Timestamps
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }
