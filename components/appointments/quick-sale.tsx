@@ -2275,7 +2275,7 @@ export function QuickSale() {
                                 const staffId = member._id || member.id
                                 return (
                                   <SelectItem key={staffId} value={staffId}>
-                                    {member.name} {member.role ? `(${member.role})` : ''}
+                                    {member.name}
                                   </SelectItem>
                                 )
                               })

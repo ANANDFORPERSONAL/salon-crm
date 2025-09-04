@@ -98,7 +98,7 @@ export function MultiStaffSelector({
                 const staffId = staff._id || staff.id
                 return (
                   <SelectItem key={staffId} value={staffId || ''}>
-                    {staff.name} {staff.role ? `(${staff.role})` : ''}
+                    {staff.name}
                   </SelectItem>
                 )
               })}
@@ -134,7 +134,7 @@ export function MultiStaffSelector({
                 const staffId = staff._id || staff.id
                 return (
                   <SelectItem key={staffId} value={staffId || ''}>
-                    {staff.name} {staff.role ? `(${staff.role})` : ''}
+                    {staff.name}
                   </SelectItem>
                 )
               })}
