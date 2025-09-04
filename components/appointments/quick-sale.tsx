@@ -261,7 +261,7 @@ export function QuickSale() {
           // Filter for active staff members with appointment scheduling enabled
           const staffMembers = response.data.filter((user: any) => {
             const hasValidId = user._id || user.id
-            const isActiveStaff = user.role === 'staff' && 
+            const isActiveStaff = (user.role === 'staff' || user.role === 'manager' || user.role === 'admin') && 
               user.isActive === true && 
               user.allowAppointmentScheduling === true
             console.log(`User ${user.name}: ID=${hasValidId}, Active=${isActiveStaff}, AppointmentScheduling=${user.allowAppointmentScheduling}`)

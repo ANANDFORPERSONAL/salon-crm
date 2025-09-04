@@ -23,6 +23,7 @@ const userSchema = z.object({
   mobile: z.string().min(10, "Mobile number is required and must be at least 10 digits"),
   hasLoginAccess: z.boolean(),
   allowAppointmentScheduling: z.boolean(),
+  role: z.string().optional(),
 }).refine((data) => {
   // Password is required for new users if login access is enabled
   if (data.hasLoginAccess && !data.password) {
@@ -42,9 +43,11 @@ const userEditSchema = z.object({
   mobile: z.string().min(10, "Mobile number is required and must be at least 10 digits"),
   hasLoginAccess: z.boolean(),
   allowAppointmentScheduling: z.boolean(),
+  role: z.string().optional(),
 }).refine((data) => {
-  // Password is required when enabling login access for existing users
-  if (data.hasLoginAccess && !data.password) {
+  // Password is only required when enabling login access for non-admin users
+  // Admin users always have login access and don't need password validation for updates
+  if (data.hasLoginAccess && !data.password && data.role !== 'admin') {
     return false;
   }
   return true;
@@ -89,6 +92,7 @@ export function UserForm({ user, onSubmit, mode = "add" }: UserFormProps) {
       mobile: user?.mobile || "",
       hasLoginAccess: user?.hasLoginAccess || false,
       allowAppointmentScheduling: user?.allowAppointmentScheduling || false,
+      role: user?.role || "staff",
     },
   })
 
