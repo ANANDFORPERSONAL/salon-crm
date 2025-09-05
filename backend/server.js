@@ -1796,6 +1796,72 @@ app.post('/api/receipts', authenticateToken, async (req, res) => {
   }
 });
 
+// Update appointment
+app.put('/api/appointments/:id', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updateData = req.body;
+
+    // Find the appointment
+    const appointment = await Appointment.findById(id);
+    if (!appointment) {
+      return res.status(404).json({
+        success: false,
+        error: 'Appointment not found'
+      });
+    }
+
+    // Update the appointment
+    const updatedAppointment = await Appointment.findByIdAndUpdate(
+      id,
+      updateData,
+      { new: true, runValidators: true }
+    )
+    .populate('clientId', 'name phone email')
+    .populate('serviceId', 'name price duration')
+    .populate('staffId', 'name role');
+
+    res.json({
+      success: true,
+      data: updatedAppointment
+    });
+  } catch (error) {
+    console.error('Error updating appointment:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to update appointment'
+    });
+  }
+});
+
+// Delete appointment
+app.delete('/api/appointments/:id', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const appointment = await Appointment.findById(id);
+    if (!appointment) {
+      return res.status(404).json({
+        success: false,
+        error: 'Appointment not found'
+      });
+    }
+
+    await Appointment.findByIdAndDelete(id);
+
+    res.json({
+      success: true,
+      message: 'Appointment deleted successfully'
+    });
+  } catch (error) {
+    console.error('Error deleting appointment:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to delete appointment'
+    });
+  }
+});
+
 // Get receipts by client ID
 app.get('/api/receipts/client/:clientId', authenticateToken, async (req, res) => {
   const { clientId } = req.params;
