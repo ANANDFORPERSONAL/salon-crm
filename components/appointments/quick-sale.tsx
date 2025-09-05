@@ -1898,12 +1898,6 @@ export function QuickSale() {
               </h2>
               <p className="text-muted-foreground">Create and process sales quickly and efficiently</p>
             </div>
-            <div className="flex items-center space-x-3 p-3 bg-gradient-to-r from-gray-50 to-slate-50 rounded-xl border border-gray-200/50">
-              <Label htmlFor="old-quick-sale" className="text-sm font-medium text-gray-700">
-                Switch to old quick sale
-              </Label>
-              <Switch id="old-quick-sale" checked={isOldQuickSale} onCheckedChange={setIsOldQuickSale} />
-            </div>
           </div>
 
           {/* Customer and Date */}
