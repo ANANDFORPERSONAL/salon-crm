@@ -57,6 +57,13 @@ export const AppointmentsCalendar = forwardRef<{ showCancelledModal: () => void 
   const [showCancelledModal, setShowCancelledModal] = useState(false)
   const [showCancelConfirm, setShowCancelConfirm] = useState(false)
   const [appointmentToCancel, setAppointmentToCancel] = useState<string | null>(null)
+  const [selectedDate, setSelectedDate] = useState(() => {
+    const today = new Date()
+    const year = today.getFullYear()
+    const month = String(today.getMonth() + 1).padStart(2, '0')
+    const date = String(today.getDate()).padStart(2, '0')
+    return `${year}-${month}-${date}`
+  })
   const startDate = startOfWeek(currentDate, { weekStartsOn: 1 })
 
   useImperativeHandle(ref, () => ({
@@ -68,6 +75,27 @@ export const AppointmentsCalendar = forwardRef<{ showCancelledModal: () => void 
   const goToPreviousWeek = () => setCurrentDate(subWeeks(currentDate, 1))
   const goToNextWeek = () => setCurrentDate(addWeeks(currentDate, 1))
   const goToToday = () => setCurrentDate(new Date())
+  
+  // Handle date selection
+  const handleDateClick = (day: Date) => {
+    // Use local date to avoid timezone issues
+    const year = day.getFullYear()
+    const month = String(day.getMonth() + 1).padStart(2, '0')
+    const date = String(day.getDate()).padStart(2, '0')
+    const dateString = `${year}-${month}-${date}`
+    console.log('Selected date:', dateString, 'Day:', day.getDate())
+    setSelectedDate(dateString)
+  }
+  
+  // Check if a date is selected
+  const isSelectedDate = (day: Date) => {
+    // Use local date to avoid timezone issues
+    const year = day.getFullYear()
+    const month = String(day.getMonth() + 1).padStart(2, '0')
+    const date = String(day.getDate()).padStart(2, '0')
+    const dayString = `${year}-${month}-${date}`
+    return dayString === selectedDate
+  }
 
   // Fetch appointments from API
   const fetchAppointments = async () => {
@@ -147,9 +175,33 @@ export const AppointmentsCalendar = forwardRef<{ showCancelledModal: () => void 
     })
   }
 
+  const getSelectedDateAppointments = () => {
+    console.log('Filtering appointments for selected date:', selectedDate)
+    
+    return appointments
+      .filter(apt => {
+        // Convert appointment date to YYYY-MM-DD format for comparison
+        const aptDate = new Date(apt.date)
+        const year = aptDate.getFullYear()
+        const month = String(aptDate.getMonth() + 1).padStart(2, '0')
+        const date = String(aptDate.getDate()).padStart(2, '0')
+        const aptDateString = `${year}-${month}-${date}`
+        
+        console.log('Appointment date:', aptDateString, 'vs selected:', selectedDate, 'Match:', aptDateString === selectedDate)
+        return aptDateString === selectedDate && apt.status !== 'cancelled'
+      })
+      .sort((a, b) => {
+        // Sort by time for selected date appointments
+        const timeA = a.time || '00:00'
+        const timeB = b.time || '00:00'
+        return timeA.localeCompare(timeB)
+      })
+  }
+
   const getUpcomingAppointments = () => {
     const today = new Date()
     today.setHours(0, 0, 0, 0)
+    
     return appointments
       .filter(apt => {
         const aptDate = new Date(apt.date)
@@ -157,7 +209,6 @@ export const AppointmentsCalendar = forwardRef<{ showCancelledModal: () => void 
         return aptDate >= today && apt.status !== 'cancelled'
       })
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-      .slice(0, 5) // Show next 5 appointments
   }
 
   const getCancelledAppointments = () => {
@@ -228,33 +279,43 @@ export const AppointmentsCalendar = forwardRef<{ showCancelledModal: () => void 
 
       <div className="grid grid-cols-7 gap-6">
         {weekDays.map((day) => {
-          const dayKey = day.toISOString().split('T')[0]
-          const dayAppointments = getAppointmentsForDate(day)
-          const isExpanded = expandedDays.has(dayKey)
-          const appointmentCount = dayAppointments.length
+          const isSelected = isSelectedDate(day)
+          const isTodayDate = isToday(day)
           
           return (
             <Card 
               key={day.toISOString()} 
-              className={`min-h-[200px] bg-gradient-to-br from-white to-slate-50/50 border-slate-200 shadow-lg hover:shadow-xl transition-all duration-300 rounded-2xl cursor-pointer hover:border-indigo-300 ${
-                isToday(day) ? 'ring-2 ring-indigo-500 border-indigo-300 shadow-indigo-200' : ''
+              className={`min-h-[120px] bg-gradient-to-br from-white to-slate-50/50 border-slate-200 shadow-lg hover:shadow-xl transition-all duration-300 rounded-2xl cursor-pointer hover:border-indigo-300 ${
+                isSelected ? 'ring-2 ring-emerald-500 border-emerald-300 shadow-emerald-200' : 
+                isTodayDate ? 'ring-2 ring-indigo-500 border-indigo-300 shadow-indigo-200' : ''
               }`}
-              onClick={() => toggleDayExpansion(day)}
+              onClick={() => handleDateClick(day)}
             >
-              <CardHeader className={`p-4 rounded-t-2xl transition-all duration-200 ${
-                isToday(day) 
+              <CardHeader className={`p-6 rounded-t-2xl transition-all duration-200 ${
+                isSelected 
+                  ? 'bg-gradient-to-r from-emerald-100 to-teal-100 hover:from-emerald-200 hover:to-teal-200' 
+                  : isTodayDate 
                   ? 'bg-gradient-to-r from-indigo-100 to-purple-100 hover:from-indigo-200 hover:to-purple-200' 
                   : 'bg-gradient-to-r from-slate-50 to-blue-50 hover:from-indigo-50 hover:to-purple-50'
               }`}>
-                              <CardTitle className="text-sm">
+                <CardTitle className="text-sm">
                   <div className="text-center">
                     <div className={`font-semibold uppercase tracking-wide ${
-                      isToday(day) ? 'text-indigo-700' : 'text-slate-600'
+                      isSelected ? 'text-emerald-700' : 
+                      isTodayDate ? 'text-indigo-700' : 'text-slate-600'
                     }`}>{format(day, "EEE")}</div>
-                    <div className={`text-3xl font-bold mt-2 ${
-                      isToday(day) ? 'text-indigo-800' : 'text-slate-800'
+                    <div className={`text-4xl font-bold mt-2 ${
+                      isSelected ? 'text-emerald-800' : 
+                      isTodayDate ? 'text-indigo-800' : 'text-slate-800'
                     }`}>{format(day, "d")}</div>
-                    {isToday(day) && (
+                    {isSelected && (
+                      <div className="mt-2">
+                        <Badge className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs">
+                          Selected
+                        </Badge>
+                      </div>
+                    )}
+                    {isTodayDate && !isSelected && (
                       <div className="mt-2">
                         <Badge className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs">
                           Today
@@ -263,158 +324,190 @@ export const AppointmentsCalendar = forwardRef<{ showCancelledModal: () => void 
                     )}
                   </div>
                 </CardTitle>
-            </CardHeader>
-            <CardContent className="p-4">
-              <div className="space-y-3">
-                {loading ? (
-                  <div className="text-center text-sm text-slate-500 py-8">
-                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-600 mx-auto mb-2"></div>
-                    Loading...
-                  </div>
-                ) : !isExpanded ? (
-                  <div className="text-center py-8">
-                    <div className="text-2xl font-bold text-slate-800 mb-2">
-                      {appointmentCount}
-                    </div>
-                    <div className="text-sm font-medium text-slate-600">
-                      {appointmentCount > 0 ? `appointment${appointmentCount > 1 ? 's' : ''}` : 'No appointments'}
-                    </div>
-                    {appointmentCount > 0 && (
-                      <div className="text-xs text-slate-500 mt-2">
-                        Click anywhere to view
-                      </div>
-                    )}
-                  </div>
-                ) : dayAppointments.length > 0 ? (
-                  dayAppointments.map((appointment) => (
-                    <div
-                      key={appointment._id}
-                      className="rounded-xl border border-slate-200 p-3 text-xs cursor-pointer hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 hover:border-indigo-300 hover:shadow-md transition-all duration-200 bg-white"
-                      role="button"
-                      onClick={(e) => {
-                        e.stopPropagation() // Prevent card expansion when clicking appointment
-                        setSelectedAppointment(appointment)
-                        setShowDetails(true)
-                      }}
-                    >
-                      {(() => {
-                        const anyAppt: any = appointment as any
-                        const serviceName = anyAppt?.serviceId?.name || 'Service'
-                        const clientName = anyAppt?.clientId?.name || 'Client'
-                        const clientInitial = clientName?.charAt?.(0) || '?'
-                        const staffName = anyAppt?.staffId?.name || 'Unassigned Staff'
-                        const staffRole = anyAppt?.staffId?.role
-                        const price = anyAppt?.price ?? 0
-                        const duration = anyAppt?.duration ?? 0
-                        return (
-                          <>
-                      <div className="flex items-center justify-between mb-3">
-                        <Badge variant="outline" className="bg-indigo-100 text-indigo-700 border-indigo-200 font-medium">{appointment.time}</Badge>
-                        <div className={`h-3 w-3 rounded-full ${getStatusColor(appointment.status)} shadow-sm`} />
-                      </div>
-                          <div className="font-semibold text-slate-800 text-sm mb-2">{serviceName}</div>
-                      <div className="flex items-center mb-2">
-                        <Avatar className="h-6 w-6 mr-2 border border-slate-200">
-                          <AvatarImage src="/placeholder.svg" />
-                              <AvatarFallback className="text-xs font-medium bg-indigo-100 text-indigo-700">{clientInitial}</AvatarFallback>
-                        </Avatar>
-                            <span className="text-slate-700 font-medium text-sm">{clientName}</span>
-                      </div>
-                          <div className="text-xs text-slate-500 mb-1">
-                            {staffName} {staffRole ? `(${staffRole})` : ''}
-                          </div>
-                          <div className="text-xs font-semibold text-slate-600 bg-slate-100 rounded-lg px-2 py-1 inline-block">
-                            ₹{price} • {duration}min
-                          </div>
-                          </>
-                        )
-                      })()}
-                    </div>
-                  ))
-                ) : (
-                  <div className="text-center text-slate-400 py-8">
-                    <div className="text-4xl mb-2">📅</div>
-                    <div className="text-sm font-medium">No appointments</div>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+              </CardHeader>
+            </Card>
           )
         })}
       </div>
 
-      {/* Upcoming Appointments Section */}
-      <div className="mt-12">
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-2">
-            Upcoming Appointments
-          </h2>
-          <p className="text-slate-600">Your next scheduled appointments</p>
-        </div>
-        
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {getUpcomingAppointments().length > 0 ? (
-            getUpcomingAppointments().map((appointment) => {
-              const anyAppt: any = appointment as any
-              const serviceName = anyAppt?.serviceId?.name || 'Service'
-              const clientName = anyAppt?.clientId?.name || 'Client'
-              const clientInitial = clientName?.charAt?.(0) || '?'
-              const staffName = anyAppt?.staffId?.name || 'Unassigned Staff'
-              const staffRole = anyAppt?.staffId?.role
-              const price = anyAppt?.price ?? 0
-              const duration = anyAppt?.duration ?? 0
-              
-              return (
-                <Card key={appointment._id} className="bg-gradient-to-br from-white to-slate-50/50 border-slate-200 shadow-lg hover:shadow-xl transition-all duration-300 rounded-2xl cursor-pointer"
-                  onClick={() => {
-                    setSelectedAppointment(appointment)
-                    setShowDetails(true)
-                  }}
-                >
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <Badge className="bg-indigo-100 text-indigo-700 border-indigo-200 font-medium">
-                        {appointment.time}
-                      </Badge>
-                      <div className={`h-3 w-3 rounded-full ${getStatusColor(appointment.status)} shadow-sm`} />
-                    </div>
-                    
-                    <div className="space-y-3">
-                      <div className="font-semibold text-slate-800 text-lg">{serviceName}</div>
-                      
-                      <div className="flex items-center">
-                        <Avatar className="h-8 w-8 mr-3 border border-slate-200">
-                          <AvatarImage src="/placeholder.svg" />
-                          <AvatarFallback className="text-sm font-medium bg-indigo-100 text-indigo-700">{clientInitial}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <div className="font-medium text-slate-800">{clientName}</div>
-                          <div className="text-sm text-slate-500">{staffName} {staffRole ? `(${staffRole})` : ''}</div>
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-center justify-between">
-                        <div className="text-sm font-semibold text-slate-600 bg-slate-100 rounded-lg px-3 py-1">
-                          ₹{price} • {duration}min
-                        </div>
-                        <div className="text-sm text-slate-500">
-                          {format(new Date(appointment.date), 'MMM dd, yyyy')}
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              )
-            })
-          ) : (
-            <div className="col-span-full text-center py-12">
-              <div className="text-6xl mb-4">📅</div>
-              <div className="text-xl font-semibold text-slate-600 mb-2">No Upcoming Appointments</div>
-              <div className="text-slate-500">You don't have any upcoming appointments scheduled.</div>
+      {/* Appointments Sections - Side by Side */}
+      <div className="mt-12 grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Selected Date Appointments Card */}
+        <Card className="bg-white border border-slate-200 shadow-sm hover:shadow-md transition-all duration-200 rounded-xl overflow-hidden">
+          <CardHeader className="bg-gradient-to-r from-emerald-50 to-teal-50 border-b border-emerald-200 p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                <CardTitle className="text-lg font-semibold text-emerald-700">
+                  Selected Date Appointments
+                </CardTitle>
+                <p className="text-emerald-600 text-sm mt-1">Appointments for selected date</p>
+                <div className="mt-2">
+                  <input
+                    type="date"
+                    value={selectedDate}
+                    onChange={(e) => setSelectedDate(e.target.value)}
+                    aria-label="Select date to view appointments"
+                    className="text-sm px-3 py-1 border border-emerald-300 rounded-lg bg-white text-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                  />
+                </div>
+              </div>
+              <div className="bg-emerald-100 rounded-lg p-2 ml-4">
+                <svg className="h-5 w-5 text-emerald-600" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </div>
             </div>
-          )}
-        </div>
+          </CardHeader>
+          
+          <CardContent className="p-4">
+            <div className="space-y-3">
+              {getSelectedDateAppointments().length > 0 ? (
+                getSelectedDateAppointments().map((appointment) => {
+                  const anyAppt: any = appointment as any
+                  const serviceName = anyAppt?.serviceId?.name || 'Service'
+                  const clientName = anyAppt?.clientId?.name || 'Client'
+                  const clientInitial = clientName?.charAt?.(0) || '?'
+                  const staffName = anyAppt?.staffId?.name || 'Unassigned Staff'
+                  const staffRole = anyAppt?.staffId?.role
+                  const price = anyAppt?.price ?? 0
+                  const duration = anyAppt?.duration ?? 0
+                  
+                  return (
+                    <Card key={appointment._id} className="bg-emerald-50/50 border border-emerald-200 hover:bg-emerald-100/50 transition-colors duration-200 rounded-lg cursor-pointer"
+                      onClick={() => {
+                        setSelectedAppointment(appointment)
+                        setShowDetails(true)
+                      }}
+                    >
+                      <CardContent className="p-3">
+                        <div className="flex items-center justify-between mb-2">
+                          <Badge variant="outline" className="text-emerald-700 border-emerald-300 bg-emerald-50">
+                            {appointment.time}
+                          </Badge>
+                          {appointment.status === 'cancelled' ? (
+                            <span className="text-xs font-medium text-red-600 bg-red-50 px-2 py-1 rounded-full">Cancelled</span>
+                          ) : (
+                            <div className={`h-2 w-2 rounded-full ${getStatusColor(appointment.status)}`} />
+                          )}
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <div className="font-medium text-slate-800">{serviceName}</div>
+                          
+                          <div className="flex items-center">
+                            <Avatar className="h-6 w-6 mr-2 border border-emerald-200">
+                              <AvatarImage src="/placeholder.svg" />
+                              <AvatarFallback className="text-xs font-medium bg-emerald-100 text-emerald-700">{clientInitial}</AvatarFallback>
+                            </Avatar>
+                            <div>
+                              <div className="text-sm font-medium text-slate-800">{clientName}</div>
+                              <div className="text-xs text-emerald-600">{staffName}</div>
+                            </div>
+                          </div>
+                          
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="text-emerald-600 font-medium">₹{price} • {duration}min</span>
+                            <span className="text-slate-500">{format(new Date(appointment.date), 'MMM dd, yyyy')}</span>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )
+                })
+              ) : (
+                <div className="text-center py-8 bg-emerald-50 rounded-lg border border-dashed border-emerald-200">
+                  <div className="text-4xl mb-3">📅</div>
+                  <div className="text-sm font-medium text-emerald-700 mb-1">No Appointments on {format(new Date(selectedDate), 'MMM dd, yyyy')}</div>
+                  <div className="text-xs text-emerald-600">You don't have any appointments scheduled for this date.</div>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Upcoming Appointments Card */}
+        <Card className="bg-white border border-slate-200 shadow-sm hover:shadow-md transition-all duration-200 rounded-xl overflow-hidden">
+          <CardHeader className="bg-gradient-to-r from-indigo-50 to-blue-50 border-b border-indigo-200 p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-lg font-semibold text-indigo-700">
+                  Upcoming Appointments
+                </CardTitle>
+                <p className="text-indigo-600 text-sm mt-1">All your future appointments (today onwards)</p>
+              </div>
+              <div className="bg-indigo-100 rounded-lg p-2">
+                <svg className="h-5 w-5 text-indigo-600" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+            </div>
+          </CardHeader>
+          
+          <CardContent className="p-4">
+            <div className="space-y-3">
+              {getUpcomingAppointments().length > 0 ? (
+                getUpcomingAppointments().map((appointment) => {
+                  const anyAppt: any = appointment as any
+                  const serviceName = anyAppt?.serviceId?.name || 'Service'
+                  const clientName = anyAppt?.clientId?.name || 'Client'
+                  const clientInitial = clientName?.charAt?.(0) || '?'
+                  const staffName = anyAppt?.staffId?.name || 'Unassigned Staff'
+                  const staffRole = anyAppt?.staffId?.role
+                  const price = anyAppt?.price ?? 0
+                  const duration = anyAppt?.duration ?? 0
+                  
+                  return (
+                    <Card key={appointment._id} className="bg-indigo-50/50 border border-indigo-200 hover:bg-indigo-100/50 transition-colors duration-200 rounded-lg cursor-pointer"
+                      onClick={() => {
+                        setSelectedAppointment(appointment)
+                        setShowDetails(true)
+                      }}
+                    >
+                      <CardContent className="p-3">
+                        <div className="flex items-center justify-between mb-2">
+                          <Badge variant="outline" className="text-indigo-700 border-indigo-300 bg-indigo-50">
+                            {appointment.time}
+                          </Badge>
+                          {appointment.status === 'cancelled' ? (
+                            <span className="text-xs font-medium text-red-600 bg-red-50 px-2 py-1 rounded-full">Cancelled</span>
+                          ) : (
+                            <div className={`h-2 w-2 rounded-full ${getStatusColor(appointment.status)}`} />
+                          )}
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <div className="font-medium text-slate-800">{serviceName}</div>
+                          
+                          <div className="flex items-center">
+                            <Avatar className="h-6 w-6 mr-2 border border-indigo-200">
+                              <AvatarImage src="/placeholder.svg" />
+                              <AvatarFallback className="text-xs font-medium bg-indigo-100 text-indigo-700">{clientInitial}</AvatarFallback>
+                            </Avatar>
+                            <div>
+                              <div className="text-sm font-medium text-slate-800">{clientName}</div>
+                              <div className="text-xs text-indigo-600">{staffName}</div>
+                            </div>
+                          </div>
+                          
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="text-indigo-600 font-medium">₹{price} • {duration}min</span>
+                            <span className="text-slate-500">{format(new Date(appointment.date), 'MMM dd, yyyy')}</span>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )
+                })
+              ) : (
+                <div className="text-center py-8 bg-indigo-50 rounded-lg border border-dashed border-indigo-200">
+                  <div className="text-4xl mb-3">📅</div>
+                  <div className="text-sm font-medium text-indigo-700 mb-1">No Upcoming Appointments</div>
+                  <div className="text-xs text-indigo-600">You don't have any future appointments scheduled.</div>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       <Dialog open={showDetails} onOpenChange={setShowDetails}>
