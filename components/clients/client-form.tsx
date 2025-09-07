@@ -5,13 +5,14 @@ import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
+import { User, Mail, Phone, Calendar, MapPin, FileText, Users, Loader2 } from "lucide-react"
 import { clientStore, type Client } from "@/lib/client-store"
 import { Button } from "@/components/ui/button"
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Card, CardContent } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { toast } from "@/components/ui/use-toast"
 
 interface ClientFormProps {
@@ -164,23 +165,228 @@ export function ClientForm({ client, isEditMode = false, onEditComplete }: Clien
   const isViewMode = client && !isEditMode
 
   return (
-    <Card>
-      <CardContent className="pt-6">
+    <Card className="bg-white/70 backdrop-blur-sm shadow-xl border-0 rounded-2xl overflow-hidden">
+      <CardHeader className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-8">
+        <CardTitle className="text-2xl font-bold flex items-center gap-3">
+          <div className="p-2 bg-white/20 rounded-lg">
+            <User className="h-6 w-6" />
+          </div>
+          {client ? 'Edit Client Information' : 'Client Information'}
+        </CardTitle>
+        <p className="text-indigo-100 mt-2">
+          {client ? 'Update client details and preferences' : 'Enter client details to add them to your system'}
+        </p>
+      </CardHeader>
+      
+      <CardContent className="p-8">
         <Form {...form}>
           <form id="client-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-            <div className="grid gap-6 md:grid-cols-2">
+            {/* Personal Information Section */}
+            <div className="space-y-6">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-2 bg-indigo-100 rounded-lg">
+                  <User className="h-5 w-5 text-indigo-600" />
+                </div>
+                <h3 className="text-lg font-semibold text-slate-800">Personal Information</h3>
+              </div>
+              
+              <div className="grid gap-6 md:grid-cols-2">
+                <FormField
+                  control={form.control}
+                  name="firstName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium text-slate-700">First Name</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
+                          <Input 
+                            placeholder="Enter first name" 
+                            className="pl-10 h-12 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500 rounded-xl"
+                            {...field} 
+                            disabled={isViewMode}
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="lastName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium text-slate-700">Last Name</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
+                          <Input 
+                            placeholder="Enter last name" 
+                            className="pl-10 h-12 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500 rounded-xl"
+                            {...field} 
+                            disabled={isViewMode}
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+
+            {/* Contact Information Section */}
+            <div className="space-y-6">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-2 bg-emerald-100 rounded-lg">
+                  <Phone className="h-5 w-5 text-emerald-600" />
+                </div>
+                <h3 className="text-lg font-semibold text-slate-800">Contact Information</h3>
+              </div>
+              
+              <div className="grid gap-6 md:grid-cols-2">
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium text-slate-700">Email (Optional)</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
+                          <Input 
+                            placeholder="Enter email address" 
+                            className="pl-10 h-12 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500 rounded-xl"
+                            {...field} 
+                            disabled={isViewMode}
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="phone"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium text-slate-700">Phone</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
+                          <Input 
+                            placeholder="Enter phone number" 
+                            className="pl-10 h-12 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500 rounded-xl"
+                            {...field} 
+                            disabled={isViewMode}
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+
+            {/* Additional Information Section */}
+            <div className="space-y-6">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-2 bg-purple-100 rounded-lg">
+                  <Calendar className="h-5 w-5 text-purple-600" />
+                </div>
+                <h3 className="text-lg font-semibold text-slate-800">Additional Information</h3>
+              </div>
+              
+              <div className="grid gap-6 md:grid-cols-2">
+                <FormField
+                  control={form.control}
+                  name="birthdate"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium text-slate-700">Birth Date</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
+                          <Input 
+                            type="date" 
+                            className="pl-10 h-12 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500 rounded-xl"
+                            {...field} 
+                            disabled={isViewMode}
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="gender"
+                  render={({ field }) => (
+                    <FormItem className="space-y-3">
+                      <FormLabel className="text-sm font-medium text-slate-700">Gender</FormLabel>
+                      <FormControl>
+                        <RadioGroup
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                          className="flex flex-row space-x-6"
+                          disabled={isViewMode}
+                        >
+                          <FormItem className="flex items-center space-x-2 space-y-0">
+                            <FormControl>
+                              <RadioGroupItem value="female" className="border-slate-300 text-indigo-600" />
+                            </FormControl>
+                            <FormLabel className="font-normal text-slate-700">Female</FormLabel>
+                          </FormItem>
+                          <FormItem className="flex items-center space-x-2 space-y-0">
+                            <FormControl>
+                              <RadioGroupItem value="male" className="border-slate-300 text-indigo-600" />
+                            </FormControl>
+                            <FormLabel className="font-normal text-slate-700">Male</FormLabel>
+                          </FormItem>
+                          <FormItem className="flex items-center space-x-2 space-y-0">
+                            <FormControl>
+                              <RadioGroupItem value="other" className="border-slate-300 text-indigo-600" />
+                            </FormControl>
+                            <FormLabel className="font-normal text-slate-700">Other</FormLabel>
+                          </FormItem>
+                        </RadioGroup>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+
+            {/* Location & Notes Section */}
+            <div className="space-y-6">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-2 bg-orange-100 rounded-lg">
+                  <MapPin className="h-5 w-5 text-orange-600" />
+                </div>
+                <h3 className="text-lg font-semibold text-slate-800">Location & Notes</h3>
+              </div>
+              
               <FormField
                 control={form.control}
-                name="firstName"
+                name="address"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>First Name</FormLabel>
+                    <FormLabel className="text-sm font-medium text-slate-700">Address</FormLabel>
                     <FormControl>
-                      <Input 
-                        placeholder="Enter first name" 
-                        {...field} 
-                        disabled={isViewMode}
-                      />
+                      <div className="relative">
+                        <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
+                        <Input 
+                          placeholder="Enter address" 
+                          className="pl-10 h-12 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500 rounded-xl"
+                          {...field} 
+                          disabled={isViewMode}
+                        />
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -188,155 +394,57 @@ export function ClientForm({ client, isEditMode = false, onEditComplete }: Clien
               />
               <FormField
                 control={form.control}
-                name="lastName"
+                name="notes"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Last Name</FormLabel>
+                    <FormLabel className="text-sm font-medium text-slate-700">Notes</FormLabel>
                     <FormControl>
-                      <Input 
-                        placeholder="Enter last name" 
-                        {...field} 
-                        disabled={isViewMode}
-                      />
+                      <div className="relative">
+                        <FileText className="absolute left-3 top-4 h-4 w-4 text-slate-400" />
+                        <Textarea
+                          placeholder="Enter any additional notes about the client"
+                          className="pl-10 pt-3 resize-none border-slate-200 focus:border-indigo-500 focus:ring-indigo-500 rounded-xl min-h-[100px]"
+                          {...field}
+                          disabled={isViewMode}
+                        />
+                      </div>
                     </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email (Optional)</FormLabel>
-                    <FormControl>
-                      <Input 
-                        placeholder="Enter email address" 
-                        {...field} 
-                        disabled={isViewMode}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="phone"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Phone</FormLabel>
-                    <FormControl>
-                      <Input 
-                        placeholder="Enter phone number" 
-                        {...field} 
-                        disabled={isViewMode}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="birthdate"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Birth Date</FormLabel>
-                    <FormControl>
-                      <Input 
-                        type="date" 
-                        {...field} 
-                        disabled={isViewMode}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="gender"
-                render={({ field }) => (
-                  <FormItem className="space-y-3">
-                    <FormLabel>Gender</FormLabel>
-                    <FormControl>
-                      <RadioGroup
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                        className="flex flex-row space-x-4"
-                        disabled={isViewMode}
-                      >
-                        <FormItem className="flex items-center space-x-2 space-y-0">
-                          <FormControl>
-                            <RadioGroupItem value="female" />
-                          </FormControl>
-                          <FormLabel className="font-normal">Female</FormLabel>
-                        </FormItem>
-                        <FormItem className="flex items-center space-x-2 space-y-0">
-                          <FormControl>
-                            <RadioGroupItem value="male" />
-                          </FormControl>
-                          <FormLabel className="font-normal">Male</FormLabel>
-                        </FormItem>
-                        <FormItem className="flex items-center space-x-2 space-y-0">
-                          <FormControl>
-                            <RadioGroupItem value="other" />
-                          </FormControl>
-                          <FormLabel className="font-normal">Other</FormLabel>
-                        </FormItem>
-                      </RadioGroup>
-                    </FormControl>
+                    <FormDescription className="text-slate-500 text-sm">
+                      Include any relevant information about client preferences, allergies, etc.
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
               />
             </div>
-            <FormField
-              control={form.control}
-              name="address"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Address</FormLabel>
-                  <FormControl>
-                    <Input 
-                      placeholder="Enter address" 
-                      {...field} 
-                      disabled={isViewMode}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="notes"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Notes</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Enter any additional notes about the client"
-                      className="resize-none"
-                      {...field}
-                      disabled={isViewMode}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    Include any relevant information about client preferences, allergies, etc.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+
+            {/* Action Buttons */}
             {!isViewMode && (
-              <div className="flex justify-end space-x-4">
-                <Button variant="outline" type="button" onClick={() => router.push("/clients")}>
+              <div className="flex justify-end gap-4 pt-6 border-t border-slate-200">
+                <Button 
+                  variant="outline" 
+                  type="button" 
+                  onClick={() => router.push("/clients")}
+                  className="px-8 py-3 h-12 rounded-xl border-slate-200 hover:border-slate-300 hover:bg-slate-50"
+                >
                   Cancel
                 </Button>
-                <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? "Saving..." : client ? "Update Client" : "Save Client"}
+                <Button 
+                  type="submit" 
+                  disabled={isSubmitting}
+                  className="px-8 py-3 h-12 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 rounded-xl text-white font-medium"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <Users className="mr-2 h-4 w-4" />
+                      {client ? "Update Client" : "Save Client"}
+                    </>
+                  )}
                 </Button>
               </div>
             )}
