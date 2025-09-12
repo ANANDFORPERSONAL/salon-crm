@@ -411,9 +411,9 @@ export function CashRegistryModal({ open, onOpenChange, onSaveSuccess, onlineSal
 
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    {shift === "opening" 
-                      ? "Will be 0 for opening shifts (no online payments yet)"
-                      : `Today's online sales: Card + Online payments (₹${cashCollectedOnline.toFixed(2)})`
+                    {shift === "closing" 
+                      ? `Today's online sales: Card + Online payments (₹${cashCollectedOnline.toFixed(2)})`
+                      : "Will be 0 for opening shifts (no online payments yet)"
                     }
                   </p>
                   {!isLoading && cashCollectedOnline > 0 && (

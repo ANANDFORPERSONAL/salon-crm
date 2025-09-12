@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import { Search, Download, Filter, TrendingUp, DollarSign, Users, MoreHorizontal, Eye, Pencil, Trash2, Banknote, Calendar, Clock, CreditCard, Receipt, RefreshCw, CheckCircle, Clock as ClockIcon } from "lucide-react"
+import { Search, Download, Filter, TrendingUp, DollarSign, Users, MoreHorizontal, Eye, Pencil, Trash2, Banknote, Calendar, Clock, CreditCard, Receipt, RefreshCw, CheckCircle, Clock as ClockIcon, FileText, FileSpreadsheet, ChevronDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -19,6 +19,9 @@ import { CashRegistryAPI, ExpensesAPI, SalesAPI } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
 import { CashRegistryModal } from "./cash-registry-modal"
 import { VerificationModal } from "./verification-modal"
+import jsPDF from "jspdf"
+import autoTable from "jspdf-autotable"
+import * as XLSX from "xlsx"
 
 interface CashRegistryEntry {
   id: string
@@ -76,6 +79,13 @@ export function CashRegistryReport({ isVerificationModalOpen, onVerificationModa
   const [selectedDenominationsType, setSelectedDenominationsType] = useState<"opening" | "closing">("opening")
   const [isDeletingDailySummary, setIsDeletingDailySummary] = useState(false)
   const [selectedSummaryDate, setSelectedSummaryDate] = useState<string | null>(null)
+  const [isReasonModalOpen, setIsReasonModalOpen] = useState(false)
+  const [selectedReason, setSelectedReason] = useState<{
+    type: 'cash' | 'online'
+    reason: string
+    difference: number
+  } | null>(null)
+  const [selectedClosingEntry, setSelectedClosingEntry] = useState<CashRegistryEntry | null>(null)
 
   // State for daily summaries (populated when "Verified and Close" is clicked)
   const [dailySummaries, setDailySummaries] = useState<Array<{
@@ -181,14 +191,17 @@ export function CashRegistryReport({ isVerificationModalOpen, onVerificationModa
       const openingBalance = openingEntry?.openingBalance || 0
       const closingBalance = closingEntry?.closingBalance || 0
       
-      // Use real-time values directly from stats cards for consistency
-      const cashCollected = getRealTimeCashSales() // This gives us ₹1800.00
-      const expense = getRealTimeExpenses() // This gives us ₹200.00
+      // Calculate values for this specific date
+      const cashCollected = getEntryCashSales(dateKey)
+      const expense = getEntryExpenses(dateKey)
       const cashBalance = openingBalance + cashCollected - expense
       const cashDifference = closingBalance - cashBalance
       const cashInPos = closingEntry?.posCash || 0
-      const onlineSales = getRealTimeOnlineSales() // This gives us ₹1400.00
+      const onlineSales = getEntryOnlineSales(dateKey)
       const onlineCashDifference = cashInPos - onlineSales
+      
+      // Check if we already have a summary with reasons for this date
+      const existingSummary = dailySummaries.find(s => s.date === dateKey)
       
       const summary = {
         date: dateKey,
@@ -198,15 +211,35 @@ export function CashRegistryReport({ isVerificationModalOpen, onVerificationModa
         cashBalance,
         closingBalance,
         cashDifference,
-        cashDifferenceReason: closingEntry?.balanceDifferenceReason || '',
+        // Preserve existing reasons if they exist, otherwise use from closingEntry
+        cashDifferenceReason: existingSummary?.cashDifferenceReason || closingEntry?.balanceDifferenceReason || '',
         totalOnlineSales: onlineSales,
         cashInPos,
         onlineCashDifference,
-        onlineCashDifferenceReason: closingEntry?.onlineCashDifferenceReason || '',
+        onlineCashDifferenceReason: existingSummary?.onlineCashDifferenceReason || closingEntry?.onlineCashDifferenceReason || '',
         isVerified: closingEntry?.isVerified || false,
         verifiedAt: closingEntry?.verifiedAt || '',
         verifiedBy: closingEntry?.verifiedBy || ''
       }
+      
+      // Debug logging for reasons
+      console.log(`🔍 DEBUG Summary for ${dateKey}:`, {
+        existingSummary: existingSummary ? {
+          cashDifferenceReason: existingSummary.cashDifferenceReason,
+          onlineCashDifferenceReason: existingSummary.onlineCashDifferenceReason
+        } : 'No existing summary found',
+        closingEntry: closingEntry ? {
+          id: closingEntry.id,
+          balanceDifferenceReason: closingEntry.balanceDifferenceReason,
+          onlineCashDifferenceReason: closingEntry.onlineCashDifferenceReason,
+          isVerified: closingEntry.isVerified,
+          allKeys: Object.keys(closingEntry)
+        } : 'No closing entry found',
+        finalReasons: {
+          cashDifferenceReason: summary.cashDifferenceReason,
+          onlineCashDifferenceReason: summary.onlineCashDifferenceReason
+        }
+      })
       
       console.log(`📊 Summary for ${dateKey}:`, summary)
       return summary
@@ -241,32 +274,49 @@ export function CashRegistryReport({ isVerificationModalOpen, onVerificationModa
       })
 
       if (response.success) {
-        // Create daily summary from the verified entry
-        if (todayClosingEntry) {
-          const today = new Date()
-          const dateKey = today.toISOString().split('T')[0] // YYYY-MM-DD format
+        // Find the verified entry (could be today's or back-dated)
+        const verifiedEntry = cashRegistryData.find(entry => entry.id === data.entryId)
+        
+        if (verifiedEntry) {
+          const entryDate = new Date(verifiedEntry.date)
+          const dateKey = entryDate.toISOString().split('T')[0] // YYYY-MM-DD format
           
-          // Get today's opening entry
-          const todayOpeningEntry = cashRegistryData.find(entry => {
-            const entryDate = new Date(entry.date)
+          // Get the opening entry for the same date
+          const openingEntry = cashRegistryData.find(entry => {
+            const entryDate2 = new Date(entry.date)
             return entry.shiftType === "opening" && 
-                   entryDate.getDate() === today.getDate() &&
-                   entryDate.getMonth() === today.getMonth() &&
-                   entryDate.getFullYear() === today.getFullYear()
+                   entryDate2.getDate() === entryDate.getDate() &&
+                   entryDate2.getMonth() === entryDate.getMonth() &&
+                   entryDate2.getFullYear() === entryDate.getFullYear()
           })
 
-          // Calculate values for the summary using real-time data
-          const openingBalance = todayOpeningEntry?.openingBalance || 0
-          const closingBalance = todayClosingEntry.closingBalance || 0
-          const cashCollected = getRealTimeCashSales() // Use real-time function
-          const expense = getRealTimeExpenses() // Use real-time function
+          // Calculate values for the summary
+          const openingBalance = openingEntry?.openingBalance || 0
+          const closingBalance = verifiedEntry.closingBalance || 0
+          
+          // For back-dated entries, we need to calculate sales and expenses for that specific date
+          let cashCollected = 0
+          let expense = 0
+          let onlineSales = 0
+          
+          if (dateKey === new Date().toISOString().split('T')[0]) {
+            // For today's entries, use real-time data
+            cashCollected = getRealTimeCashSales()
+            expense = getRealTimeExpenses()
+            onlineSales = getRealTimeOnlineSales()
+          } else {
+            // For back-dated entries, calculate from historical data
+            cashCollected = getEntryCashSales(verifiedEntry.date)
+            expense = getEntryExpenses(verifiedEntry.date)
+            onlineSales = getEntryOnlineSales(verifiedEntry.date)
+          }
+          
           const cashBalance = openingBalance + cashCollected - expense
           const cashDifference = closingBalance - cashBalance
-          const onlineSalesForSummary = getRealTimeOnlineSales() // Use real-time function
-          const cashInPos = todayClosingEntry.posCash || 0
-          const onlineCashDifference = cashInPos - onlineSalesForSummary
+          const cashInPos = verifiedEntry.posCash || 0
+          const onlineCashDifference = cashInPos - onlineSales
 
-          // Create or update daily summary
+          // Create or update daily summary with the verification reasons
           const newSummary = {
             date: dateKey,
             openingBalance,
@@ -275,15 +325,22 @@ export function CashRegistryReport({ isVerificationModalOpen, onVerificationModa
             cashBalance,
             closingBalance,
             cashDifference,
-            cashDifferenceReason: data.balanceDifferenceReason,
-            totalOnlineSales: onlineSalesForSummary,
+            cashDifferenceReason: data.balanceDifferenceReason || '',
+            totalOnlineSales: onlineSales,
             cashInPos,
             onlineCashDifference,
-            onlineCashDifferenceReason: data.onlinePosDifferenceReason,
+            onlineCashDifferenceReason: data.onlinePosDifferenceReason || '',
             isVerified: true,
             verifiedAt: new Date().toISOString(),
-            verifiedBy: todayClosingEntry.createdBy
+            verifiedBy: verifiedEntry.createdBy
           }
+
+          console.log('🔍 DEBUG Creating/updating summary with reasons:', {
+            dateKey,
+            cashDifferenceReason: data.balanceDifferenceReason,
+            onlineCashDifferenceReason: data.onlinePosDifferenceReason,
+            newSummary
+          })
 
           setDailySummaries(prev => {
             const existingIndex = prev.findIndex(summary => summary.date === dateKey)
@@ -305,10 +362,7 @@ export function CashRegistryReport({ isVerificationModalOpen, onVerificationModa
         })
         // Refresh data after successful verification
         await fetchCashRegistryData()
-        // Regenerate daily summaries with updated data
-        setTimeout(() => {
-          generateDailySummaries()
-        }, 100)
+        // Don't regenerate daily summaries as we've already updated them manually with the correct reasons
         onVerificationModalChange(false)
       } else {
         toast({
@@ -416,6 +470,8 @@ export function CashRegistryReport({ isVerificationModalOpen, onVerificationModa
           posCash: entry.posCash || 0,
           balanceDifference: entry.balanceDifference || 0,
           onlinePosDifference: entry.onlinePosDifference || 0,
+          balanceDifferenceReason: entry.balanceDifferenceReason || '',
+          onlineCashDifferenceReason: entry.onlineCashDifferenceReason || '',
           status: entry.status || "active",
           isVerified: entry.isVerified || false,
           createdAt: entry.createdAt
@@ -876,12 +932,187 @@ export function CashRegistryReport({ isVerificationModalOpen, onVerificationModa
     onlineCashDifference: totalOnlineCashCollected - totalOnlineSales
   })
 
-  const handleExport = () => {
-    // TODO: Implement export functionality
+  const handleExportPDF = () => {
+    try {
+      const doc = new jsPDF()
+      
+      // Add title
+      doc.setFontSize(20)
+      doc.text("Cash Registry Report", 14, 22)
+      
+      // Add date range
+      doc.setFontSize(12)
+      const dateRangeText = dateRange?.from && dateRange?.to 
+        ? `${format(dateRange.from, "MMM dd, yyyy")} - ${format(dateRange.to, "MMM dd, yyyy")}`
+        : "All Time"
+      doc.text(`Period: ${dateRangeText}`, 14, 32)
+      
+      // Add report type
+      doc.text(`Report Type: ${reportType === "summary" ? "Summary Report" : "Activity Report"}`, 14, 42)
+      
+      // Add generation date
+      doc.text(`Generated: ${format(new Date(), "MMM dd, yyyy 'at' h:mm a")}`, 14, 52)
+      
+      let yPosition = 70
+      
+      if (reportType === "summary") {
+        // Summary Report
+        if (dailySummaries.length === 0) {
+          doc.setFontSize(14)
+          doc.text("No summary data available", 14, yPosition)
+        } else {
+          // Summary table headers
+          const headers = [
+            "Date",
+            "Opening Balance",
+            "Cash Collected",
+            "Online Sales",
+            "Expenses",
+            "Closing Balance",
+            "Cash Diff.",
+            "Online Diff.",
+            "Status"
+          ]
+          
+          const data = dailySummaries.map(summary => [
+            format(new Date(summary.date), "MMM dd, yyyy"),
+            `₹${summary.openingBalance.toFixed(2)}`,
+            `₹${summary.cashCollected.toFixed(2)}`,
+            `₹${summary.totalOnlineSales.toFixed(2)}`,
+            `₹${summary.expense.toFixed(2)}`,
+            `₹${summary.closingBalance.toFixed(2)}`,
+            `₹${summary.cashDifference.toFixed(2)}`,
+            `₹${summary.onlineCashDifference.toFixed(2)}`,
+            summary.isVerified ? "Verified" : "Pending"
+          ])
+          
+          autoTable(doc, {
+            head: [headers],
+            body: data,
+            startY: yPosition,
+            styles: { fontSize: 8 },
+            headStyles: { fillColor: [59, 130, 246] }
+          })
+        }
+      } else {
+        // Activity Report
+        if (filteredData.length === 0) {
+          doc.setFontSize(14)
+          doc.text("No activity data available", 14, yPosition)
+        } else {
+          // Activity table headers
+          const headers = [
+            "Date",
+            "Shift",
+            "Created By",
+            "Opening Balance",
+            "Closing Balance",
+            "Total Balance",
+            "Cash Sales",
+            "Online Sales",
+            "Expenses",
+            "Status"
+          ]
+          
+          const data = filteredData.map(entry => [
+            format(new Date(entry.date), "MMM dd, yyyy"),
+            entry.shiftType === "opening" ? "Opening" : "Closing",
+            entry.createdBy,
+            `₹${entry.openingBalance.toFixed(2)}`,
+            `₹${entry.closingBalance.toFixed(2)}`,
+            `₹${entry.totalBalance.toFixed(2)}`,
+            `₹${getEntryCashSales(entry.date).toFixed(2)}`,
+            `₹${getEntryOnlineSales(entry.date).toFixed(2)}`,
+            `₹${getEntryExpenses(entry.date).toFixed(2)}`,
+            entry.isVerified ? "Verified" : "Pending"
+          ])
+          
+          autoTable(doc, {
+            head: [headers],
+            body: data,
+            startY: yPosition,
+            styles: { fontSize: 8 },
+            headStyles: { fillColor: [59, 130, 246] }
+          })
+        }
+      }
+      
+      // Save the PDF
+      const fileName = `cash-registry-${reportType}-${format(new Date(), "yyyy-MM-dd")}.pdf`
+      doc.save(fileName)
+      
     toast({
-      title: "Export",
-      description: "Export functionality coming soon!",
-    })
+        title: "Export Successful",
+        description: `PDF exported as ${fileName}`,
+      })
+    } catch (error) {
+      console.error("PDF export error:", error)
+      toast({
+        title: "Export Failed",
+        description: "Failed to export PDF. Please try again.",
+        variant: "destructive"
+      })
+    }
+  }
+
+  const handleExportXLS = () => {
+    try {
+      let data: any[] = []
+      let fileName = ""
+      
+      if (reportType === "summary") {
+        // Summary Report
+        data = dailySummaries.map(summary => ({
+          "Date": format(new Date(summary.date), "MMM dd, yyyy"),
+          "Opening Balance": summary.openingBalance,
+          "Cash Collected": summary.cashCollected,
+          "Online Sales": summary.totalOnlineSales,
+          "Expenses": summary.expense,
+          "Closing Balance": summary.closingBalance,
+          "Cash Difference": summary.cashDifference,
+          "Online Difference": summary.onlineCashDifference,
+          "Status": summary.isVerified ? "Verified" : "Pending",
+          "Cash Diff. Reason": summary.cashDifferenceReason || "",
+          "Online Diff. Reason": summary.onlineCashDifferenceReason || ""
+        }))
+        fileName = `cash-registry-summary-${format(new Date(), "yyyy-MM-dd")}.xlsx`
+      } else {
+        // Activity Report
+        data = filteredData.map(entry => ({
+          "Date": format(new Date(entry.date), "MMM dd, yyyy"),
+          "Shift": entry.shiftType === "opening" ? "Opening" : "Closing",
+          "Created By": entry.createdBy,
+          "Opening Balance": entry.openingBalance,
+          "Closing Balance": entry.closingBalance,
+          "Total Balance": entry.totalBalance,
+          "Cash Sales": getEntryCashSales(entry.date),
+          "Online Sales": getEntryOnlineSales(entry.date),
+          "Expenses": getEntryExpenses(entry.date),
+          "Status": entry.isVerified ? "Verified" : "Pending"
+        }))
+        fileName = `cash-registry-activity-${format(new Date(), "yyyy-MM-dd")}.xlsx`
+      }
+      
+      // Create workbook and worksheet
+      const ws = XLSX.utils.json_to_sheet(data)
+      const wb = XLSX.utils.book_new()
+      XLSX.utils.book_append_sheet(wb, ws, "Cash Registry")
+      
+      // Save the file
+      XLSX.writeFile(wb, fileName)
+      
+      toast({
+        title: "Export Successful",
+        description: `Excel file exported as ${fileName}`,
+      })
+    } catch (error) {
+      console.error("XLS export error:", error)
+      toast({
+        title: "Export Failed",
+        description: "Failed to export Excel file. Please try again.",
+        variant: "destructive"
+      })
+    }
   }
 
   const handleViewEntry = (entry: CashRegistryEntry) => {
@@ -1404,50 +1635,30 @@ export function CashRegistryReport({ isVerificationModalOpen, onVerificationModa
             
             {/* Right Side - Actions */}
             <div className="flex items-center space-x-3">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
               <Button
                 variant="outline"
-                onClick={handleExport}
                 className="flex items-center space-x-2 bg-white border-slate-300 hover:bg-slate-50 hover:border-slate-400 hover:shadow-md transition-all duration-200 rounded-xl px-4 py-2"
               >
                 <Download className="h-4 w-4 text-slate-600" />
                 <span className="font-medium">Export</span>
+                    <ChevronDown className="h-4 w-4 text-slate-600" />
               </Button>
-              
-              <Button
-                variant="outline"
-                onClick={async () => {
-                  console.log("🔄 Manual refresh of real-time data...")
-                  await fetchSalesData()
-                  await fetchExpensesData()
-                  setTimeout(() => {
-                    generateDailySummaries()
-                  }, 100)
-                  toast({
-                    title: "Data Refreshed",
-                    description: "Real-time sales and expenses data has been updated.",
-                  })
-                }}
-                className="flex items-center space-x-2 bg-white border-slate-300 hover:bg-slate-50 hover:border-slate-400 hover:shadow-md transition-all duration-200 rounded-xl px-4 py-2"
-              >
-                <RefreshCw className="h-4 w-4 text-slate-600" />
-                <span className="font-medium">Refresh Data</span>
-              </Button>
-              
-              <Button
-                onClick={() => {
-                  console.log("🔄 Manual trigger for generateDailySummaries...")
-                  generateDailySummaries()
-                  toast({
-                    title: "Summaries Regenerated",
-                    description: "Daily summaries have been recalculated with latest data.",
-                  })
-                }}
-                variant="outline"
-                className="flex items-center space-x-2 bg-white border-slate-300 hover:bg-slate-50 hover:border-slate-400 hover:shadow-md transition-all duration-200 rounded-xl px-4 py-2"
-              >
-                <RefreshCw className="h-4 w-4 text-slate-600" />
-                <span className="font-medium">Regenerate Summaries</span>
-              </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuLabel>Export Format</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleExportPDF} className="cursor-pointer">
+                    <FileText className="h-4 w-4 mr-2" />
+                    Export as PDF
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleExportXLS} className="cursor-pointer">
+                    <FileSpreadsheet className="h-4 w-4 mr-2" />
+                    Export as Excel
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
               
               <Button
                 onClick={() => setIsAddModalOpen(true)}
@@ -1590,17 +1801,44 @@ export function CashRegistryReport({ isVerificationModalOpen, onVerificationModa
                               <TableCell className="text-center min-w-[140px]">
                                 {cashDifference !== 0 ? (
                                   <div className="space-y-1">
-                                    <Badge variant={cashDifference > 0 ? "default" : "destructive"}>
-                                      {cashDifference > 0 ? 'Surplus' : 'Shortage'}
-                                    </Badge>
-                                    {cashDifferenceReason && (
-                                      <div className="text-xs text-muted-foreground max-w-32 truncate" title={cashDifferenceReason}>
-                                        {cashDifferenceReason}
-                                    </div>
-                                    )}
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => {
+                                        console.log('🔍 DEBUG Cash View clicked:', {
+                                          cashDifferenceReason,
+                                          cashDifference,
+                                          entry: entry,
+                                          allEntryKeys: Object.keys(entry)
+                                        })
+                                        setSelectedReason({
+                                          type: 'cash',
+                                          reason: cashDifferenceReason || 'No reason provided',
+                                          difference: cashDifference
+                                        })
+                                        setIsReasonModalOpen(true)
+                                      }}
+                                      className="h-8 px-3 text-xs font-medium"
+                                    >
+                                      View
+                                    </Button>
                                   </div>
                                 ) : (
-                                  <Badge variant="secondary">Balanced</Badge>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => {
+                                      setSelectedReason({
+                                        type: 'cash',
+                                        reason: 'No difference - balanced',
+                                        difference: 0
+                                      })
+                                      setIsReasonModalOpen(true)
+                                    }}
+                                    className="h-8 px-3 text-xs font-medium"
+                                  >
+                                    View
+                                  </Button>
                                 )}
                               </TableCell>
                               <TableCell className="text-right min-w-[140px]">₹{totalOnlineSales.toFixed(2)}</TableCell>
@@ -1615,17 +1853,44 @@ export function CashRegistryReport({ isVerificationModalOpen, onVerificationModa
                               <TableCell className="text-center min-w-[140px]">
                                 {onlineCashDifference !== 0 ? (
                                   <div className="space-y-1">
-                                    <Badge variant={onlineCashDifference > 0 ? "default" : "destructive"}>
-                                      {onlineCashDifference > 0 ? 'Surplus' : 'Shortage'}
-                                    </Badge>
-                                    {onlineCashDifferenceReason && (
-                                      <div className="text-xs text-muted-foreground max-w-32 truncate" title={onlineCashDifferenceReason}>
-                                        {onlineCashDifferenceReason}
-                                      </div>
-                                    )}
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => {
+                                        console.log('🔍 DEBUG Online View clicked:', {
+                                          onlineCashDifferenceReason,
+                                          onlineCashDifference,
+                                          entry: entry,
+                                          allEntryKeys: Object.keys(entry)
+                                        })
+                                        setSelectedReason({
+                                          type: 'online',
+                                          reason: onlineCashDifferenceReason || 'No reason provided',
+                                          difference: onlineCashDifference
+                                        })
+                                        setIsReasonModalOpen(true)
+                                      }}
+                                      className="h-8 px-3 text-xs font-medium"
+                                    >
+                                      View
+                                    </Button>
                                   </div>
                                 ) : (
-                                  <Badge variant="secondary">Balanced</Badge>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => {
+                                      setSelectedReason({
+                                        type: 'online',
+                                        reason: 'No difference - balanced',
+                                        difference: 0
+                                      })
+                                      setIsReasonModalOpen(true)
+                                    }}
+                                    className="h-8 px-3 text-xs font-medium"
+                                  >
+                                    View
+                                  </Button>
                                 )}
                               </TableCell>
                               <TableCell className="text-center min-w-[100px]">
@@ -1638,9 +1903,54 @@ export function CashRegistryReport({ isVerificationModalOpen, onVerificationModa
                                           Verified
                                         </Badge>
                                       ) : (
-                                        <Badge variant="secondary" className="bg-gray-100 text-gray-600 hover:bg-gray-200 flex items-center gap-1">
-                                          <ClockIcon className="h-3 w-3" />
-                                          Pending
+                                        <Badge 
+                                          variant="secondary" 
+                                          className="bg-blue-100 text-blue-800 hover:bg-blue-200 flex items-center gap-1 cursor-pointer transition-colors"
+                                          onClick={async (e) => {
+                                            e.preventDefault()
+                                            e.stopPropagation()
+                                            
+                                            // Find the closing entry for this date
+                                            const closingEntry = cashRegistryData.find(registryEntry => {
+                                              const entryDate = new Date(registryEntry.date).toISOString().split('T')[0]
+                                              return entryDate === entry.date && registryEntry.shiftType === 'closing'
+                                            })
+                                            
+                                            if (!closingEntry) return
+                                            
+                                            // Check if there are any differences that need reasons
+                                            const hasCashDifference = entry.cashDifference !== 0
+                                            const hasOnlineDifference = entry.onlineCashDifference !== 0
+                                            
+                                            if (hasCashDifference || hasOnlineDifference) {
+                                              // Has differences - open modal to collect reasons
+                                              setSelectedClosingEntry(closingEntry)
+                                              onVerificationModalChange(true)
+                                            } else {
+                                              // No differences - verify immediately
+                                              try {
+                                                await handleVerification({
+                                                  entryId: closingEntry.id,
+                                                  balanceDifferenceReason: undefined,
+                                                  onlinePosDifferenceReason: undefined,
+                                                })
+                                                toast({
+                                                  title: "Verified Successfully",
+                                                  description: "Entry verified with no differences found.",
+                                                })
+                                              } catch (error) {
+                                                console.error("Verification failed:", error)
+                                                toast({
+                                                  title: "Verification Failed",
+                                                  description: "An error occurred during verification. Please try again.",
+                                                  variant: "destructive"
+                                                })
+                                              }
+                                            }
+                                          }}
+                                        >
+                                          <CheckCircle className="h-3 w-3" />
+                                          Click to Verify
                                         </Badge>
                                       )}
                                     </div>
@@ -1655,8 +1965,8 @@ export function CashRegistryReport({ isVerificationModalOpen, onVerificationModa
                                           </>
                                         ) : (
                                           <>
-                                            <ClockIcon className="h-4 w-4 text-gray-600" />
-                                            Status Information
+                                            <CheckCircle className="h-4 w-4 text-blue-600" />
+                                            Verification Required
                                           </>
                                         )}
                                       </div>
@@ -1671,7 +1981,7 @@ export function CashRegistryReport({ isVerificationModalOpen, onVerificationModa
                                         </>
                                       ) : (
                                         <div className="text-xs text-muted-foreground">
-                                          This daily summary is pending verification. Click "Verify and Close" to complete the verification process.
+                                          This daily summary requires verification. Click the "Click to Verify" button to open the verification modal and provide reasons for any differences.
                                         </div>
                                       )}
                                     </div>
@@ -1773,6 +2083,7 @@ export function CashRegistryReport({ isVerificationModalOpen, onVerificationModa
                                   )}
                                 </TableCell>
                                 <TableCell className="text-center">
+                                  <div className="flex items-center justify-center space-x-2">
                                   <Button
                                     variant="ghost"
                                     size="sm"
@@ -1782,6 +2093,7 @@ export function CashRegistryReport({ isVerificationModalOpen, onVerificationModa
                                   >
                                     <Trash2 className="h-4 w-4" />
                                   </Button>
+                                  </div>
                                 </TableCell>
                               </TableRow>
                             )
@@ -2061,12 +2373,66 @@ export function CashRegistryReport({ isVerificationModalOpen, onVerificationModa
       {/* Verification Modal */}
       <VerificationModal 
         isOpen={isVerificationModalOpen}
-        onClose={() => onVerificationModalChange(false)}
+        onClose={() => {
+          onVerificationModalChange(false)
+          setSelectedClosingEntry(null)
+        }}
         onVerify={handleVerification}
-        todayClosingEntry={todayClosingEntry || null}
+        closingEntry={selectedClosingEntry || todayClosingEntry || null}
         cashDifference={cashDifference}
         onlineCashDifference={onlineCashDifference}
       />
+
+      {/* Reason Details Modal */}
+      <Dialog open={isReasonModalOpen} onOpenChange={setIsReasonModalOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              {selectedReason?.type === 'cash' ? 'Cash Difference Details' : 'Online Cash Difference Details'}
+            </DialogTitle>
+            <DialogDescription>
+              View the detailed reason for the difference
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedReason && (
+            <div className="space-y-4">
+              <div className="p-4 bg-muted/30 rounded-lg">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium">Difference Amount:</span>
+                  <span className={`text-lg font-bold ${
+                    selectedReason.difference > 0 ? 'text-green-600' : 
+                    selectedReason.difference < 0 ? 'text-red-600' : 
+                    'text-gray-900'
+                  }`}>
+                    ₹{selectedReason.difference.toFixed(2)}
+                  </span>
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  {selectedReason.difference > 0 ? 'Surplus' : 
+                   selectedReason.difference < 0 ? 'Shortage' : 
+                   'Balanced'}
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Reason:</Label>
+                <div className="p-3 bg-background border rounded-lg">
+                  <p className="text-sm text-foreground font-medium">
+                    {selectedReason.reason}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsReasonModalOpen(false)}>
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

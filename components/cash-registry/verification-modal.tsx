@@ -47,7 +47,7 @@ interface VerificationModalProps {
   isOpen: boolean
   onClose: () => void
   onVerify: (data: VerificationData) => Promise<void>
-  todayClosingEntry: CashRegistryEntry | null
+  closingEntry: CashRegistryEntry | null
   cashDifference: number
   onlineCashDifference: number
 }
@@ -56,7 +56,7 @@ export function VerificationModal({
   isOpen, 
   onClose, 
   onVerify, 
-  todayClosingEntry, 
+  closingEntry, 
   cashDifference, 
   onlineCashDifference 
 }: VerificationModalProps) {
@@ -81,10 +81,10 @@ export function VerificationModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    if (!todayClosingEntry) {
+    if (!closingEntry) {
       toast({
         title: "Error",
-        description: "No closing entry found for today.",
+        description: "No closing entry found to verify.",
         variant: "destructive"
       })
       return
@@ -112,7 +112,7 @@ export function VerificationModal({
     setIsSubmitting(true)
     try {
       await onVerify({
-        entryId: todayClosingEntry.id,
+        entryId: closingEntry.id,
         balanceDifferenceReason: hasBalanceDifference ? balanceDifferenceReason.trim() : undefined,
         onlinePosDifferenceReason: hasOnlinePosDifference ? onlinePosDifferenceReason.trim() : undefined,
       })
@@ -154,10 +154,10 @@ export function VerificationModal({
             </Button>
             <Button 
               onClick={async () => {
-                if (!todayClosingEntry) {
+                if (!closingEntry) {
                   toast({
                     title: "Error",
-                    description: "No closing entry found for today.",
+                    description: "No closing entry found to verify.",
                     variant: "destructive"
                   })
                   return
@@ -166,7 +166,7 @@ export function VerificationModal({
                 setIsSubmitting(true)
                 try {
                   await onVerify({
-                    entryId: todayClosingEntry.id,
+                    entryId: closingEntry.id,
                     balanceDifferenceReason: undefined,
                     onlinePosDifferenceReason: undefined,
                   })
