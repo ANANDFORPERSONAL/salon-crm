@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Search, Download, Filter, Receipt, DollarSign, TrendingUp, MoreHorizontal, Eye, Pencil, Trash2 } from "lucide-react"
+import { Search, Download, Filter, Receipt, DollarSign, TrendingUp, MoreHorizontal, Eye, Pencil, Trash2, FileText, FileSpreadsheet, ChevronDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -13,6 +13,9 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { ExpensesAPI } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
+import jsPDF from "jspdf"
+import autoTable from "jspdf-autotable"
+import * as XLSX from "xlsx"
 
 interface ExpenseRecord {
   id: string
@@ -141,9 +144,134 @@ export function ExpenseReport() {
     averageExpense: filteredData.length > 0 ? filteredData.reduce((sum, expense) => sum + expense.amount, 0) / filteredData.length : 0
   }
 
-  const handleExport = () => {
-    // Implement export functionality
-    console.log("Exporting expense data...")
+  const handleExportPDF = () => {
+    try {
+      const doc = new jsPDF()
+      
+      // Add title
+      doc.setFontSize(20)
+      doc.text("Expense Report", 14, 22)
+      
+      // Add date range
+      doc.setFontSize(12)
+      const dateRangeText = datePeriod === "all" 
+        ? "All Time"
+        : `${datePeriod.charAt(0).toUpperCase() + datePeriod.slice(1)}`
+      doc.text(`Period: ${dateRangeText}`, 14, 32)
+      
+      // Add filters
+      doc.text(`Category Filter: ${categoryFilter === "all" ? "All Categories" : categoryFilter}`, 14, 42)
+      doc.text(`Payment Method Filter: ${paymentMethodFilter === "all" ? "All Methods" : paymentMethodFilter}`, 14, 52)
+      
+      // Add generation date
+      doc.text(`Generated: ${format(new Date(), "MMM dd, yyyy 'at' h:mm a")}`, 14, 62)
+      
+      // Add summary stats
+      doc.setFontSize(14)
+      doc.text("Summary", 14, 80)
+      doc.setFontSize(10)
+      doc.text(`Total Expenses: ₹${stats.totalExpenses.toFixed(2)}`, 14, 90)
+      doc.text(`Total Count: ${stats.totalCount}`, 14, 100)
+      doc.text(`Average Expense: ₹${stats.averageExpense.toFixed(2)}`, 14, 110)
+      
+      let yPosition = 130
+      
+      if (filteredData.length === 0) {
+        doc.setFontSize(14)
+        doc.text("No expense data available", 14, yPosition)
+      } else {
+        // Expense table headers
+        const headers = [
+          "Category",
+          "Description",
+          "Amount",
+          "Payment Method",
+          "Date",
+          "Staff"
+        ]
+        
+        const data = filteredData.map(expense => [
+          expense.category,
+          expense.description.length > 30 ? expense.description.substring(0, 30) + "..." : expense.description,
+          `₹${expense.amount.toFixed(2)}`,
+          expense.paymentMethod,
+          format(new Date(expense.date), "MMM dd, yyyy"),
+          expense.staffName || "N/A"
+        ])
+        
+        autoTable(doc, {
+          head: [headers],
+          body: data,
+          startY: yPosition,
+          styles: { fontSize: 8 },
+          headStyles: { fillColor: [220, 38, 127] }
+        })
+      }
+      
+      // Save the PDF
+      const fileName = `expense-report-${datePeriod}-${format(new Date(), "yyyy-MM-dd")}.pdf`
+      doc.save(fileName)
+      
+      toast({
+        title: "Export Successful",
+        description: `PDF exported as ${fileName}`,
+      })
+    } catch (error) {
+      console.error("PDF export error:", error)
+      toast({
+        title: "Export Failed",
+        description: "Failed to export PDF. Please try again.",
+        variant: "destructive"
+      })
+    }
+  }
+
+  const handleExportXLS = () => {
+    try {
+      const data = filteredData.map(expense => ({
+        "Category": expense.category,
+        "Description": expense.description,
+        "Amount": expense.amount,
+        "Payment Method": expense.paymentMethod,
+        "Date": format(new Date(expense.date), "MMM dd, yyyy"),
+        "Staff Name": expense.staffName || "",
+        "Notes": expense.notes || ""
+      }))
+      
+      // Create workbook and worksheet
+      const ws = XLSX.utils.json_to_sheet(data)
+      const wb = XLSX.utils.book_new()
+      XLSX.utils.book_append_sheet(wb, ws, "Expense Report")
+      
+      // Add summary sheet
+      const summaryData = [
+        { Metric: "Total Expenses", Value: stats.totalExpenses },
+        { Metric: "Total Count", Value: stats.totalCount },
+        { Metric: "Average Expense", Value: stats.averageExpense },
+        { Metric: "Period", Value: datePeriod === "all" ? "All Time" : datePeriod },
+        { Metric: "Category Filter", Value: categoryFilter === "all" ? "All Categories" : categoryFilter },
+        { Metric: "Payment Method Filter", Value: paymentMethodFilter === "all" ? "All Methods" : paymentMethodFilter }
+      ]
+      
+      const summaryWs = XLSX.utils.json_to_sheet(summaryData)
+      XLSX.utils.book_append_sheet(wb, summaryWs, "Summary")
+      
+      // Save the file
+      const fileName = `expense-report-${datePeriod}-${format(new Date(), "yyyy-MM-dd")}.xlsx`
+      XLSX.writeFile(wb, fileName)
+      
+      toast({
+        title: "Export Successful",
+        description: `Excel file exported as ${fileName}`,
+      })
+    } catch (error) {
+      console.error("XLS export error:", error)
+      toast({
+        title: "Export Failed",
+        description: "Failed to export Excel file. Please try again.",
+        variant: "destructive"
+      })
+    }
   }
 
   const handleViewExpense = (expense: ExpenseRecord) => {
@@ -355,13 +483,29 @@ export function ExpenseReport() {
             </div>
             
             <div className="flex items-center space-x-3">
-              <Button 
-                onClick={handleExport}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 shadow-md hover:shadow-lg transition-all duration-300 rounded-lg font-medium"
-              >
-                <Download className="h-4 w-4 mr-2" />
-                Export Report
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 shadow-md hover:shadow-lg transition-all duration-300 rounded-lg font-medium"
+                  >
+                    <Download className="h-4 w-4 mr-2" />
+                    Export Report
+                    <ChevronDown className="h-4 w-4 ml-2" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuLabel>Export Format</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleExportPDF} className="cursor-pointer">
+                    <FileText className="h-4 w-4 mr-2" />
+                    Export as PDF
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleExportXLS} className="cursor-pointer">
+                    <FileSpreadsheet className="h-4 w-4 mr-2" />
+                    Export as Excel
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </div>

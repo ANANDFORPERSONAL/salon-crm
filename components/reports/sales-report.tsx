@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Search, Download, Filter, TrendingUp, DollarSign, Users, MoreHorizontal, Eye, Pencil, Trash2, Receipt, AlertCircle } from "lucide-react"
+import { Search, Download, Filter, TrendingUp, DollarSign, Users, MoreHorizontal, Eye, Pencil, Trash2, Receipt, AlertCircle, FileText, FileSpreadsheet, ChevronDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -16,6 +16,9 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { SalesAPI } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
 import { useRouter } from "next/navigation"
+import jsPDF from "jspdf"
+import autoTable from "jspdf-autotable"
+import * as XLSX from "xlsx"
 
 interface SalesRecord {
   id: string
@@ -232,9 +235,149 @@ export function SalesReport() {
     }
   }, 0)
 
-  const handleExport = () => {
-    // Implement export functionality
-    console.log("Exporting sales data...")
+  const handleExportPDF = () => {
+    try {
+      const doc = new jsPDF()
+      
+      // Add title
+      doc.setFontSize(20)
+      doc.text("Sales Report", 14, 22)
+      
+      // Add date range
+      doc.setFontSize(12)
+      const dateRangeText = datePeriod === "all" 
+        ? "All Time"
+        : `${datePeriod.charAt(0).toUpperCase() + datePeriod.slice(1)}`
+      doc.text(`Period: ${dateRangeText}`, 14, 32)
+      
+      // Add filters
+      doc.text(`Payment Filter: ${paymentFilter === "all" ? "All Payments" : paymentFilter}`, 14, 42)
+      doc.text(`Status Filter: ${statusFilter === "all" ? "All Status" : statusFilter}`, 14, 52)
+      
+      // Add generation date
+      doc.text(`Generated: ${format(new Date(), "MMM dd, yyyy 'at' h:mm a")}`, 14, 62)
+      
+      // Add summary stats
+      doc.setFontSize(14)
+      doc.text("Summary", 14, 80)
+      doc.setFontSize(10)
+      doc.text(`Total Revenue: ₹${totalRevenue.toFixed(2)}`, 14, 90)
+      doc.text(`Completed Sales: ${completedSales}`, 14, 100)
+      doc.text(`Partial Sales: ${partialSales}`, 14, 110)
+      doc.text(`Unpaid Sales: ${unpaidSales}`, 14, 120)
+      doc.text(`Cash Collected: ₹${cashCollected.toFixed(2)}`, 14, 130)
+      doc.text(`Online Collected: ₹${onlineCashCollected.toFixed(2)}`, 14, 140)
+      
+      let yPosition = 160
+      
+      if (filteredSales.length === 0) {
+        doc.setFontSize(14)
+        doc.text("No sales data available", 14, yPosition)
+      } else {
+        // Sales table headers
+        const headers = [
+          "Bill No.",
+          "Customer",
+          "Date",
+          "Status",
+          "Payment Mode",
+          "Net Total",
+          "Tax Amount",
+          "Gross Total",
+          "Staff"
+        ]
+        
+        const data = filteredSales.map(sale => [
+          sale.billNo,
+          sale.customerName,
+          format(new Date(sale.date), "MMM dd, yyyy"),
+          sale.status,
+          getPaymentModeDisplay(sale),
+          `₹${getFilteredAmount(sale).toFixed(2)}`,
+          `₹${sale.taxAmount.toFixed(2)}`,
+          `₹${getFilteredGrossTotal(sale).toFixed(2)}`,
+          sale.staffName
+        ])
+        
+        autoTable(doc, {
+          head: [headers],
+          body: data,
+          startY: yPosition,
+          styles: { fontSize: 8 },
+          headStyles: { fillColor: [59, 130, 246] }
+        })
+      }
+      
+      // Save the PDF
+      const fileName = `sales-report-${datePeriod}-${format(new Date(), "yyyy-MM-dd")}.pdf`
+      doc.save(fileName)
+      
+      toast({
+        title: "Export Successful",
+        description: `PDF exported as ${fileName}`,
+      })
+    } catch (error) {
+      console.error("PDF export error:", error)
+      toast({
+        title: "Export Failed",
+        description: "Failed to export PDF. Please try again.",
+        variant: "destructive"
+      })
+    }
+  }
+
+  const handleExportXLS = () => {
+    try {
+      const data = filteredSales.map(sale => ({
+        "Bill No.": sale.billNo,
+        "Customer Name": sale.customerName,
+        "Date": format(new Date(sale.date), "MMM dd, yyyy"),
+        "Status": sale.status,
+        "Payment Mode": getPaymentModeDisplay(sale),
+        "Net Total": getFilteredAmount(sale),
+        "Tax Amount": sale.taxAmount,
+        "Gross Total": getFilteredGrossTotal(sale),
+        "Staff Name": sale.staffName,
+        "Payment Details": sale.payments ? JSON.stringify(sale.payments) : ""
+      }))
+      
+      // Create workbook and worksheet
+      const ws = XLSX.utils.json_to_sheet(data)
+      const wb = XLSX.utils.book_new()
+      XLSX.utils.book_append_sheet(wb, ws, "Sales Report")
+      
+      // Add summary sheet
+      const summaryData = [
+        { Metric: "Total Revenue", Value: totalRevenue },
+        { Metric: "Completed Sales", Value: completedSales },
+        { Metric: "Partial Sales", Value: partialSales },
+        { Metric: "Unpaid Sales", Value: unpaidSales },
+        { Metric: "Cash Collected", Value: cashCollected },
+        { Metric: "Online Collected", Value: onlineCashCollected },
+        { Metric: "Period", Value: datePeriod === "all" ? "All Time" : datePeriod },
+        { Metric: "Payment Filter", Value: paymentFilter === "all" ? "All Payments" : paymentFilter },
+        { Metric: "Status Filter", Value: statusFilter === "all" ? "All Status" : statusFilter }
+      ]
+      
+      const summaryWs = XLSX.utils.json_to_sheet(summaryData)
+      XLSX.utils.book_append_sheet(wb, summaryWs, "Summary")
+      
+      // Save the file
+      const fileName = `sales-report-${datePeriod}-${format(new Date(), "yyyy-MM-dd")}.xlsx`
+      XLSX.writeFile(wb, fileName)
+      
+      toast({
+        title: "Export Successful",
+        description: `Excel file exported as ${fileName}`,
+      })
+    } catch (error) {
+      console.error("XLS export error:", error)
+      toast({
+        title: "Export Failed",
+        description: "Failed to export Excel file. Please try again.",
+        variant: "destructive"
+      })
+    }
   }
 
   const handleViewBill = (sale: SalesRecord) => {
@@ -594,13 +737,29 @@ export function SalesReport() {
                 <AlertCircle className="h-4 w-4 mr-2" />
                 View Unpaid Bills
               </Button>
-              <Button 
-                onClick={handleExport}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 shadow-md hover:shadow-lg transition-all duration-300 rounded-lg font-medium"
-              >
-                <Download className="h-4 w-4 mr-2" />
-                Export Report
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 shadow-md hover:shadow-lg transition-all duration-300 rounded-lg font-medium"
+                  >
+                    <Download className="h-4 w-4 mr-2" />
+                    Export Report
+                    <ChevronDown className="h-4 w-4 ml-2" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuLabel>Export Format</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleExportPDF} className="cursor-pointer">
+                    <FileText className="h-4 w-4 mr-2" />
+                    Export as PDF
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleExportXLS} className="cursor-pointer">
+                    <FileSpreadsheet className="h-4 w-4 mr-2" />
+                    Export as Excel
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </div>
