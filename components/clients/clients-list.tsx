@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { PlusCircle, Search, Users, UserCheck, UserX, TrendingUp } from "lucide-react"
+import { PlusCircle, Search, Users, UserCheck, UserX, TrendingUp, Download, FileText, FileSpreadsheet, ChevronDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -11,8 +11,15 @@ import { SideNav } from "@/components/side-nav"
 import { TopNav } from "@/components/top-nav"
 import { clientStore, type Client } from "@/lib/client-store"
 import { SalesAPI } from "@/lib/api"
+import { useToast } from "@/hooks/use-toast"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import jsPDF from "jspdf"
+import autoTable from "jspdf-autotable"
+import * as XLSX from "xlsx"
+import { format } from "date-fns"
 
 export function ClientsListPage() {
+  const { toast } = useToast()
   const [searchQuery, setSearchQuery] = useState("")
   const [clients, setClients] = useState<Client[]>(clientStore.getClients())
   const [filteredClients, setFilteredClients] = useState<Client[]>(clients)
@@ -124,6 +131,131 @@ export function ClientsListPage() {
     updateFilteredClients()
   }, [searchQuery, clients])
 
+  const handleExportPDF = () => {
+    try {
+      const doc = new jsPDF()
+      
+      // Add title
+      doc.setFontSize(20)
+      doc.text("Client Management Report", 14, 22)
+      
+      // Add generation date
+      doc.setFontSize(12)
+      doc.text(`Generated: ${format(new Date(), "MMM dd, yyyy 'at' h:mm a")}`, 14, 32)
+      
+      // Add summary stats
+      doc.setFontSize(14)
+      doc.text("Summary", 14, 50)
+      doc.setFontSize(10)
+      doc.text(`Total Customers: ${stats.totalCustomers}`, 14, 60)
+      doc.text(`Active Customers: ${stats.activeCustomers}`, 14, 70)
+      doc.text(`Inactive Customers: ${stats.inactiveCustomers}`, 14, 80)
+      doc.text(`Search Query: ${searchQuery || "All clients"}`, 14, 90)
+      
+      let yPosition = 110
+      
+      if (filteredClients.length === 0) {
+        doc.setFontSize(14)
+        doc.text("No client data available", 14, yPosition)
+      } else {
+        // Client table headers
+        const headers = [
+          "Name",
+          "Phone",
+          "Email",
+          "Status",
+          "Total Visits",
+          "Total Spent",
+          "Last Visit",
+          "Created Date"
+        ]
+        
+        const data = filteredClients.map(client => [
+          client.name,
+          client.phone || "N/A",
+          client.email || "N/A",
+          client.status || "active",
+          client.realTotalVisits || client.totalVisits || 0,
+          `₹${(client.realTotalSpent || client.totalSpent || 0).toFixed(2)}`,
+          client.lastVisit ? format(new Date(client.lastVisit), "MMM dd, yyyy") : "N/A",
+          client.createdAt ? format(new Date(client.createdAt), "MMM dd, yyyy") : "N/A"
+        ])
+        
+        autoTable(doc, {
+          head: [headers],
+          body: data,
+          startY: yPosition,
+          styles: { fontSize: 8 },
+          headStyles: { fillColor: [59, 130, 246] }
+        })
+      }
+      
+      // Save the PDF
+      const fileName = `clients-report-${format(new Date(), "yyyy-MM-dd")}.pdf`
+      doc.save(fileName)
+      
+      toast({
+        title: "Export Successful",
+        description: `PDF exported as ${fileName}`,
+      })
+    } catch (error) {
+      console.error("PDF export error:", error)
+      toast({
+        title: "Export Failed",
+        description: "Failed to export PDF. Please try again.",
+        variant: "destructive"
+      })
+    }
+  }
+
+  const handleExportXLS = () => {
+    try {
+      const data = filteredClients.map(client => ({
+        "Name": client.name,
+        "Phone": client.phone || "",
+        "Email": client.email || "",
+        "Status": client.status || "active",
+        "Total Visits": client.realTotalVisits || client.totalVisits || 0,
+        "Total Spent": client.realTotalSpent || client.totalSpent || 0,
+        "Last Visit": client.lastVisit ? format(new Date(client.lastVisit), "MMM dd, yyyy") : "",
+        "Created Date": client.createdAt ? format(new Date(client.createdAt), "MMM dd, yyyy") : ""
+      }))
+      
+      // Create workbook and worksheet
+      const ws = XLSX.utils.json_to_sheet(data)
+      const wb = XLSX.utils.book_new()
+      XLSX.utils.book_append_sheet(wb, ws, "Clients Report")
+      
+      // Add summary sheet
+      const summaryData = [
+        { Metric: "Total Customers", Value: stats.totalCustomers },
+        { Metric: "Active Customers", Value: stats.activeCustomers },
+        { Metric: "Inactive Customers", Value: stats.inactiveCustomers },
+        { Metric: "Search Query", Value: searchQuery || "All clients" },
+        { Metric: "Generated Date", Value: format(new Date(), "MMM dd, yyyy 'at' h:mm a") }
+      ]
+      
+      const summaryWs = XLSX.utils.json_to_sheet(summaryData)
+      XLSX.utils.book_append_sheet(wb, summaryWs, "Summary")
+      
+      // Save the file
+      const fileName = `clients-report-${format(new Date(), "yyyy-MM-dd")}.xlsx`
+      XLSX.writeFile(wb, fileName)
+      
+      toast({
+        title: "Export Successful",
+        description: `Excel file exported as ${fileName}`,
+      })
+    } catch (error) {
+      console.error("XLS export error:", error)
+      toast({
+        title: "Export Failed",
+        description: "Failed to export Excel file. Please try again.",
+        variant: "destructive"
+      })
+    }
+  }
+
   return (
     <div className="flex min-h-screen flex-col">
       <TopNav />
@@ -150,12 +282,39 @@ export function ClientsListPage() {
                     </div>
                   </div>
                   
-                  <Button asChild className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 shadow-md hover:shadow-lg transition-all duration-300 rounded-xl font-medium">
-                    <Link href="/clients/new">
-                      <PlusCircle className="mr-2 h-5 w-5" />
-                      New Client
-                    </Link>
-                  </Button>
+                  <div className="flex items-center gap-3">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className="bg-white hover:bg-slate-50 text-slate-700 px-6 py-2.5 shadow-md hover:shadow-lg transition-all duration-300 rounded-xl font-medium border-slate-200"
+                        >
+                          <Download className="mr-2 h-5 w-5" />
+                          Export
+                          <ChevronDown className="ml-2 h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-48">
+                        <DropdownMenuLabel>Export Format</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={handleExportPDF} className="cursor-pointer">
+                          <FileText className="h-4 w-4 mr-2" />
+                          Export as PDF
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={handleExportXLS} className="cursor-pointer">
+                          <FileSpreadsheet className="h-4 w-4 mr-2" />
+                          Export as Excel
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                    
+                    <Button asChild className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 shadow-md hover:shadow-lg transition-all duration-300 rounded-xl font-medium">
+                      <Link href="/clients/new">
+                        <PlusCircle className="mr-2 h-5 w-5" />
+                        New Client
+                      </Link>
+                    </Button>
+                  </div>
                 </div>
               </div>
               

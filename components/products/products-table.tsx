@@ -6,16 +6,22 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Plus, Search, MoreHorizontal, Edit, Trash2, Package } from "lucide-react"
+import { Plus, Search, MoreHorizontal, Edit, Trash2, Package, Download, FileText, FileSpreadsheet, ChevronDown } from "lucide-react"
 import { ProductsAPI } from "@/lib/api"
 import { ProductForm } from "@/components/products/product-form"
 import { useAuth } from "@/lib/auth-context"
 import { useCurrency } from "@/hooks/use-currency"
+import { useToast } from "@/hooks/use-toast"
+import jsPDF from "jspdf"
+import autoTable from "jspdf-autotable"
+import * as XLSX from "xlsx"
+import { format } from "date-fns"
 
 export function ProductsTable() {
   const { formatAmount } = useCurrency()
+  const { toast } = useToast()
   const [searchTerm, setSearchTerm] = useState("")
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
@@ -85,6 +91,126 @@ export function ProductsTable() {
       (product.supplier && product.supplier.toLowerCase().includes(searchTerm.toLowerCase())),
   )
 
+  const handleExportPDF = () => {
+    try {
+      const doc = new jsPDF()
+      
+      // Add title
+      doc.setFontSize(20)
+      doc.text("Products Inventory Report", 14, 22)
+      
+      // Add generation date
+      doc.setFontSize(12)
+      doc.text(`Generated: ${format(new Date(), "MMM dd, yyyy 'at' h:mm a")}`, 14, 32)
+      
+      // Add summary stats
+      doc.setFontSize(14)
+      doc.text("Summary", 14, 50)
+      doc.setFontSize(10)
+      doc.text(`Total Products: ${products.length}`, 14, 60)
+      doc.text(`Filtered Products: ${filteredProducts.length}`, 14, 70)
+      doc.text(`Search Query: ${searchTerm || "All products"}`, 14, 80)
+      
+      let yPosition = 100
+      
+      if (filteredProducts.length === 0) {
+        doc.setFontSize(14)
+        doc.text("No product data available", 14, yPosition)
+      } else {
+        // Product table headers
+        const headers = [
+          "Product Name",
+          "Category",
+          "Price",
+          "Stock",
+          "Supplier",
+          "Description",
+          "Status"
+        ]
+        
+        const data = filteredProducts.map(product => [
+          product.name,
+          product.category,
+          `₹${product.price.toFixed(2)}`,
+          product.stock || 0,
+          product.supplier || "N/A",
+          product.description ? (product.description.length > 30 ? product.description.substring(0, 30) + "..." : product.description) : "N/A",
+          product.status || "active"
+        ])
+        
+        autoTable(doc, {
+          head: [headers],
+          body: data,
+          startY: yPosition,
+          styles: { fontSize: 8 },
+          headStyles: { fillColor: [16, 185, 129] }
+        })
+      }
+      
+      // Save the PDF
+      const fileName = `products-report-${format(new Date(), "yyyy-MM-dd")}.pdf`
+      doc.save(fileName)
+      
+      toast({
+        title: "Export Successful",
+        description: `PDF exported as ${fileName}`,
+      })
+    } catch (error) {
+      console.error("PDF export error:", error)
+      toast({
+        title: "Export Failed",
+        description: "Failed to export PDF. Please try again.",
+        variant: "destructive"
+      })
+    }
+  }
+
+  const handleExportXLS = () => {
+    try {
+      const data = filteredProducts.map(product => ({
+        "Product Name": product.name,
+        "Category": product.category,
+        "Price": product.price,
+        "Stock": product.stock || 0,
+        "Supplier": product.supplier || "",
+        "Description": product.description || "",
+        "Status": product.status || "active"
+      }))
+      
+      // Create workbook and worksheet
+      const ws = XLSX.utils.json_to_sheet(data)
+      const wb = XLSX.utils.book_new()
+      XLSX.utils.book_append_sheet(wb, ws, "Products Report")
+      
+      // Add summary sheet
+      const summaryData = [
+        { Metric: "Total Products", Value: products.length },
+        { Metric: "Filtered Products", Value: filteredProducts.length },
+        { Metric: "Search Query", Value: searchTerm || "All products" },
+        { Metric: "Generated Date", Value: format(new Date(), "MMM dd, yyyy 'at' h:mm a") }
+      ]
+      
+      const summaryWs = XLSX.utils.json_to_sheet(summaryData)
+      XLSX.utils.book_append_sheet(wb, summaryWs, "Summary")
+      
+      // Save the file
+      const fileName = `products-report-${format(new Date(), "yyyy-MM-dd")}.xlsx`
+      XLSX.writeFile(wb, fileName)
+      
+      toast({
+        title: "Export Successful",
+        description: `Excel file exported as ${fileName}`,
+      })
+    } catch (error) {
+      console.error("XLS export error:", error)
+      toast({
+        title: "Export Failed",
+        description: "Failed to export Excel file. Please try again.",
+        variant: "destructive"
+      })
+    }
+  }
+
   const getStockBadge = (stock: number, minStock: number) => {
     if (stock <= minStock) {
       return <Badge variant="destructive">Low Stock</Badge>
@@ -124,22 +250,49 @@ export function ProductsTable() {
             </div>
           )}
         </div>
-        {canManageProducts && (
-          <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-            <DialogTrigger asChild>
-              <Button className="h-10 px-4 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-md hover:shadow-lg transition-all duration-300">
-                <Plus className="mr-2 h-4 w-4" />
-                Add Product
+        <div className="flex items-center gap-3">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                className="h-10 px-4 bg-white hover:bg-slate-50 text-slate-700 border-slate-200 shadow-md hover:shadow-lg transition-all duration-300"
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Export
+                <ChevronDown className="ml-2 h-4 w-4" />
               </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl">
-              <DialogHeader>
-                <DialogTitle>Add New Product</DialogTitle>
-              </DialogHeader>
-              <ProductForm onClose={() => setIsAddDialogOpen(false)} />
-            </DialogContent>
-          </Dialog>
-        )}
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuLabel>Export Format</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleExportPDF} className="cursor-pointer">
+                <FileText className="h-4 w-4 mr-2" />
+                Export as PDF
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleExportXLS} className="cursor-pointer">
+                <FileSpreadsheet className="h-4 w-4 mr-2" />
+                Export as Excel
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          
+          {canManageProducts && (
+            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+              <DialogTrigger asChild>
+                <Button className="h-10 px-4 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-md hover:shadow-lg transition-all duration-300">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Add Product
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl">
+                <DialogHeader>
+                  <DialogTitle>Add New Product</DialogTitle>
+                </DialogHeader>
+                <ProductForm onClose={() => setIsAddDialogOpen(false)} />
+              </DialogContent>
+            </Dialog>
+          )}
+        </div>
 
         {/* Edit Product Dialog */}
         {canManageProducts && (

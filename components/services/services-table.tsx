@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Search, Edit, Trash2, Plus, Scissors } from "lucide-react"
+import { Search, Edit, Trash2, Plus, Scissors, Download, FileText, FileSpreadsheet, ChevronDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -11,9 +11,16 @@ import { ServiceForm } from "./service-form"
 import { ServicesAPI } from "@/lib/api"
 import { useAuth } from "@/lib/auth-context"
 import { useCurrency } from "@/hooks/use-currency"
+import { useToast } from "@/hooks/use-toast"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import jsPDF from "jspdf"
+import autoTable from "jspdf-autotable"
+import * as XLSX from "xlsx"
+import { format } from "date-fns"
 
 export function ServicesTable() {
   const { formatAmount } = useCurrency()
+  const { toast } = useToast()
   const [searchTerm, setSearchTerm] = useState("")
   const [isAddServiceOpen, setIsAddServiceOpen] = useState(false)
   const [isEditServiceOpen, setIsEditServiceOpen] = useState(false)
@@ -82,6 +89,123 @@ export function ServicesTable() {
       service.category.toLowerCase().includes(searchTerm.toLowerCase()),
   )
 
+  const handleExportPDF = () => {
+    try {
+      const doc = new jsPDF()
+      
+      // Add title
+      doc.setFontSize(20)
+      doc.text("Services Management Report", 14, 22)
+      
+      // Add generation date
+      doc.setFontSize(12)
+      doc.text(`Generated: ${format(new Date(), "MMM dd, yyyy 'at' h:mm a")}`, 14, 32)
+      
+      // Add summary stats
+      doc.setFontSize(14)
+      doc.text("Summary", 14, 50)
+      doc.setFontSize(10)
+      doc.text(`Total Services: ${services.length}`, 14, 60)
+      doc.text(`Filtered Services: ${filteredServices.length}`, 14, 70)
+      doc.text(`Search Query: ${searchTerm || "All services"}`, 14, 80)
+      
+      let yPosition = 100
+      
+      if (filteredServices.length === 0) {
+        doc.setFontSize(14)
+        doc.text("No service data available", 14, yPosition)
+      } else {
+        // Service table headers
+        const headers = [
+          "Service Name",
+          "Category",
+          "Price",
+          "Duration (min)",
+          "Description",
+          "Status"
+        ]
+        
+        const data = filteredServices.map(service => [
+          service.name,
+          service.category,
+          `₹${service.price.toFixed(2)}`,
+          service.duration || "N/A",
+          service.description ? (service.description.length > 30 ? service.description.substring(0, 30) + "..." : service.description) : "N/A",
+          service.status || "active"
+        ])
+        
+        autoTable(doc, {
+          head: [headers],
+          body: data,
+          startY: yPosition,
+          styles: { fontSize: 8 },
+          headStyles: { fillColor: [99, 102, 241] }
+        })
+      }
+      
+      // Save the PDF
+      const fileName = `services-report-${format(new Date(), "yyyy-MM-dd")}.pdf`
+      doc.save(fileName)
+      
+      toast({
+        title: "Export Successful",
+        description: `PDF exported as ${fileName}`,
+      })
+    } catch (error) {
+      console.error("PDF export error:", error)
+      toast({
+        title: "Export Failed",
+        description: "Failed to export PDF. Please try again.",
+        variant: "destructive"
+      })
+    }
+  }
+
+  const handleExportXLS = () => {
+    try {
+      const data = filteredServices.map(service => ({
+        "Service Name": service.name,
+        "Category": service.category,
+        "Price": service.price,
+        "Duration (min)": service.duration || "",
+        "Description": service.description || "",
+        "Status": service.status || "active"
+      }))
+      
+      // Create workbook and worksheet
+      const ws = XLSX.utils.json_to_sheet(data)
+      const wb = XLSX.utils.book_new()
+      XLSX.utils.book_append_sheet(wb, ws, "Services Report")
+      
+      // Add summary sheet
+      const summaryData = [
+        { Metric: "Total Services", Value: services.length },
+        { Metric: "Filtered Services", Value: filteredServices.length },
+        { Metric: "Search Query", Value: searchTerm || "All services" },
+        { Metric: "Generated Date", Value: format(new Date(), "MMM dd, yyyy 'at' h:mm a") }
+      ]
+      
+      const summaryWs = XLSX.utils.json_to_sheet(summaryData)
+      XLSX.utils.book_append_sheet(wb, summaryWs, "Summary")
+      
+      // Save the file
+      const fileName = `services-report-${format(new Date(), "yyyy-MM-dd")}.xlsx`
+      XLSX.writeFile(wb, fileName)
+      
+      toast({
+        title: "Export Successful",
+        description: `Excel file exported as ${fileName}`,
+      })
+    } catch (error) {
+      console.error("XLS export error:", error)
+      toast({
+        title: "Export Failed",
+        description: "Failed to export Excel file. Please try again.",
+        variant: "destructive"
+      })
+    }
+  }
+
   return (
     <div className="space-y-4 p-4">
       {/* Enhanced Search and Add Section */}
@@ -104,22 +228,49 @@ export function ServicesTable() {
             </div>
           )}
         </div>
-        {canManageServices && (
-          <Dialog open={isAddServiceOpen} onOpenChange={setIsAddServiceOpen}>
-            <DialogTrigger asChild>
-              <Button className="h-10 px-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-md hover:shadow-lg transition-all duration-300">
-                <Plus className="h-4 w-4 mr-2" />
-                Add Service
+        <div className="flex items-center gap-3">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                className="h-10 px-4 bg-white hover:bg-slate-50 text-slate-700 border-slate-200 shadow-md hover:shadow-lg transition-all duration-300"
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Export
+                <ChevronDown className="ml-2 h-4 w-4" />
               </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-md">
-              <DialogHeader>
-                <DialogTitle>Add New Service</DialogTitle>
-              </DialogHeader>
-              <ServiceForm onClose={() => setIsAddServiceOpen(false)} />
-            </DialogContent>
-          </Dialog>
-        )}
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuLabel>Export Format</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleExportPDF} className="cursor-pointer">
+                <FileText className="h-4 w-4 mr-2" />
+                Export as PDF
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleExportXLS} className="cursor-pointer">
+                <FileSpreadsheet className="h-4 w-4 mr-2" />
+                Export as Excel
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          
+          {canManageServices && (
+            <Dialog open={isAddServiceOpen} onOpenChange={setIsAddServiceOpen}>
+              <DialogTrigger asChild>
+                <Button className="h-10 px-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-md hover:shadow-lg transition-all duration-300">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Service
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-md">
+                <DialogHeader>
+                  <DialogTitle>Add New Service</DialogTitle>
+                </DialogHeader>
+                <ServiceForm onClose={() => setIsAddServiceOpen(false)} />
+              </DialogContent>
+            </Dialog>
+          )}
+        </div>
       </div>
 
       {/* Enhanced Table Container */}
