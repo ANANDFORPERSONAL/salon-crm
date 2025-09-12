@@ -350,6 +350,14 @@ router.post('/:id/verify', auth, async (req, res) => {
   try {
     const { verificationNotes, balanceDifferenceReason, onlineCashDifferenceReason } = req.body;
     
+    console.log('🔍 DEBUG Verification request:', {
+      id: req.params.id,
+      verificationNotes,
+      balanceDifferenceReason,
+      onlineCashDifferenceReason,
+      body: req.body
+    });
+    
     const cashRegistry = await CashRegistry.findById(req.params.id);
     if (!cashRegistry) {
       return res.status(404).json({ message: 'Cash registry entry not found' });
@@ -388,7 +396,18 @@ router.post('/:id/verify', auth, async (req, res) => {
       { new: true, runValidators: true }
     );
     
-    res.json(verifiedCashRegistry);
+    console.log('🔍 DEBUG Verification result:', {
+      id: verifiedCashRegistry._id,
+      balanceDifferenceReason: verifiedCashRegistry.balanceDifferenceReason,
+      onlineCashDifferenceReason: verifiedCashRegistry.onlineCashDifferenceReason,
+      isVerified: verifiedCashRegistry.isVerified
+    });
+    
+    res.json({
+      success: true,
+      message: 'Cash registry entry verified successfully',
+      data: verifiedCashRegistry
+    });
   } catch (error) {
     console.error('Error verifying cash registry:', error);
     res.status(500).json({ message: 'Internal server error' });
