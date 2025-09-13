@@ -722,6 +722,10 @@ export function QuickSale() {
 
   // Update service item
   const updateServiceItem = (id: string, field: keyof ServiceItem, value: any) => {
+    console.log('=== UPDATE SERVICE ITEM ===')
+    console.log('Service ID:', id)
+    console.log('Field:', field)
+    console.log('Value:', value)
     setServiceItems((items) =>
       items.map((item) => {
         if (item.id === id) {
@@ -749,6 +753,10 @@ export function QuickSale() {
 
   // Update product item
   const updateProductItem = (id: string, field: keyof ProductItem, value: any) => {
+    console.log('=== UPDATE PRODUCT ITEM ===')
+    console.log('Product ID:', id)
+    console.log('Field:', field)
+    console.log('Value:', value)
     setProductItems((items) =>
       items.map((item) => {
         if (item.id === id) {
@@ -767,11 +775,13 @@ export function QuickSale() {
           const discountAmount = (subtotal * updatedItem.discount) / 100
           updatedItem.total = subtotal - discountAmount
 
+          console.log('Updated Product Item:', updatedItem)
           return updatedItem
         }
         return item
       }),
     )
+    console.log('Product Items After Update:', productItems.map(p => ({ id: p.id, staffId: p.staffId })))
   }
 
   // Remove service item
@@ -930,12 +940,18 @@ export function QuickSale() {
       console.log('Staff:', staff.map(s => ({ id: s._id || s.id, name: s.name })))
       console.log('Valid Service Items:', validServiceItems)
       console.log('Valid Product Items:', validProductItems)
+      console.log('=== CURRENT STATE BEFORE RECEIPT GENERATION ===')
+      console.log('Service Items State:', serviceItems.map(s => ({ id: s.id, staffId: s.staffId, staffContributions: s.staffContributions })))
+      console.log('Product Items State:', productItems.map(p => ({ id: p.id, staffId: p.staffId })))
+      console.log('Staff Data:', staff.map(s => ({ id: s._id || s.id, name: s.name })))
       
       // Create receipt items
       const receiptItems: any[] = [
         ...validServiceItems.map((item) => {
           const service = services.find((s) => s._id === item.serviceId || s.id === item.serviceId)
           const staffMember = staff.find((s) => s._id === item.staffId || s.id === item.staffId)
+          console.log('=== SERVICE RECEIPT GENERATION ===')
+          console.log('Service item:', { id: item.id, serviceId: item.serviceId, staffId: item.staffId })
           console.log('Service lookup:', { serviceId: item.serviceId, foundService: service?.name, allServices: services.map(s => ({ id: s._id || s.id, name: s.name })) })
           console.log('Staff lookup:', { staffId: item.staffId, foundStaff: staffMember?.name, allStaff: staff.map(s => ({ id: s._id || s.id, name: s.name })) })
           
@@ -968,6 +984,8 @@ export function QuickSale() {
         ...validProductItems.map((item) => {
           const product = products.find((p) => p._id === item.productId || p.id === item.productId)
           const staffMember = staff.find((s) => s._id === item.staffId || s.id === item.staffId)
+          console.log('=== PRODUCT RECEIPT GENERATION ===')
+          console.log('Product item:', { id: item.id, productId: item.productId, staffId: item.staffId })
           console.log('Product lookup:', { productId: item.productId, foundProduct: product?.name, allProducts: products.map(p => ({ id: p._id || p.id, name: p.name })) })
           console.log('Product staff lookup:', { staffId: item.staffId, foundStaff: staffMember?.name, allStaff: staff.map(s => ({ id: s._id || s.id, name: s.name })) })
           return {
@@ -1081,7 +1099,7 @@ export function QuickSale() {
       console.log('🔍 Looking for receipt with number:', receipt.receiptNumber)
 
       // Open receipt in new tab using bill number (not receipt ID)
-      const receiptUrl = `/receipt/${receipt.receiptNumber}?data=${encodeURIComponent(JSON.stringify(receipt))}`
+        const receiptUrl = `/receipt/${receipt.receiptNumber}?data=${encodeURIComponent(JSON.stringify(receipt))}&t=${Date.now()}`
       console.log('🎯 Opening receipt in new tab:', receiptUrl)
       console.log('🎯 Using bill number:', receipt.receiptNumber)
       window.open(receiptUrl, '_blank')
@@ -2108,10 +2126,11 @@ export function QuickSale() {
                     </Select>
 
                     <MultiStaffSelector
+                      key={`service-${item.id}-staff`}
                       staffList={staff}
                       serviceTotal={item.total}
                       onStaffContributionsChange={(contributions) => {
-                        console.log('=== MULTI STAFF SELECTOR CALLBACK ===')
+                        console.log('=== MULTI STAFF SELECTOR CALLBACK (SERVICE) ===')
                         console.log('Item ID:', item.id)
                         console.log('Contributions:', contributions)
                         updateServiceItem(item.id, "staffContributions", contributions)
@@ -2203,7 +2222,11 @@ export function QuickSale() {
                   <div></div>
                 </div>
 
-                {productItems.map((item) => (
+                {productItems.map((item) => {
+                  console.log('=== RENDERING PRODUCT ITEM ===')
+                  console.log('Product item ID:', item.id)
+                  console.log('Product item staffId:', item.staffId)
+                  return (
                   <div key={item.id} className="space-y-2">
                     <div className="grid grid-cols-[2fr_3fr_120px_100px_100px_100px_40px] gap-4 p-4 border-b last:border-b-0 items-center hover:bg-emerald-50/30 transition-all duration-200">
                       <Select
@@ -2233,8 +2256,17 @@ export function QuickSale() {
                       </Select>
 
                       <Select
+                        key={`product-${item.id}-staff`}
                         value={item.staffId}
-                        onValueChange={(value) => updateProductItem(item.id, "staffId", value)}
+                        onValueChange={(value) => {
+                          console.log('=== PRODUCT STAFF SELECTION ===')
+                          console.log('Product ID:', item.id)
+                          console.log('Selected Staff ID:', value)
+                          console.log('Available Staff:', staff.map(s => ({ id: s._id || s.id, name: s.name })))
+                          console.log('Current Product Items Before Update:', productItems.map(p => ({ id: p.id, staffId: p.staffId })))
+                          updateProductItem(item.id, "staffId", value)
+                          console.log('Product staff selection completed for:', item.id)
+                        }}
                       >
                         <SelectTrigger className="h-8">
                           <SelectValue placeholder="Select staff" />
@@ -2337,7 +2369,7 @@ export function QuickSale() {
                       return null
                     })()}
                   </div>
-                ))}
+                )})}
               </div>
             )}
           </div>

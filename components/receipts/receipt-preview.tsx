@@ -82,7 +82,14 @@ export function ReceiptPreview({ receipt, businessSettings }: ReceiptPreviewProp
 
         {/* Items */}
         <div className="border-t border-b border-dashed border-black py-3 mb-3">
-          {receipt.items.map((item, index) => (
+          {receipt.items.map((item, index) => {
+            console.log('=== RECEIPT PREVIEW ITEM DEBUG ===')
+            console.log('Item index:', index)
+            console.log('Item name:', item.name)
+            console.log('Item staffId:', item.staffId)
+            console.log('Item staffName:', item.staffName)
+            console.log('Item type:', item.type)
+            return (
             <div key={index} className="mb-2">
               <div className="flex justify-between font-semibold">
                 <span>{item.name}</span>
@@ -96,7 +103,7 @@ export function ReceiptPreview({ receipt, businessSettings }: ReceiptPreviewProp
                 {item.staffName && <span> - {item.staffName}</span>}
               </div>
             </div>
-          ))}
+          )})}
         </div>
 
         {/* Totals */}

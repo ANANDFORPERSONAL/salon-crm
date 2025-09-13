@@ -140,7 +140,13 @@ export function ReceiptGenerator({ receipt, businessSettings }: ReceiptGenerator
         <div class="items">
           ${receipt.items
             .map(
-              (item) => `
+              (item) => {
+                console.log('=== RECEIPT ITEM DEBUG ===')
+                console.log('Item name:', item.name)
+                console.log('Item staffId:', item.staffId)
+                console.log('Item staffName:', item.staffName)
+                console.log('Item type:', item.type)
+                return `
             <div class="item">
               <div class="item-header">
                 <span>${item.name}</span>
@@ -152,7 +158,8 @@ export function ReceiptGenerator({ receipt, businessSettings }: ReceiptGenerator
                 ${item.staffName ? ` - ${item.staffName}` : ""}
               </div>
             </div>
-          `,
+          `
+              },
             )
             .join("")}
         </div>

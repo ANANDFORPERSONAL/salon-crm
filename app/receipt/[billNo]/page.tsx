@@ -103,7 +103,7 @@ export default function ReceiptPage() {
                 quantity: item.quantity,
                 price: item.price,
                 total: item.total,
-                staffName: saleData.staffName
+                staffName: item.staffName || saleData.staffName
               })),
               netTotal: saleData.netTotal,
               taxAmount: saleData.taxAmount,
@@ -156,7 +156,7 @@ export default function ReceiptPage() {
                   quantity: item.quantity,
                   price: item.price,
                   total: item.total,
-                  staffName: fallbackData.staffName
+                  staffName: item.staffName || fallbackData.staffName
                 })),
                 netTotal: fallbackData.subtotal,
                 taxAmount: fallbackData.tax,
