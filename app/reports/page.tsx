@@ -4,7 +4,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ProtectedRoute } from "@/components/auth/protected-route"
 import { SalesReport } from "@/components/reports/sales-report"
 import { ExpenseReport } from "@/components/reports/expense-report"
-import { BarChart3, TrendingUp, Receipt } from "lucide-react"
+import { StaffPerformanceReport } from "@/components/reports/staff-performance-report"
+import { BarChart3, TrendingUp, Receipt, Users } from "lucide-react"
 
 export default function ReportsPage() {
   return (
@@ -44,7 +45,7 @@ export default function ReportsPage() {
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                    <span>Data-driven decisions</span>
+                    <span>Staff performance analytics</span>
                   </div>
                 </div>
               </div>
@@ -55,7 +56,7 @@ export default function ReportsPage() {
           <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
             <div className="p-6">
               <Tabs defaultValue="sales" className="space-y-6">
-                <TabsList className="grid w-full grid-cols-2 bg-slate-100 p-1 rounded-lg">
+                <TabsList className="grid w-full grid-cols-3 bg-slate-100 p-1 rounded-lg">
                   <TabsTrigger 
                     value="sales" 
                     className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm rounded-md transition-all duration-200"
@@ -69,6 +70,13 @@ export default function ReportsPage() {
                   >
                     <Receipt className="h-4 w-4 mr-2" />
                     Expense Report
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="staff" 
+                    className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm rounded-md transition-all duration-200"
+                  >
+                    <Users className="h-4 w-4 mr-2" />
+                    Staff Performance
                   </TabsTrigger>
                 </TabsList>
 
@@ -96,6 +104,20 @@ export default function ReportsPage() {
                     </CardHeader>
                     <CardContent>
                       <ExpenseReport />
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                <TabsContent value="staff" className="space-y-6">
+                  <Card className="border-0 shadow-sm bg-slate-50/50">
+                    <CardHeader className="pb-4">
+                      <CardTitle className="text-xl text-slate-800">Staff Performance</CardTitle>
+                      <CardDescription className="text-slate-600">
+                        Analyze staff performance, commissions, and sales analytics
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <StaffPerformanceReport />
                     </CardContent>
                   </Card>
                 </TabsContent>
