@@ -11,9 +11,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { format } from "date-fns"
 import { Calendar as CalendarComponent } from "@/components/ui/calendar"
+import type { DateRange } from "react-day-picker"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { UsersAPI, SalesAPI } from "@/lib/api"
+import { UsersAPI, SalesAPI, StaffPerformanceAPI, SettingsAPI } from "@/lib/api"
+import { CommissionCalculator, CommissionConfig, StaffCommissionSummary } from "@/lib/commission-calculator"
 import { useToast } from "@/hooks/use-toast"
 import jsPDF from "jspdf"
 import autoTable from "jspdf-autotable"
@@ -41,11 +43,14 @@ interface StaffPerformanceData {
   staffId: string
   staffName: string
   totalRevenue: number
+  serviceRevenue: number
+  productRevenue: number
   serviceCount: number
   productCount: number
   totalTransactions: number
-  averageTransactionValue: number
-  commissionEarned: number
+  serviceCommission: number
+  productCommission: number
+  totalCommission: number
   customerCount: number
   repeatCustomers: number
   lastActivity: string
@@ -71,16 +76,22 @@ interface SalesRecord {
   }>
 }
 
-type DatePeriod = "today" | "yesterday" | "last7days" | "last30days" | "currentMonth" | "all"
+type DatePeriod = "currentMonth" | "previousMonth" | "customRange"
+
+// Utility function to format currency
+const formatCurrency = (amount: number, symbol: string) => {
+  return `${symbol}${amount.toFixed(2)}`
+}
 
 export function StaffPerformanceReport() {
   const { toast } = useToast()
   const [searchTerm, setSearchTerm] = useState("")
-  const [dateRange, setDateRange] = useState<{ from?: Date; to?: Date }>({})
-  const [datePeriod, setDatePeriod] = useState<DatePeriod>("today")
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined)
+  const [datePeriod, setDatePeriod] = useState<DatePeriod>("currentMonth")
   const [selectedStaff, setSelectedStaff] = useState<string>("all")
   const [staffMembers, setStaffMembers] = useState<StaffMember[]>([])
   const [performanceData, setPerformanceData] = useState<StaffPerformanceData[]>([])
+  const [commissionData, setCommissionData] = useState<StaffCommissionSummary[]>([])
   const [salesData, setSalesData] = useState<SalesRecord[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [showCommissionModal, setShowCommissionModal] = useState(false)
@@ -89,25 +100,38 @@ export function StaffPerformanceReport() {
     serviceRate: 0,
     productRate: 0
   })
+  const [defaultCommissionConfig, setDefaultCommissionConfig] = useState<CommissionConfig>(
+    CommissionCalculator.getDefaultConfig()
+  )
+  const [paymentSettings, setPaymentSettings] = useState<any>(null)
+  const [currencySymbol, setCurrencySymbol] = useState("$")
 
-  // Load staff members
+  // Load staff members and payment settings
   useEffect(() => {
-    const loadStaff = async () => {
+    const loadInitialData = async () => {
       try {
-        const response = await UsersAPI.getAll()
-        if (response.success) {
-          setStaffMembers(response.data)
+        // Load staff members
+        const staffResponse = await UsersAPI.getAll()
+        if (staffResponse.success) {
+          setStaffMembers(staffResponse.data)
+        }
+
+        // Load payment settings for currency
+        const paymentResponse = await SettingsAPI.getPaymentSettings()
+        if (paymentResponse.success) {
+          setPaymentSettings(paymentResponse.data)
+          setCurrencySymbol(paymentResponse.data.currencySymbol || "$")
         }
       } catch (error) {
-        console.error("Error loading staff:", error)
+        console.error("Error loading initial data:", error)
         toast({
           title: "Error",
-          description: "Failed to load staff members",
+          description: "Failed to load initial data",
           variant: "destructive"
         })
       }
     }
-    loadStaff()
+    loadInitialData()
   }, [toast])
 
   // Load performance data
@@ -121,31 +145,29 @@ export function StaffPerformanceReport() {
         let endDate: Date = now
 
         switch (datePeriod) {
-          case "today":
-            startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-            break
-          case "yesterday":
-            startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1)
-            endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-            break
-          case "last7days":
-            startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
-            break
-          case "last30days":
-            startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
-            break
           case "currentMonth":
             startDate = new Date(now.getFullYear(), now.getMonth(), 1)
+            endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0) // Last day of current month
             break
-          default:
-            startDate = new Date(0) // All time
+          case "previousMonth":
+            startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1)
+            endDate = new Date(now.getFullYear(), now.getMonth(), 0) // Last day of previous month
+            break
+          case "customRange":
+            // Use custom date range if set, otherwise default to current month
+            if (dateRange?.from && dateRange?.to) {
+              startDate = dateRange.from
+              endDate = dateRange.to
+            } else {
+              startDate = new Date(now.getFullYear(), now.getMonth(), 1)
+              endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0)
+            }
+            break
+          default: // fallback to current month
+            startDate = new Date(now.getFullYear(), now.getMonth(), 1)
+            endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0)
         }
 
-        // Use custom date range if set
-        if (dateRange.from && dateRange.to) {
-          startDate = dateRange.from
-          endDate = dateRange.to
-        }
 
         // Fetch sales data
         const salesResponse = await SalesAPI.getAll()
@@ -166,15 +188,19 @@ export function StaffPerformanceReport() {
           // Initialize performance data for all staff
           staffMembers.forEach(staff => {
             const staffId = staff._id || staff.id
+            if (!staffId) return
             performanceMap.set(staffId, {
               staffId,
               staffName: staff.name,
               totalRevenue: 0,
+              serviceRevenue: 0,
+              productRevenue: 0,
               serviceCount: 0,
               productCount: 0,
               totalTransactions: 0,
-              averageTransactionValue: 0,
-              commissionEarned: 0,
+              serviceCommission: 0,
+              productCommission: 0,
+              totalCommission: 0,
               customerCount: 0,
               repeatCustomers: 0,
               lastActivity: "",
@@ -182,54 +208,65 @@ export function StaffPerformanceReport() {
             })
           })
 
-          // Process sales data
+          // Process sales data with proper staff attribution
           const customerStaffMap = new Map<string, Set<string>>() // customer -> staff set
           const staffCustomers = new Map<string, Set<string>>() // staff -> customer set
+          const staffServiceRevenue = new Map<string, number>() // staff -> service revenue
+          const staffProductRevenue = new Map<string, number>() // staff -> product revenue
 
           filteredSales.forEach((sale: any) => {
-            const staffId = sale.staffId || sale.staffName
-            const staffData = performanceMap.get(staffId)
-            
-            if (staffData) {
-              // Update revenue and transaction count
-              staffData.totalRevenue += sale.grossTotal || sale.netTotal || 0
-              staffData.totalTransactions += 1
-              staffData.lastActivity = sale.date
+            // Process each item in the sale to get accurate staff attribution
+            if (sale.items && Array.isArray(sale.items)) {
+              sale.items.forEach((item: any) => {
+                const itemStaffId = item.staffId || item.staffName || sale.staffId || sale.staffName
+                const staffData = performanceMap.get(itemStaffId)
+                
+                if (staffData) {
+                  // Update transaction count (only once per sale)
+                  if (sale.items.indexOf(item) === 0) {
+                    staffData.totalTransactions += 1
+                    staffData.lastActivity = sale.date
+                  }
 
-              // Count services and products
-              if (sale.items && Array.isArray(sale.items)) {
-                sale.items.forEach((item: any) => {
+                  // Update revenue and counts based on item type
                   if (item.type === "service") {
                     staffData.serviceCount += item.quantity || 1
+                    const itemRevenue = item.total || (item.price * (item.quantity || 1))
+                    staffData.totalRevenue += itemRevenue
+                    
+                    // Track service revenue separately
+                    const currentServiceRevenue = staffServiceRevenue.get(itemStaffId) || 0
+                    staffServiceRevenue.set(itemStaffId, currentServiceRevenue + itemRevenue)
                   } else if (item.type === "product") {
                     staffData.productCount += item.quantity || 1
+                    const itemRevenue = item.total || (item.price * (item.quantity || 1))
+                    staffData.totalRevenue += itemRevenue
+                    
+                    // Track product revenue separately
+                    const currentProductRevenue = staffProductRevenue.get(itemStaffId) || 0
+                    staffProductRevenue.set(itemStaffId, currentProductRevenue + itemRevenue)
                   }
-                })
-              }
 
-              // Track customers
-              const customerId = sale.customerId || sale.customerName
-              if (customerId) {
-                if (!staffCustomers.has(staffId)) {
-                  staffCustomers.set(staffId, new Set())
-                }
-                staffCustomers.get(staffId)!.add(customerId)
+                  // Track customers
+                  const customerId = sale.customerId || sale.customerName
+                  if (customerId) {
+                    if (!staffCustomers.has(itemStaffId)) {
+                      staffCustomers.set(itemStaffId, new Set())
+                    }
+                    staffCustomers.get(itemStaffId)!.add(customerId)
 
-                if (!customerStaffMap.has(customerId)) {
-                  customerStaffMap.set(customerId, new Set())
+                    if (!customerStaffMap.has(customerId)) {
+                      customerStaffMap.set(customerId, new Set())
+                    }
+                    customerStaffMap.get(customerId)!.add(itemStaffId)
+                  }
                 }
-                customerStaffMap.get(customerId)!.add(staffId)
-              }
+              })
             }
           })
 
-          // Calculate additional metrics
+          // Calculate additional metrics and commission
           performanceMap.forEach((data, staffId) => {
-            // Calculate average transaction value
-            if (data.totalTransactions > 0) {
-              data.averageTransactionValue = data.totalRevenue / data.totalTransactions
-            }
-
             // Calculate customer metrics
             const customers = staffCustomers.get(staffId) || new Set()
             data.customerCount = customers.size
@@ -244,16 +281,35 @@ export function StaffPerformanceReport() {
             })
             data.repeatCustomers = repeatCustomers
 
-            // Calculate performance score (simple scoring system)
+            // Calculate performance score (enhanced scoring system)
             data.performanceScore = Math.min(100, 
               (data.totalRevenue / 1000) * 10 + // Revenue component
               (data.totalTransactions * 2) + // Transaction component
               (data.customerCount * 5) + // Customer component
-              (data.repeatCustomers * 10) // Repeat customer component
+              (data.repeatCustomers * 10) + // Repeat customer component
+              (data.serviceCount * 0.5) + // Service component
+              (data.productCount * 0.3) // Product component
             )
 
-            // Calculate commission (simplified - 5% of revenue)
-            data.commissionEarned = data.totalRevenue * 0.05
+            // Set service and product revenue
+            data.serviceRevenue = staffServiceRevenue.get(staffId) || 0
+            data.productRevenue = staffProductRevenue.get(staffId) || 0
+
+            // Calculate commission based on actual service and product revenue
+            if (data.totalRevenue > 0) {
+              const staff = staffMembers.find(s => (s._id || s.id) === staffId)
+              const serviceCommissionRate = staff?.serviceCommissionRate ?? defaultCommissionConfig.serviceCommissionRate
+              const productCommissionRate = staff?.productCommissionRate ?? defaultCommissionConfig.productCommissionRate
+              
+              // Calculate commission separately for services and products
+              data.serviceCommission = (data.serviceRevenue * serviceCommissionRate) / 100
+              data.productCommission = (data.productRevenue * productCommissionRate) / 100
+              data.totalCommission = data.serviceCommission + data.productCommission
+            } else {
+              data.serviceCommission = 0
+              data.productCommission = 0
+              data.totalCommission = 0
+            }
           })
 
           // Convert to array and sort by performance score
@@ -261,6 +317,14 @@ export function StaffPerformanceReport() {
             .sort((a, b) => b.performanceScore - a.performanceScore)
 
           setPerformanceData(performanceArray)
+
+          // Calculate commission data using the new commission calculator
+          const commissionSummaries = CommissionCalculator.calculateAllStaffCommissionSummary(
+            filteredSales,
+            staffMembers,
+            defaultCommissionConfig
+          )
+          setCommissionData(commissionSummaries)
         }
       } catch (error) {
         console.error("Error loading performance data:", error)
@@ -289,7 +353,7 @@ export function StaffPerformanceReport() {
   // Calculate summary statistics
   const totalRevenue = performanceData.reduce((sum, data) => sum + data.totalRevenue, 0)
   const totalTransactions = performanceData.reduce((sum, data) => sum + data.totalTransactions, 0)
-  const totalCommission = performanceData.reduce((sum, data) => sum + data.commissionEarned, 0)
+  const totalCommission = performanceData.reduce((sum, data) => sum + data.totalCommission, 0)
   const averagePerformanceScore = performanceData.length > 0 
     ? performanceData.reduce((sum, data) => sum + data.performanceScore, 0) / performanceData.length 
     : 0
@@ -303,7 +367,7 @@ export function StaffPerformanceReport() {
     
     // Date range
     doc.setFontSize(10)
-    const dateRangeText = dateRange.from && dateRange.to 
+    const dateRangeText = dateRange?.from && dateRange?.to 
       ? `${format(dateRange.from, "MMM dd, yyyy")} - ${format(dateRange.to, "MMM dd, yyyy")}`
       : `Period: ${datePeriod}`
     doc.text(dateRangeText, 14, 30)
@@ -312,28 +376,32 @@ export function StaffPerformanceReport() {
     doc.setFontSize(12)
     doc.text("Summary", 14, 40)
     doc.setFontSize(10)
-    doc.text(`Total Revenue: $${totalRevenue.toFixed(2)}`, 14, 50)
+    doc.text(`Total Revenue: ${formatCurrency(totalRevenue, currencySymbol)}`, 14, 50)
     doc.text(`Total Transactions: ${totalTransactions}`, 14, 58)
-    doc.text(`Total Commission: $${totalCommission.toFixed(2)}`, 14, 66)
+    doc.text(`Total Commission: ${formatCurrency(totalCommission, currencySymbol)}`, 14, 66)
     doc.text(`Average Performance Score: ${averagePerformanceScore.toFixed(1)}`, 14, 74)
     
     // Table
     const tableData = filteredPerformanceData.map(data => [
       data.staffName,
-      `$${data.totalRevenue.toFixed(2)}`,
+      formatCurrency(data.totalRevenue, currencySymbol),
+      formatCurrency(data.serviceRevenue, currencySymbol),
+      formatCurrency(data.productRevenue, currencySymbol),
       data.totalTransactions.toString(),
       data.serviceCount.toString(),
       data.productCount.toString(),
-      `$${data.averageTransactionValue.toFixed(2)}`,
-      `$${data.commissionEarned.toFixed(2)}`,
+      formatCurrency(data.serviceCommission, currencySymbol),
+      formatCurrency(data.productCommission, currencySymbol),
+      formatCurrency(data.totalCommission, currencySymbol),
+      data.customerCount.toString(),
       data.performanceScore.toFixed(1)
     ])
     
     autoTable(doc, {
-      head: [["Staff", "Revenue", "Transactions", "Services", "Products", "Avg. Transaction", "Commission", "Score"]],
+      head: [["Staff", "Total Revenue", "Service Revenue", "Product Revenue", "Transactions", "Services", "Products", "Service Commission", "Product Commission", "Total Commission", "Customers", "Score"]],
       body: tableData,
       startY: 85,
-      styles: { fontSize: 8 },
+      styles: { fontSize: 7 },
       headStyles: { fillColor: [59, 130, 246] }
     })
     
@@ -345,11 +413,14 @@ export function StaffPerformanceReport() {
       filteredPerformanceData.map(data => ({
         "Staff Name": data.staffName,
         "Total Revenue": data.totalRevenue,
+        "Service Revenue": data.serviceRevenue,
+        "Product Revenue": data.productRevenue,
         "Total Transactions": data.totalTransactions,
         "Service Count": data.serviceCount,
         "Product Count": data.productCount,
-        "Average Transaction Value": data.averageTransactionValue,
-        "Commission Earned": data.commissionEarned,
+        "Service Commission": data.serviceCommission,
+        "Product Commission": data.productCommission,
+        "Total Commission": data.totalCommission,
         "Customer Count": data.customerCount,
         "Repeat Customers": data.repeatCustomers,
         "Performance Score": data.performanceScore,
@@ -366,8 +437,8 @@ export function StaffPerformanceReport() {
   const handleSetCommission = (staff: StaffMember) => {
     setSelectedStaffForCommission(staff)
     setCommissionRates({
-      serviceRate: staff.serviceCommissionRate || 0,
-      productRate: staff.productCommissionRate || 0
+      serviceRate: staff.serviceCommissionRate || defaultCommissionConfig.serviceCommissionRate,
+      productRate: staff.productCommissionRate || defaultCommissionConfig.productCommissionRate
     })
     setShowCommissionModal(true)
   }
@@ -376,21 +447,58 @@ export function StaffPerformanceReport() {
     if (!selectedStaffForCommission) return
 
     try {
-      // Update staff commission rates
-      const updatedStaff = {
-        ...selectedStaffForCommission,
+      // Validate commission rates
+      const config: CommissionConfig = {
         serviceCommissionRate: commissionRates.serviceRate,
         productCommissionRate: commissionRates.productRate
       }
 
-      const response = await UsersAPI.update(selectedStaffForCommission._id, updatedStaff)
+      const validation = CommissionCalculator.validateConfig(config)
+      if (!validation.isValid) {
+        toast({
+          title: "Invalid Commission Rates",
+          description: validation.errors.join(", "),
+          variant: "destructive"
+        })
+        return
+      }
+
+      // Update commission rates using the new API
+      const staffId = selectedStaffForCommission._id || selectedStaffForCommission.id
+      if (!staffId) {
+        toast({
+          title: "Error",
+          description: "Staff ID not found",
+          variant: "destructive"
+        })
+        return
+      }
+
+      const response = await StaffPerformanceAPI.updateCommissionRates(staffId, {
+        serviceCommissionRate: commissionRates.serviceRate,
+        productCommissionRate: commissionRates.productRate
+      })
+
       if (response.success) {
         // Update local state
+        const updatedStaff = {
+          ...selectedStaffForCommission,
+          serviceCommissionRate: commissionRates.serviceRate,
+          productCommissionRate: commissionRates.productRate
+        }
+
         setStaffMembers(prev => 
           prev.map(staff => 
             staff._id === selectedStaffForCommission._id ? updatedStaff : staff
           )
         )
+        
+        // Refresh performance data to reflect new commission rates
+        const loadPerformanceData = async () => {
+          // This will trigger a re-calculation with new commission rates
+          // The useEffect will automatically reload when staffMembers changes
+        }
+        loadPerformanceData()
         
         toast({
           title: "Success",
@@ -429,7 +537,7 @@ export function StaffPerformanceReport() {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${totalRevenue.toFixed(2)}</div>
+            <div className="text-2xl font-bold">{formatCurrency(totalRevenue, currencySymbol)}</div>
             <p className="text-xs text-muted-foreground">
               Across all staff members
             </p>
@@ -455,7 +563,7 @@ export function StaffPerformanceReport() {
             <Award className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${totalCommission.toFixed(2)}</div>
+            <div className="text-2xl font-bold">{formatCurrency(totalCommission, currencySymbol)}</div>
             <p className="text-xs text-muted-foreground">
               Commission earned
             </p>
@@ -496,44 +604,70 @@ export function StaffPerformanceReport() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Staff</SelectItem>
-            {staffMembers.map((staff) => (
-              <SelectItem key={staff._id || staff.id} value={staff._id || staff.id}>
-                {staff.name}
-              </SelectItem>
-            ))}
+            {staffMembers.map((staff) => {
+              const staffId = staff._id || staff.id
+              if (!staffId) return null
+              return (
+                <SelectItem key={staffId} value={staffId}>
+                  {staff.name}
+                </SelectItem>
+              )
+            })}
           </SelectContent>
         </Select>
 
-        <Select value={datePeriod} onValueChange={(value: DatePeriod) => setDatePeriod(value)}>
+        <Select value={datePeriod} onValueChange={(value: DatePeriod) => {
+          setDatePeriod(value)
+          if (value !== "customRange") {
+            setDateRange(undefined) // Clear custom range when selecting other options
+          }
+        }}>
           <SelectTrigger className="w-full sm:w-48">
             <SelectValue placeholder="Select period" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="today">Today</SelectItem>
-            <SelectItem value="yesterday">Yesterday</SelectItem>
-            <SelectItem value="last7days">Last 7 days</SelectItem>
-            <SelectItem value="last30days">Last 30 days</SelectItem>
             <SelectItem value="currentMonth">Current Month</SelectItem>
-            <SelectItem value="all">All Time</SelectItem>
+            <SelectItem value="previousMonth">Previous Month</SelectItem>
+            <SelectItem value="customRange">Custom Range</SelectItem>
           </SelectContent>
         </Select>
 
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button variant="outline" className="w-full sm:w-auto">
-              <Calendar className="h-4 w-4 mr-2" />
-              Custom Range
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start">
-            <CalendarComponent
-              mode="range"
-              selected={dateRange}
-              onSelect={setDateRange}
-              numberOfMonths={2}
-            />
-          </PopoverContent>
-        </Popover>
+        {datePeriod === "customRange" && (
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                id="date"
+                variant="outline"
+                className="w-full sm:w-auto justify-start text-left font-normal"
+              >
+                <Calendar className="mr-2 h-4 w-4" />
+                {dateRange?.from ? (
+                  dateRange?.to ? (
+                    <>
+                      {format(dateRange.from, "MMM dd")} - {format(dateRange.to, "MMM dd, y")}
+                    </>
+                  ) : (
+                    format(dateRange.from, "MMM dd, y")
+                  )
+                ) : (
+                  <span>Pick a date range</span>
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <CalendarComponent
+                initialFocus
+                mode="range"
+                defaultMonth={dateRange?.from}
+                selected={dateRange}
+                onSelect={(range) => setDateRange(range)}
+                numberOfMonths={2}
+                disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
+                className="rounded-md border"
+              />
+            </PopoverContent>
+          </Popover>
+        )}
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -570,12 +704,15 @@ export function StaffPerformanceReport() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Staff Member</TableHead>
-                  <TableHead>Revenue</TableHead>
+                  <TableHead>Total Revenue</TableHead>
+                  <TableHead>Service Revenue</TableHead>
+                  <TableHead>Product Revenue</TableHead>
                   <TableHead>Transactions</TableHead>
                   <TableHead>Services</TableHead>
                   <TableHead>Products</TableHead>
-                  <TableHead>Avg. Transaction</TableHead>
-                  <TableHead>Commission</TableHead>
+                  <TableHead>Service Commission</TableHead>
+                  <TableHead>Product Commission</TableHead>
+                  <TableHead>Total Commission</TableHead>
                   <TableHead>Customers</TableHead>
                   <TableHead>Performance</TableHead>
                   <TableHead>Actions</TableHead>
@@ -585,12 +722,15 @@ export function StaffPerformanceReport() {
                 {filteredPerformanceData.map((data) => (
                   <TableRow key={data.staffId}>
                     <TableCell className="font-medium">{data.staffName}</TableCell>
-                    <TableCell>${data.totalRevenue.toFixed(2)}</TableCell>
+                    <TableCell>{formatCurrency(data.totalRevenue, currencySymbol)}</TableCell>
+                    <TableCell>{formatCurrency(data.serviceRevenue, currencySymbol)}</TableCell>
+                    <TableCell>{formatCurrency(data.productRevenue, currencySymbol)}</TableCell>
                     <TableCell>{data.totalTransactions}</TableCell>
                     <TableCell>{data.serviceCount}</TableCell>
                     <TableCell>{data.productCount}</TableCell>
-                    <TableCell>${data.averageTransactionValue.toFixed(2)}</TableCell>
-                    <TableCell>${data.commissionEarned.toFixed(2)}</TableCell>
+                    <TableCell>{formatCurrency(data.serviceCommission, currencySymbol)}</TableCell>
+                    <TableCell>{formatCurrency(data.productCommission, currencySymbol)}</TableCell>
+                    <TableCell>{formatCurrency(data.totalCommission, currencySymbol)}</TableCell>
                     <TableCell>
                       <div className="flex flex-col">
                         <span>{data.customerCount}</span>

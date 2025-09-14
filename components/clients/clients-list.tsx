@@ -175,8 +175,8 @@ export function ClientsListPage() {
           client.phone || "N/A",
           client.email || "N/A",
           client.status || "active",
-          client.realTotalVisits || client.totalVisits || 0,
-          `₹${(client.realTotalSpent || client.totalSpent || 0).toFixed(2)}`,
+          client.totalVisits || 0,
+          `₹${(client.totalSpent || 0).toFixed(2)}`,
           client.lastVisit ? format(new Date(client.lastVisit), "MMM dd, yyyy") : "N/A",
           client.createdAt ? format(new Date(client.createdAt), "MMM dd, yyyy") : "N/A"
         ])
@@ -215,8 +215,8 @@ export function ClientsListPage() {
         "Phone": client.phone || "",
         "Email": client.email || "",
         "Status": client.status || "active",
-        "Total Visits": client.realTotalVisits || client.totalVisits || 0,
-        "Total Spent": client.realTotalSpent || client.totalSpent || 0,
+        "Total Visits": client.totalVisits || 0,
+        "Total Spent": client.totalSpent || 0,
         "Last Visit": client.lastVisit ? format(new Date(client.lastVisit), "MMM dd, yyyy") : "",
         "Created Date": client.createdAt ? format(new Date(client.createdAt), "MMM dd, yyyy") : ""
       }))

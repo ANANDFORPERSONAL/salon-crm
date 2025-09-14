@@ -558,6 +558,113 @@ export class CashRegistryAPI {
   }
 }
 
+export class StaffPerformanceAPI {
+  // Get staff performance data with filtering options
+  static async getPerformanceData(params?: {
+    staffId?: string;
+    startDate?: string;
+    endDate?: string;
+    period?: 'today' | 'yesterday' | 'last7days' | 'last30days' | 'currentMonth' | 'all';
+  }): Promise<ApiResponse<any>> {
+    const response = await apiClient.get('/staff/performance', { params })
+    return response.data
+  }
+
+  // Get detailed performance metrics for a specific staff member
+  static async getStaffDetails(staffId: string, params?: {
+    startDate?: string;
+    endDate?: string;
+  }): Promise<ApiResponse<any>> {
+    const response = await apiClient.get(`/staff/performance/${staffId}`, { params })
+    return response.data
+  }
+
+  // Get commission data for staff members
+  static async getCommissionData(params?: {
+    staffId?: string;
+    startDate?: string;
+    endDate?: string;
+  }): Promise<ApiResponse<any>> {
+    const response = await apiClient.get('/staff/commission', { params })
+    return response.data
+  }
+
+  // Update commission rates for a staff member
+  static async updateCommissionRates(staffId: string, data: {
+    serviceCommissionRate?: number;
+    productCommissionRate?: number;
+  }): Promise<ApiResponse<any>> {
+    const response = await apiClient.put(`/staff/commission/${staffId}`, data)
+    return response.data
+  }
+
+  // Get staff performance summary (dashboard cards data)
+  static async getPerformanceSummary(params?: {
+    startDate?: string;
+    endDate?: string;
+  }): Promise<ApiResponse<any>> {
+    const response = await apiClient.get('/staff/performance/summary', { params })
+    return response.data
+  }
+
+  // Get staff sales analytics
+  static async getSalesAnalytics(params?: {
+    staffId?: string;
+    startDate?: string;
+    endDate?: string;
+    groupBy?: 'day' | 'week' | 'month';
+  }): Promise<ApiResponse<any>> {
+    const response = await apiClient.get('/staff/sales-analytics', { params })
+    return response.data
+  }
+
+  // Get customer retention data for staff
+  static async getCustomerRetention(params?: {
+    staffId?: string;
+    startDate?: string;
+    endDate?: string;
+  }): Promise<ApiResponse<any>> {
+    const response = await apiClient.get('/staff/customer-retention', { params })
+    return response.data
+  }
+
+  // Calculate commission for a specific sale
+  static async calculateCommission(data: {
+    staffId: string;
+    saleId: string;
+    serviceCommissionRate?: number;
+    productCommissionRate?: number;
+  }): Promise<ApiResponse<any>> {
+    const response = await apiClient.post('/staff/commission/calculate', data)
+    return response.data
+  }
+
+  // Get staff performance comparison
+  static async getPerformanceComparison(params?: {
+    staffIds?: string[];
+    startDate?: string;
+    endDate?: string;
+    metrics?: string[];
+  }): Promise<ApiResponse<any>> {
+    const response = await apiClient.get('/staff/performance/comparison', { params })
+    return response.data
+  }
+
+  // Export staff performance data
+  static async exportPerformanceData(params?: {
+    staffId?: string;
+    startDate?: string;
+    endDate?: string;
+    format?: 'pdf' | 'excel';
+  }): Promise<Blob> {
+    const response = await apiClient.get('/staff/performance/export', { 
+      params,
+      responseType: 'blob'
+    })
+    return response.data
+  }
+}
+
 // Export the main API client for direct use if needed
 export { apiClient }
 export default apiClient 
