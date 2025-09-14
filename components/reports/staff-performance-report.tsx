@@ -585,89 +585,109 @@ export function StaffPerformanceReport() {
       </div>
 
       {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="flex-1">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-            <Input
-              placeholder="Search staff members..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-        </div>
-
-        <Select value={selectedStaff} onValueChange={setSelectedStaff}>
-          <SelectTrigger className="w-full sm:w-48">
-            <SelectValue placeholder="All Staff" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Staff</SelectItem>
-            {staffMembers.map((staff) => {
-              const staffId = staff._id || staff.id
-              if (!staffId) return null
-              return (
-                <SelectItem key={staffId} value={staffId}>
-                  {staff.name}
-                </SelectItem>
-              )
-            })}
-          </SelectContent>
-        </Select>
-
-        <Select value={datePeriod} onValueChange={(value: DatePeriod) => {
-          setDatePeriod(value)
-          if (value !== "customRange") {
-            setDateRange(undefined) // Clear custom range when selecting other options
-          }
-        }}>
-          <SelectTrigger className="w-full sm:w-48">
-            <SelectValue placeholder="Select period" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="currentMonth">Current Month</SelectItem>
-            <SelectItem value="previousMonth">Previous Month</SelectItem>
-            <SelectItem value="customRange">Custom Range</SelectItem>
-          </SelectContent>
-        </Select>
-
-        {datePeriod === "customRange" && (
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                id="date"
-                variant="outline"
-                className="w-full sm:w-auto justify-start text-left font-normal"
-              >
-                <Calendar className="mr-2 h-4 w-4" />
-                {dateRange?.from ? (
-                  dateRange?.to ? (
-                    <>
-                      {format(dateRange.from, "MMM dd")} - {format(dateRange.to, "MMM dd, y")}
-                    </>
-                  ) : (
-                    format(dateRange.from, "MMM dd, y")
-                  )
-                ) : (
-                  <span>Pick a date range</span>
-                )}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-              <CalendarComponent
-                initialFocus
-                mode="range"
-                defaultMonth={dateRange?.from}
-                selected={dateRange}
-                onSelect={(range) => setDateRange(range)}
-                numberOfMonths={2}
-                disabled={(date) => date > new Date() || date < new Date("1900-01-01")}
-                className="rounded-md border"
+      <div className="flex flex-wrap gap-3 items-center justify-between">
+        <div className="flex flex-wrap gap-3 items-center">
+          <div className="w-full sm:w-64">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <Input
+                placeholder="Search staff..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
               />
-            </PopoverContent>
-          </Popover>
-        )}
+            </div>
+          </div>
+
+          <Select value={selectedStaff} onValueChange={setSelectedStaff}>
+            <SelectTrigger className="w-full sm:w-48">
+              <SelectValue placeholder="All Staff" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Staff</SelectItem>
+              {staffMembers.map((staff) => {
+                const staffId = staff._id || staff.id
+                if (!staffId) return null
+                return (
+                  <SelectItem key={staffId} value={staffId}>
+                    {staff.name}
+                  </SelectItem>
+                )
+              })}
+            </SelectContent>
+          </Select>
+
+          <Select value={datePeriod} onValueChange={(value: DatePeriod) => {
+            setDatePeriod(value)
+            if (value !== "customRange") {
+              setDateRange(undefined) // Clear custom range when selecting other options
+            }
+          }}>
+            <SelectTrigger className="w-full sm:w-48">
+              <SelectValue placeholder="Select period" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="currentMonth">Current Month</SelectItem>
+              <SelectItem value="previousMonth">Previous Month</SelectItem>
+              <SelectItem value="customRange">Custom Range</SelectItem>
+            </SelectContent>
+          </Select>
+
+          {datePeriod === "customRange" && (
+            <>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="w-full sm:w-48 justify-start text-left font-normal h-10"
+                  >
+                    <Calendar className="mr-2 h-4 w-4" />
+                    {dateRange?.from ? format(dateRange.from, "MMM dd, yyyy") : "From Date"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <CalendarComponent
+                    initialFocus
+                    mode="single"
+                    selected={dateRange?.from}
+                    onSelect={(date) => setDateRange(prev => ({ from: date, to: prev?.to }))}
+                    disabled={(date) => date > new Date() || (dateRange?.to ? date > dateRange.to : false)}
+                  />
+                </PopoverContent>
+              </Popover>
+
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="w-full sm:w-48 justify-start text-left font-normal h-10"
+                  >
+                    <Calendar className="mr-2 h-4 w-4" />
+                    {dateRange?.to ? format(dateRange.to, "MMM dd, yyyy") : "To Date"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <CalendarComponent
+                    initialFocus
+                    mode="single"
+                    selected={dateRange?.to}
+                    onSelect={(date) => setDateRange(prev => ({ from: prev?.from, to: date }))}
+                    disabled={(date) => date > new Date() || (dateRange?.from ? date < dateRange.from : false)}
+                  />
+                </PopoverContent>
+              </Popover>
+
+              <Button 
+                size="sm" 
+                onClick={() => setDateRange(undefined)}
+                variant="outline"
+                className="h-10 px-4 w-full sm:w-auto"
+              >
+                Clear
+              </Button>
+            </>
+          )}
+        </div>
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

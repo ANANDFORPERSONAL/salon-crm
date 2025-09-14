@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Settings, Building2, Calendar, CreditCard, Bell, Users, ChevronRight, Receipt } from "lucide-react"
+import { Settings, Building2, Calendar, CreditCard, Bell, Users, ChevronRight, Receipt, Award } from "lucide-react"
 import { useAuth } from "@/lib/auth-context"
 import { useRouter } from "next/navigation"
 import { GeneralSettings } from "./general-settings"
@@ -13,6 +13,7 @@ import { PaymentSettings } from "./payment-settings"
 import { NotificationSettings } from "./notification-settings"
 import { StaffDirectory } from "./staff-directory"
 import { POSSettings } from "./pos-settings"
+import { CommissionProfileList } from "./commission-profile-list"
 
 const settingsCategories = [
   {
@@ -62,6 +63,13 @@ const settingsCategories = [
     title: "Staff Directory",
     description: "Manage staff accounts, roles, and permissions",
     icon: Users,
+    requiredRole: "admin", // Only admin can access
+  },
+  {
+    id: "commission",
+    title: "Commission Management",
+    description: "Configure commission profiles and target-based incentives",
+    icon: Award,
     requiredRole: "admin", // Only admin can access
   },
 ]
@@ -122,6 +130,8 @@ export function SettingsPage() {
         return <NotificationSettings />
       case "staff":
         return <StaffDirectory />
+      case "commission":
+        return <CommissionProfileList />
       default:
         return null
     }
@@ -163,6 +173,10 @@ export function SettingsPage() {
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
                 <span>Staff management & permissions</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span>Commission profiles & incentives</span>
               </div>
             </div>
           </div>
