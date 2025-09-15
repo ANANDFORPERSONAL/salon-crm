@@ -249,6 +249,17 @@ export function EditCommissionProfileModal({ isOpen, onClose, onSave, profile }:
             </div>
           </div>
 
+          {/* Description */}
+          <div className="space-y-2">
+            <Label htmlFor="edit_description">Description</Label>
+            <Input
+              id="edit_description"
+              value={formData.description || ""}
+              onChange={(e) => handleInputChange("description", e.target.value)}
+              placeholder="Enter profile description (optional)"
+            />
+          </div>
+
           {/* Qualifying Items */}
           <div className="space-y-2">
             <Label>Qualifying Items *</Label>

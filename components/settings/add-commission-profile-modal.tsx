@@ -235,6 +235,17 @@ export function AddCommissionProfileModal({ isOpen, onClose, onSave }: AddCommis
             </div>
           </div>
 
+          {/* Description */}
+          <div className="space-y-2">
+            <Label htmlFor="description">Description</Label>
+            <Input
+              id="description"
+              value={formData.description || ""}
+              onChange={(e) => handleInputChange("description", e.target.value)}
+              placeholder="Enter profile description (optional)"
+            />
+          </div>
+
           {/* Qualifying Items */}
           <div className="space-y-2">
             <Label>Qualifying Items *</Label>
