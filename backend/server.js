@@ -422,6 +422,7 @@ app.post('/api/users', authenticateToken, requireAdmin, async (req, res) => {
       mobile,
       hasLoginAccess = false,
       allowAppointmentScheduling = false,
+      commissionProfileIds = [],
     } = req.body;
 
     // Validate required fields
@@ -521,6 +522,7 @@ app.post('/api/users', authenticateToken, requireAdmin, async (req, res) => {
       hourlyRate: 0, // Default hourly rate
       commissionRate: 0, // Default commission rate
       notes: '', // Empty notes
+      commissionProfileIds: commissionProfileIds, // Commission profile IDs
     };
 
     // Only add password if provided
@@ -562,6 +564,7 @@ app.put('/api/users/:id', authenticateToken, requireAdmin, async (req, res) => {
       mobile,
       hasLoginAccess,
       allowAppointmentScheduling,
+      commissionProfileIds,
     } = req.body;
 
     // Validate required fields
@@ -635,6 +638,7 @@ app.put('/api/users/:id', authenticateToken, requireAdmin, async (req, res) => {
       hasLoginAccess,
       allowAppointmentScheduling,
       role: req.body.role, // Include role in update
+      commissionProfileIds: commissionProfileIds || [], // Commission profile IDs
     };
 
     // Hash password if provided
@@ -2908,6 +2912,129 @@ app.get('/api/cash-registry/summary/dashboard', authenticateToken, async (req, r
   } catch (error) {
     console.error('Error fetching cash registry summary:', error);
     res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+// Commission Profiles API
+// Get all commission profiles
+app.get('/api/commission-profiles', authenticateToken, requireManager, async (req, res) => {
+  try {
+    // For now, return mock data. In production, this would come from a database
+    const commissionProfiles = [
+      {
+        id: "cp1",
+        name: "Product Incentive",
+        type: "target_based",
+        description: "Commission based on product sales targets",
+        calculationInterval: "monthly",
+        qualifyingItems: ["Product"],
+        includeTax: false,
+        cascadingCommission: true,
+        targetTiers: [
+          { from: 0, to: 5000, calculateBy: "percent", value: 5 },
+          { from: 5000, to: 10000, calculateBy: "percent", value: 8 }
+        ],
+        isActive: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        createdBy: "system"
+      },
+      {
+        id: "cp2",
+        name: "Service Incentive",
+        type: "target_based",
+        description: "Commission based on service sales targets",
+        calculationInterval: "monthly",
+        qualifyingItems: ["Service"],
+        includeTax: true,
+        cascadingCommission: false,
+        targetTiers: [
+          { from: 0, to: 8000, calculateBy: "percent", value: 7 }
+        ],
+        isActive: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        createdBy: "system"
+      }
+    ];
+
+    res.json({
+      success: true,
+      data: commissionProfiles
+    });
+  } catch (error) {
+    console.error('Error fetching commission profiles:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch commission profiles'
+    });
+  }
+});
+
+// Create commission profile
+app.post('/api/commission-profiles', authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    const profileData = {
+      id: Date.now().toString(),
+      ...req.body,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      createdBy: req.user.id
+    };
+
+    // In production, save to database
+    res.status(201).json({
+      success: true,
+      data: profileData
+    });
+  } catch (error) {
+    console.error('Error creating commission profile:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to create commission profile'
+    });
+  }
+});
+
+// Update commission profile
+app.put('/api/commission-profiles/:id', authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updateData = {
+      ...req.body,
+      updatedAt: new Date().toISOString()
+    };
+
+    // In production, update in database
+    res.json({
+      success: true,
+      data: { id, ...updateData }
+    });
+  } catch (error) {
+    console.error('Error updating commission profile:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to update commission profile'
+    });
+  }
+});
+
+// Delete commission profile
+app.delete('/api/commission-profiles/:id', authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // In production, delete from database
+    res.json({
+      success: true,
+      message: 'Commission profile deleted successfully'
+    });
+  } catch (error) {
+    console.error('Error deleting commission profile:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to delete commission profile'
+    });
   }
 });
 

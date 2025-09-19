@@ -32,6 +32,7 @@ const userSchema = new mongoose.Schema({
   hourlyRate: { type: Number },
   commissionRate: { type: Number },
   notes: { type: String },
+  commissionProfileIds: [{ type: String }], // Array of commission profile IDs
   
   // Timestamps
   createdAt: { type: Date, default: Date.now },

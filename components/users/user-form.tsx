@@ -12,8 +12,11 @@ import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import { HelpCircle, Lock } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { toast } from "@/components/ui/use-toast"
-import { UsersAPI } from "@/lib/api"
+import { UsersAPI, CommissionProfileAPI } from "@/lib/api"
+import { CommissionProfile } from "@/lib/commission-profile-types"
 
 const userSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
@@ -24,6 +27,7 @@ const userSchema = z.object({
   hasLoginAccess: z.boolean(),
   allowAppointmentScheduling: z.boolean(),
   role: z.string().optional(),
+  commissionProfileIds: z.array(z.string()).optional(),
 }).refine((data) => {
   // Password is required for new users if login access is enabled
   if (data.hasLoginAccess && !data.password) {
@@ -44,6 +48,7 @@ const userEditSchema = z.object({
   hasLoginAccess: z.boolean(),
   allowAppointmentScheduling: z.boolean(),
   role: z.string().optional(),
+  commissionProfileIds: z.array(z.string()).optional(),
 }).refine((data) => {
   // Password is only required when enabling login access for non-admin users
   // Admin users always have login access and don't need password validation for updates
@@ -81,6 +86,8 @@ export function UserForm({ user, onSubmit, mode = "add" }: UserFormProps) {
   const [isAdminPasswordDialogOpen, setIsAdminPasswordDialogOpen] = useState(false)
   const [adminPassword, setAdminPassword] = useState("")
   const [isEnablingLoginAccess, setIsEnablingLoginAccess] = useState(false)
+  const [commissionProfiles, setCommissionProfiles] = useState<CommissionProfile[]>([])
+  const [isLoadingProfiles, setIsLoadingProfiles] = useState(false)
 
   const form = useForm<UserFormData>({
     resolver: zodResolver(mode === "edit" ? userEditSchema : userSchema),
@@ -93,6 +100,7 @@ export function UserForm({ user, onSubmit, mode = "add" }: UserFormProps) {
       hasLoginAccess: user?.hasLoginAccess || false,
       allowAppointmentScheduling: user?.allowAppointmentScheduling || false,
       role: user?.role || "staff",
+      commissionProfileIds: user?.commissionProfileIds || [],
     },
   })
 
@@ -107,6 +115,27 @@ export function UserForm({ user, onSubmit, mode = "add" }: UserFormProps) {
       setIsEnablingLoginAccess(false)
     }
   }, [hasLoginAccess, user?.hasLoginAccess, mode])
+
+  // Load commission profiles on component mount
+  useEffect(() => {
+    const loadCommissionProfiles = async () => {
+      setIsLoadingProfiles(true)
+      try {
+        const response = await CommissionProfileAPI.getProfiles()
+        if (response.success) {
+          setCommissionProfiles(response.data || [])
+        } else {
+          console.error('Failed to load commission profiles:', response.error)
+        }
+      } catch (error) {
+        console.error('Error loading commission profiles:', error)
+      } finally {
+        setIsLoadingProfiles(false)
+      }
+    }
+
+    loadCommissionProfiles()
+  }, [])
 
 
   const passwordForm = useForm<PasswordChangeData>({
@@ -270,6 +299,95 @@ export function UserForm({ user, onSubmit, mode = "add" }: UserFormProps) {
                 </p>
               )}
             </div>
+
+            {/* Commission Profile Selection */}
+            <div>
+              <div className="flex items-center gap-1">
+                <Label className="text-sm font-medium">
+                  Commission Profiles
+                </Label>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <HelpCircle className="h-3 w-3 text-gray-400 hover:text-gray-600 cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent side="top" className="max-w-xs">
+                      <div className="space-y-1">
+                        <p className="font-medium">Commission Profiles</p>
+                        <p className="text-sm">
+                          Commission profiles define how staff members earn commissions based on their sales performance. 
+                          You can assign multiple profiles to create flexible incentive structures.
+                        </p>
+                        <ul className="text-xs space-y-1 mt-2">
+                          <li>• <strong>Target-based:</strong> Commissions based on sales targets</li>
+                          <li>• <strong>Item-based:</strong> Commissions per service/product sold</li>
+                          <li>• <strong>Multiple profiles:</strong> Combine different incentive types</li>
+                        </ul>
+                      </div>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+              <Select
+                value=""
+                onValueChange={(value) => {
+                  if (value && value !== "none") {
+                    const currentIds = form.watch("commissionProfileIds") || []
+                    if (!currentIds.includes(value)) {
+                      form.setValue("commissionProfileIds", [...currentIds, value])
+                    }
+                  }
+                }}
+                disabled={isLoadingProfiles}
+              >
+                <SelectTrigger className="mt-2">
+                  <SelectValue placeholder={isLoadingProfiles ? "Loading profiles..." : "Add commission profile..."} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none" disabled>Select a profile to add</SelectItem>
+                  {commissionProfiles
+                    .filter(profile => !form.watch("commissionProfileIds")?.includes(profile.id))
+                    .map((profile) => (
+                      <SelectItem key={profile.id} value={profile.id}>
+                        {profile.name}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+              
+              {/* Selected Profiles Display */}
+              {(() => {
+                const selectedIds = form.watch("commissionProfileIds")
+                return selectedIds && selectedIds.length > 0
+              })() && (
+                <div className="mt-3 space-y-2">
+                  <p className="text-xs text-gray-600 font-medium">Selected Profiles:</p>
+                  <div className="space-y-1">
+                    {form.watch("commissionProfileIds")?.map((profileId) => {
+                      const profile = commissionProfiles.find(p => p.id === profileId)
+                      return profile ? (
+                        <div key={profileId} className="flex items-center justify-between bg-gray-50 rounded-md px-3 py-2">
+                          <div className="flex-1">
+                            <span className="text-sm font-medium">{profile.name}</span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const currentIds = form.watch("commissionProfileIds") || []
+                              form.setValue("commissionProfileIds", currentIds.filter(id => id !== profileId))
+                            }}
+                            className="ml-2 text-red-500 hover:text-red-700 text-sm"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      ) : null
+                    })}
+                  </div>
+                </div>
+              )}
+              
+            </div>
           </div>
 
           {/* Right Column */}
@@ -394,6 +512,7 @@ export function UserForm({ user, onSubmit, mode = "add" }: UserFormProps) {
               onCheckedChange={(checked) => form.setValue("allowAppointmentScheduling", checked)}
             />
           </div>
+
         </div>
 
         {/* Submit Button */}

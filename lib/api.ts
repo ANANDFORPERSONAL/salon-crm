@@ -665,6 +665,48 @@ export class StaffPerformanceAPI {
   }
 }
 
+export class CommissionProfileAPI {
+  static async getProfiles() {
+    try {
+      const response = await apiClient.get('/commission-profiles')
+      return response.data
+    } catch (error) {
+      console.error('Error fetching commission profiles:', error)
+      throw error
+    }
+  }
+
+  static async createProfile(data: any) {
+    try {
+      const response = await apiClient.post('/commission-profiles', data)
+      return response.data
+    } catch (error) {
+      console.error('Error creating commission profile:', error)
+      throw error
+    }
+  }
+
+  static async updateProfile(id: string, data: any) {
+    try {
+      const response = await apiClient.put(`/commission-profiles/${id}`, data)
+      return response.data
+    } catch (error) {
+      console.error('Error updating commission profile:', error)
+      throw error
+    }
+  }
+
+  static async deleteProfile(id: string) {
+    try {
+      const response = await apiClient.delete(`/commission-profiles/${id}`)
+      return response.data
+    } catch (error) {
+      console.error('Error deleting commission profile:', error)
+      throw error
+    }
+  }
+}
+
 // Export the main API client for direct use if needed
 export { apiClient }
 export default apiClient 
