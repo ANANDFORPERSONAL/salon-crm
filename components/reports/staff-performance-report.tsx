@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Search, Download, Filter, TrendingUp, DollarSign, Users, MoreHorizontal, Eye, Calendar, Target, Award, BarChart3, ChevronDown, Receipt, FileText, FileSpreadsheet } from "lucide-react"
+import { Search, Download, Filter, TrendingUp, DollarSign, Users, MoreHorizontal, Eye, Calendar, Target, Award, BarChart3, ChevronDown, Receipt, FileText, FileSpreadsheet, ArrowUp, ArrowDown, Minus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -14,8 +14,9 @@ import { Calendar as CalendarComponent } from "@/components/ui/calendar"
 import type { DateRange } from "react-day-picker"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { UsersAPI, SalesAPI, StaffPerformanceAPI, SettingsAPI } from "@/lib/api"
-import { CommissionCalculator, CommissionConfig, StaffCommissionSummary } from "@/lib/commission-calculator"
+import { UsersAPI, SalesAPI, StaffPerformanceAPI, SettingsAPI, CommissionProfileAPI } from "@/lib/api"
+import { CommissionProfileCalculator, StaffCommissionResult } from "@/lib/commission-profile-calculator"
+import { CommissionProfile } from "@/lib/commission-profile-types"
 import { useToast } from "@/hooks/use-toast"
 import jsPDF from "jspdf"
 import autoTable from "jspdf-autotable"
@@ -37,6 +38,7 @@ interface StaffMember {
   commissionRate?: number
   serviceCommissionRate?: number
   productCommissionRate?: number
+  commissionProfileIds?: string[]
 }
 
 interface StaffPerformanceData {
@@ -55,6 +57,14 @@ interface StaffPerformanceData {
   repeatCustomers: number
   lastActivity: string
   performanceScore: number
+  effectiveCommissionRate: number
+  profileBreakdown: Array<{
+    profileId: string
+    profileName: string
+    commission: number
+    revenue: number
+    itemCount: number
+  }>
 }
 
 interface SalesRecord {
@@ -83,6 +93,19 @@ const formatCurrency = (amount: number, symbol: string) => {
   return `${symbol}${amount.toFixed(2)}`
 }
 
+// Function to calculate performance trend
+const getPerformanceTrend = (currentScore: number, previousScore: number) => {
+  if (previousScore === 0) {
+    return currentScore > 0 ? 'up' : 'neutral'
+  }
+  
+  const change = ((currentScore - previousScore) / previousScore) * 100
+  
+  if (change > 5) return 'up'      // More than 5% improvement
+  if (change < -5) return 'down'   // More than 5% decline
+  return 'neutral'                 // Less than 5% change
+}
+
 export function StaffPerformanceReport() {
   const { toast } = useToast()
   const [searchTerm, setSearchTerm] = useState("")
@@ -91,7 +114,9 @@ export function StaffPerformanceReport() {
   const [selectedStaff, setSelectedStaff] = useState<string>("all")
   const [staffMembers, setStaffMembers] = useState<StaffMember[]>([])
   const [performanceData, setPerformanceData] = useState<StaffPerformanceData[]>([])
-  const [commissionData, setCommissionData] = useState<StaffCommissionSummary[]>([])
+  const [previousMonthData, setPreviousMonthData] = useState<StaffPerformanceData[]>([])
+  const [commissionData, setCommissionData] = useState<StaffCommissionResult[]>([])
+  const [commissionProfiles, setCommissionProfiles] = useState<CommissionProfile[]>([])
   const [salesData, setSalesData] = useState<SalesRecord[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [showCommissionModal, setShowCommissionModal] = useState(false)
@@ -100,9 +125,6 @@ export function StaffPerformanceReport() {
     serviceRate: 0,
     productRate: 0
   })
-  const [defaultCommissionConfig, setDefaultCommissionConfig] = useState<CommissionConfig>(
-    CommissionCalculator.getDefaultConfig()
-  )
   const [paymentSettings, setPaymentSettings] = useState<any>(null)
   const [currencySymbol, setCurrencySymbol] = useState("$")
 
@@ -120,7 +142,28 @@ export function StaffPerformanceReport() {
         const paymentResponse = await SettingsAPI.getPaymentSettings()
         if (paymentResponse.success) {
           setPaymentSettings(paymentResponse.data)
-          setCurrencySymbol(paymentResponse.data.currencySymbol || "$")
+          // Map currency codes to symbols
+          const currencyMap: { [key: string]: string } = {
+            'USD': '$', 'EUR': '€', 'GBP': '£', 'INR': '₹', 'JPY': '¥',
+            'CAD': 'C$', 'AUD': 'A$', 'CHF': 'CHF', 'CNY': '¥', 'SGD': 'S$',
+            'HKD': 'HK$', 'NZD': 'NZ$', 'KRW': '₩', 'MXN': 'MX$', 'BRL': 'R$',
+            'RUB': '₽', 'ZAR': 'R', 'SEK': 'kr', 'NOK': 'kr', 'DKK': 'kr',
+            'PLN': 'zł', 'CZK': 'Kč', 'HUF': 'Ft', 'ILS': '₪', 'AED': 'د.إ',
+            'SAR': '﷼', 'QAR': '﷼', 'KWD': 'د.ك', 'BHD': 'د.ب', 'OMR': '﷼',
+            'JOD': 'د.ا', 'LBP': 'ل.ل', 'EGP': '£', 'TRY': '₺', 'THB': '฿',
+            'MYR': 'RM', 'IDR': 'Rp', 'PHP': '₱', 'VND': '₫', 'TWD': 'NT$',
+            'PKR': '₨', 'BDT': '৳', 'LKR': '₨', 'NPR': '₨', 'MMK': 'K',
+            'KHR': '៛', 'LAK': '₭', 'BND': 'B$', 'FJD': 'FJ$', 'PGK': 'K',
+            'SBD': 'SI$', 'VUV': 'Vt', 'WST': 'WS$', 'TOP': 'T$', 'XPF': '₣'
+          }
+          const currencyCode = paymentResponse.data.currency || 'USD'
+          setCurrencySymbol(currencyMap[currencyCode] || '$')
+        }
+
+        // Load commission profiles
+        const profilesResponse = await CommissionProfileAPI.getProfiles()
+        if (profilesResponse.success) {
+          setCommissionProfiles(profilesResponse.data)
         }
       } catch (error) {
         console.error("Error loading initial data:", error)
@@ -182,6 +225,23 @@ export function StaffPerformanceReport() {
 
           setSalesData(filteredSales)
 
+          // Also fetch previous month's data for comparison (only for current month view)
+          let previousMonthSales: any[] = []
+          if (datePeriod === "currentMonth") {
+            const prevStartDate = new Date(now.getFullYear(), now.getMonth() - 1, 1)
+            const prevEndDate = new Date(now.getFullYear(), now.getMonth(), 0)
+            
+            try {
+              const prevFilteredSales = allSales.filter((sale: any) => {
+                const saleDate = new Date(sale.date)
+                return saleDate >= prevStartDate && saleDate <= prevEndDate
+              })
+              previousMonthSales = prevFilteredSales
+            } catch (error) {
+              console.warn('Could not fetch previous month data:', error)
+            }
+          }
+
           // Calculate performance data for each staff member
           const performanceMap = new Map<string, StaffPerformanceData>()
 
@@ -204,7 +264,9 @@ export function StaffPerformanceReport() {
               customerCount: 0,
               repeatCustomers: 0,
               lastActivity: "",
-              performanceScore: 0
+              performanceScore: 0,
+              effectiveCommissionRate: 0,
+              profileBreakdown: []
             })
           })
 
@@ -295,22 +357,167 @@ export function StaffPerformanceReport() {
             data.serviceRevenue = staffServiceRevenue.get(staffId) || 0
             data.productRevenue = staffProductRevenue.get(staffId) || 0
 
-            // Calculate commission based on actual service and product revenue
-            if (data.totalRevenue > 0) {
-              const staff = staffMembers.find(s => (s._id || s.id) === staffId)
-              const serviceCommissionRate = staff?.serviceCommissionRate ?? defaultCommissionConfig.serviceCommissionRate
-              const productCommissionRate = staff?.productCommissionRate ?? defaultCommissionConfig.productCommissionRate
+            // Calculate commission using commission profiles
+            const staff = staffMembers.find(s => (s._id || s.id) === staffId)
+            if (staff && staff.commissionProfileIds && staff.commissionProfileIds.length > 0) {
+              const staffProfiles = commissionProfiles.filter(profile => 
+                staff.commissionProfileIds?.includes(profile.id)
+              )
               
-              // Calculate commission separately for services and products
-              data.serviceCommission = (data.serviceRevenue * serviceCommissionRate) / 100
-              data.productCommission = (data.productRevenue * productCommissionRate) / 100
-              data.totalCommission = data.serviceCommission + data.productCommission
+              if (staffProfiles.length > 0) {
+                // Get sales for this staff member
+                const staffSales = filteredSales.filter(sale => 
+                  sale.staffId === staffId || 
+                  sale.items.some((item: any) => item.staffId === staffId || item.staffName === staffId)
+                )
+                
+                const commissionResult = CommissionProfileCalculator.calculateMultipleSalesCommission(
+                  staffSales,
+                  staffProfiles,
+                  staffId
+                )
+                
+                if (commissionResult) {
+                  data.serviceCommission = commissionResult.serviceCommission
+                  data.productCommission = commissionResult.productCommission
+                  data.totalCommission = commissionResult.totalCommission
+                  data.effectiveCommissionRate = commissionResult.effectiveCommissionRate
+                  data.profileBreakdown = commissionResult.profileBreakdown
+                } else {
+                  data.serviceCommission = 0
+                  data.productCommission = 0
+                  data.totalCommission = 0
+                  data.effectiveCommissionRate = 0
+                  data.profileBreakdown = []
+                }
+              } else {
+                data.serviceCommission = 0
+                data.productCommission = 0
+                data.totalCommission = 0
+                data.effectiveCommissionRate = 0
+                data.profileBreakdown = []
+              }
             } else {
               data.serviceCommission = 0
               data.productCommission = 0
               data.totalCommission = 0
+              data.effectiveCommissionRate = 0
+              data.profileBreakdown = []
             }
           })
+
+          // Calculate previous month's performance data for comparison
+          let previousMonthPerformance: StaffPerformanceData[] = []
+          if (previousMonthSales.length > 0) {
+            const prevPerformanceMap = new Map<string, StaffPerformanceData>()
+
+            // Initialize previous month performance data
+            staffMembers.forEach(staff => {
+              const staffId = staff._id || staff.id
+              if (!staffId) return
+              prevPerformanceMap.set(staffId, {
+                staffId,
+                staffName: staff.name,
+                totalRevenue: 0,
+                serviceRevenue: 0,
+                productRevenue: 0,
+                serviceCount: 0,
+                productCount: 0,
+                totalTransactions: 0,
+                serviceCommission: 0,
+                productCommission: 0,
+                totalCommission: 0,
+                customerCount: 0,
+                repeatCustomers: 0,
+                lastActivity: "",
+                performanceScore: 0,
+                effectiveCommissionRate: 0,
+                profileBreakdown: []
+              })
+            })
+
+            // Process previous month sales data
+            const prevStaffCustomers = new Map<string, Set<string>>()
+            const prevCustomerStaffMap = new Map<string, Set<string>>()
+            const prevStaffServiceRevenue = new Map<string, number>()
+            const prevStaffProductRevenue = new Map<string, number>()
+
+            previousMonthSales.forEach((sale: any) => {
+              if (sale.items && Array.isArray(sale.items)) {
+                sale.items.forEach((item: any) => {
+                  const itemStaffId = item.staffId || item.staffName || sale.staffId || sale.staffName
+                  const staffData = prevPerformanceMap.get(itemStaffId)
+                  
+                  if (staffData) {
+                    if (sale.items.indexOf(item) === 0) {
+                      staffData.totalTransactions += 1
+                      staffData.lastActivity = sale.date
+                    }
+
+                    if (item.type === "service") {
+                      staffData.serviceCount += item.quantity || 1
+                      const itemRevenue = item.total || (item.price * (item.quantity || 1))
+                      staffData.totalRevenue += itemRevenue
+                      
+                      const currentServiceRevenue = prevStaffServiceRevenue.get(itemStaffId) || 0
+                      prevStaffServiceRevenue.set(itemStaffId, currentServiceRevenue + itemRevenue)
+                    } else if (item.type === "product") {
+                      staffData.productCount += item.quantity || 1
+                      const itemRevenue = item.total || (item.price * (item.quantity || 1))
+                      staffData.totalRevenue += itemRevenue
+                      
+                      const currentProductRevenue = prevStaffProductRevenue.get(itemStaffId) || 0
+                      prevStaffProductRevenue.set(itemStaffId, currentProductRevenue + itemRevenue)
+                    }
+
+                    const customerId = sale.customerId || sale.customerName
+                    if (customerId) {
+                      if (!prevStaffCustomers.has(itemStaffId)) {
+                        prevStaffCustomers.set(itemStaffId, new Set())
+                      }
+                      prevStaffCustomers.get(itemStaffId)!.add(customerId)
+
+                      if (!prevCustomerStaffMap.has(customerId)) {
+                        prevCustomerStaffMap.set(customerId, new Set())
+                      }
+                      prevCustomerStaffMap.get(customerId)!.add(itemStaffId)
+                    }
+                  }
+                })
+              }
+            })
+
+            // Calculate previous month metrics
+            prevPerformanceMap.forEach((data, staffId) => {
+              const customers = prevStaffCustomers.get(staffId) || new Set()
+              data.customerCount = customers.size
+
+              let repeatCustomers = 0
+              customers.forEach(customerId => {
+                const staffSet = prevCustomerStaffMap.get(customerId)
+                if (staffSet && staffSet.size > 1) {
+                  repeatCustomers++
+                }
+              })
+              data.repeatCustomers = repeatCustomers
+
+              data.performanceScore = Math.min(100, 
+                (data.totalRevenue / 1000) * 10 +
+                (data.totalTransactions * 2) +
+                (data.customerCount * 5) +
+                (data.repeatCustomers * 10) +
+                (data.serviceCount * 0.5) +
+                (data.productCount * 0.3)
+              )
+
+              data.serviceRevenue = prevStaffServiceRevenue.get(staffId) || 0
+              data.productRevenue = prevStaffProductRevenue.get(staffId) || 0
+            })
+
+            previousMonthPerformance = Array.from(prevPerformanceMap.values())
+          }
+
+          setPreviousMonthData(previousMonthPerformance)
 
           // Convert to array and sort by performance score
           const performanceArray = Array.from(performanceMap.values())
@@ -318,11 +525,15 @@ export function StaffPerformanceReport() {
 
           setPerformanceData(performanceArray)
 
-          // Calculate commission data using the new commission calculator
-          const commissionSummaries = CommissionCalculator.calculateAllStaffCommissionSummary(
+          // Calculate commission data using commission profiles
+          const commissionSummaries = CommissionProfileCalculator.calculateAllStaffCommission(
             filteredSales,
-            staffMembers,
-            defaultCommissionConfig
+            staffMembers.map(staff => ({
+              _id: staff._id || staff.id || '',
+              name: staff.name,
+              commissionProfileIds: staff.commissionProfileIds || []
+            })),
+            commissionProfiles
           )
           setCommissionData(commissionSummaries)
         }
@@ -341,7 +552,7 @@ export function StaffPerformanceReport() {
     if (staffMembers.length > 0) {
       loadPerformanceData()
     }
-  }, [staffMembers, datePeriod, dateRange, toast])
+  }, [staffMembers, datePeriod, dateRange, commissionProfiles, toast])
 
   // Filter performance data based on search and staff selection
   const filteredPerformanceData = performanceData.filter(data => {
@@ -436,9 +647,10 @@ export function StaffPerformanceReport() {
 
   const handleSetCommission = (staff: StaffMember) => {
     setSelectedStaffForCommission(staff)
+    // Commission rates are now managed through commission profiles
     setCommissionRates({
-      serviceRate: staff.serviceCommissionRate || defaultCommissionConfig.serviceCommissionRate,
-      productRate: staff.productCommissionRate || defaultCommissionConfig.productCommissionRate
+      serviceRate: 0,
+      productRate: 0
     })
     setShowCommissionModal(true)
   }
@@ -447,65 +659,14 @@ export function StaffPerformanceReport() {
     if (!selectedStaffForCommission) return
 
     try {
-      // Validate commission rates
-      const config: CommissionConfig = {
-        serviceCommissionRate: commissionRates.serviceRate,
-        productCommissionRate: commissionRates.productRate
-      }
-
-      const validation = CommissionCalculator.validateConfig(config)
-      if (!validation.isValid) {
-        toast({
-          title: "Invalid Commission Rates",
-          description: validation.errors.join(", "),
-          variant: "destructive"
-        })
-        return
-      }
-
-      // Update commission rates using the new API
-      const staffId = selectedStaffForCommission._id || selectedStaffForCommission.id
-      if (!staffId) {
-        toast({
-          title: "Error",
-          description: "Staff ID not found",
-          variant: "destructive"
-        })
-        return
-      }
-
-      const response = await StaffPerformanceAPI.updateCommissionRates(staffId, {
-        serviceCommissionRate: commissionRates.serviceRate,
-        productCommissionRate: commissionRates.productRate
+      // Commission rates are now managed through commission profiles
+      // This function can be used to redirect to staff management or show a message
+      toast({
+        title: "Info",
+        description: "Commission rates are now managed through commission profiles in Staff Management"
       })
-
-      if (response.success) {
-        // Update local state
-        const updatedStaff = {
-          ...selectedStaffForCommission,
-          serviceCommissionRate: commissionRates.serviceRate,
-          productCommissionRate: commissionRates.productRate
-        }
-
-        setStaffMembers(prev => 
-          prev.map(staff => 
-            staff._id === selectedStaffForCommission._id ? updatedStaff : staff
-          )
-        )
-        
-        // Refresh performance data to reflect new commission rates
-        const loadPerformanceData = async () => {
-          // This will trigger a re-calculation with new commission rates
-          // The useEffect will automatically reload when staffMembers changes
-        }
-        loadPerformanceData()
-        
-        toast({
-          title: "Success",
-          description: "Commission rates updated successfully"
-        })
-        setShowCommissionModal(false)
-      }
+      setShowCommissionModal(false)
+      setSelectedStaffForCommission(null)
     } catch (error) {
       console.error("Error updating commission rates:", error)
       toast({
@@ -518,242 +679,313 @@ export function StaffPerformanceReport() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading staff performance data...</p>
+          <div className="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-6"></div>
+          <h3 className="text-xl font-semibold text-gray-800 mb-2">Loading Performance Data</h3>
+          <p className="text-gray-600">Fetching staff analytics and commission information...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="space-y-6">
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30">
+      <div className="space-y-8 p-6">
+        {/* Header Section */}
+
+        {/* Summary Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <Card className="group hover:shadow-lg transition-all duration-300 border-0 shadow-md bg-gradient-to-br from-emerald-50 to-emerald-100/50">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-semibold text-emerald-700">Total Revenue</CardTitle>
+            <div className="p-2 rounded-lg bg-emerald-200 group-hover:bg-emerald-300 transition-colors">
+              <DollarSign className="h-4 w-4 text-emerald-700" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(totalRevenue, currencySymbol)}</div>
-            <p className="text-xs text-muted-foreground">
+            <div className="text-3xl font-bold text-emerald-800 mb-1">{formatCurrency(totalRevenue, currencySymbol)}</div>
+            <p className="text-xs text-emerald-600 font-medium">
               Across all staff members
             </p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="group hover:shadow-lg transition-all duration-300 border-0 shadow-md bg-gradient-to-br from-blue-50 to-blue-100/50">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Transactions</CardTitle>
-            <Receipt className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-semibold text-blue-700">Total Transactions</CardTitle>
+            <div className="p-2 rounded-lg bg-blue-200 group-hover:bg-blue-300 transition-colors">
+              <Receipt className="h-4 w-4 text-blue-700" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{totalTransactions}</div>
-            <p className="text-xs text-muted-foreground">
+            <div className="text-3xl font-bold text-blue-800 mb-1">{totalTransactions}</div>
+            <p className="text-xs text-blue-600 font-medium">
               Completed transactions
             </p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="group hover:shadow-lg transition-all duration-300 border-0 shadow-md bg-gradient-to-br from-amber-50 to-amber-100/50">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Commission</CardTitle>
-            <Award className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-semibold text-amber-700">Total Commission</CardTitle>
+            <div className="p-2 rounded-lg bg-amber-200 group-hover:bg-amber-300 transition-colors">
+              <Award className="h-4 w-4 text-amber-700" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(totalCommission, currencySymbol)}</div>
-            <p className="text-xs text-muted-foreground">
+            <div className="text-3xl font-bold text-amber-800 mb-1">{formatCurrency(totalCommission, currencySymbol)}</div>
+            <p className="text-xs text-amber-600 font-medium">
               Commission earned
             </p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="group hover:shadow-lg transition-all duration-300 border-0 shadow-md bg-gradient-to-br from-purple-50 to-purple-100/50">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Avg. Performance</CardTitle>
-            <Target className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-semibold text-purple-700">Avg. Performance</CardTitle>
+            <div className="p-2 rounded-lg bg-purple-200 group-hover:bg-purple-300 transition-colors">
+              <Target className="h-4 w-4 text-purple-700" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{averagePerformanceScore.toFixed(1)}</div>
-            <p className="text-xs text-muted-foreground">
+            <div className="text-3xl font-bold text-purple-800 mb-1">{averagePerformanceScore.toFixed(1)}</div>
+            <p className="text-xs text-purple-600 font-medium">
               Performance score
             </p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-wrap gap-3 items-center justify-between">
-        <div className="flex flex-wrap gap-3 items-center">
-          <div className="w-full sm:w-64">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <Input
-                placeholder="Search staff..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-          </div>
-
-          <Select value={selectedStaff} onValueChange={setSelectedStaff}>
-            <SelectTrigger className="w-full sm:w-48">
-              <SelectValue placeholder="All Staff" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Staff</SelectItem>
-              {staffMembers.map((staff) => {
-                const staffId = staff._id || staff.id
-                if (!staffId) return null
-                return (
-                  <SelectItem key={staffId} value={staffId}>
-                    {staff.name}
-                  </SelectItem>
-                )
-              })}
-            </SelectContent>
-          </Select>
-
-          <Select value={datePeriod} onValueChange={(value: DatePeriod) => {
-            setDatePeriod(value)
-            if (value !== "customRange") {
-              setDateRange(undefined) // Clear custom range when selecting other options
-            }
-          }}>
-            <SelectTrigger className="w-full sm:w-48">
-              <SelectValue placeholder="Select period" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="currentMonth">Current Month</SelectItem>
-              <SelectItem value="previousMonth">Previous Month</SelectItem>
-              <SelectItem value="customRange">Custom Range</SelectItem>
-            </SelectContent>
-          </Select>
-
-          {datePeriod === "customRange" && (
-            <>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="w-full sm:w-48 justify-start text-left font-normal h-10"
-                  >
-                    <Calendar className="mr-2 h-4 w-4" />
-                    {dateRange?.from ? format(dateRange.from, "MMM dd, yyyy") : "From Date"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <CalendarComponent
-                    initialFocus
-                    mode="single"
-                    selected={dateRange?.from}
-                    onSelect={(date) => setDateRange(prev => ({ from: date, to: prev?.to }))}
-                    disabled={(date) => date > new Date() || (dateRange?.to ? date > dateRange.to : false)}
-                  />
-                </PopoverContent>
-              </Popover>
-
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="w-full sm:w-48 justify-start text-left font-normal h-10"
-                  >
-                    <Calendar className="mr-2 h-4 w-4" />
-                    {dateRange?.to ? format(dateRange.to, "MMM dd, yyyy") : "To Date"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <CalendarComponent
-                    initialFocus
-                    mode="single"
-                    selected={dateRange?.to}
-                    onSelect={(date) => setDateRange(prev => ({ from: prev?.from, to: date }))}
-                    disabled={(date) => date > new Date() || (dateRange?.from ? date < dateRange.from : false)}
-                  />
-                </PopoverContent>
-              </Popover>
-
-              <Button 
-                size="sm" 
-                onClick={() => setDateRange(undefined)}
-                variant="outline"
-                className="h-10 px-4 w-full sm:w-auto"
-              >
-                Clear
-              </Button>
-            </>
-          )}
-        </div>
-
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="w-full sm:w-auto">
-              <Download className="h-4 w-4 mr-2" />
-              Export
-              <ChevronDown className="h-4 w-4 ml-2" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuItem onClick={handleExportPDF}>
-              <FileText className="h-4 w-4 mr-2" />
-              Export as PDF
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={handleExportExcel}>
-              <FileSpreadsheet className="h-4 w-4 mr-2" />
-              Export as Excel
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-
-      {/* Performance Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Staff Performance Details</CardTitle>
-          <CardDescription>
-            Detailed performance metrics for each staff member
-          </CardDescription>
+      {/* Filters Section */}
+      <Card className="border-0 shadow-md">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-lg font-semibold text-gray-800">Filters & Search</CardTitle>
+          <CardDescription>Refine your staff performance data</CardDescription>
         </CardHeader>
         <CardContent>
+          <div className="flex flex-wrap gap-4 items-center justify-between">
+            <div className="flex flex-wrap gap-4 items-center">
+              <div className="w-full sm:w-72">
+                <div className="relative group">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4 group-focus-within:text-blue-500 transition-colors" />
+                  <Input
+                    placeholder="Search staff members..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10 h-11 border-gray-200 focus:border-blue-500 focus:ring-blue-500/20 transition-all"
+                  />
+                </div>
+              </div>
+
+              <Select value={selectedStaff} onValueChange={setSelectedStaff}>
+                <SelectTrigger className="w-full sm:w-52 h-11 border-gray-200 focus:border-blue-500 focus:ring-blue-500/20">
+                  <SelectValue placeholder="All Staff" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Staff</SelectItem>
+                  {staffMembers.map((staff) => {
+                    const staffId = staff._id || staff.id
+                    if (!staffId) return null
+                    return (
+                      <SelectItem key={staffId} value={staffId}>
+                        {staff.name}
+                      </SelectItem>
+                    )
+                  })}
+                </SelectContent>
+              </Select>
+
+              <Select value={datePeriod} onValueChange={(value: DatePeriod) => {
+                setDatePeriod(value)
+                if (value !== "customRange") {
+                  setDateRange(undefined) // Clear custom range when selecting other options
+                }
+              }}>
+                <SelectTrigger className="w-full sm:w-52 h-11 border-gray-200 focus:border-blue-500 focus:ring-blue-500/20">
+                  <SelectValue placeholder="Select period" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="currentMonth">Current Month</SelectItem>
+                  <SelectItem value="previousMonth">Previous Month</SelectItem>
+                  <SelectItem value="customRange">Custom Range</SelectItem>
+                </SelectContent>
+              </Select>
+
+              {datePeriod === "customRange" && (
+                <div className="flex flex-wrap gap-3 items-center">
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-full sm:w-52 justify-start text-left font-normal h-11 border-gray-200 hover:border-blue-500 hover:bg-blue-50 transition-all"
+                      >
+                        <Calendar className="mr-2 h-4 w-4" />
+                        {dateRange?.from ? format(dateRange.from, "MMM dd, yyyy") : "From Date"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0 shadow-lg border-gray-200" align="start">
+                      <CalendarComponent
+                        initialFocus
+                        mode="single"
+                        selected={dateRange?.from}
+                        onSelect={(date) => setDateRange(prev => ({ from: date, to: prev?.to }))}
+                        disabled={(date) => date > new Date() || (dateRange?.to ? date > dateRange.to : false)}
+                      />
+                    </PopoverContent>
+                  </Popover>
+
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-full sm:w-52 justify-start text-left font-normal h-11 border-gray-200 hover:border-blue-500 hover:bg-blue-50 transition-all"
+                      >
+                        <Calendar className="mr-2 h-4 w-4" />
+                        {dateRange?.to ? format(dateRange.to, "MMM dd, yyyy") : "To Date"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0 shadow-lg border-gray-200" align="start">
+                      <CalendarComponent
+                        initialFocus
+                        mode="single"
+                        selected={dateRange?.to}
+                        onSelect={(date) => setDateRange(prev => ({ from: prev?.from, to: date }))}
+                        disabled={(date) => date > new Date() || (dateRange?.from ? date < dateRange.from : false)}
+                      />
+                    </PopoverContent>
+                  </Popover>
+
+                  <Button 
+                    size="sm" 
+                    onClick={() => setDateRange(undefined)}
+                    variant="outline"
+                    className="h-11 px-4 border-gray-200 hover:border-red-500 hover:bg-red-50 hover:text-red-600 transition-all"
+                  >
+                    Clear
+                  </Button>
+                </div>
+              )}
+            </div>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="w-full sm:w-auto h-11 border-gray-200 hover:border-green-500 hover:bg-green-50 hover:text-green-600 transition-all">
+                  <Download className="h-4 w-4 mr-2" />
+                  Export Data
+                  <ChevronDown className="h-4 w-4 ml-2" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-48">
+                <DropdownMenuItem onClick={handleExportPDF} className="cursor-pointer">
+                  <FileText className="h-4 w-4 mr-2" />
+                  Export as PDF
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleExportExcel} className="cursor-pointer">
+                  <FileSpreadsheet className="h-4 w-4 mr-2" />
+                  Export as Excel
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Performance Table */}
+      <Card className="border-0 shadow-lg">
+        <CardHeader className="bg-gradient-to-r from-slate-50 to-blue-50/50 border-b">
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-xl font-bold text-gray-800">Staff Performance Details</CardTitle>
+              <CardDescription className="text-gray-600 mt-1">
+                Comprehensive performance metrics and commission tracking for each staff member
+              </CardDescription>
+            </div>
+            <Badge variant="outline" className="px-3 py-1">
+              <BarChart3 className="h-3 w-3 mr-1" />
+              Analytics
+            </Badge>
+          </div>
+        </CardHeader>
+        <CardContent className="p-0">
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead>Staff Member</TableHead>
-                  <TableHead>Total Revenue</TableHead>
-                  <TableHead>Service Revenue</TableHead>
-                  <TableHead>Product Revenue</TableHead>
-                  <TableHead>Transactions</TableHead>
-                  <TableHead>Services</TableHead>
-                  <TableHead>Products</TableHead>
-                  <TableHead>Service Commission</TableHead>
-                  <TableHead>Product Commission</TableHead>
-                  <TableHead>Total Commission</TableHead>
-                  <TableHead>Customers</TableHead>
-                  <TableHead>Performance</TableHead>
-                  <TableHead>Actions</TableHead>
+                <TableRow className="bg-gray-50/50 hover:bg-gray-50">
+                  <TableHead className="font-semibold text-gray-700">Staff Member</TableHead>
+                  <TableHead className="font-semibold text-gray-700">Total Revenue</TableHead>
+                  <TableHead className="font-semibold text-gray-700">Service Revenue</TableHead>
+                  <TableHead className="font-semibold text-gray-700">Product Revenue</TableHead>
+                  <TableHead className="font-semibold text-gray-700">Transactions</TableHead>
+                  <TableHead className="font-semibold text-gray-700">Services</TableHead>
+                  <TableHead className="font-semibold text-gray-700">Products</TableHead>
+                  <TableHead className="font-semibold text-gray-700">Service Commission</TableHead>
+                  <TableHead className="font-semibold text-gray-700">Product Commission</TableHead>
+                  <TableHead className="font-semibold text-gray-700">Total Commission</TableHead>
+                  <TableHead className="font-semibold text-gray-700">Customers</TableHead>
+                  <TableHead className="font-semibold text-gray-700">Performance Trend</TableHead>
+                  <TableHead className="font-semibold text-gray-700">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredPerformanceData.map((data) => (
-                  <TableRow key={data.staffId}>
-                    <TableCell className="font-medium">{data.staffName}</TableCell>
-                    <TableCell>{formatCurrency(data.totalRevenue, currencySymbol)}</TableCell>
-                    <TableCell>{formatCurrency(data.serviceRevenue, currencySymbol)}</TableCell>
-                    <TableCell>{formatCurrency(data.productRevenue, currencySymbol)}</TableCell>
-                    <TableCell>{data.totalTransactions}</TableCell>
-                    <TableCell>{data.serviceCount}</TableCell>
-                    <TableCell>{data.productCount}</TableCell>
-                    <TableCell>{formatCurrency(data.serviceCommission, currencySymbol)}</TableCell>
-                    <TableCell>{formatCurrency(data.productCommission, currencySymbol)}</TableCell>
-                    <TableCell>{formatCurrency(data.totalCommission, currencySymbol)}</TableCell>
+                {filteredPerformanceData.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={13} className="text-center py-12">
+                      <div className="flex flex-col items-center gap-4">
+                        <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center">
+                          <BarChart3 className="h-8 w-8 text-gray-400" />
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-semibold text-gray-800 mb-1">No Performance Data</h3>
+                          <p className="text-gray-600">No staff performance data found for the selected criteria.</p>
+                        </div>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  filteredPerformanceData.map((data, index) => (
+                  <TableRow key={data.staffId} className="hover:bg-blue-50/30 transition-colors group">
+                    <TableCell className="font-semibold text-gray-800 group-hover:text-blue-700">
+                      {data.staffName}
+                    </TableCell>
+                    <TableCell className="font-semibold text-emerald-700">
+                      {formatCurrency(data.totalRevenue, currencySymbol)}
+                    </TableCell>
+                    <TableCell className="text-blue-600 font-medium">
+                      {formatCurrency(data.serviceRevenue, currencySymbol)}
+                    </TableCell>
+                    <TableCell className="text-purple-600 font-medium">
+                      {formatCurrency(data.productRevenue, currencySymbol)}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <Badge variant="outline" className="font-medium">
+                        {data.totalTransactions}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <Badge variant="secondary" className="font-medium">
+                        {data.serviceCount}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <Badge variant="secondary" className="font-medium">
+                        {data.productCount}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="font-semibold text-amber-600">
+                      {formatCurrency(data.serviceCommission, currencySymbol)}
+                    </TableCell>
+                    <TableCell className="font-semibold text-amber-600">
+                      {formatCurrency(data.productCommission, currencySymbol)}
+                    </TableCell>
+                    <TableCell className="font-bold text-amber-700 text-lg">
+                      {formatCurrency(data.totalCommission, currencySymbol)}
+                    </TableCell>
                     <TableCell>
-                      <div className="flex flex-col">
-                        <span>{data.customerCount}</span>
+                      <div className="flex flex-col items-center">
+                        <Badge variant="outline" className="font-medium mb-1">
+                          {data.customerCount}
+                        </Badge>
                         <span className="text-xs text-gray-500">
                           {data.repeatCustomers} repeat
                         </span>
@@ -761,31 +993,52 @@ export function StaffPerformanceReport() {
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
-                        <div className="w-16 bg-gray-200 rounded-full h-2">
-                          <div 
-                            className="bg-blue-600 h-2 rounded-full transition-all duration-300" 
-                            style={{ width: `${Math.min(100, data.performanceScore)}%` }}
-                          ></div>
-                        </div>
-                        <span className="text-sm font-medium">
-                          {data.performanceScore.toFixed(1)}
-                        </span>
+                        {(() => {
+                          const previousData = previousMonthData.find(prev => prev.staffId === data.staffId)
+                          const trend = getPerformanceTrend(data.performanceScore, previousData?.performanceScore || 0)
+                          
+                          if (trend === 'up') {
+                            return (
+                              <div className="flex items-center gap-1 text-green-600">
+                                <ArrowUp className="h-4 w-4" />
+                                <span className="text-sm font-semibold">{data.performanceScore.toFixed(1)}</span>
+                              </div>
+                            )
+                          } else if (trend === 'down') {
+                            return (
+                              <div className="flex items-center gap-1 text-red-600">
+                                <ArrowDown className="h-4 w-4" />
+                                <span className="text-sm font-semibold">{data.performanceScore.toFixed(1)}</span>
+                              </div>
+                            )
+                          } else {
+                            return (
+                              <div className="flex items-center gap-1 text-gray-600">
+                                <Minus className="h-4 w-4" />
+                                <span className="text-sm font-semibold">{data.performanceScore.toFixed(1)}</span>
+                              </div>
+                            )
+                          }
+                        })()}
                       </div>
                     </TableCell>
                     <TableCell>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0">
+                          <Button variant="ghost" className="h-8 w-8 p-0 hover:bg-blue-100 transition-colors">
                             <MoreHorizontal className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
+                        <DropdownMenuContent align="end" className="w-48">
                           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuItem onClick={() => handleSetCommission(staffMembers.find(s => (s._id || s.id) === data.staffId)!)}>
+                          <DropdownMenuItem 
+                            onClick={() => handleSetCommission(staffMembers.find(s => (s._id || s.id) === data.staffId)!)}
+                            className="cursor-pointer hover:bg-blue-50"
+                          >
                             <Award className="h-4 w-4 mr-2" />
-                            Set Commission
+                            Manage Commission
                           </DropdownMenuItem>
-                          <DropdownMenuItem>
+                          <DropdownMenuItem className="cursor-pointer hover:bg-blue-50">
                             <Eye className="h-4 w-4 mr-2" />
                             View Details
                           </DropdownMenuItem>
@@ -793,7 +1046,8 @@ export function StaffPerformanceReport() {
                       </DropdownMenu>
                     </TableCell>
                   </TableRow>
-                ))}
+                  ))
+                )}
               </TableBody>
             </Table>
           </div>
@@ -839,6 +1093,7 @@ export function StaffPerformanceReport() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      </div>
     </div>
   )
 }

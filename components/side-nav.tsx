@@ -86,7 +86,7 @@ export function SideNav() {
   }
 
   return (
-    <div className="hidden border-r bg-gradient-to-b from-slate-50 to-gray-100 md:block md:w-64 shadow-xl">
+    <div className="hidden border-r bg-gradient-to-b from-slate-50 to-gray-100 md:block w-64 shadow-xl">
       <div className="flex h-full flex-col gap-2 p-4">
         {/* Logo Section with Gradient */}
         <div className="flex h-16 items-center border-b border-gray-200 px-4 mb-4">

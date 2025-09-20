@@ -39,7 +39,7 @@ const userSchema = z.object({
   path: ["password"],
 });
 
-const userEditSchema = z.object({
+const createUserEditSchema = (mode: string, user: any) => z.object({
   firstName: z.string().min(1, "First name is required"),
   lastName: z.string().optional(),
   email: z.string().email("Please enter a valid email"),
@@ -50,9 +50,16 @@ const userEditSchema = z.object({
   role: z.string().optional(),
   commissionProfileIds: z.array(z.string()).optional(),
 }).refine((data) => {
-  // Password is only required when enabling login access for non-admin users
+  // For edit mode, password is only required if the user is changing from no login access to having login access
+  // For add mode, password is required if login access is enabled
   // Admin users always have login access and don't need password validation for updates
   if (data.hasLoginAccess && !data.password && data.role !== 'admin') {
+    // Check if this is edit mode and the user already has login access
+    // If so, don't require password unless they're changing it
+    if (mode === "edit" && user?.hasLoginAccess) {
+      return true; // Allow form submission without password for existing users with login access
+    }
+    // For new users or users enabling login access for the first time, require password
     return false;
   }
   return true;
@@ -90,7 +97,7 @@ export function UserForm({ user, onSubmit, mode = "add" }: UserFormProps) {
   const [isLoadingProfiles, setIsLoadingProfiles] = useState(false)
 
   const form = useForm<UserFormData>({
-    resolver: zodResolver(mode === "edit" ? userEditSchema : userSchema),
+    resolver: zodResolver(mode === "edit" ? createUserEditSchema(mode, user) : userSchema),
     defaultValues: {
       firstName: user?.firstName || "",
       lastName: user?.lastName || "",
@@ -167,6 +174,7 @@ export function UserForm({ user, onSubmit, mode = "add" }: UserFormProps) {
       // Only include password if it's provided (for new users or when enabling login access)
       const formData = {
         ...data,
+        commissionProfileIds: data.commissionProfileIds || [], // Ensure it's always an array
         ...(data.password ? { password: data.password } : {}),
       }
       console.log('Sending form data to API:', formData)
@@ -197,6 +205,7 @@ export function UserForm({ user, onSubmit, mode = "add" }: UserFormProps) {
         // If password is correct, proceed with update
         const formData = {
           ...form.getValues(),
+          commissionProfileIds: form.getValues().commissionProfileIds || [], // Ensure it's always an array
         }
         await onSubmit(formData)
         
@@ -257,6 +266,8 @@ export function UserForm({ user, onSubmit, mode = "add" }: UserFormProps) {
     <>
       <form onSubmit={form.handleSubmit(handleSubmit, (errors) => {
         console.log('Form validation errors:', errors)
+        console.log('Form values:', form.getValues())
+        console.log('Form errors:', form.formState.errors)
       })} className="space-y-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Left Column */}
@@ -517,7 +528,16 @@ export function UserForm({ user, onSubmit, mode = "add" }: UserFormProps) {
 
         {/* Submit Button */}
         <div className="flex justify-end pt-6 border-t border-gray-200">
-          <Button type="submit" disabled={isSubmitting} className="px-8">
+          <Button 
+            type="submit" 
+            disabled={isSubmitting} 
+            className="px-8"
+            onClick={() => {
+              console.log('Update Staff button clicked')
+              console.log('Form state:', form.formState)
+              console.log('Form values:', form.getValues())
+            }}
+          >
             {isSubmitting ? "Saving..." : mode === "add" ? "Add Staff" : "Update Staff"}
           </Button>
         </div>
