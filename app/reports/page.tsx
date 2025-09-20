@@ -5,7 +5,8 @@ import { ProtectedRoute } from "@/components/auth/protected-route"
 import { SalesReport } from "@/components/reports/sales-report"
 import { ExpenseReport } from "@/components/reports/expense-report"
 import { StaffPerformanceReport } from "@/components/reports/staff-performance-report"
-import { BarChart3, TrendingUp, Receipt, Users } from "lucide-react"
+import { TaxTest } from "@/components/test/tax-test"
+import { BarChart3, TrendingUp, Receipt, Users, Calculator } from "lucide-react"
 
 export default function ReportsPage() {
   return (
@@ -47,6 +48,10 @@ export default function ReportsPage() {
                     <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
                     <span>Staff performance analytics</span>
                   </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <span>GST tax calculation testing</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -56,7 +61,7 @@ export default function ReportsPage() {
           <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
             <div className="p-6">
               <Tabs defaultValue="sales" className="space-y-6">
-                <TabsList className="grid w-full grid-cols-3 bg-slate-100 p-1 rounded-lg">
+                <TabsList className="grid w-full grid-cols-4 bg-slate-100 p-1 rounded-lg">
                   <TabsTrigger 
                     value="sales" 
                     className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm rounded-md transition-all duration-200"
@@ -77,6 +82,13 @@ export default function ReportsPage() {
                   >
                     <Users className="h-4 w-4 mr-2" />
                     Staff Performance
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="tax-test" 
+                    className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm rounded-md transition-all duration-200"
+                  >
+                    <Calculator className="h-4 w-4 mr-2" />
+                    Tax Test
                   </TabsTrigger>
                 </TabsList>
 
@@ -118,6 +130,20 @@ export default function ReportsPage() {
                     </CardHeader>
                     <CardContent>
                       <StaffPerformanceReport />
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                <TabsContent value="tax-test" className="space-y-6">
+                  <Card className="border-0 shadow-sm bg-slate-50/50">
+                    <CardHeader className="pb-4">
+                      <CardTitle className="text-xl text-slate-800">GST Tax Calculator Test</CardTitle>
+                      <CardDescription className="text-slate-600">
+                        Test and verify GST tax calculations for all product categories and services
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <TaxTest />
                     </CardContent>
                   </Card>
                 </TabsContent>

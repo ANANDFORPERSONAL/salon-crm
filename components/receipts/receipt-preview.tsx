@@ -120,14 +120,63 @@ export function ReceiptPreview({ receipt, businessSettings }: ReceiptPreviewProp
           )}
           {receipt.tax > 0 && (
             <>
-              <div className="flex justify-between">
-                <span>CGST ({(businessSettings?.taxRate || 18) / 2}%):</span>
-                <span>{formatAmount(receipt.tax / 2)}</span>
+              <div className="flex justify-between font-semibold">
+                <span>Tax (GST):</span>
+                <span>{formatAmount(receipt.tax)}</span>
               </div>
-              <div className="flex justify-between">
-                <span>SGST ({(businessSettings?.taxRate || 18) / 2}%):</span>
-                <span>{formatAmount(receipt.tax / 2)}</span>
-              </div>
+              {(() => {
+                // Calculate service and product tax separately from receipt items
+                const serviceTax = receipt.items
+                  .filter(item => item.type === 'service')
+                  .reduce((sum, item) => {
+                    const itemTax = (item.price * item.quantity) * 0.05 // 5% service tax
+                    return sum + itemTax
+                  }, 0)
+                
+                const productTax = receipt.items
+                  .filter(item => item.type === 'product')
+                  .reduce((sum, item) => {
+                    const itemTax = (item.price * item.quantity) * 0.18 // 18% product tax (assuming standard)
+                    return sum + itemTax
+                  }, 0)
+                
+                return (
+                  <div className="space-y-1">
+                    {serviceTax > 0 && (
+                      <div className="ml-2 space-y-1">
+                        <div className="flex justify-between text-xs">
+                          <span>Service Tax (5%):</span>
+                          <span>{formatAmount(serviceTax)}</span>
+                        </div>
+                        <div className="flex justify-between text-xs ml-2">
+                          <span>CGST (2.5%):</span>
+                          <span>{formatAmount(serviceTax / 2)}</span>
+                        </div>
+                        <div className="flex justify-between text-xs ml-2">
+                          <span>SGST (2.5%):</span>
+                          <span>{formatAmount(serviceTax / 2)}</span>
+                        </div>
+                      </div>
+                    )}
+                    {productTax > 0 && (
+                      <div className="ml-2 space-y-1">
+                        <div className="flex justify-between text-xs">
+                          <span>Product Tax (18%):</span>
+                          <span>{formatAmount(productTax)}</span>
+                        </div>
+                        <div className="flex justify-between text-xs ml-2">
+                          <span>CGST (9%):</span>
+                          <span>{formatAmount(productTax / 2)}</span>
+                        </div>
+                        <div className="flex justify-between text-xs ml-2">
+                          <span>SGST (9%):</span>
+                          <span>{formatAmount(productTax / 2)}</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )
+              })()}
             </>
           )}
           {receipt.tip > 0 && (

@@ -52,6 +52,7 @@ export function ProductsTable() {
   // Listen for custom events to refresh products
   useEffect(() => {
     const handleProductAdded = () => {
+      console.log('Product added/updated event received, refreshing products...')
       fetchProducts()
     }
 
@@ -288,7 +289,10 @@ export function ProductsTable() {
                 <DialogHeader>
                   <DialogTitle>Add New Product</DialogTitle>
                 </DialogHeader>
-                <ProductForm onClose={() => setIsAddDialogOpen(false)} />
+                <ProductForm 
+                  onClose={() => setIsAddDialogOpen(false)} 
+                  onProductUpdated={fetchProducts}
+                />
               </DialogContent>
             </Dialog>
           )}
@@ -306,7 +310,8 @@ export function ProductsTable() {
                 onClose={() => {
                   setIsEditDialogOpen(false)
                   setSelectedProduct(null)
-                }} 
+                }}
+                onProductUpdated={fetchProducts}
               />
             </DialogContent>
           </Dialog>
@@ -332,6 +337,7 @@ export function ProductsTable() {
               <TableRow className="bg-gray-50/50 hover:bg-gray-50">
                 <TableHead className="px-4 py-3 text-left font-semibold text-gray-700">Product Name</TableHead>
                 <TableHead className="px-4 py-3 text-left font-semibold text-gray-700">Category</TableHead>
+                <TableHead className="px-4 py-3 text-left font-semibold text-gray-700">Tax Category</TableHead>
                 <TableHead className="px-4 py-3 text-left font-semibold text-gray-700">Stock</TableHead>
                 <TableHead className="px-4 py-3 text-left font-semibold text-gray-700">Price</TableHead>
                 <TableHead className="px-4 py-3 text-left font-semibold text-gray-700">Supplier</TableHead>
@@ -342,7 +348,7 @@ export function ProductsTable() {
             <TableBody>
               {loading ? (
                 <TableRow key="loading">
-                  <TableCell colSpan={canManageProducts ? 7 : 6} className="text-center py-8">
+                  <TableCell colSpan={canManageProducts ? 8 : 7} className="text-center py-8">
                     <div className="flex flex-col items-center space-y-2">
                       <div className="w-6 h-6 border-2 border-emerald-600 border-t-transparent rounded-full animate-spin"></div>
                       <p className="text-gray-600 text-sm">Loading products...</p>
@@ -351,7 +357,7 @@ export function ProductsTable() {
                 </TableRow>
               ) : filteredProducts.length === 0 ? (
                 <TableRow key="empty">
-                  <TableCell colSpan={canManageProducts ? 7 : 6} className="text-center py-8">
+                  <TableCell colSpan={canManageProducts ? 8 : 7} className="text-center py-8">
                     <div className="flex flex-col items-center space-y-2">
                       <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
                         <Package className="h-6 w-6 text-gray-400" />
@@ -386,6 +392,27 @@ export function ProductsTable() {
                       <Badge variant="outline" className="px-2 py-1 bg-emerald-50 text-emerald-700 border-emerald-200 text-xs">
                         {product.category}
                       </Badge>
+                    </TableCell>
+                    <TableCell className="px-4 py-3">
+                      {(() => {
+                        const getTaxCategoryBadge = (category: string) => {
+                          switch (category) {
+                            case 'essential':
+                              return <Badge variant="outline" className="px-2 py-1 bg-blue-50 text-blue-700 border-blue-200 text-xs">Essential (5%)</Badge>
+                            case 'intermediate':
+                              return <Badge variant="outline" className="px-2 py-1 bg-yellow-50 text-yellow-700 border-yellow-200 text-xs">Intermediate (12%)</Badge>
+                            case 'standard':
+                              return <Badge variant="outline" className="px-2 py-1 bg-green-50 text-green-700 border-green-200 text-xs">Standard (18%)</Badge>
+                            case 'luxury':
+                              return <Badge variant="outline" className="px-2 py-1 bg-purple-50 text-purple-700 border-purple-200 text-xs">Luxury (28%)</Badge>
+                            case 'exempt':
+                              return <Badge variant="outline" className="px-2 py-1 bg-gray-50 text-gray-700 border-gray-200 text-xs">Exempt (0%)</Badge>
+                            default:
+                              return <Badge variant="outline" className="px-2 py-1 bg-gray-50 text-gray-700 border-gray-200 text-xs">Standard (18%)</Badge>
+                          }
+                        }
+                        return getTaxCategoryBadge(product.taxCategory || 'standard')
+                      })()}
                     </TableCell>
                     <TableCell className="px-4 py-3">
                       <div className="flex items-center space-x-2">

@@ -56,6 +56,7 @@ import {
 import { ServicesAPI, ProductsAPI, StaffAPI, SalesAPI, UsersAPI, SettingsAPI, ReceiptsAPI } from "@/lib/api"
 import { clientStore, type Client } from "@/lib/client-store"
 import { MultiStaffSelector, type StaffContribution } from "@/components/ui/multi-staff-selector"
+import { TaxCalculator, createTaxCalculator, type TaxSettings, type BillItem } from "@/lib/tax-calculator"
 
 // Mock data for customers
 // const mockCustomers = [
@@ -213,6 +214,8 @@ export function QuickSale() {
   const [businessSettings, setBusinessSettings] = useState<any>(null)
   const [posSettings, setPOSSettings] = useState<any>(null)
   const [paymentSettings, setPaymentSettings] = useState<any>(null)
+  const [taxSettings, setTaxSettings] = useState<TaxSettings | null>(null)
+  const [taxCalculator, setTaxCalculator] = useState<TaxCalculator | null>(null)
   const [loadingServices, setLoadingServices] = useState(true)
   const [loadingProducts, setLoadingProducts] = useState(true)
   const [loadingStaff, setLoadingStaff] = useState(true)
@@ -327,6 +330,35 @@ export function QuickSale() {
       }
     }
 
+    const fetchTaxSettings = async () => {
+      try {
+        console.log('Fetching tax settings from API...')
+        const response = await SettingsAPI.getPaymentSettings()
+        console.log('Tax settings API response:', response)
+        if (response.success) {
+          const taxSettingsData: TaxSettings = {
+            enableTax: response.data.enableTax !== false,
+            taxType: response.data.taxType || 'gst',
+            serviceTaxRate: response.data.serviceTaxRate || 5,
+            essentialProductRate: response.data.essentialProductRate || 5,
+            intermediateProductRate: response.data.intermediateProductRate || 12,
+            standardProductRate: response.data.standardProductRate || 18,
+            luxuryProductRate: response.data.luxuryProductRate || 28,
+            exemptProductRate: response.data.exemptProductRate || 0,
+            cgstRate: response.data.cgstRate || 9,
+            sgstRate: response.data.sgstRate || 9,
+          }
+          setTaxSettings(taxSettingsData)
+          setTaxCalculator(createTaxCalculator(taxSettingsData))
+          console.log('Tax settings loaded:', taxSettingsData)
+        } else {
+          console.error('Tax settings API returned error:', response.error)
+        }
+      } catch (error) {
+        console.error('Failed to fetch tax settings:', error)
+      }
+    }
+
     const fetchClients = async () => {
       try {
         console.log('Fetching clients from API...')
@@ -347,6 +379,7 @@ export function QuickSale() {
     fetchBusinessSettings()
     fetchPOSSettings()
     fetchPaymentSettings()
+    fetchTaxSettings()
     fetchClients()
   }, [])
 
@@ -799,7 +832,56 @@ export function QuickSale() {
   const productTotal = productItems.reduce((sum, item) => sum + item.total, 0)
   const subtotal = serviceTotal + productTotal
   const totalDiscount = discountValue + (subtotal * discountPercentage) / 100
-  const taxAmount = paymentSettings?.enableTax ? (subtotal - totalDiscount) * ((paymentSettings?.taxRate || 8.25) / 100) : 0
+  
+  // Calculate tax using advanced tax calculator
+  let taxAmount = 0
+  let taxBreakdown = { cgst: 0, sgst: 0, igst: 0 }
+  
+  if (taxCalculator && taxSettings?.enableTax) {
+    // Convert items to BillItem format for tax calculation
+    const billItems: BillItem[] = [
+      ...serviceItems.map(item => {
+        const service = services.find(s => (s._id || s.id) === item.serviceId)
+        return {
+          id: item.id,
+          name: service?.name || 'Unknown Service',
+          type: 'service' as const,
+          price: item.price,
+          quantity: item.quantity
+        }
+      }),
+      ...productItems.map(item => {
+        const product = products.find(p => (p._id || p.id) === item.productId)
+        return {
+          id: item.id,
+          name: product?.name || 'Unknown Product',
+          type: 'product' as const,
+          price: item.price,
+          quantity: item.quantity,
+          taxCategory: product?.taxCategory || 'standard'
+        }
+      })
+    ]
+    
+    if (billItems.length > 0) {
+      const taxResult = taxCalculator.calculateBillTax(billItems)
+      taxAmount = taxResult.summary.totalTaxAmount
+      taxBreakdown = {
+        cgst: taxResult.summary.totalCGST,
+        sgst: taxResult.summary.totalSGST,
+        igst: taxResult.summary.totalIGST
+      }
+    }
+  } else {
+    // Fallback to simple tax calculation
+    taxAmount = paymentSettings?.enableTax ? (subtotal - totalDiscount) * ((paymentSettings?.taxRate || 8.25) / 100) : 0
+    taxBreakdown = {
+      cgst: taxAmount / 2,
+      sgst: taxAmount / 2,
+      igst: 0
+    }
+  }
+  
   const grandTotal = subtotal - totalDiscount + taxAmount + tip
   const totalPaid = cashAmount + cardAmount + onlineAmount
   const change = totalPaid - grandTotal
@@ -1025,10 +1107,56 @@ export function QuickSale() {
         staffName: receiptItems[0].staffName
       } : 'No items')
       
-      // Calculate tax and total based on payment settings
-      const taxRate = paymentSettings?.enableTax ? (paymentSettings?.taxRate || 8.25) / 100 : 0
-      const calculatedTax = (subtotal - totalDiscount) * taxRate
-      const calculatedTotal = subtotal - totalDiscount + calculatedTax + tip
+      // Calculate tax using advanced tax calculator
+      let calculatedTax = 0
+      let calculatedTotal = subtotal - totalDiscount + tip
+      let taxBreakdown = { cgst: 0, sgst: 0, igst: 0 }
+
+      if (taxCalculator && taxSettings?.enableTax) {
+        // Convert receipt items to BillItem format for tax calculation
+        const billItems: BillItem[] = receiptItems.map(item => ({
+          id: item.id,
+          name: item.name,
+          type: item.type,
+          price: item.price,
+          quantity: item.quantity,
+          taxCategory: item.type === 'product' ? 
+            (products.find(p => (p._id || p.id) === item.productId)?.taxCategory || 'standard') : 
+            undefined
+        }))
+
+        // Calculate tax for all items
+        const taxResult = taxCalculator.calculateBillTax(billItems)
+        
+        // Update receipt items with tax information
+        receiptItems.forEach((item, index) => {
+          const taxItem = taxResult.items[index]
+          if (taxItem) {
+            item.taxAmount = taxItem.taxAmount
+            item.cgst = taxItem.cgst
+            item.sgst = taxItem.sgst
+            item.totalWithTax = taxItem.totalAmount
+          }
+        })
+
+        calculatedTax = taxResult.summary.totalTaxAmount
+        calculatedTotal = subtotal - totalDiscount + calculatedTax + tip
+        taxBreakdown = {
+          cgst: taxResult.summary.totalCGST,
+          sgst: taxResult.summary.totalSGST,
+          igst: taxResult.summary.totalIGST
+        }
+      } else {
+        // Fallback to simple tax calculation if tax calculator not available
+        const taxRate = paymentSettings?.enableTax ? (paymentSettings?.taxRate || 8.25) / 100 : 0
+        calculatedTax = (subtotal - totalDiscount) * taxRate
+        calculatedTotal = subtotal - totalDiscount + calculatedTax + tip
+        taxBreakdown = {
+          cgst: calculatedTax / 2,
+          sgst: calculatedTax / 2,
+          igst: 0
+        }
+      }
       
       // Generate receipt number first
       const receiptNumber = await generateReceiptNumber()
@@ -1048,6 +1176,7 @@ export function QuickSale() {
         discount: totalDiscount,
         tax: calculatedTax,
         total: calculatedTotal,
+        taxBreakdown: taxBreakdown,
         payments: payments,
         staffId: primaryStaff?.staffId || staff[0]?._id || staff[0]?.id || "",
         staffName: primaryStaff?.staffName || staff[0]?.name || "Unassigned Staff",
@@ -2469,10 +2598,79 @@ export function QuickSale() {
               <span className="font-semibold text-red-600">-{formatCurrency(totalDiscount)}</span>
             </div>
           )}
-          {paymentSettings?.enableTax && taxAmount > 0 && (
-            <div className="flex justify-between items-center py-1.5">
-              <span className="text-sm text-gray-600">Tax ({paymentSettings?.taxRate || 8.25}%):</span>
-              <span className="font-semibold text-gray-800">{formatCurrency(taxAmount)}</span>
+          {taxAmount > 0 && (
+            <div className="space-y-1">
+              <div className="flex justify-between items-center py-1.5">
+                <span className="text-sm text-gray-600">Tax (GST):</span>
+                <span className="font-semibold text-gray-800">{formatCurrency(taxAmount)}</span>
+              </div>
+              {(() => {
+                // Calculate service and product tax separately
+                const serviceTax = serviceItems.reduce((sum, item) => {
+                  const service = services.find(s => (s._id || s.id) === item.serviceId)
+                  const itemTax = taxCalculator ? taxCalculator.calculateItemTax({
+                    id: item.id,
+                    name: service?.name || 'Unknown Service',
+                    type: 'service',
+                    price: item.price,
+                    quantity: item.quantity
+                  }).taxAmount : 0
+                  return sum + itemTax
+                }, 0)
+                
+                // Group product taxes by their actual tax rates
+                const productTaxByRate = productItems.reduce((acc, item) => {
+                  const product = products.find(p => (p._id || p.id) === item.productId)
+                  const taxCategory = product?.taxCategory || 'standard'
+                  
+                  // Get the tax rate for this category
+                  let taxRate = 0
+                  if (taxSettings) {
+                    switch (taxCategory) {
+                      case 'essential': taxRate = taxSettings.essentialProductRate; break
+                      case 'intermediate': taxRate = taxSettings.intermediateProductRate; break
+                      case 'standard': taxRate = taxSettings.standardProductRate; break
+                      case 'luxury': taxRate = taxSettings.luxuryProductRate; break
+                      case 'exempt': taxRate = taxSettings.exemptProductRate; break
+                    }
+                  }
+                  
+                  const itemTax = taxCalculator ? taxCalculator.calculateItemTax({
+                    id: item.id,
+                    name: product?.name || 'Unknown Product',
+                    type: 'product',
+                    price: item.price,
+                    quantity: item.quantity,
+                    taxCategory: taxCategory
+                  }).taxAmount : 0
+                  
+                  if (!acc[taxRate]) {
+                    acc[taxRate] = 0
+                  }
+                  acc[taxRate] += itemTax
+                  
+                  return acc
+                }, {} as Record<number, number>)
+                
+                return (
+                  <div className="space-y-1">
+                    {serviceTax > 0 && (
+                      <div className="flex justify-between items-center py-0.5 ml-2">
+                        <span className="text-xs text-gray-500">Service Tax (5%):</span>
+                        <span className="text-xs text-gray-600">{formatCurrency(serviceTax)}</span>
+                      </div>
+                    )}
+                    {Object.entries(productTaxByRate).map(([rate, amount]) => 
+                      amount > 0 && (
+                        <div key={rate} className="flex justify-between items-center py-0.5 ml-2">
+                          <span className="text-xs text-gray-500">Product Tax ({rate}%):</span>
+                          <span className="text-xs text-gray-600">{formatCurrency(amount)}</span>
+                        </div>
+                      )
+                    )}
+                  </div>
+                )
+              })()}
             </div>
           )}
           <div className="flex justify-between items-center py-2 border-t border-gray-100 pt-2">

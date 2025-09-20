@@ -1251,7 +1251,7 @@ app.get('/api/products', authenticateToken, requireStaff, async (req, res) => {
 
 app.post('/api/products', authenticateToken, requireManager, async (req, res) => {
   try {
-    const { name, category, price, stock, sku, supplier, description } = req.body;
+    const { name, category, price, stock, sku, supplier, description, taxCategory } = req.body;
 
     if (!name || !category || !price || !stock) {
       return res.status(400).json({
@@ -1268,6 +1268,7 @@ app.post('/api/products', authenticateToken, requireManager, async (req, res) =>
       sku: sku || `SKU-${Date.now()}`,
       supplier,
       description,
+      taxCategory: taxCategory || 'standard',
       isActive: true,
     });
 
@@ -1288,7 +1289,7 @@ app.post('/api/products', authenticateToken, requireManager, async (req, res) =>
 
 app.put('/api/products/:id', authenticateToken, requireManager, async (req, res) => {
   try {
-    const { name, category, price, stock, sku, supplier, description, isActive } = req.body;
+    const { name, category, price, stock, sku, supplier, description, isActive, taxCategory } = req.body;
 
     if (!name || !category || !price || !stock) {
       return res.status(400).json({
@@ -1307,6 +1308,7 @@ app.put('/api/products/:id', authenticateToken, requireManager, async (req, res)
         sku: sku || `SKU-${Date.now()}`,
         supplier,
         description,
+        taxCategory: taxCategory || 'standard',
         isActive: isActive !== undefined ? isActive : true,
       },
       { new: true }

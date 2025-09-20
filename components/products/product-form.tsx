@@ -14,9 +14,10 @@ import { ProductsAPI } from "@/lib/api"
 interface ProductFormProps {
   onClose: () => void
   product?: any // For edit mode
+  onProductUpdated?: () => void // Callback to refresh the products list
 }
 
-export function ProductForm({ onClose, product }: ProductFormProps) {
+export function ProductForm({ onClose, product, onProductUpdated }: ProductFormProps) {
   const { toast } = useToast()
   const [formData, setFormData] = useState({
     name: product?.name || "",
@@ -29,6 +30,7 @@ export function ProductForm({ onClose, product }: ProductFormProps) {
     sku: product?.sku || "",
     description: product?.description || "",
     barcode: product?.barcode || "",
+    taxCategory: product?.taxCategory || "standard",
   })
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -43,17 +45,22 @@ export function ProductForm({ onClose, product }: ProductFormProps) {
         sku: formData.sku || `SKU-${Date.now()}`,
         supplier: formData.supplier,
         description: formData.description,
+        taxCategory: formData.taxCategory,
         isActive: true
       }
 
       console.log('Submitting product data:', productData)
+      console.log('Tax category being sent:', formData.taxCategory)
 
       let response
       if (product) {
         // Edit mode
         console.log('Updating product with ID:', product._id || product.id)
+        console.log('Current product tax category:', product.taxCategory)
         response = await ProductsAPI.update(product._id || product.id, productData)
         console.log('Update response:', response)
+        console.log('Response success:', response.success)
+        console.log('Response data:', response.data)
         if (response.success) {
           toast({
             title: "Product updated",
@@ -76,8 +83,14 @@ export function ProductForm({ onClose, product }: ProductFormProps) {
       if (response.success) {
         onClose()
         
-        // Dispatch custom event to refresh stats
+        // Call the refresh callback if provided
+        if (onProductUpdated) {
+          onProductUpdated()
+        }
+        
+        // Dispatch custom event to refresh products list
         window.dispatchEvent(new CustomEvent('product-added'))
+        console.log('Product update successful, dispatching refresh event')
       } else {
         throw new Error(response.error || `Failed to ${product ? 'update' : 'create'} product`)
       }
@@ -191,6 +204,28 @@ export function ProductForm({ onClose, product }: ProductFormProps) {
             onChange={(e) => handleChange("sku", e.target.value)}
             placeholder="Product SKU"
           />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="taxCategory">Tax Category *</Label>
+          <Select
+            value={formData.taxCategory}
+            onValueChange={(value) => handleChange("taxCategory", value)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select tax category" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="essential">Essential Products (5% GST)</SelectItem>
+              <SelectItem value="intermediate">Intermediate Products (12% GST)</SelectItem>
+              <SelectItem value="standard">Standard Products (18% GST)</SelectItem>
+              <SelectItem value="luxury">Luxury Products (28% GST)</SelectItem>
+              <SelectItem value="exempt">Exempt Products (0% GST)</SelectItem>
+            </SelectContent>
+          </Select>
+          <p className="text-xs text-slate-500">
+            Select the appropriate tax category for this product as per Indian GST law
+          </p>
         </div>
       </div>
 

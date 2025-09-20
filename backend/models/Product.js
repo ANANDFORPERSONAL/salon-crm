@@ -36,6 +36,11 @@ const productSchema = new mongoose.Schema({
   isActive: {
     type: Boolean,
     default: true
+  },
+  taxCategory: {
+    type: String,
+    enum: ['essential', 'intermediate', 'standard', 'luxury', 'exempt'],
+    default: 'standard'
   }
 }, {
   timestamps: true

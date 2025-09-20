@@ -13,11 +13,7 @@ import { Settings } from "lucide-react"
 
 export function PaymentSettings() {
   const [settings, setSettings] = useState({
-    currency: "INR",
-    taxRate: "8.25",
     processingFee: "2.9",
-    enableCurrency: true,
-    enableTax: true,
     enableProcessingFees: true,
   })
   const [isLoading, setIsLoading] = useState(false)
@@ -35,11 +31,7 @@ export function PaymentSettings() {
       const response = await SettingsAPI.getPaymentSettings()
       if (response.success) {
         setSettings({
-          currency: response.data.currency || "INR",
-          taxRate: response.data.taxRate?.toString() || "8.25",
           processingFee: response.data.processingFee?.toString() || "2.9",
-          enableCurrency: response.data.enableCurrency !== false,
-          enableTax: response.data.enableTax !== false,
           enableProcessingFees: response.data.enableProcessingFees !== false,
         })
       }
@@ -58,11 +50,7 @@ export function PaymentSettings() {
     setIsSaving(true)
     try {
       const response = await SettingsAPI.updatePaymentSettings({
-        currency: settings.currency,
-        taxRate: parseFloat(settings.taxRate),
         processingFee: parseFloat(settings.processingFee),
-        enableCurrency: settings.enableCurrency,
-        enableTax: settings.enableTax,
         enableProcessingFees: settings.enableProcessingFees,
       })
       
@@ -131,81 +119,8 @@ export function PaymentSettings() {
                 <Settings className="h-5 w-5 text-blue-600" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-slate-800">Currency & Tax</h3>
-                <p className="text-slate-600 text-sm">Set your default currency and tax rates</p>
-              </div>
-            </div>
-            
-            <div className="space-y-6">
-              <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
-                <div className="space-y-1">
-                  <Label className="text-sm font-medium text-slate-700">Enable Currency</Label>
-                  <p className="text-sm text-slate-600">Show currency symbols and formatting</p>
-                </div>
-                <Switch
-                  checked={settings.enableCurrency}
-                  onCheckedChange={(checked) => setSettings({ ...settings, enableCurrency: checked })}
-                />
-              </div>
-              
-              {settings.enableCurrency && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-3">
-                    <Label htmlFor="currency" className="text-sm font-medium text-slate-700">Currency</Label>
-                    <Select
-                      value={settings.currency}
-                      onValueChange={(value) => setSettings({ ...settings, currency: value })}
-                    >
-                      <SelectTrigger className="border-slate-200 focus:border-blue-500 focus:ring-blue-500">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="INR">INR (₹)</SelectItem>
-                        <SelectItem value="USD">USD ($)</SelectItem>
-                        <SelectItem value="EUR">EUR (€)</SelectItem>
-                        <SelectItem value="GBP">GBP (£)</SelectItem>
-                        <SelectItem value="CAD">CAD (C$)</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-3">
-                    <Label htmlFor="taxRate" className="text-sm font-medium text-slate-700">Tax Rate (%)</Label>
-                    <Input
-                      id="taxRate"
-                      type="number"
-                      step="0.01"
-                      value={settings.taxRate}
-                      onChange={(e) => setSettings({ ...settings, taxRate: e.target.value })}
-                      className="border-slate-200 focus:border-blue-500 focus:ring-blue-500"
-                    />
-                  </div>
-                </div>
-              )}
-              
-              <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
-                <div className="space-y-1">
-                  <Label className="text-sm font-medium text-slate-700">Enable Tax</Label>
-                  <p className="text-sm text-slate-600">Apply tax calculations to bills</p>
-                </div>
-                <Switch
-                  checked={settings.enableTax}
-                  onCheckedChange={(checked) => setSettings({ ...settings, enableTax: checked })}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Processing Fees Card */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-          <div className="p-6">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-gradient-to-r from-indigo-100 to-purple-100 rounded-lg flex items-center justify-center">
-                <Settings className="h-5 w-5 text-indigo-600" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-slate-800">Processing Fees</h3>
-                <p className="text-slate-600 text-sm">Configure payment processing settings</p>
+                <h3 className="text-lg font-semibold text-slate-800">Payment Processing</h3>
+                <p className="text-slate-600 text-sm">Configure payment processing fees and methods</p>
               </div>
             </div>
             
@@ -213,7 +128,7 @@ export function PaymentSettings() {
               <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
                 <div className="space-y-1">
                   <Label className="text-sm font-medium text-slate-700">Enable Processing Fees</Label>
-                  <p className="text-sm text-slate-600">Apply processing fees to card transactions</p>
+                  <p className="text-sm text-slate-600">Add processing fees to card payments</p>
                 </div>
                 <Switch
                   checked={settings.enableProcessingFees}
@@ -227,17 +142,20 @@ export function PaymentSettings() {
                   <Input
                     id="processingFee"
                     type="number"
-                    step="0.1"
+                    step="0.01"
                     value={settings.processingFee}
                     onChange={(e) => setSettings({ ...settings, processingFee: e.target.value })}
                     className="border-slate-200 focus:border-blue-500 focus:ring-blue-500"
                   />
-                  <p className="text-sm text-slate-600">Fee charged for card transactions</p>
+                  <p className="text-sm text-slate-500">
+                    This fee will be added to card payments to cover processing costs
+                  </p>
                 </div>
               )}
             </div>
           </div>
         </div>
+
       </div>
 
       {/* Save Button */}

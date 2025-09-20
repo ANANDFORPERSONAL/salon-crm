@@ -3,13 +3,15 @@
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Settings, Building2, Calendar, CreditCard, Bell, Users, ChevronRight, Receipt, Award } from "lucide-react"
+import { Settings, Building2, Calendar, CreditCard, Bell, Users, ChevronRight, Receipt, Award, DollarSign, Calculator } from "lucide-react"
 import { useAuth } from "@/lib/auth-context"
 import { useRouter } from "next/navigation"
 import { GeneralSettings } from "./general-settings"
 import { BusinessSettings } from "./business-settings"
 import { AppointmentSettings } from "./appointment-settings"
 import { PaymentSettings } from "./payment-settings"
+import { CurrencySettings } from "./currency-settings"
+import { TaxSettings } from "./tax-settings"
 import { NotificationSettings } from "./notification-settings"
 import { StaffDirectory } from "./staff-directory"
 import { POSSettings } from "./pos-settings"
@@ -38,9 +40,23 @@ const settingsCategories = [
     requiredRole: "manager",
   },
   {
+    id: "currency",
+    title: "Currency Settings",
+    description: "Default currency, symbols, and formatting options",
+    icon: DollarSign,
+    requiredRole: "admin", // Only admin can access
+  },
+  {
+    id: "tax",
+    title: "Tax Settings",
+    description: "Tax rates, GST configuration, and calculation methods",
+    icon: Calculator,
+    requiredRole: "admin", // Only admin can access
+  },
+  {
     id: "payments",
     title: "Payment Settings",
-    description: "Payment methods, tax rates, and billing configuration",
+    description: "Payment methods and processing configuration",
     icon: CreditCard,
     requiredRole: "admin", // Only admin can access
   },
@@ -122,6 +138,10 @@ export function SettingsPage() {
         return <BusinessSettings />
       case "appointments":
         return <AppointmentSettings />
+      case "currency":
+        return <CurrencySettings />
+      case "tax":
+        return <TaxSettings />
       case "payments":
         return <PaymentSettings />
       case "pos":
