@@ -262,6 +262,16 @@ export function ReceiptGenerator({ receipt, businessSettings }: ReceiptGenerator
           `
               : ""
           }
+          ${
+            receipt.roundOff && Math.abs(receipt.roundOff) > 0.01
+              ? `
+            <div class="total-line">
+              <span>Round Off:</span>
+              <span>${formatCurrency(receipt.roundOff, businessSettings)}</span>
+            </div>
+          `
+              : ""
+          }
           <div class="total-line grand-total">
             <span>TOTAL:</span>
             <span>${formatCurrency(receipt.total, businessSettings)}</span>

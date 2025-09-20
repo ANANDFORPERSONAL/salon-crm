@@ -185,6 +185,12 @@ export function ReceiptPreview({ receipt, businessSettings }: ReceiptPreviewProp
               <span>{formatAmount(receipt.tip)}</span>
             </div>
           )}
+          {receipt.roundOff && Math.abs(receipt.roundOff) > 0.01 && (
+            <div className="flex justify-between">
+              <span>Round Off:</span>
+              <span>{formatAmount(receipt.roundOff)}</span>
+            </div>
+          )}
           <div className="flex justify-between font-bold text-base border-t border-black pt-2 mt-2">
             <span>TOTAL:</span>
             <span>{formatAmount(receipt.total)}</span>

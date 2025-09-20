@@ -883,8 +883,10 @@ export function QuickSale() {
   }
   
   const grandTotal = subtotal - totalDiscount + taxAmount + tip
+  const roundedTotal = Math.round(grandTotal)
+  const roundOff = roundedTotal - grandTotal
   const totalPaid = cashAmount + cardAmount + onlineAmount
-  const change = totalPaid - grandTotal
+  const change = totalPaid - roundedTotal
 
   // Generate receipt number
   const generateReceiptNumber = async () => {
@@ -997,7 +999,7 @@ export function QuickSale() {
           phone: customerSearch.match(/^\d+$/) ? customerSearch : "",
           email: customerSearch.includes("@") ? customerSearch : "",
           totalVisits: 1,
-          totalSpent: grandTotal,
+          totalSpent: roundedTotal,
           createdAt: new Date().toISOString(),
           status: "active",
         }
@@ -1006,7 +1008,7 @@ export function QuickSale() {
       } else if (customer) {
         // Update existing customer stats
         customer.totalVisits = (customer.totalVisits || 0) + 1
-        customer.totalSpent = (customer.totalSpent || 0) + grandTotal
+        customer.totalSpent = (customer.totalSpent || 0) + roundedTotal
         customer.lastVisit = format(new Date(), "yyyy-MM-dd")
       }
 
@@ -1140,7 +1142,8 @@ export function QuickSale() {
         })
 
         calculatedTax = taxResult.summary.totalTaxAmount
-        calculatedTotal = subtotal - totalDiscount + calculatedTax + tip
+        const preRoundTotal = subtotal - totalDiscount + calculatedTax + tip
+        calculatedTotal = Math.round(preRoundTotal)
         taxBreakdown = {
           cgst: taxResult.summary.totalCGST,
           sgst: taxResult.summary.totalSGST,
@@ -1150,7 +1153,8 @@ export function QuickSale() {
         // Fallback to simple tax calculation if tax calculator not available
         const taxRate = paymentSettings?.enableTax ? (paymentSettings?.taxRate || 8.25) / 100 : 0
         calculatedTax = (subtotal - totalDiscount) * taxRate
-        calculatedTotal = subtotal - totalDiscount + calculatedTax + tip
+        const preRoundTotal = subtotal - totalDiscount + calculatedTax + tip
+        calculatedTotal = Math.round(preRoundTotal)
         taxBreakdown = {
           cgst: calculatedTax / 2,
           sgst: calculatedTax / 2,
@@ -1175,6 +1179,7 @@ export function QuickSale() {
         tip: tip,
         discount: totalDiscount,
         tax: calculatedTax,
+        roundOff: calculatedTotal - (subtotal - totalDiscount + calculatedTax + tip),
         total: calculatedTotal,
         taxBreakdown: taxBreakdown,
         payments: payments,
@@ -1235,7 +1240,7 @@ export function QuickSale() {
 
       // Determine bill status based on payment
       const billStatus = totalPaid === 0 ? 'unpaid' : 
-                        totalPaid < grandTotal ? 'partial' : 'completed'
+                        totalPaid < calculatedTotal ? 'partial' : 'completed'
       
       // --- Add to Sales Records (backend) ---
       try {
@@ -1256,6 +1261,7 @@ export function QuickSale() {
           payments: salePayments, // New split payment structure
           netTotal: receipt.subtotal,
           taxAmount: receipt.tax,
+          roundOff: receipt.roundOff,
           grossTotal: receipt.total,
           status: billStatus,
           staffName: receipt.staffName,
@@ -1278,9 +1284,9 @@ export function QuickSale() {
           })),
           // Add payment status for unpaid/partial bills
           paymentStatus: {
-            totalAmount: receipt.total,
+            totalAmount: calculatedTotal,
             paidAmount: totalPaid,
-            remainingAmount: receipt.total - totalPaid,
+            remainingAmount: calculatedTotal - totalPaid,
             dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days from now
             lastPaymentDate: totalPaid > 0 ? new Date().toISOString() : null,
             isOverdue: false
@@ -1387,8 +1393,8 @@ export function QuickSale() {
       const statusMessage = billStatus === 'completed' ? 
         `Sale completed successfully! Receipt #${receipt.receiptNumber}` :
         billStatus === 'partial' ? 
-        `Partial payment bill created! Receipt #${receipt.receiptNumber} - Remaining: ₹${(receipt.total - totalPaid).toFixed(2)}` :
-        `Unpaid bill created! Receipt #${receipt.receiptNumber} - Amount due: ₹${receipt.total.toFixed(2)}`
+        `Partial payment bill created! Receipt #${receipt.receiptNumber} - Remaining: ₹${(calculatedTotal - totalPaid).toFixed(2)}` :
+        `Unpaid bill created! Receipt #${receipt.receiptNumber} - Amount due: ₹${calculatedTotal.toFixed(2)}`
       
       toast({
         title: billStatus === 'completed' ? "Checkout Successful" : 
@@ -2673,9 +2679,15 @@ export function QuickSale() {
               })()}
             </div>
           )}
+          {Math.abs(roundOff) > 0.01 && (
+            <div className="flex justify-between items-center py-1">
+              <span className="text-sm text-gray-600">Round Off:</span>
+              <span className="text-sm font-medium text-gray-700">{formatCurrency(roundOff)}</span>
+            </div>
+          )}
           <div className="flex justify-between items-center py-2 border-t border-gray-100 pt-2">
             <span className="text-base font-semibold text-gray-800">Grand Total:</span>
-            <span className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">{formatCurrency(grandTotal)}</span>
+            <span className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">{formatCurrency(roundedTotal)}</span>
           </div>
           
           <div className="space-y-2 pt-1">
@@ -2711,7 +2723,7 @@ export function QuickSale() {
         <div className="space-y-4 flex-1 min-h-0">
           <div className="flex justify-between items-center text-lg font-bold flex-shrink-0">
             <span className="text-gray-800">Payable Amount</span>
-            <span className="text-xl bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">{formatCurrency(grandTotal)}</span>
+            <span className="text-xl bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">{formatCurrency(roundedTotal)}</span>
           </div>
 
           {/* Payment Methods */}
@@ -2796,7 +2808,7 @@ export function QuickSale() {
           <div className="flex gap-2 pt-2 flex-shrink-0">
             <Button 
               onClick={() => {
-                if (grandTotal > 0 && totalPaid < grandTotal) {
+                if (roundedTotal > 0 && totalPaid < roundedTotal) {
                   setShowPaymentModal(true)
                 } else {
                   handleCheckout()
@@ -3195,7 +3207,7 @@ export function QuickSale() {
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span>Bill Total:</span>
-                  <span className="font-medium">₹{grandTotal.toFixed(2)}</span>
+                  <span className="font-medium">₹{roundedTotal.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Amount Paid:</span>
@@ -3203,7 +3215,7 @@ export function QuickSale() {
                 </div>
                 <div className="flex justify-between border-t border-slate-200 pt-2">
                   <span className="font-semibold">Remaining:</span>
-                  <span className="font-bold text-red-600">₹{(grandTotal - totalPaid).toFixed(2)}</span>
+                  <span className="font-bold text-red-600">₹{(roundedTotal - totalPaid).toFixed(2)}</span>
                 </div>
               </div>
             </div>
@@ -3216,8 +3228,8 @@ export function QuickSale() {
               </div>
               <p className="text-sm text-orange-700">
                 {totalPaid === 0 ? 
-                  `This will create an UNPAID bill. Customer owes ₹${grandTotal.toFixed(2)}` :
-                  `This will create a PARTIALLY PAID bill. Customer owes ₹${(grandTotal - totalPaid).toFixed(2)} more`
+                  `This will create an UNPAID bill. Customer owes ₹${roundedTotal.toFixed(2)}` :
+                  `This will create a PARTIALLY PAID bill. Customer owes ₹${(roundedTotal - totalPaid).toFixed(2)} more`
                 }
               </p>
             </div>
@@ -3248,7 +3260,7 @@ export function QuickSale() {
               onClick={() => {
                 console.log('🔍 Modal button clicked!')
                 console.log('🔍 confirmUnpaid:', confirmUnpaid)
-                console.log('🔍 grandTotal:', grandTotal)
+                console.log('🔍 roundedTotal:', roundedTotal)
                 console.log('🔍 totalPaid:', totalPaid)
                 
                 if (confirmUnpaid) {

@@ -78,6 +78,7 @@ export interface Receipt {
   tip: number
   discount: number
   tax: number
+  roundOff?: number
   total: number
   payments: PaymentMethod[]
   staffId: string
