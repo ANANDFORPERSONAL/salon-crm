@@ -1979,6 +1979,39 @@ app.post('/api/sales', authenticateToken, requireStaff, async (req, res) => {
     
     const sale = new Sale(saleData);
     await sale.save();
+
+    // Create inventory transactions for product items
+    if (saleData.items && Array.isArray(saleData.items)) {
+      for (const item of saleData.items) {
+        if (item.type === 'product' && item.productId) {
+          try {
+            const product = await Product.findById(item.productId);
+            if (product) {
+              await InventoryTransaction.create({
+                productId: item.productId,
+                productName: item.name,
+                transactionType: 'sale',
+                quantity: -item.quantity, // Negative for deduction
+                previousStock: product.stock + item.quantity,
+                newStock: product.stock,
+                unitCost: item.price,
+                totalValue: item.total,
+                referenceType: 'sale',
+                referenceId: sale._id.toString(),
+                referenceNumber: sale.billNo,
+                processedBy: saleData.staffName || 'System',
+                reason: 'Product sold',
+                notes: `Sold to ${saleData.customerName}`
+              });
+            }
+          } catch (inventoryError) {
+            console.error('Error creating inventory transaction:', inventoryError);
+            // Don't fail the sale if inventory tracking fails
+          }
+        }
+      }
+    }
+
     res.status(201).json({ success: true, data: sale });
   } catch (err) {
     res.status(400).json({ success: false, error: err.message });
@@ -3036,6 +3069,46 @@ app.delete('/api/commission-profiles/:id', authenticateToken, requireAdmin, asyn
     res.status(500).json({
       success: false,
       error: 'Failed to delete commission profile'
+    });
+  }
+});
+
+// Get inventory transactions
+app.get('/api/inventory-transactions', authenticateToken, async (req, res) => {
+  try {
+    const { productId, transactionType, startDate, endDate, page = 1, limit = 50 } = req.query;
+    
+    const filter = {};
+    if (productId) filter.productId = productId;
+    if (transactionType) filter.transactionType = transactionType;
+    if (startDate || endDate) {
+      filter.transactionDate = {};
+      if (startDate) filter.transactionDate.$gte = new Date(startDate);
+      if (endDate) filter.transactionDate.$lte = new Date(endDate);
+    }
+
+    const transactions = await InventoryTransaction.find(filter)
+      .populate('productId', 'name sku category')
+      .sort({ transactionDate: -1 })
+      .limit(limit * 1)
+      .skip((page - 1) * limit);
+
+    const total = await InventoryTransaction.countDocuments(filter);
+
+    res.json({
+      success: true,
+      data: transactions,
+      pagination: {
+        current: parseInt(page),
+        pages: Math.ceil(total / limit),
+        total
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching inventory transactions:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch inventory transactions'
     });
   }
 });

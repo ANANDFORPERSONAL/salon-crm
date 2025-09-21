@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Plus, Search, MoreHorizontal, Edit, Trash2, Package, Download, FileText, FileSpreadsheet, ChevronDown } from "lucide-react"
 import { ProductsAPI } from "@/lib/api"
 import { ProductForm } from "@/components/products/product-form"
+import { InventoryLogs } from "@/components/products/inventory-logs"
 import { useAuth } from "@/lib/auth-context"
 import { useCurrency } from "@/hooks/use-currency"
 import { useToast } from "@/hooks/use-toast"
@@ -276,6 +277,8 @@ export function ProductsTable() {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+          
+          <InventoryLogs />
           
           {canManageProducts && (
             <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
