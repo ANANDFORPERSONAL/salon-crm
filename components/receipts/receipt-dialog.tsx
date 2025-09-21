@@ -7,10 +7,11 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Printer, Download, Mail, Edit, Save, X } from "lucide-react"
+import { Printer, Download, Mail, Edit, Save, X, Thermometer } from "lucide-react"
 import type { Receipt } from "@/lib/data"
 import { ReceiptPreview } from "./receipt-preview"
 import { ReceiptGenerator } from "./receipt-generator"
+import { ThermalReceiptGenerator } from "./thermal-receipt-generator"
 import { useToast } from "@/hooks/use-toast"
 import { SettingsAPI } from "@/lib/api"
 import { useCurrency } from "@/hooks/use-currency"
@@ -76,6 +77,11 @@ export function ReceiptDialog({ receipt, open, onOpenChange, onReceiptUpdate }: 
     businessSettings 
   })
 
+  const { printThermalReceipt } = ThermalReceiptGenerator({ 
+    receipt: editedReceipt || receipt,
+    businessSettings 
+  })
+
   const handleEdit = () => {
     setEditedReceipt({ ...receipt })
     setIsEditing(true)
@@ -120,6 +126,10 @@ export function ReceiptDialog({ receipt, open, onOpenChange, onReceiptUpdate }: 
                   <Button variant="outline" size="sm" onClick={printReceipt}>
                     <Printer className="h-4 w-4 mr-2" />
                     Print
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={printThermalReceipt} className="bg-orange-50 border-orange-200 text-orange-700 hover:bg-orange-100">
+                    <Thermometer className="h-4 w-4 mr-2" />
+                    Thermal
                   </Button>
                   <Button variant="outline" size="sm" onClick={downloadReceipt}>
                     <Download className="h-4 w-4 mr-2" />

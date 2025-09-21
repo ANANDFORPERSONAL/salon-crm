@@ -4,10 +4,11 @@ import { useEffect, useState } from "react"
 import { useParams, useSearchParams } from "next/navigation"
 import { ReceiptPreview } from "@/components/receipts/receipt-preview"
 import { Button } from "@/components/ui/button"
-import { Printer, Download, ArrowLeft } from "lucide-react"
+import { Printer, Download, ArrowLeft, Thermometer } from "lucide-react"
 import Link from "next/link"
 import { SettingsAPI } from "@/lib/api"
 import { SalesAPI } from "@/lib/api"
+import { ThermalReceiptGenerator } from "@/components/receipts/thermal-receipt-generator"
 
 interface ReceiptData {
   id: string
@@ -199,6 +200,53 @@ export default function ReceiptPage() {
     alert('PDF download functionality coming soon!')
   }
 
+  const handleThermalPrint = () => {
+    if (!receipt || !businessSettings) return
+    
+    // Convert receipt data to the format expected by ThermalReceiptGenerator
+    const receiptForThermal = {
+      id: receipt.id,
+      receiptNumber: receipt.billNo,
+      clientId: receipt.id,
+      clientName: receipt.customerName,
+      clientPhone: receipt.customerPhone,
+      date: receipt.date,
+      time: receipt.time,
+      items: receipt.items.map(item => ({
+        id: Math.random().toString(),
+        name: item.name,
+        type: item.type as "service" | "product",
+        quantity: item.quantity,
+        price: item.price,
+        total: item.total,
+        discount: 0,
+        discountType: "percentage" as const,
+        staffId: "",
+        staffName: item.staffName || ""
+      })),
+      subtotal: receipt.netTotal,
+      tip: 0,
+      discount: 0,
+      tax: receipt.taxAmount,
+      roundOff: 0,
+      total: receipt.grossTotal,
+      payments: receipt.payments.map(payment => ({
+        type: payment.type as "cash" | "card" | "online",
+        amount: payment.amount
+      })),
+      staffId: "",
+      staffName: receipt.staffName,
+      notes: ""
+    }
+
+    const { printThermalReceipt } = ThermalReceiptGenerator({ 
+      receipt: receiptForThermal,
+      businessSettings 
+    })
+    
+    printThermalReceipt()
+  }
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -245,6 +293,10 @@ export default function ReceiptPage() {
             <Button onClick={handlePrint} variant="outline">
               <Printer className="h-4 w-4 mr-2" />
               Print
+            </Button>
+            <Button onClick={handleThermalPrint} variant="outline" className="bg-orange-50 border-orange-200 text-orange-700 hover:bg-orange-100">
+              <Thermometer className="h-4 w-4 mr-2" />
+              Thermal Print
             </Button>
             <Button onClick={handleDownload} variant="outline">
               <Download className="h-4 w-4 mr-2" />
