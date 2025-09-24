@@ -35,6 +35,11 @@ interface ReceiptData {
   }>
   staffName: string
   status: string
+  taxBreakdown?: {
+    serviceTax: number
+    serviceRate: number
+    productTaxByRate: { [rate: string]: number }
+  }
 }
 
 export default function ReceiptPage() {
@@ -79,11 +84,58 @@ export default function ReceiptPage() {
           return
         }
 
-        // Try to fetch sale data from the API using bill number
+        // First, try to use data from query parameters (has correct taxBreakdown)
+        try {
+          const dataParam = searchParams.get('data')
+          if (dataParam) {
+            console.log('🔄 Using query parameter data (has correct taxBreakdown)...')
+            const frontendData = JSON.parse(decodeURIComponent(dataParam))
+            console.log('📋 Frontend data:', frontendData)
+            console.log('📋 Frontend taxBreakdown:', frontendData.taxBreakdown)
+            console.log('📋 Frontend payments:', frontendData.payments)
+            
+            // Transform frontend data to receipt format
+            const receiptData: ReceiptData = {
+              id: frontendData.id,
+              billNo: frontendData.receiptNumber,
+              customerName: frontendData.clientName,
+              customerPhone: frontendData.clientPhone || 'N/A',
+              date: frontendData.date,
+              time: frontendData.time,
+              items: frontendData.items.map((item: any) => ({
+                name: item.name,
+                type: item.type,
+                quantity: item.quantity,
+                price: item.price,
+                total: item.total,
+                staffName: item.staffName || frontendData.staffName
+              })),
+              netTotal: frontendData.subtotal,
+              taxAmount: frontendData.tax,
+              grossTotal: frontendData.total,
+              paymentMode: frontendData.payments?.[0]?.type || 'Cash',
+              payments: frontendData.payments || [{ type: 'Cash', amount: frontendData.total }],
+              staffName: frontendData.staffName,
+              status: 'completed',
+              // Include taxBreakdown for correct tax display
+              taxBreakdown: frontendData.taxBreakdown
+            }
+            
+            console.log('🔍 Frontend receipt data:', receiptData)
+            console.log('🔍 Frontend taxBreakdown:', receiptData.taxBreakdown)
+            setReceipt(receiptData)
+            console.log('✅ Receipt loaded from frontend data with correct taxBreakdown')
+            return
+          }
+        } catch (frontendError) {
+          console.error('❌ Frontend data parsing failed:', frontendError)
+        }
+
+        // Fallback: Try to fetch sale data from the API using bill number
         try {
           const response = await SalesAPI.getByBillNo(billNo)
           if (response.success && response.data) {
-            console.log('✅ Sale data found:', response.data)
+            console.log('✅ Sale data found from API:', response.data)
             
             // Transform sale data to receipt format
             const saleData = response.data
@@ -123,7 +175,7 @@ export default function ReceiptPage() {
               status: saleData.status
             }
             
-            console.log('🔍 Final receipt data:', receiptData)
+            console.log('🔍 Final receipt data from API:', receiptData)
             console.log('🔍 Payments array:', receiptData.payments)
             setReceipt(receiptData)
           } else {
@@ -132,52 +184,6 @@ export default function ReceiptPage() {
           }
         } catch (apiError) {
           console.error('❌ API error:', apiError)
-          
-          // Fallback: Try to use data from query parameters
-          try {
-            const dataParam = searchParams.get('data')
-            if (dataParam) {
-              console.log('🔄 Falling back to query parameter data...')
-              const fallbackData = JSON.parse(decodeURIComponent(dataParam))
-              console.log('📋 Fallback data:', fallbackData)
-              console.log('📋 Fallback payments:', fallbackData.payments)
-              console.log('📋 Fallback payment types:', fallbackData.payments?.map((p: any) => p.type))
-              
-              // Transform fallback data to receipt format
-              const receiptData: ReceiptData = {
-                id: fallbackData.id,
-                billNo: fallbackData.receiptNumber,
-                customerName: fallbackData.clientName,
-                customerPhone: fallbackData.clientPhone || 'N/A',
-                date: fallbackData.date,
-                time: fallbackData.time,
-                items: fallbackData.items.map((item: any) => ({
-                  name: item.name,
-                  type: item.type,
-                  quantity: item.quantity,
-                  price: item.price,
-                  total: item.total,
-                  staffName: item.staffName || fallbackData.staffName
-                })),
-                netTotal: fallbackData.subtotal,
-                taxAmount: fallbackData.tax,
-                grossTotal: fallbackData.total,
-                paymentMode: fallbackData.payments?.[0]?.type || 'Cash',
-                payments: fallbackData.payments || [{ type: 'Cash', amount: fallbackData.total }],
-                staffName: fallbackData.staffName,
-                status: 'completed'
-              }
-              
-              console.log('🔍 Fallback receipt data:', receiptData)
-              console.log('🔍 Fallback payments array:', receiptData.payments)
-              setReceipt(receiptData)
-              console.log('✅ Receipt loaded from fallback data')
-              return
-            }
-          } catch (fallbackError) {
-            console.error('❌ Fallback data parsing failed:', fallbackError)
-          }
-          
           setError('Failed to load receipt data')
         }
       } catch (err) {
@@ -347,7 +353,8 @@ export default function ReceiptPage() {
               })) || [],
               staffId: receipt.id,
               staffName: receipt.staffName,
-              notes: ''
+              notes: '',
+              taxBreakdown: receipt.taxBreakdown
             }} 
             businessSettings={businessSettings} 
           />

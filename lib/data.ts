@@ -84,6 +84,11 @@ export interface Receipt {
   staffId: string
   staffName: string
   notes?: string
+  taxBreakdown?: {
+    serviceTax: number
+    serviceRate: number
+    productTaxByRate: { [rate: string]: number }
+  }
 }
 
 export interface ReceiptItem {

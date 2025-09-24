@@ -120,61 +120,78 @@ export function ReceiptPreview({ receipt, businessSettings }: ReceiptPreviewProp
           )}
           {receipt.tax > 0 && (
             <>
-              <div className="flex justify-between font-semibold">
-                <span>Tax (GST):</span>
-                <span>{formatAmount(receipt.tax)}</span>
-              </div>
               {(() => {
-                // Calculate service and product tax separately from receipt items
-                const serviceTax = receipt.items
-                  .filter(item => item.type === 'service')
-                  .reduce((sum, item) => {
-                    const itemTax = (item.price * item.quantity) * 0.05 // 5% service tax
-                    return sum + itemTax
-                  }, 0)
-                
-                const productTax = receipt.items
-                  .filter(item => item.type === 'product')
-                  .reduce((sum, item) => {
-                    const itemTax = (item.price * item.quantity) * 0.18 // 18% product tax (assuming standard)
-                    return sum + itemTax
-                  }, 0)
+                // Calculate correct total tax from taxBreakdown if available
+                let correctTotalTax = receipt.tax
+                if (receipt.taxBreakdown) {
+                  const serviceTax = receipt.taxBreakdown.serviceTax || 0
+                  const productTaxTotal = Object.values(receipt.taxBreakdown.productTaxByRate || {}).reduce((sum, amount) => sum + amount, 0)
+                  correctTotalTax = serviceTax + productTaxTotal
+                }
                 
                 return (
-                  <div className="space-y-1">
-                    {serviceTax > 0 && (
-                      <div className="ml-2 space-y-1">
-                        <div className="flex justify-between text-xs">
-                          <span>Service Tax (5%):</span>
-                          <span>{formatAmount(serviceTax)}</span>
-                        </div>
-                        <div className="flex justify-between text-xs ml-2">
-                          <span>CGST (2.5%):</span>
-                          <span>{formatAmount(serviceTax / 2)}</span>
-                        </div>
-                        <div className="flex justify-between text-xs ml-2">
-                          <span>SGST (2.5%):</span>
-                          <span>{formatAmount(serviceTax / 2)}</span>
-                        </div>
+                  <>
+                    <div className="flex justify-between font-semibold">
+                      <span>Tax (GST):</span>
+                      <span>{formatAmount(correctTotalTax)}</span>
+                    </div>
+                    {receipt.taxBreakdown ? (
+                      <div className="space-y-1">
+                        {/* Service Tax breakdown */}
+                        {receipt.taxBreakdown.serviceTax > 0 && (
+                          <div className="ml-2 space-y-1">
+                            <div className="flex justify-between text-xs">
+                              <span>Service Tax ({receipt.taxBreakdown.serviceRate}%):</span>
+                              <span>{formatAmount(receipt.taxBreakdown.serviceTax)}</span>
+                            </div>
+                            <div className="flex justify-between text-xs ml-2">
+                              <span>CGST ({receipt.taxBreakdown.serviceRate / 2}%):</span>
+                              <span>{formatAmount(receipt.taxBreakdown.serviceTax / 2)}</span>
+                            </div>
+                            <div className="flex justify-between text-xs ml-2">
+                              <span>SGST ({receipt.taxBreakdown.serviceRate / 2}%):</span>
+                              <span>{formatAmount(receipt.taxBreakdown.serviceTax / 2)}</span>
+                            </div>
+                          </div>
+                        )}
+                        
+                        {/* Product Tax breakdown by rate */}
+                        {receipt.taxBreakdown.productTaxByRate && Object.entries(receipt.taxBreakdown.productTaxByRate).map(([rate, amount]) => {
+                          if (amount > 0) {
+                            return (
+                              <div key={rate} className="ml-2 space-y-1">
+                                <div className="flex justify-between text-xs">
+                                  <span>Product Tax ({rate}%):</span>
+                                  <span>{formatAmount(amount)}</span>
+                                </div>
+                                <div className="flex justify-between text-xs ml-2">
+                                  <span>CGST ({parseFloat(rate) / 2}%):</span>
+                                  <span>{formatAmount(amount / 2)}</span>
+                                </div>
+                                <div className="flex justify-between text-xs ml-2">
+                                  <span>SGST ({parseFloat(rate) / 2}%):</span>
+                                  <span>{formatAmount(amount / 2)}</span>
+                                </div>
+                              </div>
+                            )
+                          }
+                          return null
+                        })}
                       </div>
-                    )}
-                    {productTax > 0 && (
-                      <div className="ml-2 space-y-1">
-                        <div className="flex justify-between text-xs">
-                          <span>Product Tax (18%):</span>
-                          <span>{formatAmount(productTax)}</span>
-                        </div>
+                    ) : (
+                      // Fallback to simple breakdown if taxBreakdown is not available
+                      <div className="space-y-1">
                         <div className="flex justify-between text-xs ml-2">
                           <span>CGST (9%):</span>
-                          <span>{formatAmount(productTax / 2)}</span>
+                          <span>{formatAmount(receipt.tax / 2)}</span>
                         </div>
                         <div className="flex justify-between text-xs ml-2">
                           <span>SGST (9%):</span>
-                          <span>{formatAmount(productTax / 2)}</span>
+                          <span>{formatAmount(receipt.tax / 2)}</span>
                         </div>
                       </div>
                     )}
-                  </div>
+                  </>
                 )
               })()}
             </>
@@ -193,7 +210,17 @@ export function ReceiptPreview({ receipt, businessSettings }: ReceiptPreviewProp
           )}
           <div className="flex justify-between font-bold text-base border-t border-black pt-2 mt-2">
             <span>TOTAL:</span>
-            <span>{formatAmount(receipt.total)}</span>
+            <span>{formatAmount((() => {
+              // Calculate correct total using correct tax amount
+              if (receipt.taxBreakdown) {
+                const serviceTax = receipt.taxBreakdown.serviceTax || 0
+                const productTaxTotal = Object.values(receipt.taxBreakdown.productTaxByRate || {}).reduce((sum, amount) => sum + amount, 0)
+                const correctTaxAmount = serviceTax + productTaxTotal
+                const preRoundTotal = receipt.subtotal - receipt.discount + correctTaxAmount + receipt.tip
+                return Math.round(preRoundTotal)
+              }
+              return receipt.total
+            })())}</span>
           </div>
         </div>
 

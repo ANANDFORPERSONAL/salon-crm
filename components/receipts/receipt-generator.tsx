@@ -29,6 +29,30 @@ export function ReceiptGenerator({ receipt, businessSettings }: ReceiptGenerator
       `
     }
 
+    // Calculate correct tax amounts outside template literal
+    const calculateCorrectTaxAmount = () => {
+      if (receipt.taxBreakdown) {
+        const serviceTax = receipt.taxBreakdown.serviceTax || 0
+        const productTaxTotal = Object.values(receipt.taxBreakdown.productTaxByRate || {}).reduce((sum, amount) => sum + amount, 0)
+        return serviceTax + productTaxTotal
+      }
+      return receipt.tax
+    }
+
+    const calculateCorrectTotal = () => {
+      if (receipt.taxBreakdown) {
+        const serviceTax = receipt.taxBreakdown.serviceTax || 0
+        const productTaxTotal = Object.values(receipt.taxBreakdown.productTaxByRate || {}).reduce((sum, amount) => sum + amount, 0)
+        const correctTaxAmount = serviceTax + productTaxTotal
+        const preRoundTotal = receipt.subtotal - receipt.discount + correctTaxAmount + receipt.tip
+        return Math.round(preRoundTotal)
+      }
+      return receipt.total
+    }
+
+    const correctTaxAmount = calculateCorrectTaxAmount()
+    const correctTotal = calculateCorrectTotal()
+
     return `
       <!DOCTYPE html>
       <html>
@@ -184,61 +208,60 @@ export function ReceiptGenerator({ receipt, businessSettings }: ReceiptGenerator
               ? `
             <div class="total-line">
               <span>Tax (GST):</span>
-              <span>${formatCurrency(receipt.tax, businessSettings)}</span>
+              <span>${formatCurrency(correctTaxAmount, businessSettings)}</span>
             </div>
             ${(() => {
-              // Calculate service and product tax separately from receipt items
-              const serviceTax = receipt.items
-                .filter(item => item.type === 'service')
-                .reduce((sum, item) => {
-                  const itemTax = (item.price * item.quantity) * 0.05 // 5% service tax
-                  return sum + itemTax
-                }, 0)
-              
-              const productTax = receipt.items
-                .filter(item => item.type === 'product')
-                .reduce((sum, item) => {
-                  const itemTax = (item.price * item.quantity) * 0.18 // 18% product tax (assuming standard)
-                  return sum + itemTax
-                }, 0)
-              
-              let breakdown = ''
-              
-              if (serviceTax > 0) {
-                breakdown += `
-                <div class="total-line" style="margin-left: 10px; font-size: 11px;">
-                  <span>Service Tax (5%):</span>
-                  <span>${formatCurrency(serviceTax, businessSettings)}</span>
-                </div>
-                <div class="total-line" style="margin-left: 20px; font-size: 10px;">
-                  <span>CGST (2.5%):</span>
-                  <span>${formatCurrency(serviceTax / 2, businessSettings)}</span>
-                </div>
-                <div class="total-line" style="margin-left: 20px; font-size: 10px;">
-                  <span>SGST (2.5%):</span>
-                  <span>${formatCurrency(serviceTax / 2, businessSettings)}</span>
-                </div>
-                `
+              // Use the tax breakdown from the receipt object if available
+              if (receipt.taxBreakdown) {
+                let breakdown = ''
+                
+                // Service Tax breakdown
+                if (receipt.taxBreakdown.serviceTax > 0) {
+                  const serviceTax = receipt.taxBreakdown.serviceTax
+                  const serviceRate = receipt.taxBreakdown.serviceRate || 5
+                  breakdown += `
+                  <div class="total-line" style="margin-left: 10px; font-size: 11px;">
+                    <span>Service Tax (${serviceRate}%):</span>
+                    <span>${formatCurrency(serviceTax, businessSettings)}</span>
+                  </div>
+                  <div class="total-line" style="margin-left: 20px; font-size: 10px;">
+                    <span>CGST (${serviceRate / 2}%):</span>
+                    <span>${formatCurrency(serviceTax / 2, businessSettings)}</span>
+                  </div>
+                  <div class="total-line" style="margin-left: 20px; font-size: 10px;">
+                    <span>SGST (${serviceRate / 2}%):</span>
+                    <span>${formatCurrency(serviceTax / 2, businessSettings)}</span>
+                  </div>
+                  `
+                }
+                
+                // Product Tax breakdown by rate
+                if (receipt.taxBreakdown.productTaxByRate) {
+                  Object.entries(receipt.taxBreakdown.productTaxByRate).forEach(([rate, amount]) => {
+                    if (amount > 0) {
+                      breakdown += `
+                      <div class="total-line" style="margin-left: 10px; font-size: 11px;">
+                        <span>Product Tax (${rate}%):</span>
+                        <span>${formatCurrency(amount, businessSettings)}</span>
+                      </div>
+                      <div class="total-line" style="margin-left: 20px; font-size: 10px;">
+                        <span>CGST (${parseFloat(rate) / 2}%):</span>
+                        <span>${formatCurrency(amount / 2, businessSettings)}</span>
+                      </div>
+                      <div class="total-line" style="margin-left: 20px; font-size: 10px;">
+                        <span>SGST (${parseFloat(rate) / 2}%):</span>
+                        <span>${formatCurrency(amount / 2, businessSettings)}</span>
+                      </div>
+                      `
+                    }
+                  })
+                }
+                
+                return breakdown
               }
               
-              if (productTax > 0) {
-                breakdown += `
-                <div class="total-line" style="margin-left: 10px; font-size: 11px;">
-                  <span>Product Tax (18%):</span>
-                  <span>${formatCurrency(productTax, businessSettings)}</span>
-                </div>
-                <div class="total-line" style="margin-left: 20px; font-size: 10px;">
-                  <span>CGST (9%):</span>
-                  <span>${formatCurrency(productTax / 2, businessSettings)}</span>
-                </div>
-                <div class="total-line" style="margin-left: 20px; font-size: 10px;">
-                  <span>SGST (9%):</span>
-                  <span>${formatCurrency(productTax / 2, businessSettings)}</span>
-                </div>
-                `
-              }
-              
-              return breakdown || `
+              // Fallback to simple breakdown if taxBreakdown is not available
+              return `
               <div class="total-line" style="margin-left: 10px; font-size: 11px;">
                 <span>CGST (${(businessSettings.taxRate || 18) / 2}%):</span>
                 <span>${formatCurrency(receipt.tax / 2, businessSettings)}</span>
@@ -274,7 +297,7 @@ export function ReceiptGenerator({ receipt, businessSettings }: ReceiptGenerator
           }
           <div class="total-line grand-total">
             <span>TOTAL:</span>
-            <span>${formatCurrency(receipt.total, businessSettings)}</span>
+            <span>${formatCurrency(correctTotal, businessSettings)}</span>
           </div>
         </div>
 

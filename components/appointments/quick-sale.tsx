@@ -22,6 +22,7 @@ import {
   CalendarDays,
   FileText,
   Minus,
+  Pencil,
 } from "lucide-react"
 import { Calendar as DatePicker } from "@/components/ui/calendar"
 import { Button } from "@/components/ui/button"
@@ -205,6 +206,8 @@ export function QuickSale() {
   const [selectedBill, setSelectedBill] = useState<any>(null)
   const [confirmUnpaid, setConfirmUnpaid] = useState(false)
   const [showPaymentModal, setShowPaymentModal] = useState(false)
+  const [showTipModal, setShowTipModal] = useState(false)
+  const [tempTipAmount, setTempTipAmount] = useState(0)
 
   // State for services and products from API
   const [services, setServices] = useState<any[]>([])
@@ -1144,11 +1147,58 @@ export function QuickSale() {
         calculatedTax = taxResult.summary.totalTaxAmount
         const preRoundTotal = subtotal - totalDiscount + calculatedTax + tip
         calculatedTotal = Math.round(preRoundTotal)
+        
+        // Calculate detailed tax breakdown for receipt
+        const serviceTax = serviceItems.reduce((sum, item) => {
+          const service = services.find(s => (s._id || s.id) === item.serviceId)
+          const itemTax = taxCalculator ? taxCalculator.calculateItemTax({
+            id: item.id,
+            name: service?.name || 'Unknown Service',
+            type: 'service',
+            price: item.price,
+            quantity: item.quantity
+          }).taxAmount : 0
+          return sum + itemTax
+        }, 0)
+        
+        // Group product taxes by their actual tax rates
+        const productTaxByRate = productItems.reduce((acc, item) => {
+          const product = products.find(p => (p._id || p.id) === item.productId)
+          let taxRate = '18' // default
+          if (product?.taxCategory && taxSettings) {
+            switch (product.taxCategory) {
+              case 'essential': taxRate = taxSettings.essentialProductRate?.toString() || '5'; break
+              case 'intermediate': taxRate = taxSettings.intermediateProductRate?.toString() || '12'; break
+              case 'standard': taxRate = taxSettings.standardProductRate?.toString() || '18'; break
+              case 'luxury': taxRate = taxSettings.luxuryProductRate?.toString() || '28'; break
+              case 'exempt': taxRate = taxSettings.exemptProductRate?.toString() || '0'; break
+            }
+          }
+          
+          const itemTax = taxCalculator ? taxCalculator.calculateItemTax({
+            id: item.id,
+            name: product?.name || 'Unknown Product',
+            type: 'product',
+            price: item.price,
+            quantity: item.quantity,
+            taxCategory: product?.taxCategory || 'standard'
+          }).taxAmount : 0
+          
+          if (!acc[taxRate]) {
+            acc[taxRate] = 0
+          }
+          acc[taxRate] += itemTax
+          return acc
+        }, {} as { [rate: string]: number })
+        
         taxBreakdown = {
           cgst: taxResult.summary.totalCGST,
           sgst: taxResult.summary.totalSGST,
-          igst: taxResult.summary.totalIGST
-        }
+          igst: taxResult.summary.totalIGST,
+          serviceTax: serviceTax,
+          serviceRate: taxSettings?.serviceTaxRate || 5,
+          productTaxByRate: productTaxByRate
+        } as any
       } else {
         // Fallback to simple tax calculation if tax calculator not available
         const taxRate = paymentSettings?.enableTax ? (paymentSettings?.taxRate || 8.25) / 100 : 0
@@ -1427,6 +1477,28 @@ export function QuickSale() {
     setOnlineAmount(0)
     setRemarks("")
     setConfirmUnpaid(false)
+    setShowTipModal(false)
+    setTempTipAmount(0)
+  }
+
+  // Tip modal handlers
+  const handleTipClick = () => {
+    setTempTipAmount(tip)
+    setShowTipModal(true)
+  }
+
+  const handleTipCancel = () => {
+    setShowTipModal(false)
+    setTempTipAmount(0)
+  }
+
+  const handleTipOk = () => {
+    if (tempTipAmount > 0) {
+      setTip(tempTipAmount)
+    } else {
+      setTip(0)
+    }
+    setShowTipModal(false)
   }
 
   // Quick cash amounts
@@ -2039,9 +2111,9 @@ export function QuickSale() {
   }
 
   return (
-    <div className="flex h-full bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+    <div className="flex h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       {/* Main Content */}
-      <div className="flex-1 overflow-auto bg-white/80 backdrop-blur-sm">
+      <div className="flex-1 overflow-y-auto bg-white/80 backdrop-blur-sm">
         <div className="p-8 space-y-8">
           {/* Header */}
           <div className="flex items-center justify-between">
@@ -2585,227 +2657,252 @@ export function QuickSale() {
       </div>
 
       {/* Billing Summary Sidebar */}
-      <div className="w-80 bg-gradient-to-b from-white to-gray-50 border-l border-gray-200 p-6 space-y-6 shadow-xl h-screen overflow-hidden flex flex-col">
-        <div className="space-y-2 flex-shrink-0">
-          <h3 className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-            Billing Summary
-          </h3>
-          <p className="text-sm text-muted-foreground">Review and complete the sale</p>
+      <div className="w-80 bg-white border-l border-gray-200 shadow-lg h-screen flex flex-col">
+        {/* Header */}
+        <div className="p-3 border-b border-gray-100 bg-gradient-to-r from-indigo-50 to-purple-50 flex-shrink-0">
+          <h3 className="text-lg font-bold text-gray-800">Billing Summary</h3>
+          <p className="text-xs text-gray-600 mt-1">Review and complete the sale</p>
         </div>
 
-        <div className="space-y-3 p-3 bg-white rounded-xl border border-gray-200/50 shadow-sm flex-shrink-0">
-          <div className="flex justify-between items-center py-1.5">
-            <span className="text-sm text-gray-600">Sub Total:</span>
-            <span className="font-semibold text-gray-800">{formatCurrency(subtotal)}</span>
-          </div>
-          {totalDiscount > 0 && (
-            <div className="flex justify-between items-center py-1.5">
-              <span className="text-sm text-gray-600">Discount:</span>
-              <span className="font-semibold text-red-600">-{formatCurrency(totalDiscount)}</span>
-            </div>
-          )}
-          {taxAmount > 0 && (
-            <div className="space-y-1">
-              <div className="flex justify-between items-center py-1.5">
-                <span className="text-sm text-gray-600">Tax (GST):</span>
-                <span className="font-semibold text-gray-800">{formatCurrency(taxAmount)}</span>
+        {/* Content - Fixed Height */}
+        <div className="flex-1 flex flex-col min-h-0">
+          <div className="p-3 space-y-2 flex-1 min-h-0">
+            {/* Order Summary - Compact */}
+            <div className="bg-gray-50 rounded-lg p-2 space-y-0.5">
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-600">Sub Total</span>
+                <span className="font-medium text-gray-800">{formatCurrency(subtotal)}</span>
               </div>
-              {(() => {
-                // Calculate service and product tax separately
-                const serviceTax = serviceItems.reduce((sum, item) => {
-                  const service = services.find(s => (s._id || s.id) === item.serviceId)
-                  const itemTax = taxCalculator ? taxCalculator.calculateItemTax({
-                    id: item.id,
-                    name: service?.name || 'Unknown Service',
-                    type: 'service',
-                    price: item.price,
-                    quantity: item.quantity
-                  }).taxAmount : 0
-                  return sum + itemTax
-                }, 0)
-                
-                // Group product taxes by their actual tax rates
-                const productTaxByRate = productItems.reduce((acc, item) => {
-                  const product = products.find(p => (p._id || p.id) === item.productId)
-                  const taxCategory = product?.taxCategory || 'standard'
-                  
-                  // Get the tax rate for this category
-                  let taxRate = 0
-                  if (taxSettings) {
-                    switch (taxCategory) {
-                      case 'essential': taxRate = taxSettings.essentialProductRate; break
-                      case 'intermediate': taxRate = taxSettings.intermediateProductRate; break
-                      case 'standard': taxRate = taxSettings.standardProductRate; break
-                      case 'luxury': taxRate = taxSettings.luxuryProductRate; break
-                      case 'exempt': taxRate = taxSettings.exemptProductRate; break
-                    }
-                  }
-                  
-                  const itemTax = taxCalculator ? taxCalculator.calculateItemTax({
-                    id: item.id,
-                    name: product?.name || 'Unknown Product',
-                    type: 'product',
-                    price: item.price,
-                    quantity: item.quantity,
-                    taxCategory: taxCategory
-                  }).taxAmount : 0
-                  
-                  if (!acc[taxRate]) {
-                    acc[taxRate] = 0
-                  }
-                  acc[taxRate] += itemTax
-                  
-                  return acc
-                }, {} as Record<number, number>)
-                
-                return (
-                  <div className="space-y-1">
-                    {serviceTax > 0 && (
-                      <div className="flex justify-between items-center py-0.5 ml-2">
-                        <span className="text-xs text-gray-500">Service Tax (5%):</span>
-                        <span className="text-xs text-gray-600">{formatCurrency(serviceTax)}</span>
-                      </div>
-                    )}
-                    {Object.entries(productTaxByRate).map(([rate, amount]) => 
-                      amount > 0 && (
-                        <div key={rate} className="flex justify-between items-center py-0.5 ml-2">
-                          <span className="text-xs text-gray-500">Product Tax ({rate}%):</span>
-                          <span className="text-xs text-gray-600">{formatCurrency(amount)}</span>
-                        </div>
-                      )
-                    )}
+              
+              {totalDiscount > 0 && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Discount</span>
+                  <span className="font-medium text-red-600">-{formatCurrency(totalDiscount)}</span>
+                </div>
+              )}
+              
+              {taxAmount > 0 && (
+                <div className="space-y-0.5">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">Tax (GST)</span>
+                    <span className="font-medium text-gray-800">{formatCurrency(taxAmount)}</span>
                   </div>
-                )
-              })()}
-            </div>
-          )}
-          {Math.abs(roundOff) > 0.01 && (
-            <div className="flex justify-between items-center py-1">
-              <span className="text-sm text-gray-600">Round Off:</span>
-              <span className="text-sm font-medium text-gray-700">{formatCurrency(roundOff)}</span>
-            </div>
-          )}
-          <div className="flex justify-between items-center py-2 border-t border-gray-100 pt-2">
-            <span className="text-base font-semibold text-gray-800">Grand Total:</span>
-            <span className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">{formatCurrency(roundedTotal)}</span>
-          </div>
-          
-          <div className="space-y-2 pt-1">
-            <Label htmlFor="tip" className="text-xs font-medium text-gray-700">Add Tip</Label>
-            <Input
-              id="tip"
-              type="number"
-              value={tip}
-              onChange={(e) => setTip(Number(e.target.value))}
-              placeholder="0"
-              className="h-8 text-sm border-gray-200 focus:border-indigo-500 focus:ring-indigo-500/20"
-            />
-          </div>
-          
-          <div className="flex justify-between items-center py-2 bg-gradient-to-r from-emerald-50 to-green-50 rounded-lg px-3 border border-emerald-200">
-            <span className="text-sm font-semibold text-emerald-800">Change</span>
-            <span className="text-lg font-bold text-emerald-600">{formatCurrency(change)}</span>
-          </div>
-        </div>
-
-        <div className="space-y-2 flex-shrink-0">
-          <Label className="text-xs font-medium text-gray-700">Remarks</Label>
-          <Textarea
-            value={remarks}
-            onChange={(e) => setRemarks(e.target.value)}
-            placeholder="Add remarks..."
-            className="h-16 text-sm border-gray-200 focus:border-indigo-500 focus:ring-indigo-500/20 resize-none"
-          />
-        </div>
-
-        <Separator className="bg-gray-200 flex-shrink-0" />
-
-        <div className="space-y-4 flex-1 min-h-0">
-          <div className="flex justify-between items-center text-lg font-bold flex-shrink-0">
-            <span className="text-gray-800">Payable Amount</span>
-            <span className="text-xl bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">{formatCurrency(roundedTotal)}</span>
-          </div>
-
-          {/* Payment Methods */}
-          <div className="space-y-3 flex-shrink-0">
-            <h4 className="text-sm font-semibold text-gray-700">Payment Methods</h4>
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 p-2 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200">
-                <div className="p-1.5 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg shadow-sm">
-                  <Banknote className="h-3.5 w-3.5 text-white" />
-                </div>
-                <span className="flex-1 text-sm font-medium text-green-800">Cash</span>
-                <Input
-                  type="number"
-                  value={cashAmount}
-                  onChange={(e) => setCashAmount(Number(e.target.value))}
-                  className="w-20 h-7 text-sm border-green-200 focus:border-green-500 focus:ring-green-500/20 bg-white/80"
-                  placeholder="0"
-                />
-              </div>
-
-              <div className="flex items-center gap-2 p-2 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
-                <div className="p-1.5 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg shadow-sm">
-                  <CreditCard className="h-3.5 w-3.5 text-white" />
-                </div>
-                <span className="flex-1 text-sm font-medium text-blue-800">Card</span>
-                <Input
-                  type="number"
-                  value={cardAmount}
-                  onChange={(e) => setCardAmount(Number(e.target.value))}
-                  className="w-20 h-7 text-sm border-blue-200 focus:border-blue-500 focus:ring-blue-500/20 bg-white/80"
-                  placeholder="0"
-                />
-              </div>
-
-              <div className="flex items-center gap-2 p-2 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border border-purple-200">
-                <div className="p-1.5 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg shadow-sm">
-                  <Smartphone className="h-3.5 w-3.5 text-white" />
-                </div>
-                <span className="flex-1 text-sm font-medium text-purple-800">Online/PayTM</span>
-                <Input
-                  type="number"
-                  value={onlineAmount}
-                  onChange={(e) => setOnlineAmount(Number(e.target.value))}
-                  className="w-20 h-7 text-sm border-purple-200 focus:border-purple-500 focus:ring-purple-500/20 bg-white/80"
-                  placeholder="0"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Processing Fees */}
-          {paymentSettings?.enableProcessingFees && (cardAmount > 0 || onlineAmount > 0) && (
-            <div className="space-y-2 p-3 bg-gradient-to-r from-amber-50 to-orange-50 rounded-lg border border-amber-200 flex-shrink-0">
-              <div className="text-xs font-semibold text-amber-800">Processing Fees</div>
-              {cardAmount > 0 && (
-                <div className="flex justify-between text-xs">
-                  <span className="text-amber-700">Card Payment ({paymentSettings?.processingFee || 2.9}%):</span>
-                  <span className="font-semibold text-red-600">
-                    {formatCurrency((cardAmount * (paymentSettings?.processingFee || 2.9)) / 100)}
-                  </span>
+                  {(() => {
+                    // Calculate service and product tax separately
+                    const serviceTax = serviceItems.reduce((sum, item) => {
+                      const service = services.find(s => (s._id || s.id) === item.serviceId)
+                      const itemTax = taxCalculator ? taxCalculator.calculateItemTax({
+                        id: item.id,
+                        name: service?.name || 'Unknown Service',
+                        type: 'service',
+                        price: item.price,
+                        quantity: item.quantity
+                      }).taxAmount : 0
+                      return sum + itemTax
+                    }, 0)
+                    
+                    // Group product taxes by their actual tax rates
+                    const productTaxByRate = productItems.reduce((acc, item) => {
+                      const product = products.find(p => (p._id || p.id) === item.productId)
+                      const taxCategory = product?.taxCategory || 'standard'
+                      
+                      // Get the tax rate for this category
+                      let taxRate = 0
+                      if (taxSettings) {
+                        switch (taxCategory) {
+                          case 'essential': taxRate = taxSettings.essentialProductRate; break
+                          case 'intermediate': taxRate = taxSettings.intermediateProductRate; break
+                          case 'standard': taxRate = taxSettings.standardProductRate; break
+                          case 'luxury': taxRate = taxSettings.luxuryProductRate; break
+                          case 'exempt': taxRate = taxSettings.exemptProductRate; break
+                        }
+                      }
+                      
+                      const itemTax = taxCalculator ? taxCalculator.calculateItemTax({
+                        id: item.id,
+                        name: product?.name || 'Unknown Product',
+                        type: 'product',
+                        price: item.price,
+                        quantity: item.quantity,
+                        taxCategory: taxCategory
+                      }).taxAmount : 0
+                      
+                      if (!acc[taxRate]) {
+                        acc[taxRate] = 0
+                      }
+                      acc[taxRate] += itemTax
+                      
+                      return acc
+                    }, {} as Record<number, number>)
+                    
+                    return (
+                      <div className="space-y-0.5 ml-2">
+                        {serviceTax > 0 && (
+                          <div className="flex justify-between text-xs text-gray-500">
+                            <span>Service Tax (5%)</span>
+                            <span>{formatCurrency(serviceTax)}</span>
+                          </div>
+                        )}
+                        {Object.entries(productTaxByRate).map(([rate, amount]) => 
+                          amount > 0 && (
+                            <div key={rate} className="flex justify-between text-xs text-gray-500">
+                              <span>Product Tax ({rate}%)</span>
+                              <span>{formatCurrency(amount)}</span>
+                            </div>
+                          )
+                        )}
+                      </div>
+                    )
+                  })()}
                 </div>
               )}
-              {onlineAmount > 0 && (
-                <div className="flex justify-between text-xs">
-                  <span className="text-amber-700">Online Payment ({paymentSettings?.processingFee || 2.9}%):</span>
-                  <span className="font-semibold text-red-600">
-                    {formatCurrency((onlineAmount * (paymentSettings?.processingFee || 2.9)) / 100)}
-                  </span>
+              
+              {Math.abs(roundOff) > 0.01 && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Round Off</span>
+                  <span className="font-medium text-gray-700">{formatCurrency(roundOff)}</span>
+                </div>
+              )}
+              
+              <div className="border-t border-gray-200 pt-1">
+                <div className="flex justify-between text-base font-bold">
+                  <span className="text-gray-800">Grand Total</span>
+                  <span className="text-indigo-600">{formatCurrency(roundedTotal)}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Tip - Hyperlink Style */}
+            <div className="flex items-center justify-between">
+              <button
+                onClick={handleTipClick}
+                className="text-xs font-medium text-indigo-600 hover:text-indigo-800 hover:underline cursor-pointer transition-colors"
+              >
+                Add Tip
+              </button>
+              {tip > 0 && (
+                <div className="flex items-center gap-1">
+                  <span className="text-xs font-medium text-gray-700">{formatCurrency(tip)}</span>
+                  <button
+                    onClick={handleTipClick}
+                    className="p-0.5 hover:bg-gray-100 rounded transition-colors"
+                    title="Edit tip amount"
+                  >
+                    <Pencil className="h-3 w-3 text-gray-500 hover:text-gray-700" />
+                  </button>
                 </div>
               )}
             </div>
-          )}
 
-          <div className="flex justify-between items-center py-2 bg-gradient-to-r from-emerald-50 to-green-50 rounded-lg px-3 border border-emerald-200 flex-shrink-0">
-            <span className="text-sm font-semibold text-emerald-800">Total Paid:</span>
-            <span className="text-lg font-bold text-emerald-600">{formatCurrency(totalPaid)}</span>
+            {/* Change Display - Compact */}
+            <div className="bg-emerald-50 rounded-lg p-2 border border-emerald-200">
+              <div className="flex justify-between text-sm">
+                <span className="font-medium text-emerald-800">Change</span>
+                <span className="font-bold text-emerald-600">{formatCurrency(change)}</span>
+              </div>
+            </div>
+
+            {/* Remarks - Compact */}
+            <div className="space-y-1">
+              <Label className="text-xs font-medium text-gray-700">Remarks</Label>
+              <Textarea
+                value={remarks}
+                onChange={(e) => setRemarks(e.target.value)}
+                placeholder="Add remarks..."
+                className="h-8 text-sm resize-none"
+              />
+            </div>
+
+            {/* Payment Section - Compact */}
+            <div className="space-y-1">
+              <div className="flex justify-between items-center">
+                <span className="text-sm font-bold text-gray-800">Payable Amount</span>
+                <span className="text-lg font-bold text-indigo-600">{formatCurrency(roundedTotal)}</span>
+              </div>
+
+              {/* Payment Methods - Single Row */}
+              <div className="space-y-1">
+                <h4 className="text-xs font-semibold text-gray-700">Payment Methods</h4>
+                
+                <div className="grid grid-cols-3 gap-1">
+                  {/* Cash */}
+                  <div className="flex flex-col items-center gap-1 p-2 bg-green-50 rounded-lg border border-green-200">
+                    <Banknote className="h-4 w-4 text-green-600" />
+                    <span className="text-xs font-medium text-green-800">Cash</span>
+                    <Input
+                      type="number"
+                      value={cashAmount}
+                      onChange={(e) => setCashAmount(Number(e.target.value))}
+                      className="w-full h-6 text-xs border-green-200 text-center"
+                      placeholder="0"
+                    />
+                  </div>
+
+                  {/* Card */}
+                  <div className="flex flex-col items-center gap-1 p-2 bg-blue-50 rounded-lg border border-blue-200">
+                    <CreditCard className="h-4 w-4 text-blue-600" />
+                    <span className="text-xs font-medium text-blue-800">Card</span>
+                    <Input
+                      type="number"
+                      value={cardAmount}
+                      onChange={(e) => setCardAmount(Number(e.target.value))}
+                      className="w-full h-6 text-xs border-blue-200 text-center"
+                      placeholder="0"
+                    />
+                  </div>
+
+                  {/* Online */}
+                  <div className="flex flex-col items-center gap-1 p-2 bg-purple-50 rounded-lg border border-purple-200">
+                    <Smartphone className="h-4 w-4 text-purple-600" />
+                    <span className="text-xs font-medium text-purple-800">Online</span>
+                    <Input
+                      type="number"
+                      value={onlineAmount}
+                      onChange={(e) => setOnlineAmount(Number(e.target.value))}
+                      className="w-full h-6 text-xs border-purple-200 text-center"
+                      placeholder="0"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Processing Fees - Compact */}
+              {paymentSettings?.enableProcessingFees && (cardAmount > 0 || onlineAmount > 0) && (
+                <div className="p-1.5 bg-amber-50 rounded-lg border border-amber-200">
+                  <div className="text-xs font-semibold text-amber-800 mb-1">Processing Fees</div>
+                  {cardAmount > 0 && (
+                    <div className="flex justify-between text-xs text-amber-700">
+                      <span>Card ({paymentSettings?.processingFee || 2.9}%)</span>
+                      <span className="font-semibold text-red-600">
+                        {formatCurrency((cardAmount * (paymentSettings?.processingFee || 2.9)) / 100)}
+                      </span>
+                    </div>
+                  )}
+                  {onlineAmount > 0 && (
+                    <div className="flex justify-between text-xs text-amber-700">
+                      <span>Online ({paymentSettings?.processingFee || 2.9}%)</span>
+                      <span className="font-semibold text-red-600">
+                        {formatCurrency((onlineAmount * (paymentSettings?.processingFee || 2.9)) / 100)}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Total Paid - Compact */}
+              <div className="bg-emerald-50 rounded-lg p-2 border border-emerald-200">
+                <div className="flex justify-between text-sm">
+                  <span className="font-semibold text-emerald-800">Total Paid</span>
+                  <span className="font-bold text-emerald-600">{formatCurrency(totalPaid)}</span>
+                </div>
+              </div>
+            </div>
           </div>
+        </div>
 
-
-
-          {/* Action Buttons */}
-          <div className="flex gap-2 pt-2 flex-shrink-0">
+        {/* Action Buttons - Fixed at bottom */}
+        <div className="p-3 border-t border-gray-100 bg-gray-50 flex-shrink-0">
+          <div className="flex gap-2">
             <Button 
               onClick={() => {
                 if (roundedTotal > 0 && totalPaid < roundedTotal) {
@@ -2815,7 +2912,7 @@ export function QuickSale() {
                 }
               }} 
               disabled={isProcessing} 
-              className="flex-1 h-10 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+              className="flex-1 h-8 bg-indigo-600 hover:bg-indigo-700 text-white text-sm"
             >
               {isProcessing ? (
                 <>
@@ -2832,13 +2929,59 @@ export function QuickSale() {
             <Button 
               variant="outline" 
               onClick={resetForm} 
-              className="flex-1 h-10 bg-white hover:bg-gray-50 border-gray-200 hover:border-gray-300 text-gray-700 hover:text-gray-800 transition-all duration-200"
+              className="flex-1 h-8 text-sm"
             >
               Reset
             </Button>
           </div>
         </div>
       </div>
+      
+      {/* Tip Modal */}
+      <Dialog open={showTipModal} onOpenChange={setShowTipModal}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Pencil className="h-5 w-5 text-indigo-600" />
+              Add Tip
+            </DialogTitle>
+            <DialogDescription>
+              Enter the tip amount for this transaction
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="tip-amount" className="text-sm font-medium">
+                Tip Amount
+              </Label>
+              <Input
+                id="tip-amount"
+                type="number"
+                value={tempTipAmount}
+                onChange={(e) => setTempTipAmount(Number(e.target.value))}
+                placeholder="0"
+                className="text-lg"
+                autoFocus
+              />
+            </div>
+          </div>
+          <DialogFooter className="gap-2">
+            <Button
+              variant="outline"
+              onClick={handleTipCancel}
+              className="flex-1"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleTipOk}
+              className="flex-1 bg-indigo-600 hover:bg-indigo-700"
+            >
+              OK
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       
       {/* New Customer Modal */}
       {showNewCustomerDialog && (
