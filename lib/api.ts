@@ -116,6 +116,21 @@ export class AuthAPI {
     const response = await apiClient.post('/auth/refresh')
     return response.data
   }
+
+  static async forgotPassword(email: string): Promise<ApiResponse<{ message: string; resetUrl?: string }>> {
+    const response = await apiClient.post('/auth/forgot-password', { email })
+    return response.data
+  }
+
+  static async resetPassword(token: string, newPassword: string): Promise<ApiResponse<{ message: string }>> {
+    const response = await apiClient.post('/auth/reset-password', { token, newPassword })
+    return response.data
+  }
+
+  static async verifyResetToken(token: string): Promise<ApiResponse<{ email: string; name: string; role: string }>> {
+    const response = await apiClient.get(`/auth/verify-reset-token/${token}`)
+    return response.data
+  }
 }
 
 export class ClientsAPI {

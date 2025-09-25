@@ -140,6 +140,16 @@ export function LoginForm() {
               </form>
             </Form>
 
+            <div className="mt-4 text-center">
+              <Button
+                variant="link"
+                onClick={() => router.push("/forgot-password")}
+                className="text-sm text-gray-600 hover:text-gray-800"
+              >
+                Forgot your password?
+              </Button>
+            </div>
+
           </CardContent>
         </Card>
       </div>

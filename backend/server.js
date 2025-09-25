@@ -19,6 +19,7 @@ const Sale = require('./models/Sale');
 const Expense = require('./models/Expense');
 const CashRegistry = require('./models/CashRegistry');
 const BusinessSettings = require("./models/BusinessSettings");
+const PasswordResetToken = require('./models/PasswordResetToken');
 
 // Import Routes
 const cashRegistryRoutes = require('./routes/cashRegistry');
@@ -322,6 +323,172 @@ app.get('/api/auth/profile', authenticateToken, async (req, res) => {
     });
   } catch (error) {
     console.error('Profile error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error'
+    });
+  }
+});
+
+// Password Reset Routes
+app.post('/api/auth/forgot-password', async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        error: 'Email is required'
+      });
+    }
+
+    // Find user by email
+    const user = await User.findOne({ email: email.toLowerCase() });
+    if (!user) {
+      // Don't reveal if email exists or not for security
+      return res.json({
+        success: true,
+        message: 'If the email exists, a password reset link has been sent'
+      });
+    }
+
+    // Check if user has login access
+    if (!user.hasLoginAccess) {
+      return res.status(400).json({
+        success: false,
+        error: 'This account does not have login access. Please contact your administrator.'
+      });
+    }
+
+    // Generate reset token
+    const token = PasswordResetToken.generateToken();
+    
+    // Create reset token record
+    const resetToken = new PasswordResetToken({
+      userId: user._id,
+      token: token,
+      email: user.email,
+      expiresAt: new Date(Date.now() + 15 * 60 * 1000) // 15 minutes
+    });
+
+    await resetToken.save();
+
+    // In a real application, you would send an email here
+    // For now, we'll return the token in development
+    const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/reset-password?token=${token}`;
+    
+    console.log(`Password reset link for ${user.email}: ${resetUrl}`);
+
+    res.json({
+      success: true,
+      message: 'If the email exists, a password reset link has been sent',
+      // Always include resetUrl in development mode
+      resetUrl: resetUrl
+    });
+  } catch (error) {
+    console.error('Forgot password error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error'
+    });
+  }
+});
+
+app.post('/api/auth/reset-password', async (req, res) => {
+  try {
+    const { token, newPassword } = req.body;
+
+    if (!token || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        error: 'Token and new password are required'
+      });
+    }
+
+    // Find the reset token
+    const resetToken = await PasswordResetToken.findOne({ token });
+    if (!resetToken || !resetToken.isValid()) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid or expired reset token'
+      });
+    }
+
+    // Find the user
+    const user = await User.findById(resetToken.userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: 'User not found'
+      });
+    }
+
+    // Validate new password
+    if (newPassword.length < 6) {
+      return res.status(400).json({
+        success: false,
+        error: 'Password must be at least 6 characters long'
+      });
+    }
+
+    // Hash new password
+    const hashedPassword = await hashPassword(newPassword);
+
+    // Update user password
+    await User.findByIdAndUpdate(
+      user._id,
+      { password: hashedPassword },
+      { new: true, runValidators: true }
+    );
+
+    // Mark token as used
+    resetToken.used = true;
+    await resetToken.save();
+
+    res.json({
+      success: true,
+      message: 'Password has been reset successfully'
+    });
+  } catch (error) {
+    console.error('Reset password error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error'
+    });
+  }
+});
+
+app.get('/api/auth/verify-reset-token/:token', async (req, res) => {
+  try {
+    const { token } = req.params;
+
+    const resetToken = await PasswordResetToken.findOne({ token });
+    if (!resetToken || !resetToken.isValid()) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid or expired reset token'
+      });
+    }
+
+    // Get user info (without password)
+    const user = await User.findById(resetToken.userId).select('-password');
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: 'User not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      data: {
+        email: user.email,
+        name: user.name,
+        role: user.role
+      }
+    });
+  } catch (error) {
+    console.error('Verify reset token error:', error);
     res.status(500).json({
       success: false,
       error: 'Internal server error'
