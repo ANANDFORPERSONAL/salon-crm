@@ -23,6 +23,7 @@ import {
   FileText,
   Minus,
   Pencil,
+  ChevronDown,
 } from "lucide-react"
 import { Calendar as DatePicker } from "@/components/ui/calendar"
 import { Button } from "@/components/ui/button"
@@ -195,6 +196,7 @@ export function QuickSale() {
   const [showNewCustomerDialog, setShowNewCustomerDialog] = useState(false)
   const [showBillActivityDialog, setShowBillActivityDialog] = useState(false)
   const [customerBills, setCustomerBills] = useState<any[]>([])
+  const [showTaxBreakdown, setShowTaxBreakdown] = useState(false)
   const [newCustomer, setNewCustomer] = useState({
     firstName: "",
     lastName: "",
@@ -2113,8 +2115,8 @@ export function QuickSale() {
   return (
     <div className="flex h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       {/* Main Content */}
-      <div className="flex-1 overflow-y-auto bg-white/80 backdrop-blur-sm">
-        <div className="p-8 space-y-8">
+      <div className="flex-1 overflow-y-auto bg-white/80 backdrop-blur-sm pr-96">
+        <div className="p-8 space-y-8 max-h-screen overflow-y-auto">
           {/* Header */}
           <div className="flex items-center justify-between">
             <div className="space-y-2">
@@ -2290,8 +2292,8 @@ export function QuickSale() {
             </div>
 
             {serviceItems.length > 0 && (
-              <div className="border border-gray-200 rounded-xl overflow-hidden shadow-sm bg-white">
-                <div className="grid grid-cols-[2fr_3fr_120px_100px_100px_100px_40px] gap-4 p-4 bg-gradient-to-r from-indigo-50 to-purple-50 font-semibold text-sm text-gray-700 border-b">
+              <div className="border border-gray-200 rounded-xl overflow-hidden shadow-sm bg-white max-h-96 overflow-y-auto">
+                <div className="grid grid-cols-[2fr_3fr_120px_100px_100px_100px_40px] gap-4 p-4 bg-gradient-to-r from-indigo-50 to-purple-50 font-semibold text-sm text-gray-700 border-b sticky top-0 bg-white z-10">
                   <div>Service *</div>
                   <div>Staff *</div>
                   <div>Qty</div>
@@ -2301,7 +2303,8 @@ export function QuickSale() {
                   <div></div>
                 </div>
 
-                {serviceItems.map((item) => (
+                <div className="max-h-80 overflow-y-auto">
+                  {serviceItems.map((item) => (
                   <div
                     key={item.id}
                     className="grid grid-cols-[2fr_3fr_120px_100px_100px_100px_40px] gap-4 p-4 border-b last:border-b-0 items-center hover:bg-gray-50/50 transition-all duration-200"
@@ -2399,7 +2402,8 @@ export function QuickSale() {
                       <X className="h-3 w-3" />
                     </Button>
                   </div>
-                ))}
+                  ))}
+                </div>
               </div>
             )}
           </div>
@@ -2418,8 +2422,8 @@ export function QuickSale() {
             </div>
 
             {productItems.length > 0 && (
-              <div className="border border-gray-200 rounded-xl overflow-hidden shadow-sm bg-white">
-                <div className="grid grid-cols-[2fr_3fr_120px_100px_100px_100px_40px] gap-4 p-4 bg-gradient-to-r from-emerald-50 to-green-50 font-semibold text-sm text-gray-700 border-b">
+              <div className="border border-gray-200 rounded-xl overflow-hidden shadow-sm bg-white max-h-96 overflow-y-auto">
+                <div className="grid grid-cols-[2fr_3fr_120px_100px_100px_100px_40px] gap-4 p-4 bg-gradient-to-r from-emerald-50 to-green-50 font-semibold text-sm text-gray-700 border-b sticky top-0 bg-white z-10">
                   <div>Product *</div>
                   <div>Staff *</div>
                   <div>Qty</div>
@@ -2429,7 +2433,8 @@ export function QuickSale() {
                   <div></div>
                 </div>
 
-                {productItems.map((item) => {
+                <div className="max-h-80 overflow-y-auto">
+                  {productItems.map((item) => {
                   console.log('=== RENDERING PRODUCT ITEM ===')
                   console.log('Product item ID:', item.id)
                   console.log('Product item staffId:', item.staffId)
@@ -2576,7 +2581,8 @@ export function QuickSale() {
                       return null
                     })()}
                   </div>
-                )})}
+                  )})}
+                </div>
               </div>
             )}
           </div>
@@ -2656,38 +2662,48 @@ export function QuickSale() {
         </div>
       </div>
 
-      {/* Billing Summary Sidebar */}
-      <div className="w-80 bg-white border-l border-gray-200 shadow-lg h-screen flex flex-col">
+      {/* Billing Summary Sidebar - Fixed Position */}
+      <div className="w-96 bg-white border-l border-gray-100 shadow-xl h-[calc(100vh-5rem)] flex flex-col fixed right-0 top-20 z-50">
         {/* Header */}
-        <div className="p-3 border-b border-gray-100 bg-gradient-to-r from-indigo-50 to-purple-50 flex-shrink-0">
-          <h3 className="text-lg font-bold text-gray-800">Billing Summary</h3>
-          <p className="text-xs text-gray-600 mt-1">Review and complete the sale</p>
+        <div className="px-6 py-5 border-b border-gray-50 bg-white flex-shrink-0">
+          <h3 className="text-xl font-semibold text-gray-900">Billing Summary</h3>
+          <p className="text-sm text-gray-500 mt-1">Review and complete the sale</p>
         </div>
 
-        {/* Content - Fixed Height */}
-        <div className="flex-1 flex flex-col min-h-0">
-          <div className="p-3 space-y-2 flex-1 min-h-0">
-            {/* Order Summary - Compact */}
-            <div className="bg-gray-50 rounded-lg p-2 space-y-0.5">
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Sub Total</span>
-                <span className="font-medium text-gray-800">{formatCurrency(subtotal)}</span>
+        {/* Content - Scrollable */}
+        <div className="flex-1 flex flex-col min-h-0 overflow-y-auto">
+          <div className="px-6 py-4 space-y-2 flex-1">
+            {/* Order Summary - Modern */}
+            <div className="bg-gray-50/50 rounded-xl p-2 space-y-1 border border-gray-200">
+              <div className="flex justify-between items-center py-1">
+                <span className="text-sm text-gray-600">Sub Total</span>
+                <span className="text-sm font-medium text-gray-900">{formatCurrency(subtotal)}</span>
               </div>
               
               {totalDiscount > 0 && (
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Discount</span>
-                  <span className="font-medium text-red-600">-{formatCurrency(totalDiscount)}</span>
+                <div className="flex justify-between items-center py-1">
+                  <span className="text-sm text-gray-600">Discount</span>
+                  <span className="text-sm font-medium text-red-500">-{formatCurrency(totalDiscount)}</span>
                 </div>
               )}
               
               {taxAmount > 0 && (
-                <div className="space-y-0.5">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Tax (GST)</span>
-                    <span className="font-medium text-gray-800">{formatCurrency(taxAmount)}</span>
+                <div className="space-y-1">
+                  <div className="flex justify-between items-center py-1">
+                    <button
+                      onClick={() => setShowTaxBreakdown(!showTaxBreakdown)}
+                      className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-800 transition-colors"
+                    >
+                      <span>Tax (GST)</span>
+                      <ChevronDown 
+                        className={`h-3 w-3 transition-transform duration-200 ${
+                          showTaxBreakdown ? 'rotate-180' : ''
+                        }`} 
+                      />
+                    </button>
+                    <span className="text-sm font-medium text-gray-900">{formatCurrency(taxAmount)}</span>
                   </div>
-                  {(() => {
+                  {showTaxBreakdown && (() => {
                     // Calculate service and product tax separately
                     const serviceTax = serviceItems.reduce((sum, item) => {
                       const service = services.find(s => (s._id || s.id) === item.serviceId)
@@ -2736,7 +2752,7 @@ export function QuickSale() {
                     }, {} as Record<number, number>)
                     
                     return (
-                      <div className="space-y-0.5 ml-2">
+                      <div className="space-y-1 ml-2 pt-2 border-t border-gray-100">
                         {serviceTax > 0 && (
                           <div className="flex justify-between text-xs text-gray-500">
                             <span>Service Tax (5%)</span>
@@ -2764,28 +2780,28 @@ export function QuickSale() {
                 </div>
               )}
               
-              <div className="border-t border-gray-200 pt-1">
-                <div className="flex justify-between text-base font-bold">
-                  <span className="text-gray-800">Grand Total</span>
-                  <span className="text-indigo-600">{formatCurrency(roundedTotal)}</span>
+              <div className="border-t border-gray-200 pt-3 mt-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-base font-semibold text-gray-900">Grand Total</span>
+                  <span className="text-lg font-bold text-indigo-600">{formatCurrency(roundedTotal)}</span>
                 </div>
               </div>
             </div>
 
-            {/* Tip - Hyperlink Style */}
-            <div className="flex items-center justify-between">
+            {/* Tip - Modern Style */}
+            <div className="flex items-center justify-between py-2">
               <button
                 onClick={handleTipClick}
-                className="text-xs font-medium text-indigo-600 hover:text-indigo-800 hover:underline cursor-pointer transition-colors"
+                className="text-sm font-medium text-indigo-600 hover:text-indigo-700 hover:underline cursor-pointer transition-colors"
               >
                 Add Tip
               </button>
               {tip > 0 && (
-                <div className="flex items-center gap-1">
-                  <span className="text-xs font-medium text-gray-700">{formatCurrency(tip)}</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium text-gray-700">{formatCurrency(tip)}</span>
                   <button
                     onClick={handleTipClick}
-                    className="p-0.5 hover:bg-gray-100 rounded transition-colors"
+                    className="p-1 hover:bg-gray-100 rounded-md transition-colors"
                     title="Edit tip amount"
                   >
                     <Pencil className="h-3 w-3 text-gray-500 hover:text-gray-700" />
@@ -2794,94 +2810,91 @@ export function QuickSale() {
               )}
             </div>
 
-            {/* Change Display - Compact */}
-            <div className="bg-emerald-50 rounded-lg p-2 border border-emerald-200">
-              <div className="flex justify-between text-sm">
-                <span className="font-medium text-emerald-800">Change</span>
-                <span className="font-bold text-emerald-600">{formatCurrency(change)}</span>
+            {/* Change Display - Modern */}
+            <div className="bg-emerald-50/50 rounded-xl p-2 border border-emerald-200">
+              <div className="flex justify-between items-center">
+                <span className="text-sm font-medium text-emerald-700">Change</span>
+                <span className="text-sm font-bold text-emerald-600">{formatCurrency(change)}</span>
               </div>
             </div>
 
-            {/* Remarks - Compact */}
+            {/* Remarks - Modern */}
             <div className="space-y-1">
-              <Label className="text-xs font-medium text-gray-700">Remarks</Label>
+              <Label className="text-sm font-medium text-gray-700">Remarks</Label>
               <Textarea
                 value={remarks}
                 onChange={(e) => setRemarks(e.target.value)}
                 placeholder="Add remarks..."
-                className="h-8 text-sm resize-none"
+                className="h-12 text-sm resize-none rounded-lg border-gray-200 focus:border-indigo-300 focus:ring-indigo-200"
               />
             </div>
 
-            {/* Payment Section - Compact */}
-            <div className="space-y-1">
-              <div className="flex justify-between items-center">
-                <span className="text-sm font-bold text-gray-800">Payable Amount</span>
-                <span className="text-lg font-bold text-indigo-600">{formatCurrency(roundedTotal)}</span>
+            {/* Payment Section - Modern */}
+            <div className="space-y-2">
+              <div className="flex justify-between items-center py-1">
+                <span className="text-base font-semibold text-gray-900">Payable Amount</span>
+                <span className="text-xl font-bold text-indigo-600">{formatCurrency(roundedTotal)}</span>
               </div>
 
-              {/* Payment Methods - Single Row */}
-              <div className="space-y-1">
-                <h4 className="text-xs font-semibold text-gray-700">Payment Methods</h4>
+              {/* Payment Methods - Modern Grid */}
+              <div className="space-y-2">
+                <h4 className="text-sm font-semibold text-gray-700">Payment Methods</h4>
                 
-                <div className="grid grid-cols-3 gap-1">
+                <div className="grid grid-cols-3 gap-3">
                   {/* Cash */}
-                  <div className="flex flex-col items-center gap-1 p-2 bg-green-50 rounded-lg border border-green-200">
-                    <Banknote className="h-4 w-4 text-green-600" />
-                    <span className="text-xs font-medium text-green-800">Cash</span>
+                  <div className="flex flex-col items-center gap-1 p-2 bg-green-50/50 rounded-xl border border-green-200 hover:bg-green-50 transition-colors">
+                    <span className="text-sm font-medium text-green-700">Cash</span>
                     <Input
                       type="number"
                       value={cashAmount}
                       onChange={(e) => setCashAmount(Number(e.target.value))}
-                      className="w-full h-6 text-xs border-green-200 text-center"
+                      className="w-full h-8 text-sm border-green-300 text-center rounded-lg focus:border-green-400 focus:ring-green-200"
                       placeholder="0"
                     />
                   </div>
 
                   {/* Card */}
-                  <div className="flex flex-col items-center gap-1 p-2 bg-blue-50 rounded-lg border border-blue-200">
-                    <CreditCard className="h-4 w-4 text-blue-600" />
-                    <span className="text-xs font-medium text-blue-800">Card</span>
+                  <div className="flex flex-col items-center gap-1 p-2 bg-blue-50/50 rounded-xl border border-blue-200 hover:bg-blue-50 transition-colors">
+                    <span className="text-sm font-medium text-blue-700">Card</span>
                     <Input
                       type="number"
                       value={cardAmount}
                       onChange={(e) => setCardAmount(Number(e.target.value))}
-                      className="w-full h-6 text-xs border-blue-200 text-center"
+                      className="w-full h-8 text-sm border-blue-300 text-center rounded-lg focus:border-blue-400 focus:ring-blue-200"
                       placeholder="0"
                     />
                   </div>
 
                   {/* Online */}
-                  <div className="flex flex-col items-center gap-1 p-2 bg-purple-50 rounded-lg border border-purple-200">
-                    <Smartphone className="h-4 w-4 text-purple-600" />
-                    <span className="text-xs font-medium text-purple-800">Online</span>
+                  <div className="flex flex-col items-center gap-1 p-2 bg-purple-50/50 rounded-xl border border-purple-200 hover:bg-purple-50 transition-colors">
+                    <span className="text-sm font-medium text-purple-700">Online</span>
                     <Input
                       type="number"
                       value={onlineAmount}
                       onChange={(e) => setOnlineAmount(Number(e.target.value))}
-                      className="w-full h-6 text-xs border-purple-200 text-center"
+                      className="w-full h-8 text-sm border-purple-300 text-center rounded-lg focus:border-purple-400 focus:ring-purple-200"
                       placeholder="0"
                     />
                   </div>
                 </div>
               </div>
 
-              {/* Processing Fees - Compact */}
+              {/* Processing Fees - Modern */}
               {paymentSettings?.enableProcessingFees && (cardAmount > 0 || onlineAmount > 0) && (
-                <div className="p-1.5 bg-amber-50 rounded-lg border border-amber-200">
-                  <div className="text-xs font-semibold text-amber-800 mb-1">Processing Fees</div>
+                <div className="p-2 bg-amber-50/50 rounded-xl border border-amber-200">
+                  <div className="text-sm font-semibold text-amber-800 mb-1">Processing Fees</div>
                   {cardAmount > 0 && (
-                    <div className="flex justify-between text-xs text-amber-700">
-                      <span>Card ({paymentSettings?.processingFee || 2.9}%)</span>
-                      <span className="font-semibold text-red-600">
+                    <div className="flex justify-between items-center py-1">
+                      <span className="text-sm text-amber-700">Card ({paymentSettings?.processingFee || 2.9}%)</span>
+                      <span className="text-sm font-semibold text-red-600">
                         {formatCurrency((cardAmount * (paymentSettings?.processingFee || 2.9)) / 100)}
                       </span>
                     </div>
                   )}
                   {onlineAmount > 0 && (
-                    <div className="flex justify-between text-xs text-amber-700">
-                      <span>Online ({paymentSettings?.processingFee || 2.9}%)</span>
-                      <span className="font-semibold text-red-600">
+                    <div className="flex justify-between items-center py-1">
+                      <span className="text-sm text-amber-700">Online ({paymentSettings?.processingFee || 2.9}%)</span>
+                      <span className="text-sm font-semibold text-red-600">
                         {formatCurrency((onlineAmount * (paymentSettings?.processingFee || 2.9)) / 100)}
                       </span>
                     </div>
@@ -2889,20 +2902,20 @@ export function QuickSale() {
                 </div>
               )}
 
-              {/* Total Paid - Compact */}
-              <div className="bg-emerald-50 rounded-lg p-2 border border-emerald-200">
-                <div className="flex justify-between text-sm">
-                  <span className="font-semibold text-emerald-800">Total Paid</span>
-                  <span className="font-bold text-emerald-600">{formatCurrency(totalPaid)}</span>
+              {/* Total Paid - Modern */}
+              <div className="bg-emerald-50/50 rounded-xl p-2 border border-emerald-200">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm font-semibold text-emerald-700">Total Paid</span>
+                  <span className="text-sm font-bold text-emerald-600">{formatCurrency(totalPaid)}</span>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Action Buttons - Fixed at bottom */}
-        <div className="p-3 border-t border-gray-100 bg-gray-50 flex-shrink-0">
-          <div className="flex gap-2">
+        {/* Action Buttons - Modern */}
+        <div className="px-6 py-4 border-t border-gray-100 bg-white flex-shrink-0">
+          <div className="flex gap-3">
             <Button 
               onClick={() => {
                 if (roundedTotal > 0 && totalPaid < roundedTotal) {
@@ -2912,16 +2925,16 @@ export function QuickSale() {
                 }
               }} 
               disabled={isProcessing} 
-              className="flex-1 h-8 bg-indigo-600 hover:bg-indigo-700 text-white text-sm"
+              className="flex-1 h-10 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg shadow-sm hover:shadow-md transition-all duration-200"
             >
               {isProcessing ? (
                 <>
-                  <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                   Processing...
                 </>
               ) : (
                 <>
-                  <Receipt className="h-3.5 w-3.5 mr-1.5" />
+                  <Receipt className="h-4 w-4 mr-2" />
                   Checkout
                 </>
               )}
@@ -2929,7 +2942,7 @@ export function QuickSale() {
             <Button 
               variant="outline" 
               onClick={resetForm} 
-              className="flex-1 h-8 text-sm"
+              className="flex-1 h-10 text-sm font-medium rounded-lg border-gray-200 hover:bg-gray-50 transition-all duration-200"
             >
               Reset
             </Button>
