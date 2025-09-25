@@ -28,33 +28,6 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-// Mock users for fallback (when API is not available)
-const mockUsers: (User & { password: string })[] = [
-  {
-    _id: "1",
-    name: "John Doe",
-    email: "admin@salon.com",
-    password: "admin123",
-    role: "admin",
-    avatar: "/placeholder.svg?height=32&width=32",
-  },
-  {
-    _id: "2",
-    name: "Sarah Johnson",
-    email: "manager@salon.com",
-    password: "manager123",
-    role: "manager",
-    avatar: "/placeholder.svg?height=32&width=32",
-  },
-  {
-    _id: "3",
-    name: "David Lee",
-    email: "staff@salon.com",
-    password: "staff123",
-    role: "staff",
-    avatar: "/placeholder.svg?height=32&width=32",
-  },
-]
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
@@ -77,17 +50,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           return
         }
         
-        // Validate token format (basic check)
+        // Clear mock tokens - only use real authentication
         if (storedToken.startsWith('mock-token-')) {
-          console.log('🔐 Using stored mock authentication')
-          try {
-            const userData = JSON.parse(storedUser)
-            setUser(userData)
-          } catch (parseError) {
-            console.error('Failed to parse stored user data:', parseError)
-            localStorage.removeItem("salon-auth-token")
-            localStorage.removeItem("salon-auth-user")
-          }
+          console.log('🔐 Clearing mock token, requiring real authentication')
+          localStorage.removeItem("salon-auth-token")
+          localStorage.removeItem("salon-auth-user")
           setIsLoading(false)
           return
         }
@@ -143,8 +110,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     console.log('📧 Email:', email)
 
     try {
-      // Try real API first
-      console.log('🌐 Trying real API login...')
+      // Use real API authentication only
+      console.log('🌐 Attempting real API login...')
       const response = await AuthAPI.login(email, password)
       
       if (response.success) {
@@ -158,68 +125,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setIsLoading(false)
         return true
       } else {
-        console.log('❌ Real API login failed')
+        console.log('❌ Real API login failed:', response.error)
         setIsLoading(false)
         return false
       }
     } catch (error) {
       console.error("API login error:", error)
-      
-      // Check if it's a network error or API not available
-      const isNetworkError = error instanceof Error && (
-        error.message.includes('Network Error') ||
-        error.message.includes('Failed to fetch') ||
-        error.message.includes('ERR_NETWORK') ||
-        error.message.includes('fetch') ||
-        error.message.includes('ENOTFOUND') ||
-        error.message.includes('ECONNREFUSED') ||
-        error.message.includes('timeout') ||
-        error.message.includes('ERR_CONNECTION_REFUSED')
-      )
-      
-      // Also check for common fetch errors
-      const isFetchError = error instanceof TypeError && (
-        error.message.includes('fetch') ||
-        error.message.includes('NetworkError')
-      )
-      
-      if (isNetworkError || isFetchError) {
-        console.warn("API not available, using mock authentication")
-        
-        // Fallback to mock authentication
-        await new Promise((resolve) => setTimeout(resolve, 1000))
-
-        try {
-          // Find user with matching credentials
-          const foundUser = mockUsers.find((u) => u.email.toLowerCase() === email.toLowerCase() && u.password === password)
-
-          if (foundUser) {
-            console.log('✅ Mock authentication successful')
-            const { password: _, ...userWithoutPassword } = foundUser
-            setUser(userWithoutPassword)
-            // Store mock token for API calls
-            const mockToken = `mock-token-${foundUser._id}-${Date.now()}`
-            console.log('🔑 Mock token generated:', mockToken)
-            localStorage.setItem("salon-auth-token", mockToken)
-            localStorage.setItem("salon-auth-user", JSON.stringify(userWithoutPassword))
-            setIsLoading(false)
-            return true
-          } else {
-            console.log('❌ Mock authentication failed - invalid credentials')
-            setIsLoading(false)
-            return false
-          }
-        } catch (fallbackError) {
-          console.error("Fallback login error:", fallbackError)
-          setIsLoading(false)
-          return false
-        }
-      } else {
-        // If it's not a network error, don't fallback to mock
-        console.log('❌ Not a network error, not falling back to mock')
-        setIsLoading(false)
-        return false
-      }
+      console.log('❌ Login failed - API error or invalid credentials')
+      setIsLoading(false)
+      return false
     }
   }
 

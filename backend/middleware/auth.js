@@ -14,30 +14,10 @@ const authenticateToken = (req, res, next) => {
     return res.status(401).json({ success: false, error: 'Access token required' });
   }
 
-  // Check if this is a mock token (for development)
+  // Reject mock tokens - only allow real JWT tokens
   if (token.startsWith('mock-token-')) {
-    console.log('🔑 Mock token detected, bypassing JWT verification for development');
-    
-    // Extract user info from mock token
-    const mockUserParts = token.split('-');
-    if (mockUserParts.length >= 3) {
-      const mockUserId = mockUserParts[2];
-      
-      // For mock tokens, create a valid ObjectId for userId
-      let mockObjectId = '507f1f77bcf86cd799439011'; // Valid ObjectId format
-      
-      // Create a mock user object for development with valid ObjectId
-      req.user = {
-        _id: mockObjectId,
-        name: 'Admin User',
-        email: 'admin@example.com',
-        role: 'admin',
-        id: mockObjectId
-      };
-      
-      console.log('👤 Mock user created:', req.user);
-      return next();
-    }
+    console.log('🔑 Mock token detected, rejecting for security');
+    return res.status(401).json({ success: false, error: 'Invalid token format' });
   }
 
   // Regular JWT verification for production tokens

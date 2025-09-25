@@ -151,28 +151,10 @@ const authenticateToken = (req, res, next) => {
     return res.status(401).json({ success: false, error: 'Access token required' });
   }
 
-  // Check if this is a mock token (for development)
+  // Reject mock tokens - only allow real JWT tokens
   if (token.startsWith('mock-token-')) {
-    console.log('🔑 Mock token detected in server.js, bypassing JWT verification for development');
-    
-    // Extract user info from mock token
-    const mockUserParts = token.split('-');
-    if (mockUserParts.length >= 3) {
-      const mockUserId = mockUserParts[2];
-      
-      // Create a mock user object for development with valid ObjectId
-      const mockObjectId = '507f1f77bcf86cd799439011'; // Valid ObjectId format
-      req.user = {
-        _id: mockObjectId,
-        name: 'Admin User',
-        email: 'admin@example.com',
-        role: 'admin',
-        id: mockObjectId
-      };
-      
-      console.log('👤 Mock user created in server.js:', req.user);
-      return next();
-    }
+    console.log('🔑 Mock token detected, rejecting for security');
+    return res.status(401).json({ success: false, error: 'Invalid token format' });
   }
 
   // Regular JWT verification for production tokens
@@ -324,24 +306,6 @@ app.post('/api/auth/logout', authenticateToken, (req, res) => {
 
 app.get('/api/auth/profile', authenticateToken, async (req, res) => {
   try {
-    // Check if this is a mock user (for development)
-    if (req.user._id && req.user.name === 'Admin User') {
-      // Return mock user data directly
-      res.json({
-        success: true,
-        data: {
-          _id: req.user._id,
-          firstName: 'Admin',
-          lastName: 'User',
-          name: req.user.name,
-          email: req.user.email,
-          role: req.user.role,
-          avatar: '/placeholder.svg?height=32&width=32'
-        }
-      });
-      return;
-    }
-
     // Regular user lookup from database
     const user = await User.findById(req.user.id || req.user._id);
     if (!user) {
@@ -554,7 +518,30 @@ app.post('/api/users', authenticateToken, requireAdmin, async (req, res) => {
   }
 });
 
-app.put('/api/users/:id', authenticateToken, requireAdmin, async (req, res) => {
+app.get('/api/users/:id', authenticateToken, async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id).select('-password');
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: 'User not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      data: user
+    });
+  } catch (error) {
+    console.error('Get user error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error'
+    });
+  }
+});
+
+app.put('/api/users/:id', authenticateToken, async (req, res) => {
   try {
     const {
       firstName,
@@ -565,7 +552,19 @@ app.put('/api/users/:id', authenticateToken, requireAdmin, async (req, res) => {
       hasLoginAccess,
       allowAppointmentScheduling,
       commissionProfileIds,
+      avatar,
     } = req.body;
+
+    // Check if user is updating their own profile or is admin
+    const isAdmin = req.user.role === 'admin';
+    const isOwnProfile = req.user.id === req.params.id || req.user._id === req.params.id;
+    
+    if (!isAdmin && !isOwnProfile) {
+      return res.status(403).json({
+        success: false,
+        error: 'You can only update your own profile'
+      });
+    }
 
     // Validate required fields
     if (!firstName || firstName.trim() === '') {
@@ -635,11 +634,20 @@ app.put('/api/users/:id', authenticateToken, requireAdmin, async (req, res) => {
       lastName: lastName || '',
       email: email ? email.toLowerCase() : '',
       mobile: mobile.trim(),
-      hasLoginAccess,
-      allowAppointmentScheduling,
-      role: req.body.role, // Include role in update
-      commissionProfileIds: commissionProfileIds || [], // Commission profile IDs
     };
+
+    // Only allow admins to update these fields
+    if (isAdmin) {
+      updateData.hasLoginAccess = hasLoginAccess;
+      updateData.allowAppointmentScheduling = allowAppointmentScheduling;
+      updateData.role = req.body.role;
+      updateData.commissionProfileIds = commissionProfileIds || [];
+    }
+
+    // Add avatar if provided
+    if (avatar) {
+      updateData.avatar = avatar;
+    }
 
     // Hash password if provided
     if (password) {

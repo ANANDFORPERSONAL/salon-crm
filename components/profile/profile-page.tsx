@@ -1,10 +1,10 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
-import { Camera, Save } from "lucide-react"
+import { Camera, Save, Edit, X, Upload } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -16,57 +16,161 @@ import { toast } from "@/components/ui/use-toast"
 import { SideNav } from "@/components/side-nav"
 import { TopNav } from "@/components/top-nav"
 import { useAuth } from "@/lib/auth-context"
+import { UsersAPI } from "@/lib/api"
 
-const profileSchema = z
-  .object({
-    name: z.string().min(2, "Name must be at least 2 characters"),
-    email: z.string().email("Please enter a valid email address"),
-    phone: z.string().optional(),
-    currentPassword: z.string().optional(),
-    newPassword: z.string().optional(),
-    confirmPassword: z.string().optional(),
-  })
-  .refine(
-    (data) => {
-      if (data.newPassword && data.newPassword !== data.confirmPassword) {
-        return false
-      }
-      return true
-    },
-    {
-      message: "Passwords don't match",
-      path: ["confirmPassword"],
-    },
-  )
+const profileSchema = z.object({
+  firstName: z.string().min(2, "First name must be at least 2 characters"),
+  lastName: z.string().min(2, "Last name must be at least 2 characters"),
+  email: z.string().email("Please enter a valid email address"),
+  mobile: z.string().min(10, "Mobile number must be at least 10 digits"),
+})
 
 export function ProfilePage() {
   const { user } = useAuth()
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isEditMode, setIsEditMode] = useState(false)
+  const [profilePhoto, setProfilePhoto] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [staffData, setStaffData] = useState<any>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const form = useForm<z.infer<typeof profileSchema>>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
-      name: user?.name || "",
-      email: user?.email || "",
-      phone: "",
-      currentPassword: "",
-      newPassword: "",
-      confirmPassword: "",
+      firstName: "",
+      lastName: "",
+      email: "",
+      mobile: "",
     },
   })
 
-  function onSubmit(values: z.infer<typeof profileSchema>) {
+  // Fetch staff data from database
+  useEffect(() => {
+    const fetchStaffData = async () => {
+      if (!user?._id) return
+      
+      try {
+        setIsLoading(true)
+        const response = await UsersAPI.getById(user._id)
+        if (response.success && response.data) {
+          const staff = response.data
+          setStaffData(staff)
+          
+          // Update form with fetched data
+          form.reset({
+            firstName: staff.firstName || "",
+            lastName: staff.lastName || "",
+            email: staff.email || "",
+            mobile: staff.mobile || "",
+          })
+          
+          // Set profile photo if available
+          if (staff.avatar) {
+            setProfilePhoto(staff.avatar)
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch staff data:", error)
+        toast({
+          title: "Error",
+          description: "Failed to load profile data",
+          variant: "destructive",
+        })
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchStaffData()
+  }, [user?._id, form])
+
+  const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        toast({
+          title: "Invalid file type",
+          description: "Please select an image file",
+          variant: "destructive",
+        })
+        return
+      }
+
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast({
+          title: "File too large",
+          description: "Please select an image smaller than 5MB",
+          variant: "destructive",
+        })
+        return
+      }
+
+      // Create preview URL
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        setProfilePhoto(e.target?.result as string)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const handleEditToggle = () => {
+    setIsEditMode(!isEditMode)
+    if (isEditMode) {
+      // Cancel edit - reset form to original values
+      if (staffData) {
+        form.reset({
+          firstName: staffData.firstName || "",
+          lastName: staffData.lastName || "",
+          email: staffData.email || "",
+          mobile: staffData.mobile || "",
+        })
+        setProfilePhoto(staffData.avatar || null)
+      }
+    }
+  }
+
+  async function onSubmit(values: z.infer<typeof profileSchema>) {
+    if (!user?._id || !staffData) return
+
     setIsSubmitting(true)
 
-    // Simulate API call
-    setTimeout(() => {
-      console.log(values)
-      setIsSubmitting(false)
+    try {
+      // Update staff data in database
+      const updateData = {
+        firstName: values.firstName,
+        lastName: values.lastName,
+        email: values.email,
+        mobile: values.mobile,
+        avatar: profilePhoto || staffData.avatar,
+      }
+
+      const response = await UsersAPI.update(user._id, updateData)
+      
+      if (response.success) {
+        // Update local state
+        setStaffData({ ...staffData, ...updateData })
+        setIsEditMode(false)
+        
+        toast({
+          title: "Profile updated",
+          description: "Your profile has been successfully updated.",
+        })
+      } else {
+        throw new Error(response.error || "Failed to update profile")
+      }
+    } catch (error) {
+      console.error("Profile update error:", error)
       toast({
-        title: "Profile updated",
-        description: "Your profile has been successfully updated.",
+        title: "Update failed",
+        description: "Failed to update profile. Please try again.",
+        variant: "destructive",
       })
-    }, 1000)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const getRoleBadgeVariant = (role: string) => {
@@ -80,6 +184,22 @@ export function ProfilePage() {
     }
   }
 
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen flex-col">
+        <TopNav />
+        <div className="flex flex-1">
+          <SideNav />
+          <main className="flex-1 p-6 md:p-8">
+            <div className="flex items-center justify-center h-64">
+              <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+            </div>
+          </main>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="flex min-h-screen flex-col">
       <TopNav />
@@ -87,9 +207,28 @@ export function ProfilePage() {
         <SideNav />
         <main className="flex-1 p-6 md:p-8">
           <div className="flex flex-col space-y-6 max-w-2xl">
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight">Profile</h1>
-              <p className="text-muted-foreground">Manage your account settings and preferences</p>
+            <div className="flex justify-between items-center">
+              <div>
+                <h1 className="text-3xl font-bold tracking-tight">Profile</h1>
+                <p className="text-muted-foreground">Manage your account settings and preferences</p>
+              </div>
+              <Button
+                onClick={handleEditToggle}
+                variant={isEditMode ? "outline" : "default"}
+                className="flex items-center gap-2"
+              >
+                {isEditMode ? (
+                  <>
+                    <X className="h-4 w-4" />
+                    Cancel
+                  </>
+                ) : (
+                  <>
+                    <Edit className="h-4 w-4" />
+                    Edit Profile
+                  </>
+                )}
+              </Button>
             </div>
 
             {/* Profile Header */}
@@ -98,22 +237,36 @@ export function ProfilePage() {
                 <div className="flex items-center space-x-4">
                   <div className="relative">
                     <Avatar className="h-20 w-20">
-                      <AvatarImage src={user?.avatar || "/placeholder.svg"} alt={user?.name || "User"} />
-                      <AvatarFallback className="text-lg">{user?.name?.charAt(0) || "U"}</AvatarFallback>
+                      <AvatarImage src={profilePhoto || staffData?.avatar || "/placeholder.svg"} alt={staffData?.name || "User"} />
+                      <AvatarFallback className="text-lg">
+                        {staffData?.firstName?.charAt(0) || staffData?.name?.charAt(0) || "U"}
+                      </AvatarFallback>
                     </Avatar>
-                    <Button
-                      size="icon"
-                      variant="outline"
-                      className="absolute -bottom-2 -right-2 h-8 w-8 rounded-full bg-transparent"
-                    >
-                      <Camera className="h-4 w-4" />
-                    </Button>
+                    {isEditMode && (
+                      <Button
+                        size="icon"
+                        variant="outline"
+                        className="absolute -bottom-2 -right-2 h-8 w-8 rounded-full bg-white shadow-md"
+                        onClick={() => fileInputRef.current?.click()}
+                      >
+                        <Camera className="h-4 w-4" />
+                      </Button>
+                    )}
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handlePhotoUpload}
+                      className="hidden"
+                    />
                   </div>
                   <div className="space-y-1">
-                    <h2 className="text-2xl font-semibold">{user?.name}</h2>
-                    <p className="text-muted-foreground">{user?.email}</p>
-                    <Badge variant={getRoleBadgeVariant(user?.role || "staff")}>
-                      {user?.role?.charAt(0).toUpperCase() + user?.role?.slice(1)}
+                    <h2 className="text-2xl font-semibold">
+                      {staffData?.firstName} {staffData?.lastName}
+                    </h2>
+                    <p className="text-muted-foreground">{staffData?.email}</p>
+                    <Badge variant={getRoleBadgeVariant(staffData?.role || "staff")}>
+                      {staffData?.role ? staffData.role.charAt(0).toUpperCase() + staffData.role.slice(1) : "Staff"}
                     </Badge>
                   </div>
                 </div>
@@ -132,12 +285,36 @@ export function ProfilePage() {
                     <div className="grid gap-6 md:grid-cols-2">
                       <FormField
                         control={form.control}
-                        name="name"
+                        name="firstName"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Full Name</FormLabel>
+                            <FormLabel>First Name</FormLabel>
                             <FormControl>
-                              <Input placeholder="Enter your full name" {...field} />
+                              <Input 
+                                placeholder="Enter your first name" 
+                                {...field} 
+                                disabled={!isEditMode}
+                                className={!isEditMode ? "bg-gray-50" : ""}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="lastName"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Last Name</FormLabel>
+                            <FormControl>
+                              <Input 
+                                placeholder="Enter your last name" 
+                                {...field} 
+                                disabled={!isEditMode}
+                                className={!isEditMode ? "bg-gray-50" : ""}
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -151,7 +328,13 @@ export function ProfilePage() {
                           <FormItem>
                             <FormLabel>Email Address</FormLabel>
                             <FormControl>
-                              <Input type="email" placeholder="Enter your email" {...field} />
+                              <Input 
+                                type="email" 
+                                placeholder="Enter your email" 
+                                {...field} 
+                                disabled={!isEditMode}
+                                className={!isEditMode ? "bg-gray-50" : ""}
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -160,12 +343,18 @@ export function ProfilePage() {
 
                       <FormField
                         control={form.control}
-                        name="phone"
+                        name="mobile"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Phone Number</FormLabel>
+                            <FormLabel>Mobile Number</FormLabel>
                             <FormControl>
-                              <Input type="tel" placeholder="Enter your phone number" {...field} />
+                              <Input 
+                                type="tel" 
+                                placeholder="Enter your mobile number" 
+                                {...field} 
+                                disabled={!isEditMode}
+                                className={!isEditMode ? "bg-gray-50" : ""}
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -173,61 +362,22 @@ export function ProfilePage() {
                       />
                     </div>
 
-                    <div className="border-t pt-6">
-                      <h3 className="text-lg font-medium mb-4">Change Password</h3>
-                      <div className="grid gap-6 md:grid-cols-1">
-                        <FormField
-                          control={form.control}
-                          name="currentPassword"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Current Password</FormLabel>
-                              <FormControl>
-                                <Input type="password" placeholder="Enter current password" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <div className="grid gap-6 md:grid-cols-2">
-                          <FormField
-                            control={form.control}
-                            name="newPassword"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>New Password</FormLabel>
-                                <FormControl>
-                                  <Input type="password" placeholder="Enter new password" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-
-                          <FormField
-                            control={form.control}
-                            name="confirmPassword"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Confirm New Password</FormLabel>
-                                <FormControl>
-                                  <Input type="password" placeholder="Confirm new password" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                        </div>
+                    {isEditMode && (
+                      <div className="flex justify-end gap-3">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={handleEditToggle}
+                          disabled={isSubmitting}
+                        >
+                          Cancel
+                        </Button>
+                        <Button type="submit" disabled={isSubmitting}>
+                          <Save className="mr-2 h-4 w-4" />
+                          {isSubmitting ? "Saving..." : "Save Changes"}
+                        </Button>
                       </div>
-                    </div>
-
-                    <div className="flex justify-end">
-                      <Button type="submit" disabled={isSubmitting}>
-                        <Save className="mr-2 h-4 w-4" />
-                        {isSubmitting ? "Saving..." : "Save Changes"}
-                      </Button>
-                    </div>
+                    )}
                   </form>
                 </Form>
               </CardContent>
