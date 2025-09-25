@@ -695,62 +695,62 @@ export function StaffPerformanceReport() {
         {/* Header Section */}
 
         {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="group hover:shadow-lg transition-all duration-300 border-0 shadow-md bg-gradient-to-br from-emerald-50 to-emerald-100/50">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-semibold text-emerald-700">Total Revenue</CardTitle>
-            <div className="p-2 rounded-lg bg-emerald-200 group-hover:bg-emerald-300 transition-colors">
-              <DollarSign className="h-4 w-4 text-emerald-700" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+        <Card className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+            <CardTitle className="text-sm font-medium text-gray-900">Total Revenue</CardTitle>
+            <div className="p-2 bg-gray-100 rounded-lg">
+              <DollarSign className="h-4 w-4 text-gray-600" />
             </div>
           </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-emerald-800 mb-1">{formatCurrency(totalRevenue, currencySymbol)}</div>
-            <p className="text-xs text-emerald-600 font-medium">
+          <CardContent className="space-y-3">
+            <div className="text-2xl font-bold text-gray-900">{formatCurrency(totalRevenue, currencySymbol)}</div>
+            <p className="text-sm text-gray-500">
               Across all staff members
             </p>
           </CardContent>
         </Card>
 
-        <Card className="group hover:shadow-lg transition-all duration-300 border-0 shadow-md bg-gradient-to-br from-blue-50 to-blue-100/50">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-semibold text-blue-700">Total Transactions</CardTitle>
-            <div className="p-2 rounded-lg bg-blue-200 group-hover:bg-blue-300 transition-colors">
-              <Receipt className="h-4 w-4 text-blue-700" />
+        <Card className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+            <CardTitle className="text-sm font-medium text-gray-900">Total Transactions</CardTitle>
+            <div className="p-2 bg-gray-100 rounded-lg">
+              <Receipt className="h-4 w-4 text-gray-600" />
             </div>
           </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-blue-800 mb-1">{totalTransactions}</div>
-            <p className="text-xs text-blue-600 font-medium">
+          <CardContent className="space-y-3">
+            <div className="text-2xl font-bold text-gray-900">{totalTransactions}</div>
+            <p className="text-sm text-gray-500">
               Completed transactions
             </p>
           </CardContent>
         </Card>
 
-        <Card className="group hover:shadow-lg transition-all duration-300 border-0 shadow-md bg-gradient-to-br from-amber-50 to-amber-100/50">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-semibold text-amber-700">Total Commission</CardTitle>
-            <div className="p-2 rounded-lg bg-amber-200 group-hover:bg-amber-300 transition-colors">
-              <Award className="h-4 w-4 text-amber-700" />
+        <Card className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+            <CardTitle className="text-sm font-medium text-gray-900">Total Commission</CardTitle>
+            <div className="p-2 bg-gray-100 rounded-lg">
+              <Award className="h-4 w-4 text-gray-600" />
             </div>
           </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-amber-800 mb-1">{formatCurrency(totalCommission, currencySymbol)}</div>
-            <p className="text-xs text-amber-600 font-medium">
+          <CardContent className="space-y-3">
+            <div className="text-2xl font-bold text-gray-900">{formatCurrency(totalCommission, currencySymbol)}</div>
+            <p className="text-sm text-gray-500">
               Commission earned
             </p>
           </CardContent>
         </Card>
 
-        <Card className="group hover:shadow-lg transition-all duration-300 border-0 shadow-md bg-gradient-to-br from-purple-50 to-purple-100/50">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-semibold text-purple-700">Avg. Performance</CardTitle>
-            <div className="p-2 rounded-lg bg-purple-200 group-hover:bg-purple-300 transition-colors">
-              <Target className="h-4 w-4 text-purple-700" />
+        <Card className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+            <CardTitle className="text-sm font-medium text-gray-900">Avg. Performance</CardTitle>
+            <div className="p-2 bg-gray-100 rounded-lg">
+              <Target className="h-4 w-4 text-gray-600" />
             </div>
           </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-purple-800 mb-1">{averagePerformanceScore.toFixed(1)}</div>
-            <p className="text-xs text-purple-600 font-medium">
+          <CardContent className="space-y-3">
+            <div className="text-2xl font-bold text-gray-900">{averagePerformanceScore.toFixed(1)}</div>
+            <p className="text-sm text-gray-500">
               Performance score
             </p>
           </CardContent>
@@ -759,11 +759,7 @@ export function StaffPerformanceReport() {
 
       {/* Filters Section */}
       <Card className="border-0 shadow-md">
-        <CardHeader className="pb-4">
-          <CardTitle className="text-lg font-semibold text-gray-800">Filters & Search</CardTitle>
-          <CardDescription>Refine your staff performance data</CardDescription>
-        </CardHeader>
-        <CardContent>
+        <CardContent className="pt-6">
           <div className="flex flex-wrap gap-4 items-center justify-between">
             <div className="flex flex-wrap gap-4 items-center">
               <div className="w-full sm:w-72">

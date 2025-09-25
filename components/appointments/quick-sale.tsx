@@ -2113,31 +2113,33 @@ export function QuickSale() {
   }
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       {/* Main Content */}
-      <div className="flex-1 overflow-y-auto bg-white pr-96">
+      <div className="flex-1 overflow-y-auto bg-white/80 backdrop-blur-sm pr-96">
         <div className="p-8 space-y-8 max-h-screen overflow-y-auto">
           {/* Header */}
-          <div className="text-center space-y-3">
-            <h2 className="text-4xl font-bold text-gray-900">
-              Quick Sale
-            </h2>
-            <p className="text-lg text-gray-500">Create and process sales quickly and efficiently</p>
+          <div className="flex items-center justify-between">
+            <div className="space-y-2">
+              <h2 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                Quick Sale
+              </h2>
+              <p className="text-muted-foreground">Create and process sales quickly and efficiently</p>
+            </div>
           </div>
 
           {/* Customer and Date */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="space-y-4 relative" ref={customerSearchRef}>
-              <Label htmlFor="customer" className="text-base font-medium text-gray-900">Customer *</Label>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-3 relative" ref={customerSearchRef}>
+              <Label htmlFor="customer" className="text-sm font-semibold text-gray-700">Customer *</Label>
               <div className="relative">
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="customer"
                   placeholder="Search by name, phone, or email"
                   value={customerSearch}
                   onChange={(e) => handleCustomerSearchChange(e.target.value)}
                   onFocus={() => setShowCustomerDropdown(true)}
-                  className="pl-12 h-14 text-base border-gray-300 focus:border-gray-500 focus:ring-gray-500 rounded-lg"
+                  className="pl-10 h-12 border-gray-200 focus:border-indigo-500 focus:ring-indigo-500/20 transition-all duration-300"
                 />
               </div>
 
@@ -2249,18 +2251,18 @@ export function QuickSale() {
               )}
             </div>
 
-            <div className="space-y-4">
-              <Label className="text-base font-medium text-gray-900">Date</Label>
+            <div className="space-y-3">
+              <Label className="text-sm font-semibold text-gray-700">Date</Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
                     className={cn(
-                      "w-full justify-start text-left font-normal h-14 text-base border-gray-300 hover:border-gray-500 focus:border-gray-500 focus:ring-gray-500 rounded-lg",
-                      !selectedDate && "text-gray-500",
+                      "w-full justify-start text-left font-normal h-12 border-gray-200 hover:border-indigo-300 focus:border-indigo-500 focus:ring-indigo-500/20 transition-all duration-300",
+                      !selectedDate && "text-muted-foreground",
                     )}
                   >
-                    <CalendarIcon className="mr-3 h-5 w-5" />
+                    <CalendarIcon className="mr-2 h-4 w-4" />
                     {selectedDate ? format(selectedDate, "dd MMM, yyyy") : <span>Pick a date</span>}
                   </Button>
                 </PopoverTrigger>
@@ -2279,19 +2281,19 @@ export function QuickSale() {
           {/* Services Section */}
           <div className="space-y-6">
             <div className="flex items-center justify-between">
-              <div className="space-y-2">
-                <h3 className="text-2xl font-semibold text-gray-900">Services</h3>
-                <p className="text-base text-gray-500">Add services to the sale</p>
+              <div className="space-y-1">
+                <h3 className="text-xl font-semibold text-gray-800">Services</h3>
+                <p className="text-sm text-muted-foreground">Add services to the sale</p>
               </div>
-              <Button onClick={addServiceItem} className="bg-gray-900 hover:bg-gray-800 text-white px-6 py-3 text-base font-medium rounded-lg">
-                <Plus className="h-5 w-5 mr-2" />
+              <Button onClick={addServiceItem} className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                <Plus className="h-4 w-4 mr-2" />
                 Add Service
               </Button>
             </div>
 
             {serviceItems.length > 0 && (
-              <div className="border border-gray-200 rounded-lg overflow-hidden bg-white max-h-96 overflow-y-auto">
-                <div className="grid grid-cols-[2fr_3fr_120px_100px_100px_100px_40px] gap-4 p-4 bg-gray-50 font-medium text-sm text-gray-700 border-b sticky top-0 bg-gray-50 z-10">
+              <div className="border border-gray-200 rounded-xl overflow-hidden shadow-sm bg-white max-h-96 overflow-y-auto">
+                <div className="grid grid-cols-[2fr_3fr_120px_100px_100px_100px_40px] gap-4 p-4 bg-gradient-to-r from-indigo-50 to-purple-50 font-semibold text-sm text-gray-700 border-b sticky top-0 bg-white z-10">
                   <div>Service *</div>
                   <div>Staff *</div>
                   <div>Qty</div>
@@ -2409,19 +2411,19 @@ export function QuickSale() {
           {/* Products Section */}
           <div className="space-y-6">
             <div className="flex items-center justify-between">
-              <div className="space-y-2">
-                <h3 className="text-2xl font-semibold text-gray-900">Products</h3>
-                <p className="text-base text-gray-500">Add products to the sale</p>
+              <div className="space-y-1">
+                <h3 className="text-xl font-semibold text-gray-800">Products</h3>
+                <p className="text-sm text-muted-foreground">Add products to the sale</p>
               </div>
-              <Button onClick={addProductItem} className="bg-gray-900 hover:bg-gray-800 text-white px-6 py-3 text-base font-medium rounded-lg">
-                <Plus className="h-5 w-5 mr-2" />
+              <Button onClick={addProductItem} className="bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                <Plus className="h-4 w-4 mr-2" />
                 Add Product
               </Button>
             </div>
 
             {productItems.length > 0 && (
-              <div className="border border-gray-200 rounded-lg overflow-hidden bg-white max-h-96 overflow-y-auto">
-                <div className="grid grid-cols-[2fr_3fr_120px_100px_100px_100px_40px] gap-4 p-4 bg-gray-50 font-medium text-sm text-gray-700 border-b sticky top-0 bg-gray-50 z-10">
+              <div className="border border-gray-200 rounded-xl overflow-hidden shadow-sm bg-white max-h-96 overflow-y-auto">
+                <div className="grid grid-cols-[2fr_3fr_120px_100px_100px_100px_40px] gap-4 p-4 bg-gradient-to-r from-emerald-50 to-green-50 font-semibold text-sm text-gray-700 border-b sticky top-0 bg-white z-10">
                   <div>Product *</div>
                   <div>Staff *</div>
                   <div>Qty</div>
@@ -2586,73 +2588,72 @@ export function QuickSale() {
           </div>
 
           {/* Add Items Section */}
-          <div className="space-y-6">
-            <h3 className="text-2xl font-semibold text-gray-900">Add Items</h3>
+          <div className="space-y-4">
+            <h3 className="text-xl font-semibold">Add Items</h3>
             <Tabs defaultValue="membership" className="w-full">
-              <TabsList className="grid w-full grid-cols-3 bg-gray-100">
-                <TabsTrigger value="membership" className="text-base font-medium">Membership</TabsTrigger>
-                <TabsTrigger value="gift-voucher" className="text-base font-medium">Gift Voucher</TabsTrigger>
-                <TabsTrigger value="prepaid" className="text-base font-medium">Prepaid</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="membership">Membership</TabsTrigger>
+                <TabsTrigger value="gift-voucher">Gift Voucher</TabsTrigger>
+                <TabsTrigger value="prepaid">Prepaid</TabsTrigger>
               </TabsList>
-              <TabsContent value="membership" className="mt-6">
-                <div className="text-center py-12 text-gray-500 border border-gray-200 rounded-lg bg-gray-50">
-                  <div className="text-lg font-medium">Membership options coming soon</div>
+              <TabsContent value="membership" className="mt-4">
+                <div className="text-center py-8 text-muted-foreground border rounded-lg">
+                  Membership options coming soon
                 </div>
               </TabsContent>
-              <TabsContent value="gift-voucher" className="mt-6">
-                <div className="text-center py-12 text-gray-500 border border-gray-200 rounded-lg bg-gray-50">
-                  <div className="text-lg font-medium">Gift voucher options coming soon</div>
+              <TabsContent value="gift-voucher" className="mt-4">
+                <div className="text-center py-8 text-muted-foreground border rounded-lg">
+                  Gift voucher options coming soon
                 </div>
               </TabsContent>
-              <TabsContent value="prepaid" className="mt-6">
-                <div className="text-center py-12 text-gray-500 border border-gray-200 rounded-lg bg-gray-50">
-                  <div className="text-lg font-medium">Prepaid options coming soon</div>
+              <TabsContent value="prepaid" className="mt-4">
+                <div className="text-center py-8 text-muted-foreground border rounded-lg">
+                  Prepaid options coming soon
                 </div>
               </TabsContent>
             </Tabs>
           </div>
 
           {/* Discounts & Offers */}
-          <div className="space-y-6">
-            <h3 className="text-2xl font-semibold text-gray-900">Discounts & Offers</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="space-y-3">
-                <Label htmlFor="discount-value" className="text-base font-medium text-gray-900">Disc. by Value</Label>
+          <div className="space-y-4">
+            <h3 className="text-xl font-semibold">Discounts & Offers</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="discount-value">Disc. by Value</Label>
                 <div className="relative">
-                  <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-base text-gray-500">₹</span>
+                  <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-sm">₹</span>
                   <Input
                     id="discount-value"
                     type="number"
                     value={discountValue}
                     onChange={(e) => setDiscountValue(Number(e.target.value))}
-                    className="pl-10 h-12 text-base border-gray-300 focus:border-gray-500 focus:ring-gray-500 rounded-lg"
+                    className="pl-8"
                     placeholder="0"
                   />
                 </div>
               </div>
 
-              <div className="space-y-3">
-                <Label htmlFor="discount-percentage" className="text-base font-medium text-gray-900">Disc. by Percentage</Label>
+              <div className="space-y-2">
+                <Label htmlFor="discount-percentage">Disc. by Percentage</Label>
                 <div className="relative">
                   <Input
                     id="discount-percentage"
                     type="number"
                     value={discountPercentage}
                     onChange={(e) => setDiscountPercentage(Number(e.target.value))}
-                    className="pr-10 h-12 text-base border-gray-300 focus:border-gray-500 focus:ring-gray-500 rounded-lg"
+                    className="pr-8"
                     placeholder="0"
                   />
-                  <span className="absolute right-4 top-1/2 transform -translate-y-1/2 text-base text-gray-500">%</span>
+                  <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm">%</span>
                 </div>
               </div>
 
-              <div className="space-y-3">
-                <Label htmlFor="gift-voucher" className="text-base font-medium text-gray-900">Redeem Gift Voucher</Label>
+              <div className="space-y-2">
+                <Label htmlFor="gift-voucher">Redeem Gift Voucher</Label>
                 <Input
                   id="gift-voucher"
                   value={giftVoucher}
                   onChange={(e) => setGiftVoucher(e.target.value)}
-                  className="h-12 text-base border-gray-300 focus:border-gray-500 focus:ring-gray-500 rounded-lg"
                   placeholder="Eg: YKL/VPPM"
                 />
               </div>

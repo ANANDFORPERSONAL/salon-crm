@@ -363,57 +363,45 @@ export function ExpenseReport() {
   return (
     <div className="space-y-8">
       {/* Enhanced Stats Cards */}
-      <div className="grid gap-6 md:grid-cols-3">
-        <Card className="group transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl border-0 bg-gradient-to-br from-red-50 to-pink-100 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-red-600/10 to-pink-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
-            <CardTitle className="text-sm font-medium text-red-800">Total Expenses</CardTitle>
-            <div className="p-2 bg-red-100 rounded-lg group-hover:bg-red-200 transition-colors duration-300">
-              <Receipt className="h-4 w-4 text-red-600" />
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        <Card className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+            <CardTitle className="text-sm font-medium text-gray-900">Total Expenses</CardTitle>
+            <div className="p-2 bg-gray-100 rounded-lg">
+              <Receipt className="h-4 w-4 text-gray-600" />
             </div>
           </CardHeader>
-          <CardContent className="relative z-10">
-            <div className="text-3xl font-bold text-red-900 mb-1">{formatAmount(stats.totalExpenses)}</div>
-            <p className="text-xs text-red-600 font-medium">
+          <CardContent className="space-y-3">
+            <div className="text-2xl font-bold text-gray-900">{formatAmount(stats.totalExpenses)}</div>
+            <p className="text-sm text-gray-500">
               {datePeriod === "all" ? "All time" : `This ${datePeriod}`}
             </p>
-            <div className="w-full bg-red-200 rounded-full h-1 mt-3 overflow-hidden">
-              <div className="bg-gradient-to-r from-red-500 to-pink-500 h-1 rounded-full transition-all duration-1000 ease-out animate-pulse" style={{ width: `${Math.min((stats.totalExpenses / 100) * 100, 100)}%` }} />
-            </div>
           </CardContent>
         </Card>
         
-        <Card className="group transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl border-0 bg-gradient-to-br from-amber-50 to-orange-100 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-amber-600/10 to-orange-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
-            <CardTitle className="text-sm font-medium text-amber-800">Total Count</CardTitle>
-            <div className="p-2 bg-amber-100 rounded-lg group-hover:bg-amber-200 transition-colors duration-300">
-              <DollarSign className="h-4 w-4 text-amber-600" />
+        <Card className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+            <CardTitle className="text-sm font-medium text-gray-900">Total Count</CardTitle>
+            <div className="p-2 bg-gray-100 rounded-lg">
+              <DollarSign className="h-4 w-4 text-gray-600" />
             </div>
           </CardHeader>
-          <CardContent className="relative z-10">
-            <div className="text-3xl font-bold text-amber-900 mb-1">{stats.totalCount}</div>
-            <p className="text-xs text-amber-600 font-medium">Expense records</p>
-            <div className="w-full bg-amber-200 rounded-full h-1 mt-3 overflow-hidden">
-              <div className="bg-gradient-to-r from-amber-500 to-orange-500 h-1 rounded-full transition-all duration-1000 ease-out animate-pulse" style={{ width: `${Math.min((stats.totalCount / 50) * 100, 100)}%` }} />
-            </div>
+          <CardContent className="space-y-3">
+            <div className="text-2xl font-bold text-gray-900">{stats.totalCount}</div>
+            <p className="text-sm text-gray-500">Expense records</p>
           </CardContent>
         </Card>
         
-        <Card className="group transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl border-0 bg-gradient-to-br from-emerald-50 to-teal-100 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-emerald-600/10 to-teal-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
-            <CardTitle className="text-sm font-medium text-emerald-800">Average Expense</CardTitle>
-            <div className="p-2 bg-emerald-100 rounded-lg group-hover:bg-emerald-200 transition-colors duration-300">
-              <TrendingUp className="h-4 w-4 text-emerald-600" />
+        <Card className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+            <CardTitle className="text-sm font-medium text-gray-900">Average Expense</CardTitle>
+            <div className="p-2 bg-gray-100 rounded-lg">
+              <TrendingUp className="h-4 w-4 text-gray-600" />
             </div>
           </CardHeader>
-          <CardContent className="relative z-10">
-            <div className="text-3xl font-bold text-emerald-900 mb-1">{formatAmount(stats.averageExpense)}</div>
-            <p className="text-xs text-emerald-600 font-medium">Per transaction</p>
-            <div className="w-full bg-emerald-200 rounded-full h-1 mt-3 overflow-hidden">
-              <div className="bg-gradient-to-r from-emerald-500 to-teal-500 h-1 rounded-full transition-all duration-1000 ease-out animate-pulse" style={{ width: `${Math.min((stats.averageExpense / 100) * 100, 100)}%` }} />
-            </div>
+          <CardContent className="space-y-3">
+            <div className="text-2xl font-bold text-gray-900">{formatAmount(stats.averageExpense)}</div>
+            <p className="text-sm text-gray-500">Per transaction</p>
           </CardContent>
         </Card>
       </div>

@@ -556,113 +556,89 @@ export function SalesReport() {
   return (
     <div className="space-y-8">
       {/* Enhanced Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
-        <Card className="group transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl border-0 bg-gradient-to-br from-green-50 to-emerald-100 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-green-600/10 to-emerald-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
-            <CardTitle className="text-sm font-medium text-green-800">Total Revenue</CardTitle>
-            <div className="p-2 bg-green-100 rounded-lg group-hover:bg-green-200 transition-colors duration-300">
-              <DollarSign className="h-4 w-4 text-green-600" />
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <Card className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+            <CardTitle className="text-sm font-medium text-gray-900">Total Revenue</CardTitle>
+            <div className="p-2 bg-gray-100 rounded-lg">
+              <DollarSign className="h-4 w-4 text-gray-600" />
             </div>
           </CardHeader>
-          <CardContent className="relative z-10">
-            <div className="text-3xl font-bold text-green-900 mb-1">₹{totalRevenue.toFixed(2)}</div>
-            <p className="text-xs text-green-600 font-medium">From {filteredSales.length} sales</p>
-            <div className="w-full bg-green-200 rounded-full h-1 mt-3 overflow-hidden">
-              <div className="bg-gradient-to-r from-green-500 to-emerald-500 h-1 rounded-full transition-all duration-1000 ease-out animate-pulse" style={{ width: `${Math.min((totalRevenue / 10000) * 100, 100)}%` }} />
-            </div>
+          <CardContent className="space-y-3">
+            <div className="text-2xl font-bold text-gray-900">₹{totalRevenue.toFixed(2)}</div>
+            <p className="text-sm text-gray-500">From {filteredSales.length} sales</p>
           </CardContent>
         </Card>
         
-        <Card className="group transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl border-0 bg-gradient-to-br from-blue-50 to-indigo-100 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-indigo-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
-            <CardTitle className="text-sm font-medium text-blue-800">Completed Sales</CardTitle>
-            <div className="p-2 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-colors duration-300">
-              <TrendingUp className="h-4 w-4 text-blue-600" />
+        <Card className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+            <CardTitle className="text-sm font-medium text-gray-900">Completed Sales</CardTitle>
+            <div className="p-2 bg-gray-100 rounded-lg">
+              <TrendingUp className="h-4 w-4 text-gray-600" />
             </div>
           </CardHeader>
-          <CardContent className="relative z-10">
-            <div className="text-3xl font-bold text-blue-900 mb-1">{completedSales}</div>
-            <p className="text-xs text-blue-600 font-medium">Successfully completed</p>
-            <div className="w-full bg-blue-200 rounded-full h-1 mt-3 overflow-hidden">
-              <div className="bg-gradient-to-r from-blue-500 to-indigo-500 h-1 rounded-full transition-all duration-1000 ease-out animate-pulse" style={{ width: `${filteredSales.length > 0 ? (completedSales / filteredSales.length) * 100 : 0}%` }} />
-            </div>
+          <CardContent className="space-y-3">
+            <div className="text-2xl font-bold text-gray-900">{completedSales}</div>
+            <p className="text-sm text-gray-500">Successfully completed</p>
           </CardContent>
         </Card>
         
-        <Card className="group transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl border-0 bg-gradient-to-br from-amber-50 to-orange-100 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-amber-600/10 to-orange-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
-            <CardTitle className="text-sm font-medium text-amber-800">Partial Payments</CardTitle>
-            <div className="p-2 bg-amber-100 rounded-lg group-hover:bg-amber-200 transition-colors duration-300">
-              <Users className="h-4 w-4 text-amber-600" />
+        <Card className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+            <CardTitle className="text-sm font-medium text-gray-900">Partial Payments</CardTitle>
+            <div className="p-2 bg-gray-100 rounded-lg">
+              <Users className="h-4 w-4 text-gray-600" />
             </div>
           </CardHeader>
-          <CardContent className="relative z-10">
-            <div className="text-3xl font-bold text-amber-900 mb-1">{partialSales}</div>
-            <p className="text-xs text-amber-600 font-medium">Partially paid bills</p>
-            <div className="w-full bg-amber-200 rounded-full h-1 mt-3 overflow-hidden">
-              <div className="bg-gradient-to-r from-amber-500 to-orange-500 h-1 rounded-full transition-all duration-1000 ease-out animate-pulse" style={{ width: `${filteredSales.length > 0 ? (partialSales / filteredSales.length) * 100 : 0}%` }} />
-            </div>
+          <CardContent className="space-y-3">
+            <div className="text-2xl font-bold text-gray-900">{partialSales}</div>
+            <p className="text-sm text-gray-500">Partially paid bills</p>
           </CardContent>
         </Card>
         
-        <Card className="group transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl border-0 bg-gradient-to-br from-red-50 to-rose-100 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-red-600/10 to-rose-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
-            <CardTitle className="text-sm font-medium text-red-800">Unpaid Bills</CardTitle>
-            <div className="p-2 bg-red-100 rounded-lg group-hover:bg-red-200 transition-colors duration-300">
-              <Users className="h-4 w-4 text-red-600" />
+        <Card className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+            <CardTitle className="text-sm font-medium text-gray-900">Unpaid Bills</CardTitle>
+            <div className="p-2 bg-gray-100 rounded-lg">
+              <Users className="h-4 w-4 text-gray-600" />
             </div>
           </CardHeader>
-          <CardContent className="relative z-10">
-            <div className="text-3xl font-bold text-red-900 mb-1">{unpaidSales}</div>
-            <p className="text-xs text-red-600 font-medium">Awaiting payment</p>
-            <div className="w-full bg-red-200 rounded-full h-1 mt-3 overflow-hidden">
-              <div className="bg-gradient-to-r from-red-500 to-rose-500 h-1 rounded-full transition-all duration-1000 ease-out animate-pulse" style={{ width: `${filteredSales.length > 0 ? (unpaidSales / filteredSales.length) * 100 : 0}%` }} />
-            </div>
+          <CardContent className="space-y-3">
+            <div className="text-2xl font-bold text-gray-900">{unpaidSales}</div>
+            <p className="text-sm text-gray-500">Awaiting payment</p>
           </CardContent>
         </Card>
         
-        <Card className="group transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl border-0 bg-gradient-to-br from-emerald-50 to-teal-100 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-emerald-600/10 to-teal-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
-            <CardTitle className="text-sm font-medium text-emerald-800">Cash Collected</CardTitle>
-            <div className="p-2 bg-emerald-100 rounded-lg group-hover:bg-emerald-200 transition-colors duration-300">
-              <DollarSign className="h-4 w-4 text-emerald-600" />
+        <Card className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+            <CardTitle className="text-sm font-medium text-gray-900">Cash Collected</CardTitle>
+            <div className="p-2 bg-gray-100 rounded-lg">
+              <DollarSign className="h-4 w-4 text-gray-600" />
             </div>
           </CardHeader>
-          <CardContent className="relative z-10">
-            <div className="text-3xl font-bold text-emerald-900 mb-1">₹{cashCollected.toFixed(2)}</div>
-            <p className="text-xs text-emerald-600 font-medium">
+          <CardContent className="space-y-3">
+            <div className="text-2xl font-bold text-gray-900">₹{cashCollected.toFixed(2)}</div>
+            <p className="text-sm text-gray-500">
               {paymentFilter === "all" ? "Cash payments only" : 
                paymentFilter === "Cash" ? "Filtered: Cash only" : "All cash payments"}
             </p>
-            <div className="w-full bg-emerald-200 rounded-full h-1 mt-3 overflow-hidden">
-              <div className="bg-gradient-to-r from-emerald-500 to-teal-500 h-1 rounded-full transition-all duration-1000 ease-out animate-pulse" style={{ width: `${totalRevenue > 0 ? (cashCollected / totalRevenue) * 100 : 0}%` }} />
-            </div>
           </CardContent>
         </Card>
         
-        <Card className="group transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl border-0 bg-gradient-to-br from-purple-50 to-indigo-100 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-600/10 to-indigo-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
-            <CardTitle className="text-sm font-medium text-purple-800">Online Cash Collected</CardTitle>
-            <div className="p-2 bg-purple-100 rounded-lg group-hover:bg-purple-200 transition-colors duration-300">
-              <TrendingUp className="h-4 w-4 text-purple-600" />
+        <Card className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+            <CardTitle className="text-sm font-medium text-gray-900">Online Cash Collected</CardTitle>
+            <div className="p-2 bg-gray-100 rounded-lg">
+              <TrendingUp className="h-4 w-4 text-gray-600" />
             </div>
           </CardHeader>
-          <CardContent className="relative z-10">
-            <div className="text-3xl font-bold text-purple-900 mb-1">₹{onlineCashCollected.toFixed(2)}</div>
-            <p className="text-xs text-purple-600 font-medium">
+          <CardContent className="space-y-3">
+            <div className="text-2xl font-bold text-gray-900">₹{onlineCashCollected.toFixed(2)}</div>
+            <p className="text-sm text-gray-500">
               {paymentFilter === "all" ? "Card + Online/Paytm" : 
                paymentFilter === "Card" ? "Filtered: Card only" : 
                paymentFilter === "Online" ? "Filtered: Online only" : "All online payments"}
             </p>
-            <div className="w-full bg-purple-200 rounded-full h-1 mt-3 overflow-hidden">
-              <div className="bg-gradient-to-r from-purple-500 to-indigo-500 h-1 rounded-full transition-all duration-1000 ease-out animate-pulse" style={{ width: `${totalRevenue > 0 ? (onlineCashCollected / totalRevenue) * 100 : 0}%` }} />
-            </div>
           </CardContent>
         </Card>
       </div>

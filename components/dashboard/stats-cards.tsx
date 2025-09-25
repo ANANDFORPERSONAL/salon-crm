@@ -133,71 +133,55 @@ export function DashboardStatsCards() {
 
   return (
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-      <Card className="group transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl border-0 bg-gradient-to-br from-blue-50 to-indigo-100 overflow-hidden animate-in slide-in-from-bottom-2" style={{ animationDelay: '0ms' }}>
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-indigo-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
-          <CardTitle className="text-sm font-medium text-blue-800">Total Clients</CardTitle>
-          <div className="p-2 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-colors duration-300">
-            <Users className="h-4 w-4 text-blue-600" />
+      <Card className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+          <CardTitle className="text-sm font-medium text-gray-900">Total Clients</CardTitle>
+          <div className="p-2 bg-gray-100 rounded-lg">
+            <Users className="h-4 w-4 text-gray-600" />
           </div>
         </CardHeader>
-        <CardContent className="relative z-10">
-          <div className="text-3xl font-bold text-blue-900 mb-1">{stats.totalClients}</div>
-          <p className="text-xs text-blue-600 font-medium">Active clients</p>
-          <div className="w-full bg-blue-200 rounded-full h-1 mt-3 overflow-hidden">
-            <div className="bg-gradient-to-r from-blue-500 to-indigo-500 h-1 rounded-full transition-all duration-1000 ease-out animate-pulse" style={{ width: `${Math.min((stats.totalClients / 100) * 100, 100)}%` }} />
-          </div>
+        <CardContent className="space-y-3">
+          <div className="text-2xl font-bold text-gray-900">{stats.totalClients}</div>
+          <p className="text-sm text-gray-500">Active clients</p>
         </CardContent>
       </Card>
       
-      <Card className="group transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl border-0 bg-gradient-to-br from-emerald-50 to-green-100 overflow-hidden animate-in slide-in-from-bottom-2" style={{ animationDelay: '100ms' }}>
-        <div className="absolute inset-0 bg-gradient-to-r from-emerald-600/10 to-green-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
-          <CardTitle className="text-sm font-medium text-emerald-800">Total Appointments</CardTitle>
-          <div className="p-2 bg-emerald-100 rounded-lg group-hover:bg-emerald-200 transition-colors duration-300">
-            <CalendarDays className="h-4 w-4 text-emerald-600" />
+      <Card className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+          <CardTitle className="text-sm font-medium text-gray-900">Total Appointments</CardTitle>
+          <div className="p-2 bg-gray-100 rounded-lg">
+            <CalendarDays className="h-4 w-4 text-gray-600" />
           </div>
         </CardHeader>
-        <CardContent className="relative z-10">
-          <div className="text-3xl font-bold text-emerald-900 mb-1">{stats.totalAppointments}</div>
-          <p className="text-xs text-emerald-600 font-medium">Today</p>
-          <div className="w-full bg-emerald-200 rounded-full h-1 mt-3 overflow-hidden">
-            <div className="bg-gradient-to-r from-emerald-500 to-green-500 h-1 rounded-full transition-all duration-1000 ease-out animate-pulse" style={{ width: `${Math.min((stats.totalAppointments / 20) * 100, 100)}%` }} />
-          </div>
+        <CardContent className="space-y-3">
+          <div className="text-2xl font-bold text-gray-900">{stats.totalAppointments}</div>
+          <p className="text-sm text-gray-500">Today</p>
         </CardContent>
       </Card>
       
-      <Card className="group transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl border-0 bg-gradient-to-br from-purple-50 to-pink-100 overflow-hidden animate-in slide-in-from-bottom-2" style={{ animationDelay: '200ms' }}>
-        <div className="absolute inset-0 bg-gradient-to-r from-purple-600/10 to-pink-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
-          <CardTitle className="text-sm font-medium text-purple-800">Total Revenue</CardTitle>
-          <div className="p-2 bg-purple-100 rounded-lg group-hover:bg-purple-200 transition-colors duration-300">
-            <PieChart className="h-4 w-4 text-purple-600" />
+      <Card className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+          <CardTitle className="text-sm font-medium text-gray-900">Total Revenue</CardTitle>
+          <div className="p-2 bg-gray-100 rounded-lg">
+            <PieChart className="h-4 w-4 text-gray-600" />
           </div>
         </CardHeader>
-        <CardContent className="relative z-10">
-          <div className="text-3xl font-bold text-purple-900 mb-1">{safeFormatAmount(stats.totalRevenue)}</div>
-          <p className="text-xs text-purple-600 font-medium">Today</p>
-          <div className="w-full bg-purple-200 rounded-full h-1 mt-3 overflow-hidden">
-            <div className="bg-gradient-to-r from-purple-500 to-pink-500 h-1 rounded-full transition-all duration-1000 ease-out animate-pulse" style={{ width: `${Math.min((stats.totalRevenue / 10000) * 100, 100)}%` }} />
-          </div>
+        <CardContent className="space-y-3">
+          <div className="text-2xl font-bold text-gray-900">{safeFormatAmount(stats.totalRevenue)}</div>
+          <p className="text-sm text-gray-500">Today</p>
         </CardContent>
       </Card>
       
-      <Card className="group transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl border-0 bg-gradient-to-br from-orange-50 to-amber-100 overflow-hidden animate-in slide-in-from-bottom-2" style={{ animationDelay: '300ms' }}>
-        <div className="absolute inset-0 bg-gradient-to-r from-orange-600/10 to-amber-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
-          <CardTitle className="text-sm font-medium text-orange-800">Total Services</CardTitle>
-          <div className="p-2 bg-orange-100 rounded-lg group-hover:bg-orange-200 transition-colors duration-300">
-            <Settings className="h-4 w-4 text-orange-600" />
+      <Card className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+          <CardTitle className="text-sm font-medium text-gray-900">Total Services</CardTitle>
+          <div className="p-2 bg-gray-100 rounded-lg">
+            <Settings className="h-4 w-4 text-gray-600" />
           </div>
         </CardHeader>
-        <CardContent className="relative z-10">
-          <div className="text-3xl font-bold text-orange-900 mb-1">{stats.totalServices}</div>
-          <p className="text-xs text-orange-600 font-medium">Active services</p>
-          <div className="w-full bg-orange-200 rounded-full h-1 mt-3 overflow-hidden">
-            <div className="bg-gradient-to-r from-orange-500 to-amber-500 h-1 rounded-full transition-all duration-1000 ease-out animate-pulse" style={{ width: `${Math.min((stats.totalServices / 50) * 100, 100)}%` }} />
-          </div>
+        <CardContent className="space-y-3">
+          <div className="text-2xl font-bold text-gray-900">{stats.totalServices}</div>
+          <p className="text-sm text-gray-500">Active services</p>
         </CardContent>
       </Card>
     </div>

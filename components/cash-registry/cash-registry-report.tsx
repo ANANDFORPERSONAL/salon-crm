@@ -1376,110 +1376,96 @@ export function CashRegistryReport({ isVerificationModalOpen, onVerificationModa
     <div className="space-y-8 w-full">
       {/* Enhanced Stats Cards - Full Width Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-        <Card className="group relative overflow-hidden border-0 bg-gradient-to-br from-green-50 to-emerald-50 hover:from-green-100 hover:to-emerald-100 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-          <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-green-400/20 to-emerald-400/20 rounded-full blur-xl" />
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-            <CardTitle className="text-sm font-semibold text-green-800">Total Cash Sales</CardTitle>
-            <div className="p-2.5 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl shadow-md">
-              <DollarSign className="h-4 w-4 text-white" />
+        <Card className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+            <CardTitle className="text-sm font-medium text-gray-900">Total Cash Sales</CardTitle>
+            <div className="p-2 bg-gray-100 rounded-lg">
+              <DollarSign className="h-4 w-4 text-gray-600" />
             </div>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="text-3xl font-bold text-green-700">₹{totalCashSales.toFixed(2)}</div>
-            <p className="text-xs text-green-600 font-medium">Real-time cash transactions</p>
-            <div className="w-full bg-green-200 rounded-full h-1.5">
-              <div className="bg-gradient-to-r from-green-500 to-emerald-600 h-1.5 rounded-full" style={{width: '75%'}}></div>
-            </div>
+          <CardContent className="space-y-3">
+            <div className="text-2xl font-bold text-gray-900">₹{totalCashSales.toFixed(2)}</div>
+            <p className="text-sm text-gray-500">Real-time cash transactions</p>
           </CardContent>
         </Card>
         
-        <Card className="group relative overflow-hidden border-0 bg-gradient-to-br from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-          <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-blue-400/20 to-indigo-400/20 rounded-full blur-xl" />
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-            <CardTitle className="text-sm font-semibold text-blue-800">Total Online Sales</CardTitle>
-            <div className="p-2.5 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-md">
-              <CreditCard className="h-4 w-4 text-white" />
+        <Card className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+            <CardTitle className="text-sm font-medium text-gray-900">Total Online Sales</CardTitle>
+            <div className="p-2 bg-gray-100 rounded-lg">
+              <CreditCard className="h-4 w-4 text-gray-600" />
             </div>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="text-3xl font-bold text-blue-700">₹{totalOnlineSales.toFixed(2)}</div>
-            <p className="text-xs text-blue-600 font-medium">Real-time online payments</p>
-            <div className="w-full bg-blue-200 rounded-full h-1.5">
-              <div className="bg-gradient-to-r from-blue-500 to-indigo-600 h-1.5 rounded-full" style={{width: '60%'}}></div>
-            </div>
+          <CardContent className="space-y-3">
+            <div className="text-2xl font-bold text-gray-900">₹{totalOnlineSales.toFixed(2)}</div>
+            <p className="text-sm text-gray-500">Real-time online payments</p>
           </CardContent>
         </Card>
         
-        <Card className="group relative overflow-hidden border-0 bg-gradient-to-br from-orange-50 to-red-50 hover:from-orange-100 hover:to-red-100 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-          <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-orange-400/20 to-red-400/20 rounded-full blur-xl" />
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-            <CardTitle className="text-sm font-semibold text-orange-800">Total Expenses</CardTitle>
-            <div className="p-2.5 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl shadow-md">
-              <Receipt className="h-4 w-4 text-white" />
+        <Card className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+            <CardTitle className="text-sm font-medium text-gray-900">Total Expenses</CardTitle>
+            <div className="p-2 bg-gray-100 rounded-lg">
+              <Receipt className="h-4 w-4 text-gray-600" />
             </div>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="text-3xl font-bold text-orange-700">₹{totalExpenses.toFixed(2)}</div>
-            <p className="text-xs text-orange-600 font-medium">Real-time business expenses</p>
-            <div className="w-full bg-orange-200 rounded-full h-1.5">
-              <div className="bg-gradient-to-r from-orange-500 to-red-600 h-1.5 rounded-full" style={{width: '45%'}}></div>
-            </div>
+          <CardContent className="space-y-3">
+            <div className="text-2xl font-bold text-gray-900">₹{totalExpenses.toFixed(2)}</div>
+            <p className="text-sm text-gray-500">Real-time business expenses</p>
           </CardContent>
         </Card>
 
-        <Card className="group relative overflow-hidden border-0 bg-gradient-to-br from-purple-50 to-violet-50 hover:from-purple-100 hover:to-violet-100 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-          <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-purple-400/20 to-violet-400/20 rounded-full blur-xl" />
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-            <CardTitle className="text-sm font-semibold text-purple-800">Cash Difference</CardTitle>
-            <div className="p-2.5 bg-gradient-to-br from-purple-500 to-violet-600 rounded-xl shadow-md">
-              <TrendingUp className="h-4 w-4 text-white" />
+        <Card className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+            <CardTitle className="text-sm font-medium text-gray-900">Cash Difference</CardTitle>
+            <div className="p-2 bg-gray-100 rounded-lg">
+              <TrendingUp className="h-4 w-4 text-gray-600" />
             </div>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className={`text-3xl font-bold ${
+          <CardContent className="space-y-3">
+            <div className={`text-2xl font-bold ${
               cashDifference > 0 ? 'text-green-600' : 
               cashDifference < 0 ? 'text-red-600' : 
-              'text-purple-700'
+              'text-gray-900'
             }`}>
               ₹{cashDifference.toFixed(2)}
             </div>
-            <p className="text-xs text-purple-600 font-medium">
+            <p className="text-sm text-gray-500">
               Closing - (Opening + Sales - Expenses)
             </p>
             {cashDifference !== 0 && (
-              <div className={`px-3 py-1 rounded-full text-xs font-medium ${
-                cashDifference > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+              <div className={`px-2 py-1 rounded text-xs font-medium ${
+                cashDifference > 0 ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
               }`}>
-                {cashDifference > 0 ? '💰 Surplus' : '⚠️ Shortage'}
+                {cashDifference > 0 ? 'Surplus' : 'Shortage'}
               </div>
             )}
           </CardContent>
         </Card>
 
-        <Card className="group relative overflow-hidden border-0 bg-gradient-to-br from-cyan-50 to-teal-50 hover:from-cyan-100 hover:to-teal-100 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-          <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-cyan-400/20 to-teal-400/20 rounded-full blur-xl" />
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-            <CardTitle className="text-sm font-semibold text-cyan-800">Online Cash Diff.</CardTitle>
-            <div className="p-2.5 bg-gradient-to-br from-cyan-500 to-teal-600 rounded-xl shadow-md">
-              <CreditCard className="h-4 w-4 text-white" />
+        <Card className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+            <CardTitle className="text-sm font-medium text-gray-900">Online Cash Diff.</CardTitle>
+            <div className="p-2 bg-gray-100 rounded-lg">
+              <CreditCard className="h-4 w-4 text-gray-600" />
             </div>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className={`text-3xl font-bold ${
+          <CardContent className="space-y-3">
+            <div className={`text-2xl font-bold ${
               onlineCashDifference > 0 ? 'text-green-600' : 
               onlineCashDifference < 0 ? 'text-red-600' : 
-              'text-cyan-700'
+              'text-gray-900'
             }`}>
               ₹{onlineCashDifference.toFixed(2)}
             </div>
-            <p className="text-xs text-cyan-600 font-medium">
+            <p className="text-sm text-gray-500">
               Online Cash - Online Sales
             </p>
             {onlineCashDifference !== 0 && (
-              <div className={`px-3 py-1 rounded-full text-xs font-medium ${
-                onlineCashDifference > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+              <div className={`px-2 py-1 rounded text-xs font-medium ${
+                onlineCashDifference > 0 ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
               }`}>
-                {onlineCashDifference > 0 ? '💰 Surplus' : '⚠️ Shortage'}
+                {onlineCashDifference > 0 ? 'Surplus' : 'Shortage'}
               </div>
             )}
           </CardContent>
@@ -1488,56 +1474,53 @@ export function CashRegistryReport({ isVerificationModalOpen, onVerificationModa
 
       {/* Enhanced Balance Summary Cards - Full Width */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        <Card className="group relative overflow-hidden border-0 bg-gradient-to-br from-amber-50 to-yellow-50 hover:from-amber-100 hover:to-yellow-100 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-amber-400/20 to-yellow-400/20 rounded-full blur-xl" />
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-            <CardTitle className="text-sm font-semibold text-amber-800">Total Opening Balance</CardTitle>
-            <div className="p-2.5 bg-gradient-to-br from-amber-500 to-yellow-600 rounded-xl shadow-md">
-              <DollarSign className="h-4 w-4 text-white" />
+        <Card className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+            <CardTitle className="text-sm font-medium text-gray-900">Total Opening Balance</CardTitle>
+            <div className="p-2 bg-gray-100 rounded-lg">
+              <DollarSign className="h-4 w-4 text-gray-600" />
             </div>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="text-3xl font-bold text-amber-700">₹{totalOpeningBalance.toFixed(2)}</div>
-            <p className="text-xs text-amber-600 font-medium">From all opening shifts</p>
+          <CardContent className="space-y-3">
+            <div className="text-2xl font-bold text-gray-900">₹{totalOpeningBalance.toFixed(2)}</div>
+            <p className="text-sm text-gray-500">From all opening shifts</p>
             <div className="flex items-center space-x-2">
-              <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></div>
-              <span className="text-xs text-amber-600">Active tracking</span>
+              <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+              <span className="text-xs text-gray-500">Active tracking</span>
             </div>
           </CardContent>
         </Card>
         
-        <Card className="group relative overflow-hidden border-0 bg-gradient-to-br from-rose-50 to-pink-50 hover:from-rose-100 hover:to-pink-100 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-rose-400/20 to-pink-400/20 rounded-full blur-xl" />
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-            <CardTitle className="text-sm font-semibold text-rose-800">Total Closing Balance</CardTitle>
-            <div className="p-2.5 bg-gradient-to-br from-rose-500 to-pink-600 rounded-xl shadow-md">
-              <DollarSign className="h-4 w-4 text-white" />
+        <Card className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+            <CardTitle className="text-sm font-medium text-gray-900">Total Closing Balance</CardTitle>
+            <div className="p-2 bg-gray-100 rounded-lg">
+              <DollarSign className="h-4 w-4 text-gray-600" />
             </div>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="text-3xl font-bold text-rose-700">₹{totalClosingBalance.toFixed(2)}</div>
-            <p className="text-xs text-rose-600 font-medium">From all closing shifts</p>
+          <CardContent className="space-y-3">
+            <div className="text-2xl font-bold text-gray-900">₹{totalClosingBalance.toFixed(2)}</div>
+            <p className="text-sm text-gray-500">From all closing shifts</p>
             <div className="flex items-center space-x-2">
-              <div className="w-2 h-2 bg-rose-500 rounded-full animate-pulse"></div>
-              <span className="text-xs text-rose-600">End of day totals</span>
+              <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+              <span className="text-xs text-gray-500">End of day totals</span>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="group relative overflow-hidden border-0 bg-gradient-to-br from-sky-50 to-blue-50 hover:from-sky-100 hover:to-blue-100 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-sky-400/20 to-blue-400/20 rounded-full blur-xl" />
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-            <CardTitle className="text-sm font-semibold text-sky-800">Online Cash Collected</CardTitle>
-            <div className="p-2.5 bg-gradient-to-br from-sky-500 to-blue-600 rounded-xl shadow-md">
-              <CreditCard className="h-4 w-4 text-white" />
+        <Card className="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+            <CardTitle className="text-sm font-medium text-gray-900">Online Cash Collected</CardTitle>
+            <div className="p-2 bg-gray-100 rounded-lg">
+              <CreditCard className="h-4 w-4 text-gray-600" />
             </div>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="text-3xl font-bold text-sky-700">₹{totalOnlineCashCollected.toFixed(2)}</div>
-            <p className="text-xs text-sky-600 font-medium">From Cash in POS Machine during closing shifts</p>
+          <CardContent className="space-y-3">
+            <div className="text-2xl font-bold text-gray-900">₹{totalOnlineCashCollected.toFixed(2)}</div>
+            <p className="text-sm text-gray-500">From Cash in POS Machine during closing shifts</p>
             <div className="flex items-center space-x-2">
-              <div className="w-2 h-2 bg-sky-500 rounded-full animate-pulse"></div>
-              <span className="text-xs text-sky-600">Digital payments</span>
+              <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+              <span className="text-xs text-gray-500">Digital payments</span>
             </div>
           </CardContent>
         </Card>
