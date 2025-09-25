@@ -163,22 +163,8 @@ export const appointments: Appointment[] = []
 // Receipt storage (in a real app, this would be in a database)
 export const receipts: Receipt[] = []
 
-// Load receipts from localStorage on initialization
-const loadReceiptsFromStorage = () => {
-  try {
-    const storedReceipts = localStorage.getItem('salon-receipts')
-    if (storedReceipts) {
-      const parsedReceipts = JSON.parse(storedReceipts)
-      receipts.push(...parsedReceipts)
-      console.log('📝 Loaded receipts from localStorage:', receipts.length)
-    }
-  } catch (error) {
-    console.error('❌ Failed to load receipts from localStorage:', error)
-  }
-}
-
-// Initialize receipts from localStorage
-loadReceiptsFromStorage()
+// In production, receipts are managed by the API only
+// No localStorage fallback for critical business data
 
 export const addReceipt = (receipt: Receipt) => {
   console.log('📝 Adding receipt to store:', receipt)
@@ -192,13 +178,7 @@ export const addReceipt = (receipt: Receipt) => {
   console.log('📝 New receipts count:', receipts.length)
   console.log('📝 All receipts in store:', receipts)
   
-  // Also store in localStorage for persistence
-  try {
-    localStorage.setItem('salon-receipts', JSON.stringify(receipts))
-    console.log('📝 Receipts saved to localStorage')
-  } catch (error) {
-    console.error('❌ Failed to save receipts to localStorage:', error)
-  }
+  // In production, receipts are persisted via API only
 }
 
 export const getReceiptByNumber = (receiptNumber: string) => {

@@ -166,9 +166,7 @@ export function CashRegistryModal({ open, onOpenChange, onSaveSuccess, onlineSal
       console.log("Saving cash registry data:", cashRegistryData)
       console.log("User info:", { name: user?.name, email: user?.email })
       console.log("User object:", user)
-      const authToken = localStorage.getItem('salon-auth-token')
-      console.log("Auth token:", authToken)
-      console.log("Token type:", typeof authToken)
+      // Auth token is managed by AuthContext
       console.log("Token starts with 'mock':", authToken?.startsWith('mock-token-'))
       console.log("Denominations structure:", denominations.filter(d => d.count > 0).map(d => ({ value: d.value, count: d.count, total: d.total })))
 

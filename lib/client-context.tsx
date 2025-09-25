@@ -22,22 +22,8 @@ interface ClientContextType {
 const ClientContext = createContext<ClientContextType | undefined>(undefined)
 
 export function ClientProvider({ children }: { children: ReactNode }) {
-  // Use localStorage to persist clients if available
-  const [clients, setClients] = useState<Client[]>(() => {
-    // Initialize with data from localStorage if available, otherwise use initial data
-    if (typeof window !== "undefined") {
-      const savedClients = localStorage.getItem("salon-clients")
-      return savedClients ? JSON.parse(savedClients) : initialClients
-    }
-    return initialClients
-  })
-
-  // Save to localStorage whenever clients change
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      localStorage.setItem("salon-clients", JSON.stringify(clients))
-    }
-  }, [clients])
+  // In production, clients are managed by the API only
+  const [clients, setClients] = useState<Client[]>(initialClients)
 
   const addClient = (client: Client) => {
     setClients((prevClients) => {

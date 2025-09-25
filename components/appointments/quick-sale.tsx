@@ -398,55 +398,8 @@ export function QuickSale() {
     return unsubscribe
   }, [])
 
-  // Prefill from Appointment payload if present
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem('salon-quick-sale-prefill')
-      if (!raw) return
-      const payload = JSON.parse(raw)
-      if (payload?.source !== 'appointment') return
-      // Find and set client
-      const prefillClientId = payload.client?._id || payload.client?.id
-      if (prefillClientId) {
-        const found = clientStore.getClientById(prefillClientId)
-        if (found) {
-          setSelectedCustomer(found as any)
-          setCustomerSearch(found.name)
-        } else if (payload.client?.name) {
-          // Fallback with minimal client object if store not yet loaded
-          const fallbackClient: any = {
-            id: prefillClientId,
-            name: payload.client.name,
-            phone: payload.client.phone || '',
-            email: payload.client.email || '',
-            status: 'active',
-            totalVisits: 0,
-            totalSpent: 0,
-            createdAt: new Date().toISOString(),
-          }
-          setSelectedCustomer(fallbackClient)
-          setCustomerSearch(fallbackClient.name)
-        }
-      }
-      // Prefill first service item with serviceId and staffId
-      const item = payload.items?.[0]
-      if (item) {
-        setServiceItems([
-          {
-            id: Date.now().toString(),
-            serviceId: item.serviceId || '',
-            staffId: item.staffId || '',
-            quantity: 1,
-            price: 0,
-            discount: 0,
-            total: 0,
-          },
-        ])
-      }
-      // Optionally clear the prefill after applying
-      localStorage.removeItem('salon-quick-sale-prefill')
-    } catch {}
-  }, [])
+  // In production, prefill data should come from URL params or API
+  // No localStorage dependency for critical business functionality
 
   // Once services load, if we have a prefilled serviceId, trigger price autofill
   useEffect(() => {
@@ -1349,8 +1302,7 @@ export function QuickSale() {
         console.log('🔍 DEBUG: Starting sale creation...')
         console.log('📋 Sale data:', saleData)
         console.log('💰 Split payments:', salePayments)
-        console.log('🔑 Auth token:', localStorage.getItem('salon-auth-token'))
-        console.log('👤 Current user:', localStorage.getItem('salon-auth-user'))
+        // Auth token and user are managed by AuthContext
         
         // Test API connection first
         try {

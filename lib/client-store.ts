@@ -54,18 +54,9 @@ class ClientStore {
       }
     } catch (error) {
       console.error('❌ ClientStore: Error loading clients:', error)
-      console.warn("API not available, using local storage fallback")
-      // Fallback to localStorage if available
-      if (typeof window !== "undefined") {
-        try {
-          const savedClients = localStorage.getItem("salon-clients")
-          if (savedClients) {
-            this.clients = JSON.parse(savedClients)
-          }
-        } catch (localError) {
-          console.error("Error loading clients from localStorage:", localError)
-        }
-      }
+      console.warn("API not available, no fallback in production")
+      // In production, don't use localStorage fallback
+      this.clients = []
     } finally {
       this.isLoading = false
     }
@@ -100,10 +91,7 @@ class ClientStore {
         this.clients.push(client)
       }
 
-      // Save to localStorage
-      if (typeof window !== "undefined") {
-        localStorage.setItem("salon-clients", JSON.stringify(this.clients))
-      }
+      // In production, data is persisted via API only
 
       // Notify listeners
       this.notifyListeners()
@@ -169,10 +157,7 @@ class ClientStore {
       const afterCount = this.clients.length
       console.log('ClientStore: Clients before deletion (fallback):', beforeCount, 'after deletion:', afterCount)
       
-      // Save to localStorage
-      if (typeof window !== "undefined") {
-        localStorage.setItem("salon-clients", JSON.stringify(this.clients))
-      }
+      // In production, data is persisted via API only
       this.notifyListeners()
       return true
     }

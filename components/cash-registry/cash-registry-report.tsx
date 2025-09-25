@@ -1241,9 +1241,7 @@ export function CashRegistryReport({ isVerificationModalOpen, onVerificationModa
           createdBy: selectedEntry.createdBy
         })
         
-        // Check if we have an auth token
-        const token = localStorage.getItem('salon-auth-token')
-        console.log("Auth token present:", !!token)
+        // Auth token is managed by AuthContext
         
         // Call delete API (shiftType parameter removed for now)
         response = await CashRegistryAPI.delete(selectedEntry.id)

@@ -40,6 +40,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         setIsLoading(true)
         
+        // Check if we're in browser environment
+        if (typeof window === 'undefined') {
+          setIsLoading(false)
+          return
+        }
+        
         // Check if we have a stored token
         const storedToken = localStorage.getItem("salon-auth-token")
         const storedUser = localStorage.getItem("salon-auth-user")
@@ -71,22 +77,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             localStorage.removeItem("salon-auth-user")
           }
         } catch (apiError) {
-          console.warn('API not available, checking stored data validity')
+          console.warn('API not available, requiring fresh login')
           
-          // If API is not available, try to use stored data if it's recent
-          try {
-            const userData = JSON.parse(storedUser)
-            // Check if stored data has required fields
-            if (userData && userData._id && userData.email && userData.role) {
-              console.log('✅ Using stored authentication data (API unavailable)')
-              setUser(userData)
-            } else {
-              console.log('❌ Stored data invalid, clearing')
-              localStorage.removeItem("salon-auth-token")
-              localStorage.removeItem("salon-auth-user")
-            }
-          } catch (parseError) {
-            console.error('Failed to parse stored user data:', parseError)
+          // In production, always require fresh login if API is unavailable
+          if (typeof window !== 'undefined') {
             localStorage.removeItem("salon-auth-token")
             localStorage.removeItem("salon-auth-user")
           }
@@ -114,17 +108,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.log('🌐 Attempting real API login...')
       const response = await AuthAPI.login(email, password)
       
-      if (response.success) {
-        const { user: userData, token } = response.data
-        console.log('✅ Real API login successful')
-        console.log('👤 User data:', userData)
-        console.log('🔑 Token received:', token ? 'Yes' : 'No')
-        setUser(userData)
-        localStorage.setItem("salon-auth-token", token)
-        localStorage.setItem("salon-auth-user", JSON.stringify(userData))
-        setIsLoading(false)
-        return true
-      } else {
+            if (response.success) {
+              const { user: userData, token } = response.data
+              console.log('✅ Real API login successful')
+              console.log('👤 User data:', userData)
+              console.log('🔑 Token received:', token ? 'Yes' : 'No')
+              setUser(userData)
+              
+              // Only use localStorage in browser environment
+              if (typeof window !== 'undefined') {
+                localStorage.setItem("salon-auth-token", token)
+                localStorage.setItem("salon-auth-user", JSON.stringify(userData))
+              }
+              
+              setIsLoading(false)
+              return true
+            } else {
         console.log('❌ Real API login failed:', response.error)
         setIsLoading(false)
         return false
@@ -143,9 +142,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(null)
       setIsLoading(true)
       
-      // Clear local storage
-      localStorage.removeItem("salon-auth-token")
-      localStorage.removeItem("salon-auth-user")
+      // Clear local storage (only in browser environment)
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem("salon-auth-token")
+        localStorage.removeItem("salon-auth-user")
+      }
       
       // Clear any other stored data that might cause issues
       sessionStorage.clear()

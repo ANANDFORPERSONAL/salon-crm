@@ -593,9 +593,7 @@ export const AppointmentsCalendar = forwardRef<{ showCancelledModal: () => void 
                         },
                       ],
                     }
-                    try {
-                      localStorage.setItem('salon-quick-sale-prefill', JSON.stringify(payload))
-                    } catch {}
+                    // In production, pass data via URL params or API
                     setShowDetails(false)
                     router.push('/quick-sale')
                   }}

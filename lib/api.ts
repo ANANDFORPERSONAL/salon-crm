@@ -16,14 +16,17 @@ const apiClient: AxiosInstance = axios.create({
 // Request interceptor to add auth token
 apiClient.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('salon-auth-token')
-    console.log('🔐 API Request Interceptor: Token found:', !!token)
-    console.log('🔐 API Request Interceptor: Token value:', token ? `${token.substring(0, 20)}...` : 'none')
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`
-      console.log('🔐 API Request Interceptor: Authorization header set')
-    } else {
-      console.log('⚠️ API Request Interceptor: No token found, request will be unauthenticated')
+    // Check if we're in browser environment
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem('salon-auth-token')
+      console.log('🔐 API Request Interceptor: Token found:', !!token)
+      console.log('🔐 API Request Interceptor: Token value:', token ? `${token.substring(0, 20)}...` : 'none')
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`
+        console.log('🔐 API Request Interceptor: Authorization header set')
+      } else {
+        console.log('⚠️ API Request Interceptor: No token found, request will be unauthenticated')
+      }
     }
     return config
   },
