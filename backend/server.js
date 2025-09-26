@@ -35,9 +35,18 @@ connectDB();
 // Middleware
 app.use(helmet());
 
-// Enhanced CORS configuration
+// Enhanced CORS configuration for Railway deployment
+const allowedOrigins = process.env.CORS_ORIGINS 
+  ? process.env.CORS_ORIGINS.split(',')
+  : ['http://localhost:3000', 'http://127.0.0.1:3000'];
+
+console.log('🌍 Environment:', process.env.NODE_ENV || 'development');
+console.log('🔗 CORS Origins:', allowedOrigins);
+console.log('🗄️ MongoDB URI:', process.env.MONGODB_URI ? 'Set' : 'Not set');
+console.log('🔑 JWT Secret:', process.env.JWT_SECRET ? 'Set' : 'Not set');
+
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://127.0.0.1:3000'],
+  origin: allowedOrigins,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
