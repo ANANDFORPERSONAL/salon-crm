@@ -2,7 +2,7 @@
 import axios, { AxiosInstance, AxiosResponse, AxiosError } from 'axios'
 
 // API Base Configuration
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://salon-crm-backend-production.up.railway.app/api'
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'
 
 // Create axios instance with default config
 const apiClient: AxiosInstance = axios.create({
