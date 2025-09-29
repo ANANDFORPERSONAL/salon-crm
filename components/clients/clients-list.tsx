@@ -7,8 +7,6 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ClientsTable } from "@/components/clients/clients-table"
-import { SideNav } from "@/components/side-nav"
-import { TopNav } from "@/components/top-nav"
 import { clientStore, type Client } from "@/lib/client-store"
 import { SalesAPI } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
@@ -257,12 +255,7 @@ export function ClientsListPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <TopNav />
-      <div className="flex flex-1">
-        <SideNav />
-        <main className="flex-1 p-6 md:p-8">
-          <div className="flex flex-col space-y-6">
+    <div className="flex flex-col space-y-6">
             {/* Elegant Header Section */}
             <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
               {/* Header Background */}
@@ -462,9 +455,6 @@ export function ClientsListPage() {
               </div>
             </div>
             <ClientsTable clients={filteredClients} />
-          </div>
-        </main>
-      </div>
     </div>
   )
 }

@@ -175,7 +175,6 @@ export function ClientsTable({ clients }: ClientsTableProps) {
   }
 
   const handleViewBillActivity = async (client: Client) => {
-    // Temporarily remove auth check for debugging
     // if (!user) {
     //   toast({
     //     title: "Authentication Required",
@@ -457,18 +456,6 @@ export function ClientsTable({ clients }: ClientsTableProps) {
               )}
               <span className="ml-2">Refresh Stats</span>
             </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                console.log('🧪 Test modal toggle')
-                setIsBillActivityOpen(!isBillActivityOpen)
-                console.log('Modal state toggled to:', !isBillActivityOpen)
-              }}
-              className="h-8 px-3 border-blue-200 hover:border-blue-300 text-blue-700"
-            >
-              🧪 Test Modal
-            </Button>
           </div>
         </div>
       </div>
@@ -600,14 +587,6 @@ export function ClientsTable({ clients }: ClientsTableProps) {
             </DialogDescription>
           </DialogHeader>
           
-          {/* Debug Info */}
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
-            <p className="text-xs text-yellow-800 font-mono">
-              🐛 Debug: Modal Open: {isBillActivityOpen.toString()}, 
-              Selected Client: {selectedClient?.name || 'None'}, 
-              Bills Count: {selectedClientBills.length}
-            </p>
-          </div>
           
           <div className="flex-1 overflow-hidden">
             {isLoadingBills ? (
@@ -712,17 +691,6 @@ export function ClientsTable({ clients }: ClientsTableProps) {
                   This customer hasn't made any purchases yet
                 </p>
                 
-                {/* Debug information */}
-                <details className="w-full max-w-md">
-                  <summary className="text-xs text-gray-400 cursor-pointer hover:text-gray-600 mb-2">
-                    Debug Info (Click to expand)
-                  </summary>
-                  <div className="bg-gray-50 p-3 rounded-lg text-xs text-gray-600 font-mono">
-                    <div>Client: {selectedClient?.name}</div>
-                    <div>API Response: {JSON.stringify(selectedClientBills, null, 2)}</div>
-                    <div>Response Length: {selectedClientBills.length}</div>
-                  </div>
-                </details>
               </div>
             )}
           </div>
