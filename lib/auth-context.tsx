@@ -19,6 +19,7 @@ interface AuthContextType {
   user: User | null
   login: (email: string, password: string) => Promise<boolean>
   logout: () => void
+  updateUser: (userData: Partial<User>) => void
   isLoading: boolean
   hasRole: (roles: string[]) => boolean
   isAdmin: () => boolean
@@ -136,6 +137,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  const updateUser = (userData: Partial<User>) => {
+    if (user) {
+      const updatedUser = { ...user, ...userData }
+      setUser(updatedUser)
+      
+      // Update localStorage to keep it in sync
+      if (typeof window !== 'undefined') {
+        localStorage.setItem("salon-auth-user", JSON.stringify(updatedUser))
+      }
+    }
+  }
+
   const logout = async () => {
     try {
       // Clear user state first to prevent race conditions
@@ -205,6 +218,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       user, 
       login, 
       logout, 
+      updateUser,
       isLoading, 
       hasRole, 
       isAdmin, 

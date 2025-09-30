@@ -26,7 +26,7 @@ const profileSchema = z.object({
 })
 
 export function ProfilePage() {
-  const { user } = useAuth()
+  const { user, updateUser } = useAuth()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isEditMode, setIsEditMode] = useState(false)
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null)
@@ -152,6 +152,14 @@ export function ProfilePage() {
       if (response.success) {
         // Update local state
         setStaffData({ ...staffData, ...updateData })
+        
+        // Update auth context to sync with dropdown menu
+        updateUser({
+          name: `${values.firstName} ${values.lastName}`,
+          email: values.email,
+          avatar: profilePhoto || staffData.avatar
+        })
+        
         setIsEditMode(false)
         
         toast({
@@ -237,7 +245,10 @@ export function ProfilePage() {
                 <div className="flex items-center space-x-4">
                   <div className="relative">
                     <Avatar className="h-20 w-20">
-                      <AvatarImage src={profilePhoto || staffData?.avatar || "/placeholder.svg"} alt={staffData?.name || "User"} />
+                      <AvatarImage 
+                        src={profilePhoto || staffData?.avatar || "/placeholder.svg"} 
+                        alt={staffData?.name || "User"} 
+                      />
                       <AvatarFallback className="text-lg">
                         {staffData?.firstName?.charAt(0) || staffData?.name?.charAt(0) || "U"}
                       </AvatarFallback>
