@@ -34,6 +34,9 @@ const userSchema = new mongoose.Schema({
   notes: { type: String },
   commissionProfileIds: [{ type: String }], // Array of commission profile IDs
   
+  // Multi-tenant support
+  branchId: { type: mongoose.Schema.Types.ObjectId, ref: 'Business' },
+  
   // Timestamps
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }
