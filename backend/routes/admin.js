@@ -252,6 +252,46 @@ router.post('/businesses', authenticateAdmin, async (req, res) => {
     owner.branchId = business._id;
     await owner.save();
 
+    // Create default business settings in the business-specific database
+    try {
+      const { databaseManager } = require('../config/database-manager');
+      const { modelFactory } = require('../models/model-factory');
+      
+      // Get business-specific database connection
+      const businessConnection = await databaseManager.getConnection(business._id);
+      const businessModels = modelFactory.createBusinessModels(businessConnection);
+      
+      // Create default business settings
+      const defaultSettings = new businessModels.BusinessSettings({
+        name: businessInfo.name,
+        email: businessInfo.contact.email,
+        phone: businessInfo.contact.phone,
+        website: businessInfo.contact.website || '',
+        description: `${businessInfo.name} - Professional salon and spa services`,
+        address: businessInfo.address.street,
+        city: businessInfo.address.city,
+        state: businessInfo.address.state,
+        zipCode: businessInfo.address.zipCode,
+        receiptPrefix: "INV",
+        invoicePrefix: "INV",
+        receiptNumber: 1,
+        autoIncrementReceipt: true,
+        currency: "INR",
+        taxRate: 8.25,
+        processingFee: 2.9,
+        enableCurrency: true,
+        enableTax: true,
+        enableProcessingFees: true,
+        socialMedia: `@${businessInfo.name.toLowerCase().replace(/\s+/g, '')}`
+      });
+      
+      await defaultSettings.save();
+      console.log(`✅ Default business settings created for ${businessInfo.name}`);
+    } catch (settingsError) {
+      console.error('Error creating default business settings:', settingsError);
+      // Don't fail the business creation if settings creation fails
+    }
+
     res.status(201).json({
       success: true,
       data: {

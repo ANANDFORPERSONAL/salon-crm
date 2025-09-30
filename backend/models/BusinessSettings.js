@@ -28,6 +28,10 @@ const businessSettingsSchema = new mongoose.Schema({
   enableTax: { type: Boolean, default: true },
   enableProcessingFees: { type: Boolean, default: true },
   
+  // Auto Reset Settings
+  autoResetReceipt: { type: Boolean, default: false },
+  resetFrequency: { type: String, enum: ['monthly', 'yearly'], default: 'monthly' },
+  
   // Social Media
   socialMedia: { type: String, default: "@glamoursalon" },
   

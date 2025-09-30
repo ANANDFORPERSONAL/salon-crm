@@ -2668,7 +2668,7 @@ app.get("/api/settings/business", authenticateToken, setupBusinessDatabase, asyn
         invoicePrefix: "INV",
         receiptNumber: 1,
         autoIncrementReceipt: true,
-        currency: "USD",
+        currency: "INR",
         taxRate: 8.25,
         processingFee: 2.9,
         enableCurrency: true,
@@ -2800,8 +2800,9 @@ app.post("/api/settings/business/increment-receipt", authenticateToken, setupBus
 });
 
 // POS Settings API
-app.get("/api/settings/pos", authenticateToken, async (req, res) => {
+app.get("/api/settings/pos", authenticateToken, setupBusinessDatabase, async (req, res) => {
   try {
+    const { BusinessSettings } = req.businessModels;
     let settings = await BusinessSettings.findOne();
     
     if (!settings) {
@@ -2834,7 +2835,7 @@ app.get("/api/settings/pos", authenticateToken, async (req, res) => {
   }
 });
 
-app.put("/api/settings/pos", authenticateToken, async (req, res) => {
+app.put("/api/settings/pos", authenticateToken, setupBusinessDatabase, async (req, res) => {
   try {
     const { invoicePrefix, autoResetReceipt } = req.body;
 
@@ -2843,6 +2844,7 @@ app.put("/api/settings/pos", authenticateToken, async (req, res) => {
     console.log('invoicePrefix from request:', invoicePrefix)
     console.log('autoResetReceipt from request:', autoResetReceipt)
 
+    const { BusinessSettings } = req.businessModels;
     let settings = await BusinessSettings.findOne();
     
     if (!settings) {
@@ -2884,8 +2886,9 @@ app.put("/api/settings/pos", authenticateToken, async (req, res) => {
   }
 });
 
-app.post("/api/settings/pos/reset-sequence", authenticateToken, async (req, res) => {
+app.post("/api/settings/pos/reset-sequence", authenticateToken, setupBusinessDatabase, async (req, res) => {
   try {
+    const { BusinessSettings } = req.businessModels;
     let settings = await BusinessSettings.findOne();
     
     if (!settings) {
