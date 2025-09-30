@@ -1,18 +1,19 @@
-const mongoose = require('mongoose');
+const databaseManager = require('./config/database-manager');
 const bcrypt = require('bcryptjs');
-const Admin = require('./models/Admin');
 require('dotenv').config();
 
 const createDefaultAdmin = async () => {
   try {
-    // Connect to MongoDB
-    await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/salon-crm');
-    console.log('Connected to MongoDB');
+    // Connect to main database
+    const mainConnection = await databaseManager.getMainConnection();
+    const Admin = mainConnection.model('Admin', require('./models/Admin').schema);
+    console.log('Connected to main database');
 
     // Check if admin already exists
     const existingAdmin = await Admin.findOne({ email: 'admin@saloncrm.com' });
     if (existingAdmin) {
       console.log('Admin user already exists');
+      mainConnection.close();
       process.exit(0);
     }
 
@@ -43,7 +44,6 @@ const createDefaultAdmin = async () => {
   } catch (error) {
     console.error('❌ Error creating admin user:', error);
   } finally {
-    await mongoose.disconnect();
     process.exit(0);
   }
 };

@@ -47,7 +47,7 @@ export function AdminDashboard() {
 
   const fetchDashboardStats = async () => {
     try {
-      const response = await fetch('/api/admin/dashboard/stats', {
+      const response = await fetch('http://localhost:3001/api/admin/dashboard/stats', {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('admin-auth-token')}`,
           'Content-Type': 'application/json'

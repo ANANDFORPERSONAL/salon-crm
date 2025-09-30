@@ -1,3 +1,4 @@
+console.log('🚀 Starting Salon CRM Backend Server...');
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -7,21 +8,28 @@ const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
 const connectDB = require('./config/database');
 
-// Import Models
-const User = require('./models/User');
-const Service = require('./models/Service');
-const Product = require('./models/Product');
-const Staff = require('./models/Staff');
-const Client = require('./models/Client');
-const Appointment = require('./models/Appointment');
-const Receipt = require('./models/Receipt');
-const Sale = require('./models/Sale');
-const Expense = require('./models/Expense');
-const CashRegistry = require('./models/CashRegistry');
-const BusinessSettings = require("./models/BusinessSettings");
-const PasswordResetToken = require('./models/PasswordResetToken');
-const Admin = require('./models/Admin');
-const Business = require('./models/Business');
+// Import database manager and middleware
+const databaseManager = require('./config/database-manager');
+const { setupBusinessDatabase, setupMainDatabase } = require('./middleware/business-db');
+
+// Import main database models (for admin operations)
+const User = require('./models/User').model;
+const Admin = require('./models/Admin').model;
+const Business = require('./models/Business').model;
+const PasswordResetToken = require('./models/PasswordResetToken').model;
+
+// Import business-specific models (for backward compatibility)
+const BusinessSettings = require('./models/BusinessSettings').model;
+const Service = require('./models/Service').model;
+const Product = require('./models/Product').model;
+const Staff = require('./models/Staff').model;
+const Client = require('./models/Client').model;
+const Appointment = require('./models/Appointment').model;
+const Receipt = require('./models/Receipt').model;
+const Sale = require('./models/Sale').model;
+const Expense = require('./models/Expense').model;
+const CashRegistry = require('./models/CashRegistry').model;
+const InventoryTransaction = require('./models/InventoryTransaction').model;
 
 // Import Routes
 const cashRegistryRoutes = require('./routes/cashRegistry');
@@ -156,53 +164,8 @@ const initializeBusinessSettings = async () => {
     console.error("Error initializing business settings:", error);
   }
 };
-// Authentication middleware
-const authenticateToken = (req, res, next) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
-
-  if (!token) {
-    return res.status(401).json({ success: false, error: 'Access token required' });
-  }
-
-  // Reject mock tokens - only allow real JWT tokens
-  if (token.startsWith('mock-token-')) {
-    console.log('🔑 Mock token detected, rejecting for security');
-    return res.status(401).json({ success: false, error: 'Invalid token format' });
-  }
-
-  // Regular JWT verification for production tokens
-  jwt.verify(token, JWT_SECRET, (err, user) => {
-    if (err) {
-      return res.status(403).json({ success: false, error: 'Invalid or expired token' });
-    }
-    req.user = user;
-    next();
-  });
-};
-
-// Role-based authorization middleware
-const authorizeRoles = (...roles) => {
-  return (req, res, next) => {
-    if (!req.user) {
-      return res.status(401).json({ success: false, error: 'Authentication required' });
-    }
-    
-    if (!roles.includes(req.user.role)) {
-      return res.status(403).json({ 
-        success: false, 
-        error: `Access denied. Required roles: ${roles.join(', ')}` 
-      });
-    }
-    
-    next();
-  };
-};
-
-// Specific role middleware
-const requireAdmin = authorizeRoles('admin');
-const requireManager = authorizeRoles('admin', 'manager');
-const requireStaff = authorizeRoles('admin', 'manager', 'staff');
+// Import authentication middleware
+const { authenticateToken, requireAdmin, requireManager, requireStaff } = require('./middleware/auth');
 
 // Granular permission middleware
 const checkPermission = (module, feature) => {
@@ -262,7 +225,7 @@ const comparePassword = async (password, hash) => {
 // Routes
 
 // Authentication routes
-app.post('/api/auth/login', async (req, res) => {
+app.post('/api/auth/login', setupMainDatabase, async (req, res) => {
   try {
     const { email, password } = req.body;
 
@@ -273,6 +236,9 @@ app.post('/api/auth/login', async (req, res) => {
       });
     }
 
+    // Use main database User model
+    const { User } = req.mainModels;
+    
     // Find user
     const user = await User.findOne({ email: email.toLowerCase() });
     if (!user) {
@@ -318,9 +284,10 @@ app.post('/api/auth/logout', authenticateToken, (req, res) => {
   });
 });
 
-app.get('/api/auth/profile', authenticateToken, async (req, res) => {
+app.get('/api/auth/profile', authenticateToken, setupMainDatabase, async (req, res) => {
   try {
-    // Regular user lookup from database
+    // Regular user lookup from main database
+    const { User } = req.mainModels;
     const user = await User.findById(req.user.id || req.user._id);
     if (!user) {
       return res.status(404).json({
@@ -510,8 +477,9 @@ app.get('/api/auth/verify-reset-token/:token', async (req, res) => {
 });
 
 // User Management routes (Admin only)
-app.get('/api/users', authenticateToken, requireAdmin, async (req, res) => {
+app.get('/api/users', authenticateToken, setupMainDatabase, requireAdmin, async (req, res) => {
   try {
+    const { User } = req.mainModels;
     const { page = 1, limit = 10, search = '' } = req.query;
     const pageNum = parseInt(page);
     const limitNum = parseInt(limit);
@@ -556,8 +524,9 @@ app.get('/api/users', authenticateToken, requireAdmin, async (req, res) => {
   }
 });
 
-app.post('/api/users', authenticateToken, requireAdmin, async (req, res) => {
+app.post('/api/users', authenticateToken, setupMainDatabase, requireAdmin, async (req, res) => {
   try {
+    const { User } = req.mainModels;
     const {
       firstName,
       lastName,
@@ -698,8 +667,9 @@ app.post('/api/users', authenticateToken, requireAdmin, async (req, res) => {
   }
 });
 
-app.get('/api/users/:id', authenticateToken, async (req, res) => {
+app.get('/api/users/:id', authenticateToken, setupMainDatabase, async (req, res) => {
   try {
+    const { User } = req.mainModels;
     const user = await User.findById(req.params.id).select('-password');
     if (!user) {
       return res.status(404).json({
@@ -721,8 +691,9 @@ app.get('/api/users/:id', authenticateToken, async (req, res) => {
   }
 });
 
-app.put('/api/users/:id', authenticateToken, async (req, res) => {
+app.put('/api/users/:id', authenticateToken, setupMainDatabase, async (req, res) => {
   try {
+    const { User } = req.mainModels;
     const {
       firstName,
       lastName,
@@ -860,8 +831,9 @@ app.put('/api/users/:id', authenticateToken, async (req, res) => {
   }
 });
 
-app.delete('/api/users/:id', authenticateToken, requireAdmin, async (req, res) => {
+app.delete('/api/users/:id', authenticateToken, setupMainDatabase, requireAdmin, async (req, res) => {
   try {
+    const { User } = req.mainModels;
     // First check if the user exists and is admin
     const userToDelete = await User.findById(req.params.id);
     
@@ -1056,12 +1028,16 @@ app.post('/api/users/:id/verify-admin-password', authenticateToken, requireAdmin
 });
 
 // Clients routes
-app.get('/api/clients', authenticateToken, requireStaff, async (req, res) => {
+app.get('/api/clients', authenticateToken, requireStaff, setupBusinessDatabase, async (req, res) => {
   try {
     const { page = 1, limit = 10, search = '' } = req.query;
     const pageNum = parseInt(page);
     const limitNum = parseInt(limit);
 
+    // Use business-specific Client model
+    const { Client } = req.businessModels;
+
+    // Build query for business-specific database
     let query = {};
     if (search) {
       query = {
@@ -1073,11 +1049,20 @@ app.get('/api/clients', authenticateToken, requireStaff, async (req, res) => {
       };
     }
 
+    console.log('🔍 Clients API Debug:', {
+      businessId: req.user.branchId,
+      userEmail: req.user.email,
+      query: query,
+      database: req.businessConnection.name
+    });
+
     const totalClients = await Client.countDocuments(query);
+    console.log('📊 Total clients found:', totalClients);
     const clients = await Client.find(query)
       .skip((pageNum - 1) * limitNum)
       .limit(limitNum)
       .sort({ createdAt: -1 });
+    console.log('📋 Clients returned:', clients.length);
 
     res.json({
       success: true,
@@ -1095,12 +1080,13 @@ app.get('/api/clients', authenticateToken, requireStaff, async (req, res) => {
   }
 });
 
-app.get('/api/clients/search', authenticateToken, async (req, res) => {
+app.get('/api/clients/search', authenticateToken, setupBusinessDatabase, async (req, res) => {
   try {
+    const { Client } = req.businessModels;
     const { q } = req.query;
     
     if (!q) {
-      const clients = await Client.find().sort({ createdAt: -1 });
+      const clients = await Client.find({}).sort({ createdAt: -1 });
       return res.json({
         success: true,
         data: clients
@@ -1125,8 +1111,9 @@ app.get('/api/clients/search', authenticateToken, async (req, res) => {
   }
 });
 
-app.get('/api/clients/:id', authenticateToken, async (req, res) => {
+app.get('/api/clients/:id', authenticateToken, setupBusinessDatabase, async (req, res) => {
   try {
+    const { Client } = req.businessModels;
     const client = await Client.findById(req.params.id);
     if (!client) {
       return res.status(404).json({
@@ -1145,7 +1132,7 @@ app.get('/api/clients/:id', authenticateToken, async (req, res) => {
   }
 });
 
-app.post('/api/clients', authenticateToken, requireManager, async (req, res) => {
+app.post('/api/clients', authenticateToken, requireManager, setupBusinessDatabase, async (req, res) => {
   try {
     const { name, email, phone, address, notes } = req.body;
 
@@ -1156,7 +1143,10 @@ app.post('/api/clients', authenticateToken, requireManager, async (req, res) => 
       });
     }
 
-    // Check for duplicate phone number
+    // Use business-specific Client model
+    const { Client } = req.businessModels;
+
+    // Check for duplicate phone number within the business database
     const existingClient = await Client.findOne({ phone });
     if (existingClient) {
       return res.status(400).json({
@@ -1188,8 +1178,9 @@ app.post('/api/clients', authenticateToken, requireManager, async (req, res) => 
   }
 });
 
-app.put('/api/clients/:id', authenticateToken, requireManager, async (req, res) => {
+app.put('/api/clients/:id', authenticateToken, setupBusinessDatabase, requireManager, async (req, res) => {
   try {
+    const { Client } = req.businessModels;
     const { phone } = req.body;
     
     // If phone number is being updated, check for duplicates
@@ -1229,8 +1220,9 @@ app.put('/api/clients/:id', authenticateToken, requireManager, async (req, res) 
   }
 });
 
-app.delete('/api/clients/:id', authenticateToken, requireAdmin, async (req, res) => {
+app.delete('/api/clients/:id', authenticateToken, setupBusinessDatabase, requireAdmin, async (req, res) => {
   try {
+    const { Client } = req.businessModels;
     const deletedClient = await Client.findByIdAndDelete(req.params.id);
     
     if (!deletedClient) {
@@ -1251,8 +1243,11 @@ app.delete('/api/clients/:id', authenticateToken, requireAdmin, async (req, res)
 });
 
 // Services routes
-app.get('/api/services', authenticateToken, requireStaff, async (req, res) => {
+app.get('/api/services', authenticateToken, setupBusinessDatabase, requireStaff, async (req, res) => {
   try {
+    console.log('🔍 Services request for user:', req.user?.email, 'branchId:', req.user?.branchId);
+    
+    const { Service } = req.businessModels;
     const { page = 1, limit = 10, search = '' } = req.query;
     const pageNum = parseInt(page);
     const limitNum = parseInt(limit);
@@ -1273,6 +1268,7 @@ app.get('/api/services', authenticateToken, requireStaff, async (req, res) => {
       .limit(limitNum)
       .sort({ createdAt: -1 });
 
+    console.log('✅ Services found:', services.length);
     res.json({
       success: true,
       data: services,
@@ -1292,8 +1288,9 @@ app.get('/api/services', authenticateToken, requireStaff, async (req, res) => {
   }
 });
 
-app.post('/api/services', authenticateToken, requireManager, async (req, res) => {
+app.post('/api/services', authenticateToken, setupBusinessDatabase, requireManager, async (req, res) => {
   try {
+    const { Service } = req.businessModels;
     const { name, category, duration, price, description } = req.body;
 
     if (!name || !category || !duration || !price) {
@@ -1327,8 +1324,9 @@ app.post('/api/services', authenticateToken, requireManager, async (req, res) =>
   }
 });
 
-app.put('/api/services/:id', authenticateToken, requireManager, async (req, res) => {
+app.put('/api/services/:id', authenticateToken, setupBusinessDatabase, requireManager, async (req, res) => {
   try {
+    const { Service } = req.businessModels;
     const { name, category, duration, price, description, isActive } = req.body;
 
     if (!name || !category || !duration || !price) {
@@ -1371,8 +1369,9 @@ app.put('/api/services/:id', authenticateToken, requireManager, async (req, res)
   }
 });
 
-app.delete('/api/services/:id', authenticateToken, requireAdmin, async (req, res) => {
+app.delete('/api/services/:id', authenticateToken, setupBusinessDatabase, requireAdmin, async (req, res) => {
   try {
+    const { Service } = req.businessModels;
     const deletedService = await Service.findByIdAndDelete(req.params.id);
     
     if (!deletedService) {
@@ -1396,8 +1395,11 @@ app.delete('/api/services/:id', authenticateToken, requireAdmin, async (req, res
 });
 
 // Products routes
-app.get('/api/products', authenticateToken, requireStaff, async (req, res) => {
+app.get('/api/products', authenticateToken, setupBusinessDatabase, requireStaff, async (req, res) => {
   try {
+    console.log('🔍 Products request for user:', req.user?.email, 'branchId:', req.user?.branchId);
+    
+    const { Product } = req.businessModels;
     const { page = 1, limit = 10, search = '' } = req.query;
     const pageNum = parseInt(page);
     const limitNum = parseInt(limit);
@@ -1418,6 +1420,7 @@ app.get('/api/products', authenticateToken, requireStaff, async (req, res) => {
       .limit(limitNum)
       .sort({ createdAt: -1 });
 
+    console.log('✅ Products found:', products.length);
     res.json({
       success: true,
       data: products,
@@ -1437,8 +1440,9 @@ app.get('/api/products', authenticateToken, requireStaff, async (req, res) => {
   }
 });
 
-app.post('/api/products', authenticateToken, requireManager, async (req, res) => {
+app.post('/api/products', authenticateToken, setupBusinessDatabase, requireManager, async (req, res) => {
   try {
+    const { Product } = req.businessModels;
     const { name, category, price, stock, sku, supplier, description, taxCategory } = req.body;
 
     if (!name || !category || !price || !stock) {
@@ -1475,8 +1479,9 @@ app.post('/api/products', authenticateToken, requireManager, async (req, res) =>
   }
 });
 
-app.put('/api/products/:id', authenticateToken, requireManager, async (req, res) => {
+app.put('/api/products/:id', authenticateToken, setupBusinessDatabase, requireManager, async (req, res) => {
   try {
+    const { Product } = req.businessModels;
     const { name, category, price, stock, sku, supplier, description, isActive, taxCategory } = req.body;
 
     if (!name || !category || !price || !stock) {
@@ -1522,8 +1527,9 @@ app.put('/api/products/:id', authenticateToken, requireManager, async (req, res)
   }
 });
 
-app.delete('/api/products/:id', authenticateToken, requireAdmin, async (req, res) => {
+app.delete('/api/products/:id', authenticateToken, setupBusinessDatabase, requireAdmin, async (req, res) => {
   try {
+    const { Product } = req.businessModels;
     const deletedProduct = await Product.findByIdAndDelete(req.params.id);
     
     if (!deletedProduct) {
@@ -1547,8 +1553,9 @@ app.delete('/api/products/:id', authenticateToken, requireAdmin, async (req, res
 });
 
 // Update product stock
-app.patch('/api/products/:id/stock', authenticateToken, requireStaff, async (req, res) => {
+app.patch('/api/products/:id/stock', authenticateToken, setupBusinessDatabase, requireStaff, async (req, res) => {
   try {
+    const { Product } = req.businessModels;
     const { id } = req.params;
     const { quantity, operation = 'decrease' } = req.body; // operation can be 'decrease' or 'increase'
     
@@ -1608,8 +1615,9 @@ app.patch('/api/products/:id/stock', authenticateToken, requireStaff, async (req
 });
 
 // Staff routes
-app.get('/api/staff', authenticateToken, requireManager, async (req, res) => {
+app.get('/api/staff', authenticateToken, setupBusinessDatabase, requireManager, async (req, res) => {
   try {
+    const { Staff } = req.businessModels;
     const { page = 1, limit = 10, search = '' } = req.query;
     const pageNum = parseInt(page);
     const limitNum = parseInt(limit);
@@ -1650,9 +1658,100 @@ app.get('/api/staff', authenticateToken, requireManager, async (req, res) => {
   }
 });
 
-app.post('/api/staff', authenticateToken, requireAdmin, async (req, res) => {
+// Staff Directory (includes business owner + staff members)
+app.get('/api/staff-directory', authenticateToken, setupBusinessDatabase, async (req, res) => {
   try {
-    const { name, email, phone, role, specialties, hourlyRate, commissionRate, notes, isActive } = req.body;
+    const { Staff } = req.businessModels;
+    const { search = '' } = req.query;
+
+    // Get business owner from main database
+    const mainConnection = await databaseManager.getMainConnection();
+    const User = mainConnection.model('User', require('./models/User').schema);
+    const businessOwner = await User.findOne({ 
+      branchId: req.user.branchId,
+      role: 'admin'
+    });
+
+    // Get staff members from business database
+    let staffQuery = {};
+    if (search) {
+      staffQuery = {
+        $or: [
+          { name: { $regex: search, $options: 'i' } },
+          { email: { $regex: search, $options: 'i' } },
+          { role: { $regex: search, $options: 'i' } }
+        ]
+      };
+    }
+
+    const staffMembers = await Staff.find(staffQuery).sort({ createdAt: -1 });
+
+    // Combine business owner and staff members
+    const allStaff = [];
+
+    // Add business owner first (if exists and matches search)
+    if (businessOwner) {
+      const ownerMatchesSearch = !search || 
+        businessOwner.name.toLowerCase().includes(search.toLowerCase()) ||
+        businessOwner.email.toLowerCase().includes(search.toLowerCase()) ||
+        businessOwner.role.toLowerCase().includes(search.toLowerCase());
+
+      if (ownerMatchesSearch) {
+        allStaff.push({
+          _id: businessOwner._id,
+          name: businessOwner.name,
+          email: businessOwner.email,
+          phone: businessOwner.mobile,
+          role: 'admin',
+          specialties: businessOwner.specialties || [],
+          salary: businessOwner.salary || 0,
+          commissionProfileIds: businessOwner.commissionProfileIds || [],
+          notes: businessOwner.notes || 'Business Owner',
+          isActive: businessOwner.isActive,
+          hasLoginAccess: businessOwner.hasLoginAccess || true, // Business owner always has login access
+          allowAppointmentScheduling: businessOwner.allowAppointmentScheduling || true, // Business owner always has appointment access
+          permissions: businessOwner.permissions || [],
+          createdAt: businessOwner.createdAt,
+          updatedAt: businessOwner.updatedAt,
+          isOwner: true // Flag to identify business owner
+        });
+      }
+    }
+
+    // Add staff members
+    allStaff.push(...staffMembers.map(staff => ({
+      ...staff.toObject(),
+      salary: staff.salary || 0,
+      commissionProfileIds: staff.commissionProfileIds || [],
+      hasLoginAccess: staff.hasLoginAccess || false,
+      allowAppointmentScheduling: staff.allowAppointmentScheduling || false,
+      permissions: staff.permissions || [],
+      isOwner: false
+    })));
+
+    res.json({
+      success: true,
+      data: allStaff,
+      pagination: {
+        page: 1,
+        limit: allStaff.length,
+        total: allStaff.length,
+        totalPages: 1
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching staff directory:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error'
+    });
+  }
+});
+
+app.post('/api/staff', authenticateToken, setupBusinessDatabase, requireAdmin, async (req, res) => {
+  try {
+    const { Staff } = req.businessModels;
+    const { name, email, phone, role, specialties, salary, commissionProfileIds, notes, hasLoginAccess, allowAppointmentScheduling, password, isActive } = req.body;
 
     if (!name || !email || !phone || !role) {
       return res.status(400).json({
@@ -1661,18 +1760,43 @@ app.post('/api/staff', authenticateToken, requireAdmin, async (req, res) => {
       });
     }
 
-    const newStaff = new Staff({
+    // Validate password requirement when login access is enabled
+    if (hasLoginAccess && (!password || password.trim() === '')) {
+      return res.status(400).json({
+        success: false,
+        error: 'Password is required when login access is enabled'
+      });
+    }
+
+    // Validate specialties requirement when appointment scheduling is enabled
+    if (allowAppointmentScheduling && (!specialties || specialties.length === 0)) {
+      return res.status(400).json({
+        success: false,
+        error: 'At least one specialty is required when appointment scheduling is enabled'
+      });
+    }
+
+    const staffData = {
       name,
       email,
       phone,
       role,
       specialties: specialties || [],
-      hourlyRate: parseFloat(hourlyRate) || 0,
-      commissionRate: parseFloat(commissionRate) || 0,
+      salary: parseFloat(salary) || 0,
+      commissionProfileIds: commissionProfileIds || [],
       notes: notes || '',
+      hasLoginAccess: hasLoginAccess || false,
+      allowAppointmentScheduling: allowAppointmentScheduling || false,
       isActive: isActive !== undefined ? isActive : true,
-    });
+    };
 
+    // Add password if provided
+    if (password && password.trim() !== '') {
+      const bcrypt = require('bcryptjs');
+      staffData.password = await bcrypt.hash(password, 10);
+    }
+
+    const newStaff = new Staff(staffData);
     const savedStaff = await newStaff.save();
 
     res.status(201).json({
@@ -1688,9 +1812,10 @@ app.post('/api/staff', authenticateToken, requireAdmin, async (req, res) => {
   }
 });
 
-app.put('/api/staff/:id', authenticateToken, requireAdmin, async (req, res) => {
+app.put('/api/staff/:id', authenticateToken, setupBusinessDatabase, requireAdmin, async (req, res) => {
   try {
-    const { name, email, phone, role, specialties, hourlyRate, commissionRate, notes, isActive } = req.body;
+    const { Staff } = req.businessModels;
+    const { name, email, phone, role, specialties, salary, commissionProfileIds, notes, hasLoginAccess, allowAppointmentScheduling, password, isActive } = req.body;
 
     if (!name || !email || !phone || !role) {
       return res.status(400).json({
@@ -1699,19 +1824,54 @@ app.put('/api/staff/:id', authenticateToken, requireAdmin, async (req, res) => {
       });
     }
 
+    // Get existing staff to check current state
+    const existingStaff = await Staff.findById(req.params.id);
+    if (!existingStaff) {
+      return res.status(404).json({
+        success: false,
+        error: 'Staff member not found'
+      });
+    }
+
+    // Validate password requirement when enabling login access for the first time
+    if (hasLoginAccess && !existingStaff.hasLoginAccess && (!password || password.trim() === '')) {
+      return res.status(400).json({
+        success: false,
+        error: 'Password is required when enabling login access for the first time'
+      });
+    }
+
+    // Validate specialties requirement when appointment scheduling is enabled
+    if (allowAppointmentScheduling && (!specialties || specialties.length === 0)) {
+      return res.status(400).json({
+        success: false,
+        error: 'At least one specialty is required when appointment scheduling is enabled'
+      });
+    }
+
+    const updateData = {
+      name,
+      email,
+      phone,
+      role,
+      specialties: specialties || [],
+      salary: parseFloat(salary) || 0,
+      commissionProfileIds: commissionProfileIds || [],
+      notes: notes || '',
+      hasLoginAccess: hasLoginAccess !== undefined ? hasLoginAccess : false,
+      allowAppointmentScheduling: allowAppointmentScheduling !== undefined ? allowAppointmentScheduling : false,
+      isActive: isActive !== undefined ? isActive : true,
+    };
+
+    // Add password if provided
+    if (password && password.trim() !== '') {
+      const bcrypt = require('bcryptjs');
+      updateData.password = await bcrypt.hash(password, 10);
+    }
+
     const updatedStaff = await Staff.findByIdAndUpdate(
       req.params.id,
-      {
-        name,
-        email,
-        phone,
-        role,
-        specialties: specialties || [],
-        hourlyRate: parseFloat(hourlyRate) || 0,
-        commissionRate: parseFloat(commissionRate) || 0,
-        notes: notes || '',
-        isActive: isActive !== undefined ? isActive : true,
-      },
+      updateData,
       { new: true }
     );
 
@@ -1735,8 +1895,9 @@ app.put('/api/staff/:id', authenticateToken, requireAdmin, async (req, res) => {
   }
 });
 
-app.delete('/api/staff/:id', authenticateToken, requireAdmin, async (req, res) => {
+app.delete('/api/staff/:id', authenticateToken, setupBusinessDatabase, requireAdmin, async (req, res) => {
   try {
+    const { Staff } = req.businessModels;
     const deletedStaff = await Staff.findByIdAndDelete(req.params.id);
     
     if (!deletedStaff) {
@@ -1760,8 +1921,9 @@ app.delete('/api/staff/:id', authenticateToken, requireAdmin, async (req, res) =
 });
 
 // Appointments routes
-app.get('/api/appointments', authenticateToken, async (req, res) => {
+app.get('/api/appointments', authenticateToken, setupBusinessDatabase, async (req, res) => {
   try {
+    const { Appointment } = req.businessModels;
     const { page = 1, limit = 10, date, status } = req.query;
     const pageNum = parseInt(page);
     const limitNum = parseInt(limit);
@@ -1804,8 +1966,9 @@ app.get('/api/appointments', authenticateToken, async (req, res) => {
   }
 });
 
-app.post('/api/appointments', authenticateToken, async (req, res) => {
+app.post('/api/appointments', authenticateToken, setupBusinessDatabase, async (req, res) => {
   try {
+    const { Appointment } = req.businessModels;
     const { clientId, clientName, date, time, services, totalDuration, totalAmount, notes, status = 'scheduled' } = req.body;
 
     if (!clientId || !date || !time || !services || services.length === 0) {
@@ -1884,8 +2047,9 @@ app.post('/api/appointments', authenticateToken, async (req, res) => {
 });
 
 // Receipts routes
-app.get('/api/receipts', authenticateToken, async (req, res) => {
+app.get('/api/receipts', authenticateToken, setupBusinessDatabase, async (req, res) => {
   try {
+    const { Receipt } = req.businessModels;
     const { page = 1, limit = 10, clientId, date } = req.query;
     const pageNum = parseInt(page);
     const limitNum = parseInt(limit);
@@ -1925,8 +2089,9 @@ app.get('/api/receipts', authenticateToken, async (req, res) => {
   }
 });
 
-app.post('/api/receipts', authenticateToken, async (req, res) => {
+app.post('/api/receipts', authenticateToken, setupBusinessDatabase, async (req, res) => {
   try {
+    const { Receipt } = req.businessModels;
     const { clientId, staffId, items, subtotal, tip, discount, tax, total, payments, notes } = req.body;
 
     if (!clientId || !staffId || !items || !total) {
@@ -2077,11 +2242,13 @@ app.get('/api/receipts/client/:clientId', authenticateToken, async (req, res) =>
 });
 
 // Reports routes
-app.get('/api/reports/dashboard', authenticateToken, requireManager, async (req, res) => {
+app.get('/api/reports/dashboard', authenticateToken, setupBusinessDatabase, requireManager, async (req, res) => {
   try {
-    console.log('Dashboard stats requested');
+    console.log('🔍 Dashboard stats request for user:', req.user?.email, 'branchId:', req.user?.branchId);
     
-    // Get counts from database
+    const { Service, Product, Staff, Client, Appointment, Receipt, Sale } = req.businessModels;
+    
+    // Get counts from business-specific database
     const totalServices = await Service.countDocuments();
     console.log('Total services:', totalServices);
     
@@ -2105,6 +2272,7 @@ app.get('/api/reports/dashboard', authenticateToken, requireManager, async (req,
     const totalRevenue = receipts.reduce((sum, receipt) => sum + receipt.total, 0);
     console.log('Total revenue:', totalRevenue);
 
+    console.log('✅ Dashboard stats calculated for business:', req.user?.branchId);
     res.json({
       success: true,
       data: {
@@ -2127,17 +2295,24 @@ app.get('/api/reports/dashboard', authenticateToken, requireManager, async (req,
 });
 
 // --- SALES API ---
-app.get('/api/sales', authenticateToken, requireManager, async (req, res) => {
+app.get('/api/sales', authenticateToken, setupBusinessDatabase, requireManager, async (req, res) => {
   try {
+    console.log('🔍 Sales request for user:', req.user?.email, 'branchId:', req.user?.branchId);
+    
+    const { Sale } = req.businessModels;
     const sales = await Sale.find().sort({ date: -1 });
+    
+    console.log('✅ Sales found:', sales.length);
     res.json({ success: true, data: sales });
   } catch (err) {
+    console.error('Error fetching sales:', err);
     res.status(500).json({ success: false, error: err.message });
   }
 });
 
-app.post('/api/sales', authenticateToken, requireStaff, async (req, res) => {
+app.post('/api/sales', authenticateToken, setupBusinessDatabase, requireStaff, async (req, res) => {
   try {
+    const { Sale, Product, InventoryTransaction } = req.businessModels;
     const saleData = req.body;
     
     // Process items to handle staff contributions
@@ -2367,8 +2542,9 @@ app.get('/api/sales/unpaid/overdue', authenticateToken, requireManager, async (r
 });
 
 // --- EXPENSES API ---
-app.get('/api/expenses', authenticateToken, requireManager, async (req, res) => {
+app.get('/api/expenses', authenticateToken, setupBusinessDatabase, requireManager, async (req, res) => {
   try {
+    const { Expense } = req.businessModels;
     const { page = 1, limit = 100, search, dateFrom, dateTo, category, paymentMethod } = req.query;
     
     let query = {};
@@ -2421,8 +2597,9 @@ app.get('/api/expenses', authenticateToken, requireManager, async (req, res) => 
   }
 });
 
-app.post('/api/expenses', authenticateToken, requireStaff, async (req, res) => {
+app.post('/api/expenses', authenticateToken, setupBusinessDatabase, requireStaff, async (req, res) => {
   try {
+    const { Expense } = req.businessModels;
     const expenseData = {
       ...req.body,
       createdBy: req.user.id
@@ -2468,8 +2645,11 @@ app.delete('/api/expenses/:id', authenticateToken, requireManager, async (req, r
 });
 
 // --- BUSINESS SETTINGS API ---
-app.get("/api/settings/business", authenticateToken, async (req, res) => {
+app.get("/api/settings/business", authenticateToken, setupBusinessDatabase, async (req, res) => {
   try {
+    console.log('🔍 Business settings request for user:', req.user?.email, 'branchId:', req.user?.branchId);
+    
+    const { BusinessSettings } = req.businessModels;
     let settings = await BusinessSettings.findOne();
     
     if (!settings) {
@@ -2499,6 +2679,7 @@ app.get("/api/settings/business", authenticateToken, async (req, res) => {
       await settings.save();
     }
 
+    console.log('✅ Business settings found:', settings.name);
     res.json({
       success: true,
       data: settings
@@ -2512,11 +2693,12 @@ app.get("/api/settings/business", authenticateToken, async (req, res) => {
   }
 });
 
-app.put("/api/settings/business", authenticateToken, async (req, res) => {
+app.put("/api/settings/business", authenticateToken, setupBusinessDatabase, async (req, res) => {
   try {
-    console.log('📝 Business settings update request received');
+    console.log('📝 Business settings update request received for user:', req.user?.email, 'branchId:', req.user?.branchId);
     console.log('📊 Request body size:', JSON.stringify(req.body).length, 'characters');
     
+    const { BusinessSettings } = req.businessModels;
     const {
       name,
       email,
@@ -2565,6 +2747,7 @@ app.put("/api/settings/business", authenticateToken, async (req, res) => {
 
     await settings.save();
 
+    console.log('✅ Business settings updated for:', settings.name);
     res.json({
       success: true,
       data: settings,
@@ -2586,8 +2769,9 @@ app.put("/api/settings/business", authenticateToken, async (req, res) => {
 });
 
 // API to increment receipt number
-app.post("/api/settings/business/increment-receipt", authenticateToken, async (req, res) => {
+app.post("/api/settings/business/increment-receipt", authenticateToken, setupBusinessDatabase, async (req, res) => {
   try {
+    const { BusinessSettings } = req.businessModels;
     let settings = await BusinessSettings.findOne();
     
     if (!settings) {
@@ -2809,8 +2993,11 @@ app.delete('/api/sales/:id', authenticateToken, requireAdmin, async (req, res) =
 });
 
 // Cash Registry Routes
-app.get('/api/cash-registry', authenticateToken, async (req, res) => {
+app.get('/api/cash-registry', authenticateToken, setupBusinessDatabase, async (req, res) => {
   try {
+    console.log('🔍 Cash Registry request for user:', req.user?.email, 'branchId:', req.user?.branchId);
+    
+    const { CashRegistry } = req.businessModels;
     const { page = 1, limit = 50, dateFrom, dateTo, shiftType, search } = req.query;
     
     const query = {};
@@ -2849,6 +3036,7 @@ app.get('/api/cash-registry', authenticateToken, async (req, res) => {
     
     const total = await CashRegistry.countDocuments(query);
     
+    console.log('✅ Cash Registries found:', cashRegistries.length);
     res.json({
       data: cashRegistries,
       pagination: {
@@ -2877,8 +3065,9 @@ app.get('/api/cash-registry/:id', authenticateToken, async (req, res) => {
   }
 });
 
-app.post('/api/cash-registry', authenticateToken, async (req, res) => {
+app.post('/api/cash-registry', authenticateToken, setupBusinessDatabase, async (req, res) => {
   try {
+    const { CashRegistry, Sale, Expense } = req.businessModels;
     const {
       date,
       shiftType,
@@ -3086,8 +3275,11 @@ app.delete('/api/cash-registry/:id', authenticateToken, async (req, res) => {
   }
 });
 
-app.get('/api/cash-registry/summary/dashboard', authenticateToken, async (req, res) => {
+app.get('/api/cash-registry/summary/dashboard', authenticateToken, setupBusinessDatabase, async (req, res) => {
   try {
+    console.log('🔍 Cash Registry Summary request for user:', req.user?.email, 'branchId:', req.user?.branchId);
+    
+    const { CashRegistry, Sale, Expense } = req.businessModels;
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     
@@ -3121,6 +3313,7 @@ app.get('/api/cash-registry/summary/dashboard', authenticateToken, async (req, r
     const expectedCashBalance = openingBalance + totalCashCollected - totalExpenses;
     const actualClosingBalance = closingEntry ? closingEntry.closingBalance : 0;
     
+    console.log('✅ Cash Registry Summary calculated for business:', req.user?.branchId);
     res.json({
       todayEntries: todayEntries.length,
       openingBalance,

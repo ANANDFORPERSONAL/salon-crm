@@ -93,4 +93,8 @@ appointmentSchema.methods.getAllStaff = function() {
   return this.staffAssignments.map(assignment => assignment.staffId);
 };
 
-module.exports = mongoose.model('Appointment', appointmentSchema); 
+// Export both schema and model for flexibility
+module.exports = {
+  schema: appointmentSchema,
+  model: mongoose.model('Appointment', appointmentSchema)
+}; 

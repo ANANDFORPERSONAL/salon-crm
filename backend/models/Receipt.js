@@ -96,4 +96,8 @@ const receiptSchema = new mongoose.Schema({
   timestamps: true
 });
 
-module.exports = mongoose.model('Receipt', receiptSchema); 
+// Export both schema and model for flexibility
+module.exports = {
+  schema: receiptSchema,
+  model: mongoose.model('Receipt', receiptSchema)
+}; 

@@ -30,4 +30,8 @@ adminSchema.virtual('name').get(function() {
 // Ensure virtuals are serialized
 adminSchema.set('toJSON', { virtuals: true });
 
-module.exports = mongoose.model('Admin', adminSchema);
+// Export both schema and model for flexibility
+module.exports = {
+  schema: adminSchema,
+  model: mongoose.model('Admin', adminSchema)
+};

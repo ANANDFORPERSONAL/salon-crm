@@ -2,9 +2,7 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
-const Admin = require('../models/Admin');
-const Business = require('../models/Business');
-const User = require('../models/User');
+const { setupMainDatabase } = require('../middleware/business-db');
 const { authenticateToken } = require('../middleware/auth');
 
 const router = express.Router();
@@ -18,6 +16,12 @@ const authenticateAdmin = async (req, res, next) => {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-this-in-production');
+    
+    // Get main database connection
+    const databaseManager = require('../config/database-manager');
+    const mainConnection = await databaseManager.getMainConnection();
+    const Admin = mainConnection.model('Admin', require('../models/Admin').schema);
+    
     const admin = await Admin.findById(decoded.id).select('-password');
     
     if (!admin || !admin.isActive) {
@@ -27,14 +31,16 @@ const authenticateAdmin = async (req, res, next) => {
     req.admin = admin;
     next();
   } catch (error) {
+    console.error('Admin auth error:', error);
     res.status(401).json({ success: false, error: 'Invalid token' });
   }
 };
 
 // Admin Login
-router.post('/login', async (req, res) => {
+router.post('/login', setupMainDatabase, async (req, res) => {
   try {
     const { email, password } = req.body;
+    const { Admin } = req.mainModels;
 
     const admin = await Admin.findOne({ email, isActive: true });
     if (!admin) {
@@ -76,7 +82,7 @@ router.post('/login', async (req, res) => {
 });
 
 // Get Admin Profile
-router.get('/profile', authenticateAdmin, async (req, res) => {
+router.get('/profile', setupMainDatabase, authenticateAdmin, async (req, res) => {
   try {
     res.json({
       success: true,
@@ -96,9 +102,10 @@ router.get('/profile', authenticateAdmin, async (req, res) => {
 });
 
 // Get All Businesses
-router.get('/businesses', authenticateAdmin, async (req, res) => {
+router.get('/businesses', setupMainDatabase, authenticateAdmin, async (req, res) => {
   try {
     const { page = 1, limit = 10, search, status, plan } = req.query;
+    const { Business } = req.mainModels;
     
     let query = {};
     
@@ -123,7 +130,7 @@ router.get('/businesses', authenticateAdmin, async (req, res) => {
     
     const skip = (page - 1) * limit;
     const businesses = await Business.find(query)
-      .populate('owner', 'name email phone')
+      .populate('owner', 'firstName lastName email mobile')
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(parseInt(limit));
@@ -182,7 +189,40 @@ router.post('/businesses', authenticateAdmin, async (req, res) => {
       password: hashedPassword,
       role: 'admin',
       hasLoginAccess: true,
-      isActive: true
+      allowAppointmentScheduling: true,
+      isActive: true,
+      permissions: [
+        // Business admin gets all permissions for their business
+        { module: 'dashboard', feature: 'view', enabled: true },
+        { module: 'dashboard', feature: 'edit', enabled: true },
+        { module: 'appointments', feature: 'view', enabled: true },
+        { module: 'appointments', feature: 'create', enabled: true },
+        { module: 'appointments', feature: 'edit', enabled: true },
+        { module: 'appointments', feature: 'delete', enabled: true },
+        { module: 'customers', feature: 'view', enabled: true },
+        { module: 'customers', feature: 'create', enabled: true },
+        { module: 'customers', feature: 'edit', enabled: true },
+        { module: 'customers', feature: 'delete', enabled: true },
+        { module: 'services', feature: 'view', enabled: true },
+        { module: 'services', feature: 'create', enabled: true },
+        { module: 'services', feature: 'edit', enabled: true },
+        { module: 'services', feature: 'delete', enabled: true },
+        { module: 'products', feature: 'view', enabled: true },
+        { module: 'products', feature: 'create', enabled: true },
+        { module: 'products', feature: 'edit', enabled: true },
+        { module: 'products', feature: 'delete', enabled: true },
+        { module: 'staff', feature: 'view', enabled: true },
+        { module: 'staff', feature: 'create', enabled: true },
+        { module: 'staff', feature: 'edit', enabled: true },
+        { module: 'staff', feature: 'delete', enabled: true },
+        { module: 'sales', feature: 'view', enabled: true },
+        { module: 'sales', feature: 'create', enabled: true },
+        { module: 'sales', feature: 'edit', enabled: true },
+        { module: 'sales', feature: 'delete', enabled: true },
+        { module: 'reports', feature: 'view', enabled: true },
+        { module: 'settings', feature: 'view', enabled: true },
+        { module: 'settings', feature: 'edit', enabled: true },
+      ]
     });
     
     await owner.save();
@@ -295,8 +335,10 @@ router.get('/businesses/:id/users', authenticateAdmin, async (req, res) => {
 });
 
 // Dashboard Statistics
-router.get('/dashboard/stats', authenticateAdmin, async (req, res) => {
+router.get('/dashboard/stats', setupMainDatabase, authenticateAdmin, async (req, res) => {
   try {
+    const { Business, User } = req.mainModels;
+    
     const [
       totalBusinesses,
       activeBusinesses,
@@ -306,7 +348,7 @@ router.get('/dashboard/stats', authenticateAdmin, async (req, res) => {
       Business.countDocuments(),
       Business.countDocuments({ status: 'active' }),
       User.countDocuments(),
-      Business.find().populate('owner', 'name email').sort({ createdAt: -1 }).limit(5)
+      Business.find().populate('owner', 'firstName lastName email').sort({ createdAt: -1 }).limit(5)
     ]);
 
     res.json({

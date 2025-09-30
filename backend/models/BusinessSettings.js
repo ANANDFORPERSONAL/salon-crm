@@ -44,4 +44,8 @@ const businessSettingsSchema = new mongoose.Schema({
   timestamps: true
 });
 
-module.exports = mongoose.model("BusinessSettings", businessSettingsSchema);
+// Export both schema and model for flexibility
+module.exports = {
+  schema: businessSettingsSchema,
+  model: mongoose.model("BusinessSettings", businessSettingsSchema)
+};

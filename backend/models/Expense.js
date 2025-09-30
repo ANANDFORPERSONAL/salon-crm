@@ -90,4 +90,8 @@ expenseSchema.index({ paymentMode: 1 });
 expenseSchema.index({ status: 1 });
 expenseSchema.index({ createdBy: 1 });
 
-module.exports = mongoose.model('Expense', expenseSchema);
+// Export both schema and model for flexibility
+module.exports = {
+  schema: expenseSchema,
+  model: mongoose.model('Expense', expenseSchema)
+};

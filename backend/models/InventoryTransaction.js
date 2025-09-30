@@ -88,4 +88,8 @@ inventoryTransactionSchema.index({ referenceType: 1, referenceId: 1 });
 inventoryTransactionSchema.index({ transactionType: 1 });
 inventoryTransactionSchema.index({ transactionDate: -1 });
 
-module.exports = mongoose.model('InventoryTransaction', inventoryTransactionSchema);
+// Export both schema and model for flexibility
+module.exports = {
+  schema: inventoryTransactionSchema,
+  model: mongoose.model('InventoryTransaction', inventoryTransactionSchema)
+};

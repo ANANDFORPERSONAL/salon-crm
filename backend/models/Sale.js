@@ -171,4 +171,8 @@ saleSchema.methods.getAllStaffInvolved = function() {
   return Array.from(staffSet);
 };
 
-module.exports = mongoose.model('Sale', saleSchema);
+// Export both schema and model for flexibility
+module.exports = {
+  schema: saleSchema,
+  model: mongoose.model('Sale', saleSchema)
+};

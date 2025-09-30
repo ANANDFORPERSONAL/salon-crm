@@ -31,4 +31,8 @@ const serviceSchema = new mongoose.Schema({
   timestamps: true
 });
 
-module.exports = mongoose.model('Service', serviceSchema); 
+// Export both schema and model for flexibility
+module.exports = {
+  schema: serviceSchema,
+  model: mongoose.model('Service', serviceSchema)
+}; 

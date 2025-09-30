@@ -286,6 +286,13 @@ export class StaffAPI {
   }
 }
 
+export class StaffDirectoryAPI {
+  static async getAll(params?: { search?: string }): Promise<PaginatedResponse<any>> {
+    const response = await apiClient.get('/staff-directory', { params })
+    return response.data
+  }
+}
+
 export class ReceiptsAPI {
   static async getAll(params?: { page?: number; limit?: number; clientId?: string; date?: string }): Promise<PaginatedResponse<any>> {
     const response = await apiClient.get('/receipts', { params })

@@ -106,6 +106,9 @@ const businessSchema = new mongoose.Schema({
   isOnboarded: { type: Boolean, default: false },
   onboardingStep: { type: Number, default: 0 },
   
+  // Multi-tenant support
+  branchId: { type: mongoose.Schema.Types.ObjectId, ref: 'Business' },
+  
   // Timestamps
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }
@@ -122,4 +125,8 @@ businessSchema.pre('save', async function(next) {
   next();
 });
 
-module.exports = mongoose.model('Business', businessSchema);
+// Export both schema and model for flexibility
+module.exports = {
+  schema: businessSchema,
+  model: mongoose.model('Business', businessSchema)
+};

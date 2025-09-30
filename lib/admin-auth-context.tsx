@@ -46,7 +46,7 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
         
         // Validate token with API
         try {
-          const response = await fetch('/api/admin/profile', {
+          const response = await fetch('http://localhost:3001/api/admin/profile', {
             headers: {
               'Authorization': `Bearer ${storedToken}`,
               'Content-Type': 'application/json'
@@ -87,7 +87,7 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(true)
     
     try {
-      const response = await fetch('/api/admin/login', {
+      const response = await fetch('http://localhost:3001/api/admin/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

@@ -26,6 +26,11 @@ const clientSchema = new mongoose.Schema({
     type: String,
     enum: ['active', 'inactive'],
     default: 'active'
+  },
+  branchId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Business',
+    required: true
   }
 }, {
   timestamps: true
@@ -34,4 +39,8 @@ const clientSchema = new mongoose.Schema({
 // Add unique index for phone number
 clientSchema.index({ phone: 1 }, { unique: true });
 
-module.exports = mongoose.model('Client', clientSchema); 
+// Export both schema and model for flexibility
+module.exports = {
+  schema: clientSchema,
+  model: mongoose.model('Client', clientSchema)
+}; 

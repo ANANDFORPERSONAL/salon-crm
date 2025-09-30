@@ -120,7 +120,7 @@ export function CreateBusinessForm() {
         }
       }
 
-      const response = await fetch('/api/admin/businesses', {
+      const response = await fetch('http://localhost:3001/api/admin/businesses', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
