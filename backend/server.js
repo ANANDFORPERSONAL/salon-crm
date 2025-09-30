@@ -72,7 +72,6 @@ app.use(express.json({ limit: '10mb' }));
 app.options('*', cors());
 
 // Register Routes
-app.use('/api/cash-registry', cashRegistryRoutes);
 app.use('/api/admin', adminRoutes);
 
 // JWT Secret
@@ -2996,10 +2995,55 @@ app.delete('/api/sales/:id', authenticateToken, requireAdmin, async (req, res) =
 });
 
 // Cash Registry Routes
+// Note: Specific routes must come before parameterized routes
+app.get('/api/cash-registry/summary/dashboard', authenticateToken, setupBusinessDatabase, async (req, res) => {
+  try {
+    console.log('🔍 Cash Registry Summary request for user:', req.user?.email, 'branchId:', req.user?.branchId);
+    
+    const { CashRegistry, Sale, Expense } = req.businessModels;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    // Get today's cash registry summary
+    const todaySummary = await CashRegistry.findOne({
+      date: { $gte: today, $lt: tomorrow },
+      shiftType: 'closing'
+    });
+
+    // Get total sales for today
+    const todaySales = await Sale.find({
+      createdAt: { $gte: today, $lt: tomorrow }
+    });
+
+    const totalSales = todaySales.reduce((sum, sale) => sum + (sale.totalAmount || 0), 0);
+
+    // Get total expenses for today
+    const todayExpenses = await Expense.find({
+      date: { $gte: today, $lt: tomorrow }
+    });
+
+    const totalExpenses = todayExpenses.reduce((sum, expense) => sum + (expense.amount || 0), 0);
+
+    res.json({
+      success: true,
+      data: {
+        todaySummary: todaySummary || null,
+        totalSales,
+        totalExpenses,
+        netCash: totalSales - totalExpenses
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching cash registry summary:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
 app.get('/api/cash-registry', authenticateToken, setupBusinessDatabase, async (req, res) => {
   try {
-    console.log('🔍 Cash Registry request for user:', req.user?.email, 'branchId:', req.user?.branchId);
-    
     const { CashRegistry } = req.businessModels;
     const { page = 1, limit = 50, dateFrom, dateTo, shiftType, search } = req.query;
     
@@ -3039,8 +3083,8 @@ app.get('/api/cash-registry', authenticateToken, setupBusinessDatabase, async (r
     
     const total = await CashRegistry.countDocuments(query);
     
-    console.log('✅ Cash Registries found:', cashRegistries.length);
     res.json({
+      success: true,
       data: cashRegistries,
       pagination: {
         page: options.page,
@@ -3051,7 +3095,10 @@ app.get('/api/cash-registry', authenticateToken, setupBusinessDatabase, async (r
     });
   } catch (error) {
     console.error('Error fetching cash registries:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ 
+      success: false,
+      error: 'Internal server error'
+    });
   }
 });
 
@@ -3274,62 +3321,6 @@ app.delete('/api/cash-registry/:id', authenticateToken, async (req, res) => {
     res.json({ message: 'Cash registry entry deleted successfully' });
   } catch (error) {
     console.error('Error deleting cash registry:', error);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-});
-
-app.get('/api/cash-registry/summary/dashboard', authenticateToken, setupBusinessDatabase, async (req, res) => {
-  try {
-    console.log('🔍 Cash Registry Summary request for user:', req.user?.email, 'branchId:', req.user?.branchId);
-    
-    const { CashRegistry, Sale, Expense } = req.businessModels;
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    
-    // Get today's opening and closing entries
-    const todayEntries = await CashRegistry.find({
-      date: { $gte: today, $lt: tomorrow }
-    }).sort({ shiftType: 1 });
-    
-    // Get cash flow data for today
-    const todaySales = await Sale.find({
-      date: { $gte: today, $lt: tomorrow },
-      paymentMode: 'Cash'
-    });
-    
-    const todayExpenses = await Expense.find({
-      date: { $gte: today, $lt: tomorrow },
-      paymentMethod: 'Cash'
-    });
-    
-    const totalCashCollected = todaySales.reduce((sum, sale) => sum + sale.netTotal, 0);
-    const totalExpenses = todayExpenses.reduce((sum, expense) => sum + expense.amount, 0);
-    
-    // Calculate expected cash balance
-    const openingEntry = todayEntries.find(entry => entry.shiftType === 'opening');
-    const closingEntry = todayEntries.find(entry => entry.shiftType === 'closing');
-    
-    const openingBalance = openingEntry ? openingEntry.openingBalance : 0;
-    const expectedCashBalance = openingBalance + totalCashCollected - totalExpenses;
-    const actualClosingBalance = closingEntry ? closingEntry.closingBalance : 0;
-    
-    console.log('✅ Cash Registry Summary calculated for business:', req.user?.branchId);
-    res.json({
-      todayEntries: todayEntries.length,
-      openingBalance,
-      cashCollected: totalCashCollected,
-      expenses: totalExpenses,
-      expectedCashBalance,
-      actualClosingBalance,
-      balanceDifference: actualClosingBalance - expectedCashBalance,
-      hasOpeningShift: !!openingEntry,
-      hasClosingShift: !!closingEntry
-    });
-  } catch (error) {
-    console.error('Error fetching cash registry summary:', error);
     res.status(500).json({ message: 'Internal server error' });
   }
 });
