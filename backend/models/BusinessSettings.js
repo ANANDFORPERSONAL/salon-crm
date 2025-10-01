@@ -41,6 +41,13 @@ const businessSettingsSchema = new mongoose.Schema({
   // Tax Information
   gstNumber: { type: String, default: "" },
   
+  // Multi-tenant support
+  branchId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Business',
+    required: true
+  },
+  
   // Timestamps
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }

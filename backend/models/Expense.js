@@ -78,6 +78,11 @@ const expenseSchema = new mongoose.Schema({
   updatedAt: {
     type: Date,
     default: Date.now
+  },
+  branchId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Business',
+    required: true
   }
 }, {
   timestamps: true

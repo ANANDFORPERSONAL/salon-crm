@@ -26,6 +26,11 @@ const serviceSchema = new mongoose.Schema({
   isActive: {
     type: Boolean,
     default: true
+  },
+  branchId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Business',
+    required: true
   }
 }, {
   timestamps: true

@@ -111,6 +111,11 @@ const cashRegistrySchema = new mongoose.Schema({
     type: String, 
     enum: ['active', 'closed', 'verified'], 
     default: 'active' 
+  },
+  branchId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Business',
+    required: true
   }
 }, {
   timestamps: true

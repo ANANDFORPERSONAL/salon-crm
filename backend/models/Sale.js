@@ -74,7 +74,12 @@ const saleSchema = new mongoose.Schema({
   // Additional fields
   notes: { type: String, default: '' },
   customerAddress: { type: String, default: '' },
-  customerEmail: { type: String, default: '' }
+  customerEmail: { type: String, default: '' },
+  branchId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Business',
+    required: true
+  }
 }, {
   timestamps: true
 });

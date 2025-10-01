@@ -60,6 +60,11 @@ const appointmentSchema = new mongoose.Schema({
     type: Number,
     required: true,
     min: 0
+  },
+  branchId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Business',
+    required: true
   }
 }, {
   timestamps: true

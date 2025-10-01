@@ -91,6 +91,11 @@ const receiptSchema = new mongoose.Schema({
   notes: {
     type: String,
     default: ''
+  },
+  branchId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Business',
+    required: true
   }
 }, {
   timestamps: true

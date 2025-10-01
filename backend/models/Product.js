@@ -41,6 +41,11 @@ const productSchema = new mongoose.Schema({
     type: String,
     enum: ['essential', 'intermediate', 'standard', 'luxury', 'exempt'],
     default: 'standard'
+  },
+  branchId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Business',
+    required: true
   }
 }, {
   timestamps: true

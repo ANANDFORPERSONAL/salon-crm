@@ -1162,7 +1162,8 @@ app.post('/api/clients', authenticateToken, requireManager, setupBusinessDatabas
       notes,
       status: 'active',
       totalVisits: 0,
-      totalSpent: 0
+      totalSpent: 0,
+      branchId: req.user.branchId
     });
 
     const savedClient = await newClient.save();
@@ -1306,6 +1307,7 @@ app.post('/api/services', authenticateToken, setupBusinessDatabase, requireManag
       price: parseFloat(price),
       description: description || '',
       isActive: true,
+      branchId: req.user.branchId
     });
 
     const savedService = await newService.save();
@@ -1461,6 +1463,7 @@ app.post('/api/products', authenticateToken, setupBusinessDatabase, requireManag
       description,
       taxCategory: taxCategory || 'standard',
       isActive: true,
+      branchId: req.user.branchId
     });
 
     const savedProduct = await newProduct.save();
@@ -1787,6 +1790,7 @@ app.post('/api/staff', authenticateToken, setupBusinessDatabase, requireAdmin, a
       hasLoginAccess: hasLoginAccess || false,
       allowAppointmentScheduling: allowAppointmentScheduling || false,
       isActive: isActive !== undefined ? isActive : true,
+      branchId: req.user.branchId
     };
 
     // Add password if provided
@@ -1989,7 +1993,8 @@ app.post('/api/appointments', authenticateToken, setupBusinessDatabase, async (r
         duration: service.duration,
         status,
         notes,
-        price: service.price
+        price: service.price,
+        branchId: req.user.branchId
       };
 
       // Handle multiple staff assignments
@@ -2137,6 +2142,7 @@ app.post('/api/receipts', authenticateToken, setupBusinessDatabase, async (req, 
       total: parseFloat(total),
       payments: payments || [],
       notes,
+      branchId: req.user.branchId
     });
 
     const savedReceipt = await newReceipt.save();
@@ -2338,6 +2344,9 @@ app.post('/api/sales', authenticateToken, setupBusinessDatabase, requireStaff, a
         return item;
       });
     }
+    
+    // Add branchId to sale data
+    saleData.branchId = req.user.branchId;
     
     const sale = new Sale(saleData);
     await sale.save();
@@ -2601,7 +2610,8 @@ app.post('/api/expenses', authenticateToken, setupBusinessDatabase, requireStaff
     const { Expense } = req.businessModels;
     const expenseData = {
       ...req.body,
-      createdBy: req.user.id
+      createdBy: req.user.id,
+      branchId: req.user.branchId
     };
     
     const expense = new Expense(expenseData);
@@ -2673,7 +2683,8 @@ app.get("/api/settings/business", authenticateToken, setupBusinessDatabase, asyn
         enableCurrency: true,
         enableTax: true,
         enableProcessingFees: true,
-        socialMedia: "@glamoursalon"
+        socialMedia: "@glamoursalon",
+        branchId: req.user.branchId
       });
       await settings.save();
     }
@@ -3193,7 +3204,8 @@ app.post('/api/cash-registry', authenticateToken, setupBusinessDatabase, async (
       posCash: shiftType === 'closing' ? posCash : 0,
       onlinePosDifference,
       onlineCashDifferenceReason: onlinePosDifference !== 0 ? 'Difference detected' : 'Balanced',
-      notes
+      notes,
+      branchId: req.user.branchId
     });
     
     await cashRegistry.save();
