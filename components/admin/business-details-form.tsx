@@ -30,13 +30,6 @@ interface BusinessDetails {
     email: string
     website?: string
   }
-  subscription: {
-    plan: string
-    status: string
-    startDate: string
-    maxUsers: number
-    maxBranches: number
-  }
   owner: {
     _id: string
     name: string

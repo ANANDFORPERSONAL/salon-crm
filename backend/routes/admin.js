@@ -210,9 +210,9 @@ router.post('/businesses', setupMainDatabase, authenticateAdmin, async (req, res
   try {
     const {
       businessInfo,
-      ownerInfo,
-      subscriptionInfo
+      ownerInfo
     } = req.body;
+
 
     // Create owner user first (using main database models)
     const hashedPassword = await bcrypt.hash(ownerInfo.password, 10);
@@ -291,7 +291,11 @@ router.post('/businesses', setupMainDatabase, authenticateAdmin, async (req, res
       name: businessInfo.name,
       businessType: businessInfo.businessType || 'salon',
       address: businessInfo.address,
-      contact: businessInfo.contact,
+      contact: {
+        phone: businessInfo.contact?.phone || businessInfo.phone,
+        email: businessInfo.contact?.email || businessInfo.email,
+        website: businessInfo.contact?.website || businessInfo.website || ''
+      },
       settings: {
         timezone: 'Asia/Kolkata',
         currency: 'INR',
@@ -329,14 +333,6 @@ router.post('/businesses', setupMainDatabase, authenticateAdmin, async (req, res
           fontFamily: 'Inter'
         },
         ...businessInfo.settings // Allow frontend to override defaults if needed
-      },
-      subscription: {
-        plan: subscriptionInfo.plan || 'basic',
-        status: 'active',
-        startDate: new Date(),
-        maxUsers: subscriptionInfo.maxUsers || 5,
-        maxBranches: subscriptionInfo.maxBranches || 1,
-        features: subscriptionInfo.features || []
       },
       owner: owner._id,
       status: 'active'
@@ -475,10 +471,10 @@ router.put('/businesses/:id', setupMainDatabase, authenticateAdmin, async (req, 
 });
 
 // Toggle Business Status
-router.patch('/businesses/:id/status', authenticateAdmin, async (req, res) => {
+router.patch('/businesses/:id/status', setupMainDatabase, authenticateAdmin, async (req, res) => {
   try {
     const { status } = req.body;
-    const business = await Business.findByIdAndUpdate(
+    const business = await req.mainModels.Business.findByIdAndUpdate(
       req.params.id,
       { status, updatedAt: new Date() },
       { new: true }

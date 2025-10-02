@@ -35,10 +35,6 @@ const createBusinessSchema = (isEditMode: boolean) => z.object({
   ownerPhone: isEditMode ? z.string().optional() : z.string().min(10, "Phone number is required"),
   ownerPassword: isEditMode ? z.string().optional() : z.string().min(6, "Password must be at least 6 characters"),
   
-  // Subscription Information (default values)
-  plan: z.enum(["basic", "premium", "enterprise"]).default("basic"),
-  maxUsers: z.number().min(1).default(5),
-  maxBranches: z.number().min(1).default(1),
   
 })
 
@@ -78,13 +74,6 @@ export function CreateBusinessForm({ mode = 'create', businessId }: BusinessForm
       ownerEmail: "",
       ownerPhone: "",
       ownerPassword: "",
-      plan: "basic",
-      maxUsers: 5,
-      maxBranches: 1,
-      timezone: "Asia/Kolkata",
-      currency: "INR",
-      taxRate: 18,
-      gstNumber: "",
     },
   })
 
@@ -127,13 +116,6 @@ export function CreateBusinessForm({ mode = 'create', businessId }: BusinessForm
             ownerEmail: business.owner.email,
             ownerPhone: business.owner.phone,
             ownerPassword: '', // Don't pre-fill password for security
-            plan: business.subscription.plan,
-            maxUsers: business.subscription.maxUsers,
-            maxBranches: business.subscription.maxBranches,
-            timezone: business.settings?.timezone || 'Asia/Kolkata',
-            currency: business.settings?.currency || 'INR',
-            taxRate: business.settings?.taxRate || 18,
-            gstNumber: business.settings?.gstNumber || '',
           })
         }
       }
@@ -188,10 +170,6 @@ export function CreateBusinessForm({ mode = 'create', businessId }: BusinessForm
             ...(data.website && { website: data.website })
           },
           settings: {
-            ...(data.timezone && { timezone: data.timezone }),
-            ...(data.currency && { currency: data.currency }),
-            ...(data.taxRate !== undefined && { taxRate: data.taxRate }),
-            ...(data.gstNumber && { gstNumber: data.gstNumber }),
             operatingHours: {
               monday: { open: "09:00", close: "18:00", closed: false },
               tuesday: { open: "09:00", close: "18:00", closed: false },
@@ -210,12 +188,6 @@ export function CreateBusinessForm({ mode = 'create', businessId }: BusinessForm
           ...(data.ownerPhone && { phone: data.ownerPhone }),
           ...(data.ownerPassword && { password: data.ownerPassword })
         },
-        subscriptionInfo: {
-          ...(data.plan && { plan: data.plan }),
-          ...(data.maxUsers !== undefined && { maxUsers: data.maxUsers }),
-          ...(data.maxBranches !== undefined && { maxBranches: data.maxBranches }),
-          ...(data.plan && { features: getPlanFeatures(data.plan) })
-        }
       }
 
       // Filter out empty nested objects for edit mode
@@ -273,14 +245,6 @@ export function CreateBusinessForm({ mode = 'create', businessId }: BusinessForm
     }
   }
 
-  const getPlanFeatures = (plan: string) => {
-    const features = {
-      basic: ['basic_reporting', 'email_support', 'mobile_app'],
-      premium: ['advanced_analytics', 'priority_support', 'custom_integrations', 'api_access'],
-      enterprise: ['custom_reporting', 'dedicated_support', 'white_label', 'unlimited_users']
-    }
-    return features[plan as keyof typeof features] || []
-  }
 
   // Helper function to get label with optional asterisk
   const getLabel = (text: string, required: boolean = true) => {

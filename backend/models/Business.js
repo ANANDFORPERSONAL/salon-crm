@@ -71,24 +71,6 @@ const businessSchema = new mongoose.Schema({
     }
   },
   
-  // Subscription Information
-  subscription: {
-    plan: { 
-      type: String, 
-      enum: ['basic', 'premium', 'enterprise'], 
-      default: 'basic' 
-    },
-    status: { 
-      type: String, 
-      enum: ['active', 'inactive', 'suspended', 'cancelled'], 
-      default: 'active' 
-    },
-    startDate: { type: Date, default: Date.now },
-    endDate: { type: Date },
-    maxUsers: { type: Number, default: 5 },
-    maxBranches: { type: Number, default: 1 },
-    features: [{ type: String }] // Available features for this plan
-  },
   
   // Owner Information
   owner: { 

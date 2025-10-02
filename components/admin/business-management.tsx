@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { Plus, Search, Filter, MoreHorizontal, Eye, Edit, Trash2, Building2, Users, CreditCard, Calendar } from "lucide-react"
+import { Plus, Search, Filter, MoreHorizontal, Eye, Edit, Trash2, Building2, Users, Calendar, Shield } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -39,7 +39,6 @@ export function BusinessManagement() {
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
-  const [planFilter, setPlanFilter] = useState("all")
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const { toast } = useToast()
@@ -47,7 +46,7 @@ export function BusinessManagement() {
 
   useEffect(() => {
     fetchBusinesses()
-  }, [currentPage, searchTerm, statusFilter, planFilter])
+  }, [currentPage, searchTerm, statusFilter])
 
   const fetchBusinesses = async () => {
     try {
@@ -57,7 +56,6 @@ export function BusinessManagement() {
         limit: "10",
         ...(searchTerm && { search: searchTerm }),
         ...(statusFilter !== "all" && { status: statusFilter }),
-        ...(planFilter !== "all" && { plan: planFilter })
       })
 
       const response = await fetch(`http://localhost:3001/api/admin/businesses?${params}`, {
@@ -130,18 +128,6 @@ export function BusinessManagement() {
     }
   }
 
-  const getPlanColor = (plan: string) => {
-    switch (plan) {
-      case 'enterprise':
-        return 'bg-purple-100 text-purple-800'
-      case 'premium':
-        return 'bg-blue-100 text-blue-800'
-      case 'basic':
-        return 'bg-green-100 text-green-800'
-      default:
-        return 'bg-gray-100 text-gray-800'
-    }
-  }
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -218,7 +204,7 @@ export function BusinessManagement() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
+            <div className="text-2xl font-bold text-green-600">
               {businesses.filter(b => b.status === 'active').length}
             </div>
             <p className="text-xs text-muted-foreground">
@@ -229,18 +215,19 @@ export function BusinessManagement() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Premium Plans</CardTitle>
-            <CreditCard className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Suspended Businesses</CardTitle>
+            <Shield className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {businesses.filter(b => b.subscription.plan === 'premium' || b.subscription.plan === 'enterprise').length}
+            <div className="text-2xl font-bold text-red-600">
+              {businesses.filter(b => b.status === 'suspended').length}
             </div>
             <p className="text-xs text-muted-foreground">
-              Premium & Enterprise
+              Currently suspended
             </p>
           </CardContent>
         </Card>
+
       </div>
 
       {/* Filters */}
@@ -275,17 +262,6 @@ export function BusinessManagement() {
                 <SelectItem value="suspended">Suspended</SelectItem>
               </SelectContent>
             </Select>
-            <Select value={planFilter} onValueChange={setPlanFilter}>
-              <SelectTrigger className="w-full sm:w-48">
-                <SelectValue placeholder="Filter by plan" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Plans</SelectItem>
-                <SelectItem value="basic">Basic</SelectItem>
-                <SelectItem value="premium">Premium</SelectItem>
-                <SelectItem value="enterprise">Enterprise</SelectItem>
-              </SelectContent>
-            </Select>
           </div>
 
           {/* Business Table */}
@@ -294,7 +270,7 @@ export function BusinessManagement() {
               <Building2 className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">No businesses found</h3>
               <p className="text-gray-500 mb-4">
-                {searchTerm || statusFilter !== 'all' || planFilter !== 'all'
+                {searchTerm || statusFilter !== 'all'
                   ? 'Try adjusting your filters'
                   : 'Create your first business to get started'
                 }
@@ -310,7 +286,6 @@ export function BusinessManagement() {
                 <TableRow>
                   <TableHead>Business</TableHead>
                   <TableHead>Owner</TableHead>
-                  <TableHead>Plan</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Created</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
@@ -335,11 +310,6 @@ export function BusinessManagement() {
                         <div className="font-medium">{business.owner.name}</div>
                         <div className="text-sm text-gray-500">{business.owner.email}</div>
                       </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge className={getPlanColor(business.subscription.plan)}>
-                        {business.subscription.plan}
-                      </Badge>
                     </TableCell>
                     <TableCell>
                       <Badge className={getStatusColor(business.status)}>
