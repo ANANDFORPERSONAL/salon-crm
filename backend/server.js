@@ -75,6 +75,7 @@ app.options('*', cors());
 
 // Register Routes
 app.use('/api/admin', adminRoutes);
+app.use('/api/admin/settings', require('./routes/admin-settings'));
 
 // JWT Secret
 const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-this-in-production';
