@@ -18,7 +18,10 @@ export function AdminLayout({ children }: AdminLayoutProps) {
 
   useEffect(() => {
     if (!isLoading && !admin) {
-      router.push('/admin/login')
+      // Only redirect on client side
+      if (typeof window !== 'undefined') {
+        router.push('/admin/login')
+      }
     }
   }, [admin, isLoading, router])
 

@@ -4,6 +4,10 @@ const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 const { setupMainDatabase } = require('../middleware/business-db');
 const { authenticateToken } = require('../middleware/auth');
+const Business = require('../models/Business').model;
+const User = require('../models/User').model;
+const databaseManager = require('../config/database-manager');
+const { modelFactory } = require('../models/model-factory');
 
 const router = express.Router();
 
@@ -156,14 +160,45 @@ router.get('/businesses', setupMainDatabase, authenticateAdmin, async (req, res)
 // Get Single Business
 router.get('/businesses/:id', authenticateAdmin, async (req, res) => {
   try {
+    // Setup main database connection
+    await new Promise((resolve, reject) => {
+      setupMainDatabase(req, res, (err) => {
+        if (err) reject(err);
+        else resolve();
+      });
+    });
+    
+    const { Business } = req.mainModels;
     const business = await Business.findById(req.params.id)
-      .populate('owner', 'name email phone role');
+      .populate('owner', 'firstName lastName email mobile role');
     
     if (!business) {
       return res.status(404).json({ success: false, error: 'Business not found' });
     }
     
-    res.json({ success: true, data: business });
+    // Transform the business data to match frontend expectations
+    const businessData = {
+      _id: business._id,
+      name: business.name,
+      code: business.code,
+      businessType: business.businessType,
+      status: business.status,
+      address: business.address,
+      contact: business.contact,
+      subscription: business.subscription,
+      owner: business.owner ? {
+        _id: business.owner._id,
+        name: `${business.owner.firstName || ''} ${business.owner.lastName || ''}`.trim() || 'Business Owner',
+        email: business.owner.email,
+        phone: business.owner.mobile
+      } : null,
+      createdAt: business.createdAt,
+      updatedAt: business.updatedAt,
+      isOnboarded: business.isOnboarded,
+      onboardingStep: business.onboardingStep
+    };
+    
+    res.json({ success: true, data: businessData });
   } catch (error) {
     console.error('Get business error:', error);
     res.status(500).json({ success: false, error: 'Internal server error' });
@@ -171,7 +206,7 @@ router.get('/businesses/:id', authenticateAdmin, async (req, res) => {
 });
 
 // Create New Business
-router.post('/businesses', authenticateAdmin, async (req, res) => {
+router.post('/businesses', setupMainDatabase, authenticateAdmin, async (req, res) => {
   try {
     const {
       businessInfo,
@@ -179,9 +214,9 @@ router.post('/businesses', authenticateAdmin, async (req, res) => {
       subscriptionInfo
     } = req.body;
 
-    // Create owner user first
+    // Create owner user first (using main database models)
     const hashedPassword = await bcrypt.hash(ownerInfo.password, 10);
-    const owner = new User({
+    const owner = new req.mainModels.User({
       firstName: ownerInfo.firstName,
       lastName: ownerInfo.lastName,
       email: ownerInfo.email,
@@ -199,10 +234,10 @@ router.post('/businesses', authenticateAdmin, async (req, res) => {
         { module: 'appointments', feature: 'create', enabled: true },
         { module: 'appointments', feature: 'edit', enabled: true },
         { module: 'appointments', feature: 'delete', enabled: true },
-        { module: 'customers', feature: 'view', enabled: true },
-        { module: 'customers', feature: 'create', enabled: true },
-        { module: 'customers', feature: 'edit', enabled: true },
-        { module: 'customers', feature: 'delete', enabled: true },
+        { module: 'clients', feature: 'view', enabled: true },
+        { module: 'clients', feature: 'create', enabled: true },
+        { module: 'clients', feature: 'edit', enabled: true },
+        { module: 'clients', feature: 'delete', enabled: true },
         { module: 'services', feature: 'view', enabled: true },
         { module: 'services', feature: 'create', enabled: true },
         { module: 'services', feature: 'edit', enabled: true },
@@ -227,8 +262,8 @@ router.post('/businesses', authenticateAdmin, async (req, res) => {
     
     await owner.save();
 
-    // Create business
-    const business = new Business({
+    // Create business (using main database models)
+    const business = new req.mainModels.Business({
       name: businessInfo.name,
       businessType: businessInfo.businessType || 'salon',
       address: businessInfo.address,
@@ -252,11 +287,8 @@ router.post('/businesses', authenticateAdmin, async (req, res) => {
     owner.branchId = business._id;
     await owner.save();
 
-    // Create default business settings in the business-specific database
+    // Create default business settings in the business-specific database (optional)
     try {
-      const { databaseManager } = require('../config/database-manager');
-      const { modelFactory } = require('../models/model-factory');
-      
       // Get business-specific database connection
       const businessConnection = await databaseManager.getConnection(business._id);
       const businessModels = modelFactory.createBusinessModels(businessConnection);
@@ -298,7 +330,7 @@ router.post('/businesses', authenticateAdmin, async (req, res) => {
         business,
         owner: {
           id: owner._id,
-          name: owner.name,
+          name: `${owner.firstName || ''} ${owner.lastName || ''}`.trim() || 'Business Owner',
           email: owner.email,
           password: ownerInfo.password // Return plain password for admin
         }
@@ -312,13 +344,59 @@ router.post('/businesses', authenticateAdmin, async (req, res) => {
 });
 
 // Update Business
-router.put('/businesses/:id', authenticateAdmin, async (req, res) => {
+router.put('/businesses/:id', setupMainDatabase, authenticateAdmin, async (req, res) => {
   try {
+    console.log('Update business request:', req.params.id, req.body);
+    const { Business } = req.mainModels;
+    const { businessInfo, ownerInfo, subscriptionInfo } = req.body;
+    
+    // Build update object from nested structure
+    const updateData = {
+      updatedAt: new Date()
+    };
+
+    // Handle business info
+    if (businessInfo) {
+      if (businessInfo.name) updateData.name = businessInfo.name;
+      if (businessInfo.businessType) updateData.businessType = businessInfo.businessType;
+      if (businessInfo.address) updateData.address = businessInfo.address;
+      if (businessInfo.contact) updateData.contact = businessInfo.contact;
+      if (businessInfo.settings) updateData.settings = businessInfo.settings;
+    }
+
+    // Handle owner info
+    if (ownerInfo) {
+      const ownerUpdate = {};
+      if (ownerInfo.firstName) ownerUpdate.firstName = ownerInfo.firstName;
+      if (ownerInfo.lastName) ownerUpdate.lastName = ownerInfo.lastName;
+      if (ownerInfo.email) ownerUpdate.email = ownerInfo.email;
+      if (ownerInfo.phone) ownerUpdate.mobile = ownerInfo.phone;
+      
+      if (Object.keys(ownerUpdate).length > 0) {
+        // Update owner document in the main database (where owners are stored)
+        const business = await Business.findById(req.params.id);
+        
+        if (business && business.owner) {
+          // Update owner in the main database
+          const { User } = req.mainModels;
+          await User.findByIdAndUpdate(business.owner, ownerUpdate, { new: true });
+        }
+      }
+    }
+
+    // Handle subscription info
+    if (subscriptionInfo) {
+      if (subscriptionInfo.plan) updateData['subscription.plan'] = subscriptionInfo.plan;
+      if (subscriptionInfo.maxUsers !== undefined) updateData['subscription.maxUsers'] = subscriptionInfo.maxUsers;
+      if (subscriptionInfo.maxBranches !== undefined) updateData['subscription.maxBranches'] = subscriptionInfo.maxBranches;
+      if (subscriptionInfo.features) updateData['subscription.features'] = subscriptionInfo.features;
+    }
+
     const business = await Business.findByIdAndUpdate(
       req.params.id,
-      { $set: req.body, updatedAt: new Date() },
+      { $set: updateData },
       { new: true, runValidators: true }
-    ).populate('owner', 'name email phone');
+    ).populate('owner', 'firstName lastName email mobile');
 
     if (!business) {
       return res.status(404).json({ success: false, error: 'Business not found' });
@@ -363,13 +441,133 @@ router.patch('/businesses/:id/status', authenticateAdmin, async (req, res) => {
 // Get Business Users
 router.get('/businesses/:id/users', authenticateAdmin, async (req, res) => {
   try {
-    const users = await User.find({ branchId: req.params.id })
+    const { search, role, status } = req.query;
+    let query = { branchId: req.params.id };
+
+    // Add search filter
+    if (search) {
+      query.$or = [
+        { firstName: { $regex: search, $options: 'i' } },
+        { lastName: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } }
+      ];
+    }
+
+    // Add role filter
+    if (role && role !== 'all') {
+      query.role = role;
+    }
+
+    // Add status filter
+    if (status && status !== 'all') {
+      query.status = status;
+    }
+
+    const users = await User.find(query)
       .select('-password')
       .sort({ createdAt: -1 });
 
     res.json({ success: true, data: users });
   } catch (error) {
     console.error('Get business users error:', error);
+    res.status(500).json({ success: false, error: 'Internal server error' });
+  }
+});
+
+// Get Business Statistics
+router.get('/businesses/:id/stats', authenticateAdmin, async (req, res) => {
+  try {
+    const businessId = req.params.id;
+    
+    // Connect to business-specific database
+    const businessDb = mongoose.connection.useDb(`salon_crm_${businessId}`);
+    
+    // Get models for business database
+    const Client = businessDb.model('Client', require('../models/Client').schema);
+    const Appointment = businessDb.model('Appointment', require('../models/Appointment').schema);
+    const Sale = businessDb.model('Sale', require('../models/Sale').schema);
+    
+    // Get user count from main database
+    const totalUsers = await User.countDocuments({ branchId: businessId });
+    const activeUsers = await User.countDocuments({ branchId: businessId, status: 'active' });
+    
+    // Get business-specific stats
+    const [totalClients, totalAppointments, totalSales] = await Promise.all([
+      Client.countDocuments(),
+      Appointment.countDocuments(),
+      Sale.countDocuments()
+    ]);
+    
+    // Calculate monthly revenue (last 30 days)
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    
+    const monthlySales = await Sale.find({
+      createdAt: { $gte: thirtyDaysAgo }
+    });
+    
+    const monthlyRevenue = monthlySales.reduce((total, sale) => {
+      return total + (sale.grossTotal || 0);
+    }, 0);
+
+    res.json({
+      success: true,
+      data: {
+        totalUsers,
+        activeUsers,
+        totalClients,
+        totalAppointments,
+        totalSales,
+        monthlyRevenue
+      }
+    });
+  } catch (error) {
+    console.error('Get business stats error:', error);
+    res.status(500).json({ success: false, error: 'Internal server error' });
+  }
+});
+
+
+// Update User Status
+router.patch('/users/:id/status', authenticateAdmin, async (req, res) => {
+  try {
+    const { status } = req.body;
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { status, updatedAt: new Date() },
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({ success: false, error: 'User not found' });
+    }
+
+    res.json({
+      success: true,
+      data: user,
+      message: `User ${status} successfully`
+    });
+  } catch (error) {
+    console.error('Update user status error:', error);
+    res.status(500).json({ success: false, error: 'Internal server error' });
+  }
+});
+
+// Delete User
+router.delete('/users/:id', authenticateAdmin, async (req, res) => {
+  try {
+    const user = await User.findByIdAndDelete(req.params.id);
+
+    if (!user) {
+      return res.status(404).json({ success: false, error: 'User not found' });
+    }
+
+    res.json({
+      success: true,
+      message: 'User deleted successfully'
+    });
+  } catch (error) {
+    console.error('Delete user error:', error);
     res.status(500).json({ success: false, error: 'Internal server error' });
   }
 });

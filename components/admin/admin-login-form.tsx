@@ -82,7 +82,7 @@ export function AdminLoginForm() {
             <Input
               id="email"
               type="email"
-              placeholder="admin@saloncrm.com"
+              placeholder="admin@salon.com"
               {...form.register("email")}
               disabled={isSubmitting}
             />
@@ -144,7 +144,7 @@ export function AdminLoginForm() {
         <div className="mt-6 text-center text-sm text-gray-600">
           <p>Default Admin Credentials:</p>
           <p className="font-mono text-xs mt-1">
-            Email: admin@saloncrm.com<br />
+            Email: admin@salon.com<br />
             Password: admin123
           </p>
         </div>
