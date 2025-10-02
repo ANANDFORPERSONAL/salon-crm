@@ -184,7 +184,7 @@ export function BusinessManagement() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Businesses</CardTitle>
@@ -224,6 +224,21 @@ export function BusinessManagement() {
             </div>
             <p className="text-xs text-muted-foreground">
               Currently suspended
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Inactive Businesses</CardTitle>
+            <Calendar className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-orange-600">
+              {businesses.filter(b => b.status === 'inactive').length}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              No login for 7+ days (indicator only)
             </p>
           </CardContent>
         </Card>
@@ -350,7 +365,7 @@ export function BusinessManagement() {
                               <Trash2 className="h-4 w-4 mr-2" />
                               Suspend Business
                             </DropdownMenuItem>
-                          ) : (
+                          ) : business.status === 'suspended' ? (
                             <DropdownMenuItem 
                               onClick={() => handleStatusChange(business._id, 'active')}
                               className="text-green-600"
@@ -358,7 +373,12 @@ export function BusinessManagement() {
                               <Users className="h-4 w-4 mr-2" />
                               Activate Business
                             </DropdownMenuItem>
-                          )}
+                          ) : business.status === 'inactive' ? (
+                            <DropdownMenuItem disabled className="text-gray-400">
+                              <Calendar className="h-4 w-4 mr-2" />
+                              Inactive (Auto-reactivates on login)
+                            </DropdownMenuItem>
+                          ) : null}
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>

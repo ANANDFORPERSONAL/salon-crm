@@ -57,6 +57,9 @@ const userSchema = new mongoose.Schema({
   // Multi-tenant support
   branchId: { type: mongoose.Schema.Types.ObjectId, ref: 'Business' },
   
+  // Login tracking
+  lastLoginAt: { type: Date, default: null },
+  
   // Timestamps
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }

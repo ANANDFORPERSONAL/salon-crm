@@ -134,7 +134,7 @@ router.get('/businesses', setupMainDatabase, authenticateAdmin, async (req, res)
     
     const skip = (page - 1) * limit;
     const businesses = await Business.find(query)
-      .populate('owner', 'firstName lastName email mobile')
+      .populate('owner', 'firstName lastName email mobile lastLoginAt')
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(parseInt(limit));

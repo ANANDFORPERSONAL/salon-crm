@@ -6,6 +6,8 @@ const morgan = require('morgan');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
+const cron = require('node-cron');
+const mongoose = require('mongoose');
 const connectDB = require('./config/database');
 
 // Import database manager and middleware
@@ -254,6 +256,23 @@ app.post('/api/auth/login', setupMainDatabase, async (req, res) => {
         success: false,
         error: 'Invalid credentials'
       });
+    }
+
+    // Update last login timestamp
+    await User.findByIdAndUpdate(user._id, { 
+      lastLoginAt: new Date(),
+      updatedAt: new Date()
+    });
+
+    // If user is a business owner, reactivate any inactive businesses they own
+    if (user.branchId) {
+      // Use the main database connection for Business model
+      const mainConnection = mongoose.connection.useDb('salon_crm_main');
+      const Business = mainConnection.model('Business', require('./models/Business').schema);
+      await Business.updateMany(
+        { owner: user._id, status: 'inactive' },
+        { status: 'active', updatedAt: new Date() }
+      );
     }
 
     // Generate token
@@ -3534,4 +3553,22 @@ app.listen(PORT, async () => {
   console.log(`🔐 API Base: http://localhost:${PORT}/api`);
   await initializeDefaultUsers();
   await initializeBusinessSettings();
-}); 
+  
+  // Setup cron job for inactivity checking
+  setupInactivityChecker();
+});
+
+// Setup inactivity checker cron job
+const setupInactivityChecker = () => {
+  // Run every day at 2 AM
+  cron.schedule('0 2 * * *', async () => {
+    console.log('🕐 Running daily inactivity check...');
+    const { checkInactiveBusinesses } = require('./inactivity-checker');
+    await checkInactiveBusinesses();
+  }, {
+    scheduled: true,
+    timezone: "Asia/Kolkata"
+  });
+  
+  console.log('⏰ Inactivity checker scheduled to run daily at 2 AM IST');
+}; 

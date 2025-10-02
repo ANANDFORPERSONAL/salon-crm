@@ -96,6 +96,8 @@ export function BusinessDetailsForm() {
   const handleSuspend = async () => {
     if (!business) return
     
+    // Only handle active <-> suspended transitions
+    // Inactive businesses are handled automatically by login
     const newStatus = business.status === 'active' ? 'suspended' : 'active'
     
     try {
@@ -186,10 +188,21 @@ export function BusinessDetailsForm() {
                 <Edit className="h-4 w-4 mr-2" />
                 Edit
               </Button>
-              <Button onClick={handleSuspend} variant={business.status === 'active' ? 'destructive' : 'default'} className="transform hover:scale-105 transition-all duration-300">
-                <Shield className="h-4 w-4 mr-2" />
-                {business.status === 'active' ? 'Suspend' : 'Activate'}
-              </Button>
+              {business.status === 'inactive' ? (
+                <Button disabled variant="secondary" className="opacity-50 cursor-not-allowed">
+                  <Calendar className="h-4 w-4 mr-2" />
+                  Inactive (Auto-reactivates on login)
+                </Button>
+              ) : (
+                <Button 
+                  onClick={handleSuspend} 
+                  variant={business.status === 'active' ? 'destructive' : 'default'} 
+                  className="transform hover:scale-105 transition-all duration-300"
+                >
+                  <Shield className="h-4 w-4 mr-2" />
+                  {business.status === 'active' ? 'Suspend' : 'Activate'}
+                </Button>
+              )}
             </div>
           </div>
         </div>
