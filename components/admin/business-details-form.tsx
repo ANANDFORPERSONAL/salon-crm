@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useParams, useRouter } from "next/navigation"
-import { ArrowLeft, Building2, User, CreditCard, Loader2, Phone, MapPin, TrendingUp, Settings, Edit, Users, Shield } from "lucide-react"
+import { ArrowLeft, Building2, User, CreditCard, Loader2, Phone, MapPin, TrendingUp, Settings, Edit, Users, Shield, Clock, Calendar, DollarSign, Calculator, Bell, Palette } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -99,9 +99,6 @@ export function BusinessDetailsForm() {
     router.push(`/admin/businesses/${params.id}/edit`)
   }
 
-  const handleManageUsers = () => {
-    router.push(`/admin/businesses/${params.id}/users`)
-  }
 
   const handleSuspend = async () => {
     if (!business) return
@@ -369,80 +366,9 @@ export function BusinessDetailsForm() {
                 />
               </div>
             </div>
-            <div className="pt-6 border-t border-green-100">
-              <Button onClick={handleManageUsers} className="bg-green-600 hover:bg-green-700 transform hover:scale-105 transition-all duration-300">
-                <Users className="h-4 w-4 mr-2" />
-                Manage Users
-              </Button>
-            </div>
           </CardContent>
         </Card>
 
-        {/* Subscription Information */}
-        <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
-          <CardHeader className="bg-gradient-to-r from-purple-50 to-violet-50 rounded-t-lg border-b border-purple-100">
-            <CardTitle className="flex items-center gap-2 text-purple-800">
-              <CreditCard className="h-5 w-5" />
-              Subscription Information
-            </CardTitle>
-            <CardDescription>
-              Plan details and subscription limits
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="p-6 space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label className="text-sm font-medium text-gray-700">Plan Type</Label>
-                <Input
-                  value={business.subscription.plan.charAt(0).toUpperCase() + business.subscription.plan.slice(1)}
-                  readOnly
-                  className="bg-gray-50 cursor-not-allowed"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label className="text-sm font-medium text-gray-700">Status</Label>
-                <div className="flex items-center gap-2">
-                  <Input
-                    value={business.subscription.status}
-                    readOnly
-                    className="bg-gray-50 cursor-not-allowed"
-                  />
-                  <Badge variant={business.subscription.status === 'active' ? 'default' : 'destructive'} className="text-xs">
-                    {business.subscription.status}
-                  </Badge>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label className="text-sm font-medium text-gray-700">Max Users</Label>
-                <Input
-                  value={business.subscription.maxUsers.toString()}
-                  readOnly
-                  className="bg-gray-50 cursor-not-allowed"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label className="text-sm font-medium text-gray-700">Max Branches</Label>
-                <Input
-                  value={business.subscription.maxBranches.toString()}
-                  readOnly
-                  className="bg-gray-50 cursor-not-allowed"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label className="text-sm font-medium text-gray-700">Start Date</Label>
-                <Input
-                  value={new Date(business.subscription.startDate).toLocaleDateString()}
-                  readOnly
-                  className="bg-gray-50 cursor-not-allowed"
-                />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
 
         {/* Business Settings */}
         {business.settings && (
@@ -497,6 +423,578 @@ export function BusinessDetailsForm() {
             </CardContent>
           </Card>
         )}
+
+        {/* General Settings */}
+        {business.settings && (
+          <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+            <CardHeader className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-t-lg border-b border-blue-100">
+              <CardTitle className="flex items-center gap-2 text-blue-800">
+                <Settings className="h-5 w-5" />
+                General Settings
+              </CardTitle>
+              <CardDescription>
+                Basic application preferences and configurations
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-6 space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-gray-700">Date Format</Label>
+                  <Input
+                    value={business.settings.dateFormat || 'DD/MM/YYYY'}
+                    readOnly
+                    className="bg-gray-50 cursor-not-allowed"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-gray-700">Time Format</Label>
+                  <Input
+                    value={business.settings.timeFormat === '12' ? '12 Hour' : '24 Hour'}
+                    readOnly
+                    className="bg-gray-50 cursor-not-allowed"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-gray-700">Business License</Label>
+                  <Input
+                    value={business.settings.businessLicense || 'Not provided'}
+                    readOnly
+                    className="bg-gray-50 cursor-not-allowed"
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Operating Hours */}
+        {business.settings?.operatingHours && (
+          <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+            <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-t-lg border-b border-green-100">
+              <CardTitle className="flex items-center gap-2 text-green-800">
+                <Clock className="h-5 w-5" />
+                Operating Hours
+              </CardTitle>
+              <CardDescription>
+                Business operating hours for each day of the week
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-6 space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {Object.entries(business.settings.operatingHours).map(([day, hours]) => (
+                  <div key={day} className="space-y-2">
+                    <Label className="text-sm font-medium text-gray-700 capitalize">
+                      {day}
+                    </Label>
+                    <div className="flex items-center gap-2">
+                      {hours.closed ? (
+                        <Input
+                          value="Closed"
+                          readOnly
+                          className="bg-red-50 cursor-not-allowed text-red-600"
+                        />
+                      ) : (
+                        <div className="flex gap-2">
+                          <Input
+                            value={hours.open || 'Not set'}
+                            readOnly
+                            className="bg-gray-50 cursor-not-allowed"
+                            placeholder="Open time"
+                          />
+                          <span className="flex items-center text-gray-500">to</span>
+                          <Input
+                            value={hours.close || 'Not set'}
+                            readOnly
+                            className="bg-gray-50 cursor-not-allowed"
+                            placeholder="Close time"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Appointment Settings */}
+        {business.settings?.appointmentSettings && (
+          <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+            <CardHeader className="bg-gradient-to-r from-purple-50 to-violet-50 rounded-t-lg border-b border-purple-100">
+              <CardTitle className="flex items-center gap-2 text-purple-800">
+                <Calendar className="h-5 w-5" />
+                Appointment Settings
+              </CardTitle>
+              <CardDescription>
+                Booking rules, time slots, and appointment preferences
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-6 space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-gray-700">Slot Duration (minutes)</Label>
+                  <Input
+                    value={business.settings.appointmentSettings.slotDuration?.toString() || '30'}
+                    readOnly
+                    className="bg-gray-50 cursor-not-allowed"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-gray-700">Advance Booking Days</Label>
+                  <Input
+                    value={business.settings.appointmentSettings.advanceBookingDays?.toString() || '30'}
+                    readOnly
+                    className="bg-gray-50 cursor-not-allowed"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-gray-700">Buffer Time (minutes)</Label>
+                  <Input
+                    value={business.settings.appointmentSettings.bufferTime?.toString() || '15'}
+                    readOnly
+                    className="bg-gray-50 cursor-not-allowed"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-gray-700">Allow Online Booking</Label>
+                  <Input
+                    value={business.settings.appointmentSettings.allowOnlineBooking ? 'Yes' : 'No'}
+                    readOnly
+                    className="bg-gray-50 cursor-not-allowed"
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Currency Settings */}
+        {business.settings && (
+          <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+            <CardHeader className="bg-gradient-to-r from-yellow-50 to-amber-50 rounded-t-lg border-b border-yellow-100">
+              <CardTitle className="flex items-center gap-2 text-yellow-800">
+                <DollarSign className="h-5 w-5" />
+                Currency Settings
+              </CardTitle>
+              <CardDescription>
+                Default currency, symbols, and formatting options
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-6 space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-gray-700">Currency Code</Label>
+                  <Input
+                    value={business.settings.currency || 'INR'}
+                    readOnly
+                    className="bg-gray-50 cursor-not-allowed"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-gray-700">Currency Symbol</Label>
+                  <Input
+                    value={business.settings.currencySymbol || '₹'}
+                    readOnly
+                    className="bg-gray-50 cursor-not-allowed"
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Tax Settings */}
+        {business.settings && (
+          <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+            <CardHeader className="bg-gradient-to-r from-red-50 to-rose-50 rounded-t-lg border-b border-red-100">
+              <CardTitle className="flex items-center gap-2 text-red-800">
+                <Calculator className="h-5 w-5" />
+                Tax Settings
+              </CardTitle>
+              <CardDescription>
+                Tax rates, GST configuration, and calculation methods
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-6 space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-gray-700">Tax Rate (%)</Label>
+                  <Input
+                    value={business.settings.taxRate?.toString() || '18'}
+                    readOnly
+                    className="bg-gray-50 cursor-not-allowed"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-gray-700">GST Number</Label>
+                  <Input
+                    value={business.settings.gstNumber || 'Not provided'}
+                    readOnly
+                    className="bg-gray-50 cursor-not-allowed"
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Notification Settings */}
+        {business.settings?.notifications && (
+          <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+            <CardHeader className="bg-gradient-to-r from-indigo-50 to-blue-50 rounded-t-lg border-b border-indigo-100">
+              <CardTitle className="flex items-center gap-2 text-indigo-800">
+                <Bell className="h-5 w-5" />
+                Notification Settings
+              </CardTitle>
+              <CardDescription>
+                Email alerts, SMS notifications, and reminder settings
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-6 space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-gray-700">Email Notifications</Label>
+                  <Input
+                    value={business.settings.notifications.emailNotifications ? 'Enabled' : 'Disabled'}
+                    readOnly
+                    className="bg-gray-50 cursor-not-allowed"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-gray-700">SMS Notifications</Label>
+                  <Input
+                    value={business.settings.notifications.smsNotifications ? 'Enabled' : 'Disabled'}
+                    readOnly
+                    className="bg-gray-50 cursor-not-allowed"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-gray-700">Appointment Reminders</Label>
+                  <Input
+                    value={business.settings.notifications.appointmentReminders ? 'Enabled' : 'Disabled'}
+                    readOnly
+                    className="bg-gray-50 cursor-not-allowed"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-gray-700">Payment Confirmations</Label>
+                  <Input
+                    value={business.settings.notifications.paymentConfirmations ? 'Enabled' : 'Disabled'}
+                    readOnly
+                    className="bg-gray-50 cursor-not-allowed"
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Branding Settings */}
+        {business.settings?.branding && (
+          <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+            <CardHeader className="bg-gradient-to-r from-pink-50 to-rose-50 rounded-t-lg border-b border-pink-100">
+              <CardTitle className="flex items-center gap-2 text-pink-800">
+                <Palette className="h-5 w-5" />
+                Branding Settings
+              </CardTitle>
+              <CardDescription>
+                Logo, colors, and visual identity settings
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-6 space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-gray-700">Primary Color</Label>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      value={business.settings.branding.primaryColor || '#3B82F6'}
+                      readOnly
+                      className="bg-gray-50 cursor-not-allowed"
+                    />
+                    <div 
+                      className="w-8 h-8 rounded border"
+                      style={{ backgroundColor: business.settings.branding.primaryColor || '#3B82F6' }}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-gray-700">Secondary Color</Label>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      value={business.settings.branding.secondaryColor || '#1E40AF'}
+                      readOnly
+                      className="bg-gray-50 cursor-not-allowed"
+                    />
+                    <div 
+                      className="w-8 h-8 rounded border"
+                      style={{ backgroundColor: business.settings.branding.secondaryColor || '#1E40AF' }}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-gray-700">Font Family</Label>
+                  <Input
+                    value={business.settings.branding.fontFamily || 'Inter'}
+                    readOnly
+                    className="bg-gray-50 cursor-not-allowed"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-gray-700">Logo</Label>
+                  <Input
+                    value={business.settings.branding.logo ? 'Uploaded' : 'Not uploaded'}
+                    readOnly
+                    className="bg-gray-50 cursor-not-allowed"
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Payment Settings */}
+        <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+          <CardHeader className="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-t-lg border-b border-emerald-100">
+            <CardTitle className="flex items-center gap-2 text-emerald-800">
+              <CreditCard className="h-5 w-5" />
+              Payment Settings
+            </CardTitle>
+            <CardDescription>
+              Payment methods and processing configuration
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="p-6 space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-gray-700">Cash Payments</Label>
+                <Input
+                  value="Enabled"
+                  readOnly
+                  className="bg-gray-50 cursor-not-allowed"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-gray-700">Card Payments</Label>
+                <Input
+                  value="Enabled"
+                  readOnly
+                  className="bg-gray-50 cursor-not-allowed"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-gray-700">UPI Payments</Label>
+                <Input
+                  value="Enabled"
+                  readOnly
+                  className="bg-gray-50 cursor-not-allowed"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-gray-700">Digital Wallet</Label>
+                <Input
+                  value="Enabled"
+                  readOnly
+                  className="bg-gray-50 cursor-not-allowed"
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* POS Settings */}
+        <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+          <CardHeader className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-t-lg border-b border-orange-100">
+            <CardTitle className="flex items-center gap-2 text-orange-800">
+              <Calculator className="h-5 w-5" />
+              POS Settings
+            </CardTitle>
+            <CardDescription>
+              Invoice sequence management and custom prefix configuration
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="p-6 space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-gray-700">Invoice Prefix</Label>
+                <Input
+                  value="INV"
+                  readOnly
+                  className="bg-gray-50 cursor-not-allowed"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-gray-700">Receipt Prefix</Label>
+                <Input
+                  value="RCP"
+                  readOnly
+                  className="bg-gray-50 cursor-not-allowed"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-gray-700">Next Invoice Number</Label>
+                <Input
+                  value="001"
+                  readOnly
+                  className="bg-gray-50 cursor-not-allowed"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-gray-700">Auto Numbering</Label>
+                <Input
+                  value="Enabled"
+                  readOnly
+                  className="bg-gray-50 cursor-not-allowed"
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Business User Overview */}
+        <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+          <CardHeader className="bg-gradient-to-r from-violet-50 to-purple-50 rounded-t-lg border-b border-violet-100">
+            <CardTitle className="flex items-center gap-2 text-violet-800">
+              <Users className="h-5 w-5" />
+              Business User Overview
+            </CardTitle>
+            <CardDescription>
+              High-level user structure and branch information
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="p-6 space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-gray-700">Business Admins</Label>
+                <Input
+                  value="1"
+                  readOnly
+                  className="bg-gray-50 cursor-not-allowed"
+                />
+                <p className="text-xs text-gray-500">Total admin accounts</p>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-gray-700">Active Staff</Label>
+                <Input
+                  value="0"
+                  readOnly
+                  className="bg-gray-50 cursor-not-allowed"
+                />
+                <p className="text-xs text-gray-500">Currently active staff members</p>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-gray-700">Total Branches</Label>
+                <Input
+                  value="1"
+                  readOnly
+                  className="bg-gray-50 cursor-not-allowed"
+                />
+                <p className="text-xs text-gray-500">Number of business locations</p>
+              </div>
+            </div>
+            
+            <div className="pt-4 border-t border-violet-100">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-gray-700">Branch 1 - Main Location</Label>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      value="Active Staff: 0"
+                      readOnly
+                      className="bg-gray-50 cursor-not-allowed"
+                    />
+                    <Badge variant="default" className="text-xs">Main Branch</Badge>
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-gray-700">User Management</Label>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      value="Self-managed"
+                      readOnly
+                      className="bg-gray-50 cursor-not-allowed"
+                    />
+                    <Badge variant="outline" className="text-xs">Business handles own staff</Badge>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Commission Management */}
+        <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
+          <CardHeader className="bg-gradient-to-r from-amber-50 to-yellow-50 rounded-t-lg border-b border-amber-100">
+            <CardTitle className="flex items-center gap-2 text-amber-800">
+              <TrendingUp className="h-5 w-5" />
+              Commission Management
+            </CardTitle>
+            <CardDescription>
+              Commission profiles and target-based incentives
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="p-6 space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-gray-700">Commission Enabled</Label>
+                <Input
+                  value="No"
+                  readOnly
+                  className="bg-gray-50 cursor-not-allowed"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-gray-700">Commission Type</Label>
+                <Input
+                  value="Not configured"
+                  readOnly
+                  className="bg-gray-50 cursor-not-allowed"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-gray-700">Default Rate (%)</Label>
+                <Input
+                  value="0"
+                  readOnly
+                  className="bg-gray-50 cursor-not-allowed"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-sm font-medium text-gray-700">Target Tracking</Label>
+                <Input
+                  value="Disabled"
+                  readOnly
+                  className="bg-gray-50 cursor-not-allowed"
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Additional Information */}
         <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">

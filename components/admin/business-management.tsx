@@ -372,12 +372,6 @@ export function BusinessManagement() {
                             <Edit className="h-4 w-4 mr-2" />
                             Edit Business
                           </DropdownMenuItem>
-                          <DropdownMenuItem 
-                            onClick={() => router.push(`/admin/businesses/${business._id}/users`)}
-                          >
-                            <Users className="h-4 w-4 mr-2" />
-                            Manage Users
-                          </DropdownMenuItem>
                           {business.status === 'active' ? (
                             <DropdownMenuItem 
                               onClick={() => handleStatusChange(business._id, 'suspended')}

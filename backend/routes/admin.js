@@ -499,41 +499,6 @@ router.patch('/businesses/:id/status', authenticateAdmin, async (req, res) => {
   }
 });
 
-// Get Business Users
-router.get('/businesses/:id/users', authenticateAdmin, async (req, res) => {
-  try {
-    const { search, role, status } = req.query;
-    let query = { branchId: req.params.id };
-
-    // Add search filter
-    if (search) {
-      query.$or = [
-        { firstName: { $regex: search, $options: 'i' } },
-        { lastName: { $regex: search, $options: 'i' } },
-        { email: { $regex: search, $options: 'i' } }
-      ];
-    }
-
-    // Add role filter
-    if (role && role !== 'all') {
-      query.role = role;
-    }
-
-    // Add status filter
-    if (status && status !== 'all') {
-      query.status = status;
-    }
-
-    const users = await User.find(query)
-      .select('-password')
-      .sort({ createdAt: -1 });
-
-    res.json({ success: true, data: users });
-  } catch (error) {
-    console.error('Get business users error:', error);
-    res.status(500).json({ success: false, error: 'Internal server error' });
-  }
-});
 
 // Get Business Statistics
 router.get('/businesses/:id/stats', authenticateAdmin, async (req, res) => {
@@ -589,49 +554,6 @@ router.get('/businesses/:id/stats', authenticateAdmin, async (req, res) => {
 });
 
 
-// Update User Status
-router.patch('/users/:id/status', authenticateAdmin, async (req, res) => {
-  try {
-    const { status } = req.body;
-    const user = await User.findByIdAndUpdate(
-      req.params.id,
-      { status, updatedAt: new Date() },
-      { new: true }
-    );
-
-    if (!user) {
-      return res.status(404).json({ success: false, error: 'User not found' });
-    }
-
-    res.json({
-      success: true,
-      data: user,
-      message: `User ${status} successfully`
-    });
-  } catch (error) {
-    console.error('Update user status error:', error);
-    res.status(500).json({ success: false, error: 'Internal server error' });
-  }
-});
-
-// Delete User
-router.delete('/users/:id', authenticateAdmin, async (req, res) => {
-  try {
-    const user = await User.findByIdAndDelete(req.params.id);
-
-    if (!user) {
-      return res.status(404).json({ success: false, error: 'User not found' });
-    }
-
-    res.json({
-      success: true,
-      message: 'User deleted successfully'
-    });
-  } catch (error) {
-    console.error('Delete user error:', error);
-    res.status(500).json({ success: false, error: 'Internal server error' });
-  }
-});
 
 // Dashboard Statistics
 router.get('/dashboard/stats', setupMainDatabase, authenticateAdmin, async (req, res) => {
