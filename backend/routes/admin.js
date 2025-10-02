@@ -208,19 +208,30 @@ router.get('/businesses/:id', authenticateAdmin, async (req, res) => {
 // Create New Business
 router.post('/businesses', setupMainDatabase, authenticateAdmin, async (req, res) => {
   try {
+    
     const {
       businessInfo,
       ownerInfo
     } = req.body;
 
+    // Handle both data structures - ownerInfo as separate field or nested under businessInfo.owner
+    const ownerData = ownerInfo || businessInfo?.owner;
+    
+    if (!ownerData) {
+      return res.status(400).json({ success: false, error: 'Owner information is required' });
+    }
+    
+    if (!ownerData.password) {
+      return res.status(400).json({ success: false, error: 'Owner password is required' });
+    }
 
     // Create owner user first (using main database models)
-    const hashedPassword = await bcrypt.hash(ownerInfo.password, 10);
+    const hashedPassword = await bcrypt.hash(ownerData.password, 10);
     const owner = new req.mainModels.User({
-      firstName: ownerInfo.firstName,
-      lastName: ownerInfo.lastName,
-      email: ownerInfo.email,
-      mobile: ownerInfo.phone,
+      firstName: ownerData.firstName,
+      lastName: ownerData.lastName,
+      email: ownerData.email,
+      mobile: ownerData.phone,
       password: hashedPassword,
       role: 'admin',
       hasLoginAccess: true,
@@ -288,9 +299,15 @@ router.post('/businesses', setupMainDatabase, authenticateAdmin, async (req, res
     // Create business (using main database models)
     const business = new req.mainModels.Business({
       code: businessCode,
-      name: businessInfo.name,
-      businessType: businessInfo.businessType || 'salon',
-      address: businessInfo.address,
+      name: businessInfo.name || businessInfo.businessName,
+      businessType: (businessInfo.businessType || 'salon').toLowerCase(),
+      address: {
+        street: (businessInfo.address?.street || businessInfo.location?.street) || 'Not provided',
+        city: businessInfo.address?.city || businessInfo.location?.city,
+        state: businessInfo.address?.state || businessInfo.location?.state,
+        zipCode: businessInfo.address?.zipCode || businessInfo.location?.zipCode,
+        country: businessInfo.address?.country || businessInfo.location?.country || 'India'
+      },
       contact: {
         phone: businessInfo.contact?.phone || businessInfo.phone,
         email: businessInfo.contact?.email || businessInfo.email,
@@ -352,15 +369,15 @@ router.post('/businesses', setupMainDatabase, authenticateAdmin, async (req, res
       
       // Create default business settings
       const defaultSettings = new businessModels.BusinessSettings({
-        name: businessInfo.name,
-        email: businessInfo.contact.email,
-        phone: businessInfo.contact.phone,
-        website: businessInfo.contact.website || '',
-        description: `${businessInfo.name} - Professional salon and spa services`,
-        address: businessInfo.address.street,
-        city: businessInfo.address.city,
-        state: businessInfo.address.state,
-        zipCode: businessInfo.address.zipCode,
+        name: business.name,
+        email: business.contact.email,
+        phone: business.contact.phone,
+        website: business.contact.website || '',
+        description: `${business.name} - Professional salon and spa services`,
+        address: business.address.street,
+        city: business.address.city,
+        state: business.address.state,
+        zipCode: business.address.zipCode,
         receiptPrefix: "INV",
         invoicePrefix: "INV",
         receiptNumber: 1,
@@ -371,11 +388,11 @@ router.post('/businesses', setupMainDatabase, authenticateAdmin, async (req, res
         enableCurrency: true,
         enableTax: true,
         enableProcessingFees: true,
-        socialMedia: `@${businessInfo.name.toLowerCase().replace(/\s+/g, '')}`
+        socialMedia: `@${business.name.toLowerCase().replace(/\s+/g, '')}`
       });
       
       await defaultSettings.save();
-      console.log(`✅ Default business settings created for ${businessInfo.name}`);
+      console.log(`✅ Default business settings created for ${business.name}`);
     } catch (settingsError) {
       console.error('Error creating default business settings:', settingsError);
       // Don't fail the business creation if settings creation fails
@@ -389,14 +406,15 @@ router.post('/businesses', setupMainDatabase, authenticateAdmin, async (req, res
           id: owner._id,
           name: `${owner.firstName || ''} ${owner.lastName || ''}`.trim() || 'Business Owner',
           email: owner.email,
-          password: ownerInfo.password // Return plain password for admin
+          password: ownerData.password // Return plain password for admin
         }
       },
       message: 'Business created successfully'
     });
   } catch (error) {
     console.error('Create business error:', error);
-    res.status(500).json({ success: false, error: 'Internal server error' });
+    console.error('Error stack:', error.stack);
+    res.status(500).json({ success: false, error: 'Internal server error', details: error.message });
   }
 });
 

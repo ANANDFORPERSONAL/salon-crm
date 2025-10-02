@@ -155,19 +155,19 @@ export function CreateBusinessForm({ mode = 'create', businessId }: BusinessForm
 
       const businessData = {
         businessInfo: {
-          ...(data.businessName && { name: data.businessName }),
-          ...(data.businessType && { businessType: data.businessType }),
+          name: data.businessName || '',
+          businessType: data.businessType || 'salon',
           address: {
-            ...(data.street && { street: data.street }),
-            ...(data.city && { city: data.city }),
-            ...(data.state && { state: data.state }),
-            ...(data.zipCode && { zipCode: data.zipCode }),
-            ...(data.country && { country: data.country })
+            street: data.street || 'Not provided',
+            city: data.city || '',
+            state: data.state || '',
+            zipCode: data.zipCode || '',
+            country: data.country || 'India'
           },
           contact: {
-            ...(data.phone && { phone: data.phone }),
-            ...(data.email && { email: data.email }),
-            ...(data.website && { website: data.website })
+            phone: data.phone || '',
+            email: data.email || '',
+            website: data.website || ''
           },
           settings: {
             operatingHours: {
@@ -182,13 +182,14 @@ export function CreateBusinessForm({ mode = 'create', businessId }: BusinessForm
           }
         },
         ownerInfo: {
-          ...(data.ownerFirstName && { firstName: data.ownerFirstName }),
-          ...(data.ownerLastName && { lastName: data.ownerLastName }),
-          ...(data.ownerEmail && { email: data.ownerEmail }),
-          ...(data.ownerPhone && { phone: data.ownerPhone }),
-          ...(data.ownerPassword && { password: data.ownerPassword })
+          firstName: data.ownerFirstName || '',
+          lastName: data.ownerLastName || '',
+          email: data.ownerEmail || '',
+          phone: data.ownerPhone || '',
+          password: data.ownerPassword || ''
         },
       }
+
 
       // Filter out empty nested objects for edit mode
       const filteredBusinessData = isEditMode ? filterEmptyValues(businessData) : businessData

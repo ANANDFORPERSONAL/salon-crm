@@ -19,10 +19,6 @@ interface DashboardStats {
     name: string
     code: string
     status: string
-    subscription: {
-      plan: string
-      status: string
-    }
     owner: {
       name: string
       email: string
@@ -80,18 +76,6 @@ export function AdminDashboard() {
     }
   }
 
-  const getPlanColor = (plan: string) => {
-    switch (plan) {
-      case 'enterprise':
-        return 'bg-purple-100 text-purple-800'
-      case 'premium':
-        return 'bg-blue-100 text-blue-800'
-      case 'basic':
-        return 'bg-green-100 text-green-800'
-      default:
-        return 'bg-gray-100 text-gray-800'
-    }
-  }
 
   if (loading) {
     return (
@@ -209,7 +193,6 @@ export function AdminDashboard() {
                 <TableRow>
                   <TableHead>Business</TableHead>
                   <TableHead>Owner</TableHead>
-                  <TableHead>Plan</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Created</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
@@ -229,11 +212,6 @@ export function AdminDashboard() {
                         <div className="font-medium">{business.owner.name}</div>
                         <div className="text-sm text-gray-500">{business.owner.email}</div>
                       </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge className={getPlanColor(business.subscription.plan)}>
-                        {business.subscription.plan}
-                      </Badge>
                     </TableCell>
                     <TableCell>
                       <Badge className={getStatusColor(business.status)}>
