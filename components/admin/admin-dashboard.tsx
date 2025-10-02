@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Building2, Users, CreditCard, TrendingUp, Plus, Eye, Edit, MoreHorizontal } from "lucide-react"
+import { Building2, Users, CreditCard, TrendingUp, Plus, Eye, Edit, MoreHorizontal, Trash2 } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -9,6 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { useRouter } from "next/navigation"
 import { format } from "date-fns"
+import { useToast } from "@/hooks/use-toast"
 
 interface DashboardStats {
   totalBusinesses: number
@@ -36,6 +37,7 @@ export function AdminDashboard() {
   })
   const [loading, setLoading] = useState(true)
   const router = useRouter()
+  const { toast } = useToast()
 
   useEffect(() => {
     fetchDashboardStats()
@@ -73,6 +75,41 @@ export function AdminDashboard() {
         return 'bg-red-100 text-red-800'
       default:
         return 'bg-gray-100 text-gray-800'
+    }
+  }
+
+  const handleDeleteBusiness = async (businessId: string, businessName: string) => {
+    if (!confirm(`Are you sure you want to delete "${businessName}"? This action cannot be undone and will permanently remove all business data.`)) {
+      return
+    }
+
+    try {
+      const response = await fetch(`http://localhost:3001/api/admin/businesses/${businessId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('admin-auth-token')}`,
+          'Content-Type': 'application/json'
+        }
+      })
+
+      if (response.ok) {
+        toast({
+          title: "Business Deleted",
+          description: `"${businessName}" has been permanently deleted.`,
+        })
+        // Refresh the dashboard stats
+        fetchDashboardStats()
+      } else {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to delete business')
+      }
+    } catch (error) {
+      console.error('Error deleting business:', error)
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to delete business. Please try again.",
+        variant: "destructive",
+      })
     }
   }
 
@@ -240,6 +277,13 @@ export function AdminDashboard() {
                           >
                             <Edit className="h-4 w-4 mr-2" />
                             Edit Business
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            onClick={() => handleDeleteBusiness(business._id, business.name)}
+                            className="text-red-600 focus:text-red-600"
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Delete Business
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>

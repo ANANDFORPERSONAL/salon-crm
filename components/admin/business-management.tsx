@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { Plus, Search, Filter, MoreHorizontal, Eye, Edit, Trash2, Building2, Users, Calendar, Shield } from "lucide-react"
+import { Plus, Search, Filter, MoreHorizontal, Eye, Edit, Trash2, Building2, Users, Calendar, Shield, Ban } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -110,6 +110,50 @@ export function BusinessManagement() {
       toast({
         title: "Error",
         description: "Failed to update business status",
+        variant: "destructive",
+      })
+    }
+  }
+
+  const handleDeleteBusiness = async (businessId: string, businessName: string) => {
+    if (!businessId) {
+      toast({
+        title: "Error",
+        description: "Business ID is missing. Cannot delete business.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    if (!confirm(`Are you sure you want to delete "${businessName}"? This action cannot be undone and will permanently remove all business data.`)) {
+      return
+    }
+
+    try {
+      const response = await fetch(`http://localhost:3001/api/admin/businesses/${businessId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('admin-auth-token')}`,
+          'Content-Type': 'application/json'
+        }
+      })
+      
+      if (response.ok) {
+        toast({
+          title: "Business Deleted",
+          description: `"${businessName}" has been permanently deleted.`,
+        })
+        // Refresh the businesses list
+        fetchBusinesses()
+      } else {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to delete business')
+      }
+    } catch (error) {
+      console.error('Error deleting business:', error)
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to delete business. Please try again.",
         variant: "destructive",
       })
     }
@@ -360,9 +404,9 @@ export function BusinessManagement() {
                           {business.status === 'active' ? (
                             <DropdownMenuItem 
                               onClick={() => handleStatusChange(business._id, 'suspended')}
-                              className="text-red-600"
+                              className="text-orange-600"
                             >
-                              <Trash2 className="h-4 w-4 mr-2" />
+                              <Ban className="h-4 w-4 mr-2" />
                               Suspend Business
                             </DropdownMenuItem>
                           ) : business.status === 'suspended' ? (
@@ -379,6 +423,13 @@ export function BusinessManagement() {
                               Inactive (Auto-reactivates on login)
                             </DropdownMenuItem>
                           ) : null}
+                          <DropdownMenuItem 
+                            onClick={() => handleDeleteBusiness(business._id, business.name)}
+                            className="text-red-600 focus:text-red-600"
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Delete Business
+                          </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>

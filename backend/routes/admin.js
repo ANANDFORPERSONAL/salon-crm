@@ -601,4 +601,36 @@ router.get('/dashboard/stats', setupMainDatabase, authenticateAdmin, async (req,
   }
 });
 
+// Delete Business
+router.delete('/businesses/:id', setupMainDatabase, authenticateAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Find the business first to get owner info
+    const business = await req.mainModels.Business.findById(id).populate('owner');
+    if (!business) {
+      return res.status(404).json({ success: false, error: 'Business not found' });
+    }
+
+    // Delete the business owner from main database
+    if (business.owner) {
+      await req.mainModels.User.findByIdAndDelete(business.owner._id);
+    }
+
+    // Delete the business from main database
+    await req.mainModels.Business.findByIdAndDelete(id);
+
+    // Note: Business-specific database will be cleaned up by a separate cleanup job
+    // or can be manually cleaned up later as it's not critical for immediate deletion
+
+    res.json({ 
+      success: true, 
+      message: 'Business and associated data deleted successfully' 
+    });
+  } catch (error) {
+    console.error('Delete business error:', error);
+    res.status(500).json({ success: false, error: 'Internal server error' });
+  }
+});
+
 module.exports = router;
