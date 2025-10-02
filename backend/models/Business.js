@@ -119,8 +119,29 @@ const businessSchema = new mongoose.Schema({
 // Generate unique business code
 businessSchema.pre('save', async function(next) {
   if (!this.code) {
-    const count = await mongoose.model('Business').countDocuments();
-    this.code = `BIZ${String(count + 1).padStart(4, '0')}`;
+    let code;
+    let isUnique = false;
+    let attempts = 0;
+    
+    while (!isUnique && attempts < 10) {
+      const count = await mongoose.model('Business').countDocuments();
+      code = `BIZ${String(count + 1).padStart(4, '0')}`;
+      
+      // Check if this code already exists
+      const existing = await mongoose.model('Business').findOne({ code });
+      if (!existing) {
+        isUnique = true;
+      } else {
+        attempts++;
+      }
+    }
+    
+    // Fallback to timestamp-based code if count-based fails
+    if (!isUnique) {
+      code = `BIZ${Date.now().toString().slice(-4)}`;
+    }
+    
+    this.code = code;
   }
   next();
 });

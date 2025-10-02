@@ -183,7 +183,7 @@ export function BusinessDetailsForm() {
               </Button>
               <div>
                 <h1 className="text-4xl font-bold tracking-tight text-gray-900">
-                  {business.name}
+                  Business Details
                 </h1>
                 <p className="text-gray-600 text-lg">Business Code: {business.code}</p>
               </div>

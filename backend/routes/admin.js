@@ -262,13 +262,74 @@ router.post('/businesses', setupMainDatabase, authenticateAdmin, async (req, res
     
     await owner.save();
 
+    // Generate unique business code
+    let businessCode;
+    let isUnique = false;
+    let attempts = 0;
+    
+    while (!isUnique && attempts < 10) {
+      const count = await req.mainModels.Business.countDocuments();
+      businessCode = `BIZ${String(count + 1).padStart(4, '0')}`;
+      
+      // Check if this code already exists
+      const existing = await req.mainModels.Business.findOne({ code: businessCode });
+      if (!existing) {
+        isUnique = true;
+      } else {
+        attempts++;
+      }
+    }
+    
+    // Fallback to timestamp-based code if count-based fails
+    if (!isUnique) {
+      businessCode = `BIZ${Date.now().toString().slice(-4)}`;
+    }
+
     // Create business (using main database models)
     const business = new req.mainModels.Business({
+      code: businessCode,
       name: businessInfo.name,
       businessType: businessInfo.businessType || 'salon',
       address: businessInfo.address,
       contact: businessInfo.contact,
-      settings: businessInfo.settings,
+      settings: {
+        timezone: 'Asia/Kolkata',
+        currency: 'INR',
+        currencySymbol: '₹',
+        dateFormat: 'DD/MM/YYYY',
+        timeFormat: '12',
+        taxRate: 18,
+        gstNumber: '',
+        businessLicense: '',
+        operatingHours: {
+          monday: { open: '09:00', close: '18:00', closed: false },
+          tuesday: { open: '09:00', close: '18:00', closed: false },
+          wednesday: { open: '09:00', close: '18:00', closed: false },
+          thursday: { open: '09:00', close: '18:00', closed: false },
+          friday: { open: '09:00', close: '18:00', closed: false },
+          saturday: { open: '09:00', close: '18:00', closed: false },
+          sunday: { open: '10:00', close: '16:00', closed: false }
+        },
+        appointmentSettings: {
+          slotDuration: 30,
+          advanceBookingDays: 30,
+          bufferTime: 15,
+          allowOnlineBooking: false
+        },
+        notifications: {
+          emailNotifications: true,
+          smsNotifications: false,
+          appointmentReminders: true,
+          paymentConfirmations: true
+        },
+        branding: {
+          logo: '',
+          primaryColor: '#3B82F6',
+          secondaryColor: '#1E40AF',
+          fontFamily: 'Inter'
+        },
+        ...businessInfo.settings // Allow frontend to override defaults if needed
+      },
       subscription: {
         plan: subscriptionInfo.plan || 'basic',
         status: 'active',

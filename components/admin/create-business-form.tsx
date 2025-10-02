@@ -5,7 +5,7 @@ import { useRouter, useParams } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { ArrowLeft, Building2, User, CreditCard, Loader2, Phone, MapPin, TrendingUp, Settings } from "lucide-react"
+import { ArrowLeft, Building2, User, Loader2, Phone, MapPin } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -35,16 +35,11 @@ const createBusinessSchema = (isEditMode: boolean) => z.object({
   ownerPhone: isEditMode ? z.string().optional() : z.string().min(10, "Phone number is required"),
   ownerPassword: isEditMode ? z.string().optional() : z.string().min(6, "Password must be at least 6 characters"),
   
-  // Subscription Information
-  plan: isEditMode ? z.enum(["basic", "premium", "enterprise"]).optional() : z.enum(["basic", "premium", "enterprise"]),
-  maxUsers: isEditMode ? z.number().optional() : z.number().min(1, "At least 1 user required"),
-  maxBranches: isEditMode ? z.number().optional() : z.number().min(1, "At least 1 branch required"),
+  // Subscription Information (default values)
+  plan: z.enum(["basic", "premium", "enterprise"]).default("basic"),
+  maxUsers: z.number().min(1).default(5),
+  maxBranches: z.number().min(1).default(1),
   
-  // Business Settings
-  timezone: z.string().default("Asia/Kolkata"),
-  currency: z.string().default("INR"),
-  taxRate: z.number().min(0).max(100).default(18),
-  gstNumber: z.string().optional(),
 })
 
 type BusinessFormData = z.infer<ReturnType<typeof createBusinessSchema>>
@@ -513,69 +508,6 @@ export function CreateBusinessForm({ mode = 'create', businessId }: BusinessForm
                     </div>
                   </div>
 
-                  <div className="space-y-6">
-                    <div className="flex items-center gap-3">
-                      <Settings className="h-5 w-5 text-orange-600" />
-                      <h4 className="text-lg font-semibold text-gray-800">Business Settings</h4>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                      <div className="space-y-2">
-                        <Label htmlFor="timezone" className="text-sm font-medium text-gray-700">Timezone</Label>
-                        <Select onValueChange={(value) => form.setValue("timezone", value)}>
-                          <SelectTrigger className="mt-1">
-                            <SelectValue placeholder="Select timezone" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Asia/Kolkata">Asia/Kolkata (IST)</SelectItem>
-                            <SelectItem value="Asia/Dubai">Asia/Dubai (GST)</SelectItem>
-                            <SelectItem value="America/New_York">America/New_York (EST)</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="currency" className="text-sm font-medium text-gray-700">Currency</Label>
-                        <Select onValueChange={(value) => form.setValue("currency", value)}>
-                          <SelectTrigger className="mt-1">
-                            <SelectValue placeholder="Select currency" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="INR">INR (₹)</SelectItem>
-                            <SelectItem value="USD">USD ($)</SelectItem>
-                            <SelectItem value="EUR">EUR (€)</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="taxRate" className="text-sm font-medium text-gray-700">Tax Rate (%)</Label>
-                        <Input
-                          id="taxRate"
-                          type="number"
-                          min="0"
-                          max="100"
-                          step="0.1"
-                          {...form.register("taxRate", { valueAsNumber: true })}
-                          className="mt-1"
-                        />
-                        {form.formState.errors.taxRate && (
-                          <p className="text-sm text-red-600">
-                            {form.formState.errors.taxRate.message}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="gstNumber" className="text-sm font-medium text-gray-700">GST Number (Optional)</Label>
-                      <Input
-                        id="gstNumber"
-                        placeholder="12ABCDE1234F1Z5"
-                        {...form.register("gstNumber")}
-                        className="mt-1"
-                      />
-                    </div>
-                  </div>
               </CardContent>
             </Card>
           </div>
@@ -684,85 +616,6 @@ export function CreateBusinessForm({ mode = 'create', businessId }: BusinessForm
             </Card>
           </div>
 
-          {/* Subscription Plan Section */}
-          <div className="space-y-8 animate-in slide-in-from-bottom-2" style={{ animationDelay: '800ms' }}>
-              
-              <Card className="transform hover:scale-[1.01] transition-all duration-300 shadow-lg hover:shadow-xl border-0 bg-white/80 backdrop-blur-sm">
-                <CardHeader className="bg-gradient-to-r from-purple-50 to-violet-50 rounded-t-lg border-b border-purple-100">
-                  <CardTitle className="flex items-center gap-2 text-purple-800">
-                    <CreditCard className="h-5 w-5" />
-                    Choose Your Plan
-                  </CardTitle>
-                  <CardDescription className="text-purple-600">
-                    Choose the subscription plan for this business
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="p-6 space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="space-y-2">
-                      <Label htmlFor="plan" className="text-sm font-medium text-gray-700">{getLabel("Plan")}</Label>
-                      <Select onValueChange={(value) => form.setValue("plan", value as any)}>
-                        <SelectTrigger className="mt-1">
-                          <SelectValue placeholder="Select plan" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="basic">Basic - ₹2,999/month</SelectItem>
-                          <SelectItem value="premium">Premium - ₹4,999/month</SelectItem>
-                          <SelectItem value="enterprise">Enterprise - ₹7,999/month</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="maxUsers" className="text-sm font-medium text-gray-700">{getLabel("Max Users")}</Label>
-                      <Input
-                        id="maxUsers"
-                        type="number"
-                        min="1"
-                        {...form.register("maxUsers", { valueAsNumber: true })}
-                        className="mt-1"
-                      />
-                      {form.formState.errors.maxUsers && (
-                        <p className="text-sm text-red-600">
-                          {form.formState.errors.maxUsers.message}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="maxBranches" className="text-sm font-medium text-gray-700">{getLabel("Max Branches")}</Label>
-                      <Input
-                        id="maxBranches"
-                        type="number"
-                        min="1"
-                        {...form.register("maxBranches", { valueAsNumber: true })}
-                        className="mt-1"
-                      />
-                      {form.formState.errors.maxBranches && (
-                        <p className="text-sm text-red-600">
-                          {form.formState.errors.maxBranches.message}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="mt-6 p-6 bg-gradient-to-r from-purple-50 to-violet-50 rounded-lg border border-purple-100">
-                    <h4 className="font-semibold text-purple-900 mb-4 flex items-center gap-2">
-                      <TrendingUp className="h-5 w-5" />
-                      Plan Features
-                    </h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-purple-800">
-                      {getPlanFeatures(form.watch("plan") || "basic").map((feature, index) => (
-                        <div key={index} className="flex items-center space-x-3">
-                          <div className="w-2 h-2 bg-purple-600 rounded-full flex-shrink-0" />
-                          <span className="capitalize">{feature.replace(/_/g, ' ')}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-              </CardContent>
-            </Card>
-          </div>
 
           <div className="flex justify-end space-x-4 pt-8">
             <Button
