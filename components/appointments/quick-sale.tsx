@@ -40,7 +40,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog"
 import { Separator } from "@/components/ui/separator"
-import { useToast } from "@/hooks/use-toast"
+import { useToast } from "@/components/ui/use-toast"
 import { ReceiptDialog } from "@/components/receipts/receipt-dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -192,6 +192,10 @@ export function QuickSale() {
   const [isOldQuickSale, setIsOldQuickSale] = useState(false)
   const [currentReceipt, setCurrentReceipt] = useState<any | null>(null)
   const [showReceiptDialog, setShowReceiptDialog] = useState(false)
+  
+  // Search states for service items dropdown
+  const [serviceDropdownSearch, setServiceDropdownSearch] = useState("")
+  const [productDropdownSearch, setProductDropdownSearch] = useState("")
   const [isProcessing, setIsProcessing] = useState(false)
   const [showNewCustomerDialog, setShowNewCustomerDialog] = useState(false)
   const [showBillActivityDialog, setShowBillActivityDialog] = useState(false)
@@ -219,6 +223,49 @@ export function QuickSale() {
   const [businessSettings, setBusinessSettings] = useState<any>(null)
   const [posSettings, setPOSSettings] = useState<any>(null)
   const [paymentSettings, setPaymentSettings] = useState<any>(null)
+
+  // Filtered services and products for dropdown search
+  const filteredServicesForDropdown = services.filter(service =>
+    service.name.toLowerCase().includes(serviceDropdownSearch.toLowerCase())
+  )
+  const filteredProductsForDropdown = products.filter(product =>
+    product.name.toLowerCase().includes(productDropdownSearch.toLowerCase())
+  )
+
+  // Add item to cart function
+  const addToCart = (item: any, type: "service" | "product") => {
+    if (type === "service") {
+      const newItem: ServiceItem = {
+        id: Date.now().toString(),
+        serviceId: item._id || item.id,
+        staffId: "",
+        quantity: 1,
+        price: item.price || 0,
+        discount: 0,
+        total: item.price || 0,
+      }
+      setServiceItems([...serviceItems, newItem])
+    } else if (type === "product") {
+      const newItem: ProductItem = {
+        id: Date.now().toString(),
+        productId: item._id || item.id,
+        staffId: "",
+        quantity: 1,
+        price: item.price || 0,
+        discount: 0,
+        total: item.price || 0,
+      }
+      setProductItems([...productItems, newItem])
+    }
+    
+    // Clear search after adding
+          // Clear search when item is added
+          if (type === "service") {
+            setServiceDropdownSearch("")
+          } else {
+            setProductDropdownSearch("")
+          }
+  }
   const [taxSettings, setTaxSettings] = useState<TaxSettings | null>(null)
   const [taxCalculator, setTaxCalculator] = useState<TaxCalculator | null>(null)
   const [loadingServices, setLoadingServices] = useState(true)
@@ -252,9 +299,13 @@ export function QuickSale() {
         if (response.success) {
           setProducts(response.data || [])
           console.log('Products loaded:', response.data?.length || 0)
+        } else {
+          console.log('Products API returned unsuccessful response:', response)
+          setProducts([])
         }
       } catch (error) {
         console.error('Failed to fetch products:', error)
+        setProducts([]) // Ensure products array is empty on error
       } finally {
         setLoadingProducts(false)
       }
@@ -699,6 +750,26 @@ export function QuickSale() {
 
   // Add product item
   const addProductItem = () => {
+    // Check if products are still loading
+    if (loadingProducts) {
+      toast({
+        title: "Loading Products",
+        description: "Please wait while products are being loaded...",
+        variant: "default",
+      })
+      return
+    }
+    
+    // Check if there are any products available
+    if (products.length === 0) {
+      toast({
+        title: "No Products Available",
+        description: "Please add products to the inventory first.",
+        variant: "destructive",
+      })
+      return
+    }
+
     const newItem: ProductItem = {
       id: Date.now().toString(),
       productId: "",
@@ -1612,83 +1683,6 @@ export function QuickSale() {
             </CardContent>
           </Card>
 
-          {/* Services & Products */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Services & Products</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {/* Services */}
-              {/* <div className="space-y-2">
-                <Label>Services</Label>
-                <div className="relative">
-                  <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Search services..."
-                    value={serviceSearch}
-                    onChange={(e) => setServiceSearch(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
-                <div className="max-h-32 overflow-auto space-y-1">
-                  {filteredServices.map((service) => (
-                    <div
-                      key={service._id || service.id}
-                      className="flex items-center justify-between p-2 hover:bg-muted rounded cursor-pointer"
-                      onClick={() => addToCart(service, "service")}
-                    >
-                      <div>
-                        <div className="font-medium">{service.name}</div>
-                        <div className="text-sm text-muted-foreground">{service.duration} min</div>
-                      </div>
-                      <div className="text-right">
-                        <div className="font-medium">{formatCurrency(service.price)}</div>
-                        <Button size="sm" variant="outline">
-                          <Plus className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <Separator /> */}
-
-              {/* Products */}
-              {/* <div className="space-y-2">
-                <Label>Products</Label>
-                <div className="relative">
-                  <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Search products..."
-                    value={productSearch}
-                    onChange={(e) => setProductSearch(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
-                <div className="max-h-32 overflow-auto space-y-1">
-                  {filteredProducts.map((product) => (
-                    <div
-                      key={product._id || product.id}
-                      className="flex items-center justify-between p-2 hover:bg-muted rounded cursor-pointer"
-                      onClick={() => addToCart(product, "product")}
-                    >
-                      <div>
-                        <div className="font-medium">{product.name}</div>
-                        <div className="text-sm text-muted-foreground">Stock: {product.stock}</div>
-                      </div>
-                      <div className="text-right">
-                        <div className="font-medium">{formatCurrency(product.price)}</div>
-                        <Button size="sm" variant="outline">
-                          <Plus className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div> */}
-            </CardContent>
-          </Card>
         </div>
 
         {/* Cart */}
@@ -2230,6 +2224,7 @@ export function QuickSale() {
             </div>
           </div>
 
+
           {/* Services Section */}
           <div className="space-y-6">
             <div className="flex items-center justify-between">
@@ -2244,7 +2239,7 @@ export function QuickSale() {
             </div>
 
             {serviceItems.length > 0 && (
-              <div className="border border-gray-200 rounded-xl overflow-hidden shadow-sm bg-white max-h-96 overflow-y-auto">
+              <div className="border border-gray-200 rounded-xl shadow-sm bg-white">
                 <div className="grid grid-cols-[2fr_3fr_120px_100px_100px_100px_40px] gap-4 p-4 bg-gradient-to-r from-indigo-50 to-purple-50 font-semibold text-sm text-gray-700 border-b sticky top-0 bg-white z-10">
                   <div>Service *</div>
                   <div>Staff *</div>
@@ -2255,37 +2250,75 @@ export function QuickSale() {
                   <div></div>
                 </div>
 
-                <div className="max-h-80 overflow-y-auto">
+                <div style={{ overflow: 'visible' }}>
                   {serviceItems.map((item) => (
                   <div
                     key={item.id}
                     className="grid grid-cols-[2fr_3fr_120px_100px_100px_100px_40px] gap-4 p-4 border-b last:border-b-0 items-center hover:bg-gray-50/50 transition-all duration-200"
                   >
-                    <Select
-                      value={item.serviceId}
-                      onValueChange={(value) => updateServiceItem(item.id, "serviceId", value)}
-                    >
-                      <SelectTrigger className="h-8">
-                        <SelectValue placeholder="Select service" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {loadingServices ? (
-                          <SelectItem value="__loading__" disabled>
-                            Loading services...
-                          </SelectItem>
-                        ) : services.length === 0 ? (
-                          <SelectItem value="__none__" disabled>
-                            No services available
-                          </SelectItem>
-                        ) : (
-                          services.map((service) => (
-                            <SelectItem key={service._id || service.id} value={service._id || service.id}>
-                              {service.name}
-                            </SelectItem>
-                          ))
-                        )}
-                      </SelectContent>
-                    </Select>
+                    <div className="relative">
+                      {item.serviceId ? (
+                        <div className="flex items-center justify-between h-8 px-3 py-1 bg-muted rounded-md text-sm">
+                          <span className="truncate">
+                            {services.find(s => (s._id || s.id) === item.serviceId)?.name || 'Unknown Service'}
+                          </span>
+                          <button
+                            onClick={() => updateServiceItem(item.id, "serviceId", "")}
+                            className="ml-2 h-4 w-4 text-muted-foreground hover:text-foreground"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="relative">
+                          <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-3 w-3 text-muted-foreground" />
+                          <Input
+                            placeholder="Search services..."
+                            value={serviceDropdownSearch}
+                            onChange={(e) => setServiceDropdownSearch(e.target.value)}
+                            className="h-8 pl-7 pr-8 text-sm"
+                            onFocus={(e) => e.target.select()}
+                          />
+                          {serviceDropdownSearch && (
+                            <button
+                              onClick={() => setServiceDropdownSearch("")}
+                              className="absolute right-2 top-1/2 transform -translate-y-1/2 h-3 w-3 text-muted-foreground hover:text-foreground"
+                            >
+                              ×
+                            </button>
+                          )}
+                        </div>
+                      )}
+                      {serviceDropdownSearch && (
+                        <div className="absolute top-full left-0 right-0 z-[9999] mt-1 bg-white border border-gray-200 rounded-md shadow-lg" style={{ maxHeight: 'none', overflow: 'visible' }}>
+                          {loadingServices ? (
+                            <div className="p-2 text-center text-sm text-muted-foreground">Loading services...</div>
+                          ) : (
+                            <>
+                              {filteredServicesForDropdown.length === 0 ? (
+                                <div className="p-2 text-center text-sm text-muted-foreground">
+                                  No services found matching "{serviceDropdownSearch}"
+                                </div>
+                              ) : (
+                                filteredServicesForDropdown.map((service) => (
+                                  <div
+                                    key={service._id || service.id}
+                                    className="p-2 hover:bg-muted cursor-pointer text-sm border-b last:border-b-0"
+                                    onClick={() => {
+                                      updateServiceItem(item.id, "serviceId", service._id || service.id)
+                                      setServiceDropdownSearch("")
+                                    }}
+                                  >
+                                    <div className="font-medium">{service.name}</div>
+                                    <div className="text-xs text-muted-foreground">{service.duration} min - {formatCurrency(service.price)}</div>
+                                  </div>
+                                ))
+                              )}
+                            </>
+                          )}
+                        </div>
+                      )}
+                    </div>
 
                     <MultiStaffSelector
                       key={`service-${item.id}-staff`}
@@ -2374,7 +2407,7 @@ export function QuickSale() {
             </div>
 
             {productItems.length > 0 && (
-              <div className="border border-gray-200 rounded-xl overflow-hidden shadow-sm bg-white max-h-96 overflow-y-auto">
+              <div className="border border-gray-200 rounded-xl shadow-sm bg-white">
                 <div className="grid grid-cols-[2fr_3fr_120px_100px_100px_100px_40px] gap-4 p-4 bg-gradient-to-r from-emerald-50 to-green-50 font-semibold text-sm text-gray-700 border-b sticky top-0 bg-white z-10">
                   <div>Product *</div>
                   <div>Staff *</div>
@@ -2385,7 +2418,7 @@ export function QuickSale() {
                   <div></div>
                 </div>
 
-                <div className="max-h-80 overflow-y-auto">
+                <div style={{ overflow: 'visible' }}>
                   {productItems.map((item) => {
                   console.log('=== RENDERING PRODUCT ITEM ===')
                   console.log('Product item ID:', item.id)
@@ -2393,31 +2426,69 @@ export function QuickSale() {
                   return (
                   <div key={item.id} className="space-y-2">
                     <div className="grid grid-cols-[2fr_3fr_120px_100px_100px_100px_40px] gap-4 p-4 border-b last:border-b-0 items-center hover:bg-emerald-50/30 transition-all duration-200">
-                      <Select
-                        value={item.productId}
-                        onValueChange={(value) => updateProductItem(item.id, "productId", value)}
-                      >
-                        <SelectTrigger className="h-8">
-                          <SelectValue placeholder="Select product" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {loadingProducts ? (
-                            <SelectItem value="" disabled>
-                              Loading products...
-                            </SelectItem>
-                          ) : products.length === 0 ? (
-                            <SelectItem value="" disabled>
-                              No products available
-                            </SelectItem>
-                          ) : (
-                            products.map((product) => (
-                              <SelectItem key={product._id || product.id} value={product._id || product.id}>
-                                {product.name} (Stock: {product.stock})
-                              </SelectItem>
-                            ))
-                          )}
-                        </SelectContent>
-                      </Select>
+                      <div className="relative">
+                        {item.productId ? (
+                          <div className="flex items-center justify-between h-8 px-3 py-1 bg-muted rounded-md text-sm">
+                            <span className="truncate">
+                              {products.find(p => (p._id || p.id) === item.productId)?.name || 'Unknown Product'}
+                            </span>
+                            <button
+                              onClick={() => updateProductItem(item.id, "productId", "")}
+                              className="ml-2 h-4 w-4 text-muted-foreground hover:text-foreground"
+                            >
+                              ×
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="relative">
+                            <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-3 w-3 text-muted-foreground" />
+                            <Input
+                              placeholder="Search products..."
+                              value={productDropdownSearch}
+                              onChange={(e) => setProductDropdownSearch(e.target.value)}
+                              className="h-8 pl-7 pr-8 text-sm"
+                              onFocus={(e) => e.target.select()}
+                            />
+                            {productDropdownSearch && (
+                              <button
+                                onClick={() => setProductDropdownSearch("")}
+                                className="absolute right-2 top-1/2 transform -translate-y-1/2 h-3 w-3 text-muted-foreground hover:text-foreground"
+                              >
+                                ×
+                              </button>
+                            )}
+                          </div>
+                        )}
+                        {productDropdownSearch && (
+                          <div className="absolute top-full left-0 right-0 z-[9999] mt-1 bg-white border border-gray-200 rounded-md shadow-lg" style={{ maxHeight: 'none', overflow: 'visible' }}>
+                            {loadingProducts ? (
+                              <div className="p-2 text-center text-sm text-muted-foreground">Loading products...</div>
+                            ) : (
+                              <>
+                                {filteredProductsForDropdown.length === 0 ? (
+                                  <div className="p-2 text-center text-sm text-muted-foreground">
+                                    No products found matching "{productDropdownSearch}"
+                                  </div>
+                                ) : (
+                                  filteredProductsForDropdown.map((product) => (
+                                    <div
+                                      key={product._id || product.id}
+                                      className="p-2 hover:bg-muted cursor-pointer text-sm border-b last:border-b-0"
+                                      onClick={() => {
+                                        updateProductItem(item.id, "productId", product._id || product.id)
+                                        setProductDropdownSearch("")
+                                      }}
+                                    >
+                                      <div className="font-medium">{product.name}</div>
+                                      <div className="text-xs text-muted-foreground">Stock: {product.stock} - {formatCurrency(product.price)}</div>
+                                    </div>
+                                  ))
+                                )}
+                              </>
+                            )}
+                          </div>
+                        )}
+                      </div>
 
                       <Select
                         key={`product-${item.id}-staff`}
@@ -2437,7 +2508,7 @@ export function QuickSale() {
                         </SelectTrigger>
                         <SelectContent>
                           {loadingStaff ? (
-                            <SelectItem value="" disabled>
+                            <SelectItem value="__loading__" disabled>
                               Loading staff...
                             </SelectItem>
                           ) : staff.length === 0 ? (
