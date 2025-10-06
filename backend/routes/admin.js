@@ -601,6 +601,98 @@ router.get('/dashboard/stats', setupMainDatabase, authenticateAdmin, async (req,
   }
 });
 
+// Get All Users with Business Associations
+router.get('/users', setupMainDatabase, authenticateAdmin, async (req, res) => {
+  try {
+    console.log('🔍🔍🔍 ADMIN USERS ENDPOINT CALLED - NEW VERSION 🔍🔍🔍');
+    const { User, Business } = req.mainModels;
+    
+    // Get all businesses first
+    const businesses = await Business.find({}).lean();
+    console.log('📊 Found businesses:', businesses.length);
+    
+    // Get all users from main database (business owners)
+    const mainUsers = await User.find({ branchId: { $exists: true, $ne: null } })
+      .populate('branchId', 'name code status')
+      .sort({ createdAt: -1 })
+      .lean();
+
+    // Transform main database users
+    const mainUsersWithBusiness = mainUsers
+      .filter(user => user.branchId && user.branchId.name)
+      .map(user => ({
+        _id: user._id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        role: user.role,
+        status: user.status,
+        branchId: user.branchId._id,
+        businessName: user.branchId.name,
+        createdAt: user.createdAt,
+        source: 'main'
+      }));
+    
+    console.log('👥 Main users found:', mainUsersWithBusiness.length);
+
+    // Get staff from each business database
+    const allStaff = [];
+    for (const business of businesses) {
+      try {
+        console.log(`🔍 Processing business: ${business.name} (${business.code})`);
+        // Connect to business database
+        const businessDb = mongoose.connection.useDb(`salon_crm_${business.code}`);
+        console.log(`📡 Connected to database: salon_crm_${business.code}`);
+        
+        const Staff = businessDb.model('Staff', require('../models/Staff').schema);
+        console.log(`📋 Staff model created for ${business.name}`);
+        
+        // Get staff from this business
+        const staff = await Staff.find({}).lean();
+        console.log(`👥 Raw staff count for ${business.name}:`, staff.length);
+        
+        // Transform staff data
+        const staffWithBusiness = staff.map(staffMember => ({
+          _id: staffMember._id,
+          firstName: staffMember.name?.split(' ')[0] || '',
+          lastName: staffMember.name?.split(' ').slice(1).join(' ') || '',
+          email: staffMember.email,
+          role: staffMember.role,
+          status: staffMember.isActive ? 'active' : 'inactive',
+          branchId: business._id,
+          businessName: business.name,
+          createdAt: staffMember.createdAt,
+          source: 'business'
+        }));
+        
+        allStaff.push(...staffWithBusiness);
+        console.log(`👷 Staff from ${business.name}:`, staffWithBusiness.length);
+      } catch (error) {
+        console.error(`Error fetching staff for business ${business.name}:`, error);
+        // Continue with other businesses even if one fails
+      }
+    }
+    
+    console.log('👷 Total staff found:', allStaff.length);
+
+    // Combine main users and staff
+    const allUsers = [...mainUsersWithBusiness, ...allStaff];
+    
+    // Sort by creation date
+    allUsers.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    
+    console.log('📋 Total users to return:', allUsers.length);
+
+    res.json({
+      success: true,
+      data: allUsers
+    });
+  } catch (error) {
+    console.error('Get all users error:', error);
+    res.status(500).json({ success: false, error: 'Internal server error' });
+  }
+});
+
 // Delete Business
 router.delete('/businesses/:id', setupMainDatabase, authenticateAdmin, async (req, res) => {
   try {

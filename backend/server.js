@@ -296,6 +296,112 @@ app.post('/api/auth/login', setupMainDatabase, async (req, res) => {
   }
 });
 
+// Staff login endpoint
+app.post('/api/auth/staff-login', async (req, res) => {
+  try {
+    const { email, password, businessCode } = req.body;
+
+    if (!email || !password || !businessCode) {
+      return res.status(400).json({
+        success: false,
+        error: 'Email, password, and business code are required'
+      });
+    }
+
+    // Get business ID from business code
+    const mainConnection = mongoose.connection.useDb('salon_crm_main');
+    const Business = mainConnection.model('Business', require('./models/Business').schema);
+    const business = await Business.findOne({ code: businessCode });
+    
+    if (!business) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid business code'
+      });
+    }
+    
+    // Connect to business-specific database using business ID
+    const businessDb = mongoose.connection.useDb(`salon_crm_${business._id}`);
+    const Staff = businessDb.model('Staff', require('./models/Staff').schema);
+    
+    // Find staff member
+    const staff = await Staff.findOne({ 
+      email: email.toLowerCase(),
+      hasLoginAccess: true,
+      isActive: true
+    });
+    
+    if (!staff) {
+      return res.status(401).json({
+        success: false,
+        error: 'Invalid credentials or no login access'
+      });
+    }
+
+    // Check password
+    const isValidPassword = await comparePassword(password, staff.password);
+    
+    if (!isValidPassword) {
+      return res.status(401).json({
+        success: false,
+        error: 'Invalid credentials'
+      });
+    }
+
+    // Update last login timestamp
+    await Staff.findByIdAndUpdate(staff._id, { 
+      lastLoginAt: new Date(),
+      updatedAt: new Date()
+    });
+
+    // Generate token with staff info
+    const token = generateToken({
+      _id: staff._id,
+      email: staff.email,
+      role: staff.role,
+      branchId: staff.branchId,
+      firstName: staff.name.split(' ')[0],
+      lastName: staff.name.split(' ').slice(1).join(' ') || '',
+      mobile: staff.phone,
+      hasLoginAccess: staff.hasLoginAccess,
+      allowAppointmentScheduling: staff.allowAppointmentScheduling,
+      isActive: staff.isActive
+    });
+
+    const { password: _, ...staffWithoutPassword } = staff.toObject();
+
+    res.json({
+      success: true,
+      data: {
+        user: {
+          _id: staff._id,
+          firstName: staff.name.split(' ')[0],
+          lastName: staff.name.split(' ').slice(1).join(' ') || '',
+          email: staff.email,
+          mobile: staff.phone,
+          role: staff.role,
+          branchId: staff.branchId,
+          hasLoginAccess: staff.hasLoginAccess,
+          allowAppointmentScheduling: staff.allowAppointmentScheduling,
+          isActive: staff.isActive,
+          specialties: staff.specialties,
+          commissionProfileIds: staff.commissionProfileIds,
+          notes: staff.notes,
+          createdAt: staff.createdAt,
+          updatedAt: staff.updatedAt
+        },
+        token
+      }
+    });
+  } catch (error) {
+    console.error('Staff login error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error'
+    });
+  }
+});
+
 app.post('/api/auth/logout', authenticateToken, (req, res) => {
   res.json({
     success: true,

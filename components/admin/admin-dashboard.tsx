@@ -1,12 +1,14 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Building2, Users, CreditCard, TrendingUp, Plus, Eye, Edit, MoreHorizontal, Trash2 } from "lucide-react"
+import { Building2, Users, CreditCard, TrendingUp, Plus, Eye, Edit, MoreHorizontal, Trash2, X } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
 import { useRouter } from "next/navigation"
 import { format } from "date-fns"
 import { useToast } from "@/hooks/use-toast"
@@ -28,6 +30,18 @@ interface DashboardStats {
   }>
 }
 
+interface User {
+  _id: string
+  firstName: string
+  lastName: string
+  email: string
+  role: string
+  status: string
+  branchId: string
+  businessName?: string
+  createdAt: string
+}
+
 export function AdminDashboard() {
   const [stats, setStats] = useState<DashboardStats>({
     totalBusinesses: 0,
@@ -36,6 +50,10 @@ export function AdminDashboard() {
     recentBusinesses: []
   })
   const [loading, setLoading] = useState(true)
+  const [showUsersModal, setShowUsersModal] = useState(false)
+  const [users, setUsers] = useState<User[]>([])
+  const [usersLoading, setUsersLoading] = useState(false)
+  const [usersSearch, setUsersSearch] = useState("")
   const router = useRouter()
   const { toast } = useToast()
 
@@ -63,6 +81,61 @@ export function AdminDashboard() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const fetchAllUsers = async () => {
+    try {
+      setUsersLoading(true)
+      const token = localStorage.getItem('admin-auth-token')
+      console.log('Admin token:', token ? 'Present' : 'Missing')
+      
+      const response = await fetch('http://localhost:3001/api/admin/users', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+
+      console.log('Users API response status:', response.status)
+      const responseText = await response.text()
+      console.log('Users API response:', responseText)
+
+      if (response.ok) {
+        const data = JSON.parse(responseText)
+        if (data.success) {
+          console.log('Users data:', data.data)
+          setUsers(data.data)
+        } else {
+          console.error('API returned error:', data.error)
+          toast({
+            title: "Error",
+            description: data.error || "Failed to fetch users",
+            variant: "destructive",
+          })
+        }
+      } else {
+        console.error('HTTP error:', response.status, responseText)
+        toast({
+          title: "Error",
+          description: `HTTP ${response.status}: ${responseText}`,
+          variant: "destructive",
+        })
+      }
+    } catch (error) {
+      console.error('Error fetching users:', error)
+      toast({
+        title: "Error",
+        description: "Failed to fetch users",
+        variant: "destructive",
+      })
+    } finally {
+      setUsersLoading(false)
+    }
+  }
+
+  const handleUsersCardClick = () => {
+    setShowUsersModal(true)
+    fetchAllUsers()
   }
 
   const getStatusColor = (status: string) => {
@@ -165,7 +238,10 @@ export function AdminDashboard() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card 
+          className="cursor-pointer hover:shadow-md transition-shadow duration-200"
+          onClick={handleUsersCardClick}
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Users</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
@@ -295,6 +371,92 @@ export function AdminDashboard() {
           )}
         </CardContent>
       </Card>
+
+      {/* Users Modal */}
+      <Dialog open={showUsersModal} onOpenChange={setShowUsersModal}>
+        <DialogContent className="max-w-6xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Users className="h-5 w-5" />
+              All Users ({users.length})
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            {/* Search */}
+            <div className="flex items-center space-x-2">
+              <Input
+                placeholder="Search users by name, email, or business..."
+                value={usersSearch}
+                onChange={(e) => setUsersSearch(e.target.value)}
+                className="flex-1"
+              />
+            </div>
+
+            {/* Users Table */}
+            {usersLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <div className="text-muted-foreground">Loading users...</div>
+              </div>
+            ) : (
+              <div className="border rounded-lg">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Name</TableHead>
+                      <TableHead>Email</TableHead>
+                      <TableHead>Role</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Business</TableHead>
+                      <TableHead>Created</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {users
+                      .filter(user => {
+                        if (!usersSearch) return true
+                        const searchLower = usersSearch.toLowerCase()
+                        return (
+                          user.firstName?.toLowerCase().includes(searchLower) ||
+                          user.lastName?.toLowerCase().includes(searchLower) ||
+                          user.email?.toLowerCase().includes(searchLower) ||
+                          user.businessName?.toLowerCase().includes(searchLower)
+                        )
+                      })
+                      .map((user) => (
+                        <TableRow key={user._id}>
+                          <TableCell className="font-medium">
+                            {user.firstName} {user.lastName}
+                          </TableCell>
+                          <TableCell>{user.email}</TableCell>
+                          <TableCell>
+                            <Badge variant={user.role === 'admin' ? 'default' : 'secondary'}>
+                              {user.role}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Badge 
+                              variant={user.status === 'active' ? 'default' : 'destructive'}
+                              className={user.status === 'active' ? 'bg-green-100 text-green-800' : ''}
+                            >
+                              {user.status}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            {user.businessName || 'No Business'}
+                          </TableCell>
+                          <TableCell>
+                            {format(new Date(user.createdAt), 'MMM dd, yyyy')}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

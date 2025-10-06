@@ -314,8 +314,8 @@ export function QuickSale() {
     const fetchStaff = async () => {
       try {
         console.log('Fetching staff from API...')
-        const response = await UsersAPI.getAll()
-        console.log('Users API response:', response)
+        const response = await StaffAPI.getAll()
+        console.log('Staff API response:', response)
         if (response.success) {
           // Filter for active staff members with appointment scheduling enabled
           const staffMembers = response.data.filter((user: any) => {
@@ -330,7 +330,7 @@ export function QuickSale() {
           console.log('Active staff loaded:', staffMembers.length)
           console.log('Active staff members:', staffMembers.map(s => ({ name: s.name, id: s._id || s.id, allowAppointmentScheduling: s.allowAppointmentScheduling })))
         } else {
-          console.error('Users API returned error:', response.error)
+          console.error('Staff API returned error:', response.error)
         }
       } catch (error) {
         console.error('Failed to fetch staff:', error)

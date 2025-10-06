@@ -134,6 +134,11 @@ export class AuthAPI {
     const response = await apiClient.get(`/auth/verify-reset-token/${token}`)
     return response.data
   }
+
+  static async staffLogin(email: string, password: string, businessCode: string): Promise<ApiResponse<{ user: any; token: string }>> {
+    const response = await apiClient.post('/auth/staff-login', { email, password, businessCode })
+    return response.data
+  }
 }
 
 export class ClientsAPI {
