@@ -1579,8 +1579,8 @@ app.get('/api/products', authenticateToken, setupBusinessDatabase, requireStaff,
 
 app.post('/api/products', authenticateToken, setupBusinessDatabase, requireManager, async (req, res) => {
   try {
-    const { Product } = req.businessModels;
-    const { name, category, price, stock, sku, supplier, description, taxCategory, productType } = req.body;
+    const { Product, InventoryTransaction } = req.businessModels;
+    const { name, category, price, stock, sku, supplier, description, taxCategory, productType, transactionType } = req.body;
 
     console.log('🔍 Product creation request body:', req.body);
     console.log('🔍 Extracted fields:', { name, category, price, stock, sku, supplier, description, taxCategory, productType });
@@ -1622,6 +1622,28 @@ app.post('/api/products', authenticateToken, setupBusinessDatabase, requireManag
     });
 
     const savedProduct = await newProduct.save();
+
+    // Create inventory transaction for stock addition
+    const inventoryTransaction = new InventoryTransaction({
+      productId: savedProduct._id,
+      productName: savedProduct.name,
+      transactionType: transactionType || 'purchase',
+      quantity: parseInt(stock),
+      previousStock: 0,
+      newStock: parseInt(stock),
+      unitCost: parseFloat(price) || 0,
+      totalValue: (parseFloat(price) || 0) * parseInt(stock),
+      referenceType: 'purchase',
+      referenceId: savedProduct._id.toString(),
+      referenceNumber: `PROD-${savedProduct._id.toString().slice(-6)}`,
+      processedBy: req.user.email,
+      location: 'main',
+      reason: `Product added to inventory`,
+      notes: `Initial stock addition via ${transactionType || 'purchase'}`,
+      transactionDate: new Date()
+    });
+
+    await inventoryTransaction.save();
 
     res.status(201).json({
       success: true,
@@ -1912,6 +1934,133 @@ app.delete('/api/suppliers/:id', authenticateToken, setupBusinessDatabase, requi
     });
   } catch (error) {
     console.error('Error deleting supplier:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error'
+    });
+  }
+});
+
+// ==================== INVENTORY MANAGEMENT ROUTES ====================
+// Product Out - Deduct products from inventory
+app.post('/api/inventory/out', authenticateToken, setupBusinessDatabase, requireStaff, async (req, res) => {
+  try {
+    const { Product, InventoryTransaction } = req.businessModels;
+    const { productId, quantity, transactionType, reason, notes } = req.body;
+
+    if (!productId || !quantity || !transactionType) {
+      return res.status(400).json({
+        success: false,
+        error: 'Product ID, quantity, and transaction type are required'
+      });
+    }
+
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        error: 'Product not found'
+      });
+    }
+
+    const deductionQuantity = Math.abs(parseInt(quantity));
+    if (product.stock < deductionQuantity) {
+      return res.status(400).json({
+        success: false,
+        error: `Insufficient stock. Available: ${product.stock}, Requested: ${deductionQuantity}`
+      });
+    }
+
+    // Update product stock
+    const previousStock = product.stock;
+    const newStock = previousStock - deductionQuantity;
+    
+    await Product.findByIdAndUpdate(productId, { stock: newStock });
+
+    // Create inventory transaction
+    const inventoryTransaction = new InventoryTransaction({
+      productId: product._id,
+      productName: product.name,
+      transactionType: transactionType,
+      quantity: -deductionQuantity, // Negative for deduction
+      previousStock: previousStock,
+      newStock: newStock,
+      unitCost: product.price || 0,
+      totalValue: (product.price || 0) * deductionQuantity,
+      referenceType: 'adjustment',
+      referenceId: product._id.toString(),
+      referenceNumber: `OUT-${Date.now()}`,
+      processedBy: req.user.email,
+      location: 'main',
+      reason: reason || `Stock deduction - ${transactionType}`,
+      notes: notes || '',
+      transactionDate: new Date()
+    });
+
+    await inventoryTransaction.save();
+
+    res.json({
+      success: true,
+      data: {
+        product: await Product.findById(productId),
+        transaction: inventoryTransaction
+      },
+      message: `Successfully deducted ${deductionQuantity} units of ${product.name}`
+    });
+  } catch (error) {
+    console.error('Error deducting product:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error'
+    });
+  }
+});
+
+// Get inventory transactions
+app.get('/api/inventory/transactions', authenticateToken, setupBusinessDatabase, requireStaff, async (req, res) => {
+  try {
+    const { InventoryTransaction } = req.businessModels;
+    const { page = 1, limit = 50, productId, transactionType, dateFrom, dateTo } = req.query;
+
+    let query = {};
+    
+    if (productId) {
+      query.productId = productId;
+    }
+    
+    if (transactionType) {
+      query.transactionType = transactionType;
+    }
+    
+    if (dateFrom || dateTo) {
+      query.transactionDate = {};
+      if (dateFrom) {
+        query.transactionDate.$gte = new Date(dateFrom);
+      }
+      if (dateTo) {
+        query.transactionDate.$lte = new Date(dateTo);
+      }
+    }
+
+    const transactions = await InventoryTransaction.find(query)
+      .sort({ transactionDate: -1 })
+      .limit(parseInt(limit))
+      .skip((parseInt(page) - 1) * parseInt(limit));
+
+    const total = await InventoryTransaction.countDocuments(query);
+
+    res.json({
+      success: true,
+      data: transactions,
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total,
+        pages: Math.ceil(total / parseInt(limit))
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching inventory transactions:', error);
     res.status(500).json({
       success: false,
       error: 'Internal server error'
@@ -2909,6 +3058,9 @@ app.post('/api/sales', authenticateToken, setupBusinessDatabase, requireStaff, a
     console.log('🔍 Sales POST request received');
     console.log('📋 Request body:', JSON.stringify(req.body, null, 2));
     console.log('👤 User:', req.user);
+    console.log('🌐 Request headers:', req.headers);
+    console.log('🌐 Request method:', req.method);
+    console.log('🌐 Request url:', req.url);
     
     const { Sale, Product, InventoryTransaction } = req.businessModels;
     const saleData = req.body;
@@ -2951,13 +3103,20 @@ app.post('/api/sales', authenticateToken, setupBusinessDatabase, requireStaff, a
           try {
             const product = await Product.findById(item.productId);
             if (product) {
-              await InventoryTransaction.create({
+              // Update product stock
+              const previousStock = product.stock;
+              const newStock = previousStock - item.quantity;
+              
+              await Product.findByIdAndUpdate(item.productId, { stock: newStock });
+              
+              // Create inventory transaction
+              const inventoryTransaction = new InventoryTransaction({
                 productId: item.productId,
                 productName: item.name,
                 transactionType: 'sale',
                 quantity: -item.quantity, // Negative for deduction
-                previousStock: product.stock + item.quantity,
-                newStock: product.stock,
+                previousStock: previousStock,
+                newStock: newStock,
                 unitCost: item.price,
                 totalValue: item.total,
                 referenceType: 'sale',
@@ -2965,8 +3124,13 @@ app.post('/api/sales', authenticateToken, setupBusinessDatabase, requireStaff, a
                 referenceNumber: sale.billNo,
                 processedBy: saleData.staffName || 'System',
                 reason: 'Product sold',
-                notes: `Sold to ${saleData.customerName}`
+                notes: `Sold to ${saleData.customerName}`,
+                transactionDate: new Date()
               });
+              
+              await inventoryTransaction.save();
+              
+              console.log(`✅ Inventory transaction created for product ${item.name}: ${item.quantity} units sold`);
             }
           } catch (inventoryError) {
             console.error('Error creating inventory transaction:', inventoryError);

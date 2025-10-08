@@ -34,6 +34,7 @@ export function ProductForm({ onClose, product, onProductUpdated }: ProductFormP
     barcode: product?.barcode || "",
     taxCategory: product?.taxCategory || "standard",
     productType: product?.productType || "retail",
+    transactionType: "purchase", // Default to purchase for new products
   })
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -50,6 +51,7 @@ export function ProductForm({ onClose, product, onProductUpdated }: ProductFormP
         description: formData.description,
         taxCategory: formData.taxCategory,
         productType: formData.productType,
+        transactionType: formData.transactionType,
         isActive: true
       }
 
@@ -242,6 +244,27 @@ export function ProductForm({ onClose, product, onProductUpdated }: ProductFormP
           </Select>
           <p className="text-xs text-slate-500">
             How this product will be used in your business
+          </p>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="transactionType">Transaction Type *</Label>
+          <Select
+            value={formData.transactionType}
+            onValueChange={(value) => handleChange("transactionType", value)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select transaction type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="purchase">Purchase - New stock received</SelectItem>
+              <SelectItem value="return">Return - Customer return</SelectItem>
+              <SelectItem value="adjustment">Adjustment - Stock correction</SelectItem>
+              <SelectItem value="restock">Restock - Manual restock</SelectItem>
+            </SelectContent>
+          </Select>
+          <p className="text-xs text-slate-500">
+            How this product is being added to inventory
           </p>
         </div>
       </div>

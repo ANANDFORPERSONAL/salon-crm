@@ -286,6 +286,18 @@ export class CategoriesAPI {
   }
 }
 
+export class InventoryAPI {
+  static async deductProduct(data: { productId: string; quantity: number; transactionType: string; reason?: string; notes?: string }): Promise<ApiResponse<any>> {
+    const response = await apiClient.post('/inventory/out', data)
+    return response.data
+  }
+
+  static async getTransactions(params?: { page?: number; limit?: number; productId?: string; transactionType?: string; dateFrom?: string; dateTo?: string }): Promise<PaginatedResponse<any>> {
+    const response = await apiClient.get('/inventory/transactions', { params })
+    return response.data
+  }
+}
+
 export class AppointmentsAPI {
   static async getAll(params?: { page?: number; limit?: number; date?: string; status?: string }): Promise<PaginatedResponse<any>> {
     const response = await apiClient.get('/appointments', { params })

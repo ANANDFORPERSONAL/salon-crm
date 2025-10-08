@@ -9,9 +9,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Plus, Search, MoreHorizontal, Edit, Trash2, Package, Download, FileText, FileSpreadsheet, ChevronDown, Filter } from "lucide-react"
+import { Plus, Search, MoreHorizontal, Edit, Trash2, Package, Download, FileText, FileSpreadsheet, ChevronDown, Filter, Minus } from "lucide-react"
 import { ProductsAPI } from "@/lib/api"
 import { ProductForm } from "@/components/products/product-form"
+import { ProductOutForm } from "@/components/products/product-out-form"
 import { InventoryLogs } from "@/components/products/inventory-logs"
 import { useAuth } from "@/lib/auth-context"
 import { useCurrency } from "@/hooks/use-currency"
@@ -28,6 +29,7 @@ export function ProductsTable() {
   const [productTypeFilter, setProductTypeFilter] = useState<string>("all")
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
+  const [isProductOutDialogOpen, setIsProductOutDialogOpen] = useState(false)
   const [selectedProduct, setSelectedProduct] = useState<any>(null)
   const [products, setProducts] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -328,23 +330,47 @@ export function ProductsTable() {
           <InventoryLogs />
           
           {canManageProducts && (
-            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-              <DialogTrigger asChild>
-                <Button className="h-10 px-4 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-md hover:shadow-lg transition-all duration-300">
-                  <Plus className="mr-2 h-4 w-4" />
-                  Add Product
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-2xl">
-                <DialogHeader>
-                  <DialogTitle>Add New Product</DialogTitle>
-                </DialogHeader>
-                <ProductForm 
-                  onClose={() => setIsAddDialogOpen(false)} 
-                  onProductUpdated={fetchProducts}
-                />
-              </DialogContent>
-            </Dialog>
+            <>
+              <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button className="h-10 px-4 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-md hover:shadow-lg transition-all duration-300">
+                    <Plus className="mr-2 h-4 w-4" />
+                    Add Product
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-2xl">
+                  <DialogHeader>
+                    <DialogTitle>Add New Product</DialogTitle>
+                  </DialogHeader>
+                  <ProductForm 
+                    onClose={() => setIsAddDialogOpen(false)} 
+                    onProductUpdated={fetchProducts}
+                  />
+                </DialogContent>
+              </Dialog>
+
+              <Dialog open={isProductOutDialogOpen} onOpenChange={setIsProductOutDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" className="h-10 px-4 border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300">
+                    <Minus className="mr-2 h-4 w-4" />
+                    Product Out
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>Product Out - Deduct Stock</DialogTitle>
+                  </DialogHeader>
+                  <ProductOutForm 
+                    onClose={() => setIsProductOutDialogOpen(false)} 
+                    onTransactionCreated={() => {
+                      fetchProducts()
+                      // Refresh inventory logs if the component is mounted
+                      window.dispatchEvent(new CustomEvent('inventoryTransactionCreated'))
+                    }}
+                  />
+                </DialogContent>
+              </Dialog>
+            </>
           )}
         </div>
 

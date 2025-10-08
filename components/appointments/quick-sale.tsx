@@ -1301,262 +1301,225 @@ export function QuickSale() {
         }
       }
       
-      // Generate receipt number first with error handling
-      let receiptNumber
+      // Create sale in backend database for inventory tracking FIRST
+      // Generate receipt number only when we're about to create the sale
       try {
-        receiptNumber = await generateReceiptNumber()
-        if (!receiptNumber) {
-          throw new Error('Failed to generate receipt number')
+        // Generate receipt number first
+        let receiptNumber
+        try {
+          receiptNumber = await generateReceiptNumber()
+          if (!receiptNumber) {
+            throw new Error('Failed to generate receipt number')
+          }
+          console.log('✅ Receipt number generated successfully:', receiptNumber)
+        } catch (error) {
+          console.error('❌ Failed to generate receipt number:', error)
+          toast({
+            title: "Receipt Generation Failed",
+            description: "Failed to generate receipt number. Please try again.",
+            variant: "destructive",
+          })
+          return
         }
-        console.log('✅ Receipt number generated successfully:', receiptNumber)
-      } catch (error) {
-        console.error('❌ Failed to generate receipt number:', error)
-        toast({
-          title: "Receipt Generation Failed",
-          description: "Failed to generate receipt number. Please try again.",
-          variant: "destructive",
-        })
-        return
-      }
-      
-      // Create receipt
-      const receipt: any = {
-        id: Date.now().toString(),
-        receiptNumber: receiptNumber,
-        clientId: getCustomerId(customer),
-        clientName: customer!.name,
-        clientPhone: customer!.phone,
-        date: selectedDate.toISOString(),
-        time: format(new Date(), "HH:mm"),
-        items: receiptItems,
-        subtotal: subtotal,
-        tip: tip,
-        discount: totalDiscount,
-        tax: calculatedTax,
-        roundOff: calculatedTotal - (subtotal - totalDiscount + calculatedTax + tip),
-        total: calculatedTotal,
-        taxBreakdown: taxBreakdown,
-        payments: payments,
-        staffId: primaryStaff?.staffId || staff[0]?._id || staff[0]?.id || "",
-        staffName: primaryStaff?.staffName || staff[0]?.name || "Unassigned Staff",
-        notes: remarks,
-      }
 
-      // Add receipt to storage
-      addReceipt(receipt)
-      setCurrentReceipt(receipt)
-      
-      // Receipt number was already incremented in generateReceiptNumber()
-      console.log('✅ Receipt created with number:', receipt.receiptNumber)
-      // setShowReceiptDialog(true) // Comment out modal dialog
-
-      console.log('🎯 RECEIPT DIALOG DEBUG:')
-      console.log('Current Receipt:', receipt)
-      console.log('Receipt Number:', receipt.receiptNumber)
-      console.log('Show Receipt Dialog:', true)
-      console.log('Receipt Items:', receipt.items)
-      console.log('Receipt Total:', receipt.total)
-      console.log('Receipt Structure Check:')
-      console.log('- Has ID:', !!receipt.id)
-      console.log('- Has Receipt Number:', !!receipt.receiptNumber)
-      console.log('- Has Client ID:', !!receipt.clientId)
-      console.log('- Has Client Name:', !!receipt.clientName)
-      console.log('- Has Items:', !!receipt.items && receipt.items.length > 0)
-      console.log('- Has Total:', !!receipt.total)
-      console.log('Full Receipt Object:', JSON.stringify(receipt, null, 2))
-
-      // Debug: Check if receipt was stored
-      const allReceipts = getAllReceipts()
-      console.log('📋 All receipts after storage:', allReceipts)
-      console.log('📊 Total receipts in store:', allReceipts.length)
-      console.log('🔍 Looking for receipt with ID:', receipt.id)
-      console.log('🔍 Looking for receipt with number:', receipt.receiptNumber)
-
-      // Open receipt in new tab using bill number (not receipt ID)
-      try {
-        const receiptUrl = `/receipt/${receipt.receiptNumber}?data=${encodeURIComponent(JSON.stringify(receipt))}&t=${Date.now()}`
-        console.log('🎯 Opening receipt in new tab:', receiptUrl)
-        console.log('🎯 Using bill number:', receipt.receiptNumber)
-        
-        // Check if popup was blocked
-        const newWindow = window.open(receiptUrl, '_blank')
-        if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
-          console.warn('⚠️ Popup was blocked, trying alternative method')
-          // Fallback: try to navigate in the same tab
-          window.location.href = receiptUrl
-        } else {
-          console.log('✅ Receipt opened successfully in new tab')
-        }
-      } catch (error) {
-        console.error('❌ Error opening receipt:', error)
-        toast({
-          title: "Receipt Generated",
-          description: `Receipt #${receipt.receiptNumber} created successfully. Please check the receipts page.`,
-        })
-      }
-
-      // Determine bill status based on payment
-      const billStatus = totalPaid === 0 ? 'unpaid' : 
-                        totalPaid < calculatedTotal ? 'partial' : 'completed'
-      
-      // --- Add to Sales Records (backend) ---
-      try {
-        // Create payments array for split payments
-        const salePayments = payments.map(payment => ({
-          mode: payment.type === 'cash' ? 'Cash' : payment.type === 'card' ? 'Card' : 'Online',
-          amount: payment.amount
-        }))
-
+        // Create sale data with the generated receipt number
         const saleData = {
-          billNo: receipt.receiptNumber,
-          customerName: receipt.clientName,
-          customerPhone: receipt.clientPhone,
-          // Use actual checkout timestamp so it appears in today's reports
-          date: new Date().toISOString(),
-          // For legacy display, store a combined payment mode string; keep blank when no payments
-          paymentMode: salePayments.length > 0 ? salePayments.map(p => p.mode).join(', ') : '',
-          payments: salePayments, // New split payment structure
-          netTotal: receipt.subtotal,
-          taxAmount: receipt.tax,
-          roundOff: receipt.roundOff,
-          grossTotal: receipt.total,
-          status: billStatus,
-          staffName: receipt.staffName,
-          items: receipt.items.map((item: any) => ({
-            name: item.name,
-            type: item.type,
-            quantity: item.quantity,
-            price: item.price,
-            total: item.total,
-            // Include staff contributions if available
-            staffContributions: item.staffContributions || (item.staffId ? [{
-              staffId: item.staffId,
-              staffName: item.staffName || '',
-              percentage: 100,
-              amount: item.total
-            }] : undefined),
-            // Legacy fields for backward compatibility
-            staffId: item.staffId,
-            staffName: item.staffName
-          })),
-          // Add payment status for unpaid/partial bills
+          billNo: receiptNumber,
+          customerId: getCustomerId(customer),
+          customerName: customer!.name,
+          customerPhone: customer!.phone,
+          items: [
+            ...validServiceItems.map((item: any) => {
+              const service = services.find((s) => s._id === item.serviceId || s.id === item.serviceId)
+              const staffMember = staff.find((s) => s._id === item.staffId || s.id === item.staffId)
+              return {
+                serviceId: item.serviceId,
+                productId: null,
+                name: service?.name || 'Unknown Service',
+                type: 'service' as const,
+                quantity: item.quantity,
+                price: item.price,
+                total: item.total,
+                staffId: item.staffId || '',
+                staffName: staffMember?.name || '',
+                staffContributions: item.staffContributions || []
+              }
+            }),
+            ...validProductItems.map((item: any) => {
+              const product = products.find((p) => p._id === item.productId || p.id === item.productId)
+              const staffMember = staff.find((s) => s._id === item.staffId || s.id === item.staffId)
+              return {
+                productId: item.productId,
+                serviceId: null,
+                name: product?.name || 'Unknown Product',
+                type: 'product' as const,
+                quantity: item.quantity,
+                price: item.price,
+                total: item.total,
+                staffId: item.staffId || '',
+                staffName: staffMember?.name || '',
+                staffContributions: item.staffContributions || []
+              }
+            })
+          ],
+          // Sale model required fields
+          netTotal: subtotal,
+          taxAmount: calculatedTax,
+          grossTotal: calculatedTotal,
+          discount: totalDiscount || 0,
+          discountType: 'percentage',
+          // Payment status tracking
           paymentStatus: {
             totalAmount: calculatedTotal,
             paidAmount: totalPaid,
             remainingAmount: calculatedTotal - totalPaid,
-            dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days from now
-            lastPaymentDate: totalPaid > 0 ? new Date().toISOString() : null,
-            isOverdue: false
+            dueDate: new Date()
           },
-          notes: remarks
+          status: totalPaid === 0 ? 'unpaid' : (totalPaid < calculatedTotal ? 'partial' : 'completed'),
+          paymentMode: payments.map(p => p.type).join(', '),
+          payments: payments.map(p => ({
+            mode: p.type.charAt(0).toUpperCase() + p.type.slice(1), // Capitalize first letter
+            amount: p.amount
+          })),
+          staffId: primaryStaff?.staffId || staff[0]?._id || staff[0]?.id || "",
+          staffName: primaryStaff?.staffName || staff[0]?.name || "Unassigned Staff",
+          notes: remarks || '',
+          date: selectedDate.toISOString()
         }
+
+        console.log('💾 Creating sale in backend:', saleData)
+        console.log('💾 Sale data items:', saleData.items)
+        console.log('💾 Sale data validation:', {
+          hasBillNo: !!saleData.billNo,
+          hasCustomerName: !!saleData.customerName,
+          hasItems: !!saleData.items && saleData.items.length > 0,
+          hasGrossTotal: !!saleData.grossTotal,
+          itemsCount: saleData.items?.length || 0
+        })
         
-        console.log('🔍 DEBUG: Starting sale creation...')
-        console.log('📋 Sale data:', saleData)
-        console.log('💰 Split payments:', salePayments)
-        // Auth token and user are managed by AuthContext
-        
-        // Test API connection first
+        // Use the SalesAPI for proper authentication and error handling
         try {
-          const healthCheck = await fetch('http://localhost:3001/api/health')
-          const healthData = await healthCheck.json()
-          console.log('🏥 Backend health:', healthData.success)
-        } catch (healthError) {
-          console.error('❌ Backend health check failed:', healthError)
-        }
-        
-        const result = await SalesAPI.create(saleData)
-        console.log('✅ Sale created successfully:', result)
-        
-        // --- INVENTORY MANAGEMENT: Deduct product quantities from stock ---
-        if (validProductItems.length > 0) {
-          console.log('📦 Starting inventory management for products...')
+          console.log('🚀 About to call SalesAPI.create with data:', saleData)
+          console.log('🔐 Current auth token:', localStorage.getItem('salon-auth-token') ? 'Present' : 'Missing')
+          const result = await SalesAPI.create(saleData)
+          console.log('📊 SalesAPI.create response:', result)
           
-          try {
-            // Process each product item to update inventory
-            for (const productItem of validProductItems) {
-              const product = products.find((p) => p._id === productItem.productId || p.id === productItem.productId)
-              
-              if (product) {
-                console.log(`📦 Updating inventory for product: ${product.name}`)
-                console.log(`📊 Current stock: ${product.stock}, Quantity sold: ${productItem.quantity}`)
-                
-                // Check if we have enough stock before proceeding
-                if (product.stock < productItem.quantity) {
-                  console.error(`❌ Insufficient stock for ${product.name}. Available: ${product.stock}, Required: ${productItem.quantity}`)
-                  toast({
-                    title: "Stock Warning",
-                    description: `Insufficient stock for ${product.name}. Available: ${product.stock}, Required: ${productItem.quantity}`,
-                    variant: "destructive",
+          if (result.success) {
+            console.log('✅ Sale created successfully in backend:', result)
+            
+            // Now that backend sale is successful, create and store the receipt locally
+            const receipt: any = {
+              id: Date.now().toString(),
+              receiptNumber: receiptNumber,
+              clientId: getCustomerId(customer),
+              clientName: customer!.name,
+              clientPhone: customer!.phone,
+              date: selectedDate.toISOString(),
+              time: format(new Date(), "HH:mm"),
+              items: receiptItems,
+              subtotal: subtotal,
+              tip: tip,
+              discount: totalDiscount,
+              tax: calculatedTax,
+              roundOff: calculatedTotal - (subtotal - totalDiscount + calculatedTax + tip),
+              total: calculatedTotal,
+              taxBreakdown: taxBreakdown,
+              payments: payments,
+              staffId: primaryStaff?.staffId || staff[0]?._id || staff[0]?.id || "",
+              staffName: primaryStaff?.staffName || staff[0]?.name || "Unassigned Staff",
+              notes: remarks,
+            }
+
+            // Store the receipt locally
+            addReceipt(receipt)
+            setCurrentReceipt(receipt)
+            console.log('✅ Receipt stored locally with number:', receipt.receiptNumber)
+            
+            // Refresh products to get updated stock levels from backend
+            if (validProductItems.length > 0) {
+              console.log('🔄 Refreshing product list to get updated stock levels...')
+              try {
+                const refreshResponse = await ProductsAPI.getAll()
+                if (refreshResponse.success) {
+                  const sellableProducts = (refreshResponse.data || []).filter((product: any) => {
+                    const productType = product.productType || 'retail'
+                    return productType === 'retail' || productType === 'both'
                   })
-                  continue // Skip this product but continue with others
+                  setProducts(sellableProducts)
+                  console.log('✅ Product list refreshed with updated stock levels')
                 }
-                
-                // Update product stock by decreasing it
-                const stockUpdateResult = await ProductsAPI.updateStock(
-                  product._id || product.id, 
-                  productItem.quantity, 
-                  'decrease'
-                )
-                
-                if (stockUpdateResult.success) {
-                  console.log(`✅ Stock updated successfully for ${product.name}`)
-                  console.log(`📊 New stock level: ${stockUpdateResult.data.stock}`)
-                  
-                  // Update the local products array to reflect the new stock
-                  setProducts(prevProducts => 
-                    prevProducts.map(p => 
-                      p._id === product._id || p.id === product.id 
-                        ? { ...p, stock: stockUpdateResult.data.stock }
-                        : p
-                    )
-                  )
-                } else {
-                  console.error(`❌ Failed to update stock for ${product.name}:`, stockUpdateResult.error)
-                  toast({
-                    title: "Stock Update Failed",
-                    description: `Failed to update stock for ${product.name}. Please check inventory manually.`,
-                    variant: "destructive",
-                  })
-                }
-              } else {
-                console.error(`❌ Product not found for ID: ${productItem.productId}`)
+              } catch (refreshError) {
+                console.warn('⚠️ Failed to refresh product list:', refreshError)
               }
             }
-            
-            console.log('✅ Inventory management completed')
-          } catch (inventoryError) {
-            console.error('❌ Error during inventory management:', inventoryError)
+
+            // Open receipt in new tab
+            try {
+              const receiptUrl = `/receipt/${receipt.receiptNumber}?data=${encodeURIComponent(JSON.stringify(receipt))}&t=${Date.now()}`
+              console.log('🎯 Opening receipt in new tab:', receiptUrl)
+              
+              const newWindow = window.open(receiptUrl, '_blank')
+              if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
+                console.warn('⚠️ Popup was blocked, showing fallback message')
+                toast({
+                  title: "Receipt Generated",
+                  description: `Receipt #${receipt.receiptNumber} created successfully. Please check the receipts page.`,
+                })
+              } else {
+                console.log('✅ Receipt opened successfully in new tab')
+              }
+            } catch (error) {
+              console.error('❌ Error opening receipt:', error)
+              toast({
+                title: "Receipt Generated",
+                description: `Receipt #${receipt.receiptNumber} created successfully. Please check the receipts page.`,
+              })
+            }
+          } else {
+            console.error('❌ Failed to create sale in backend:', result.error)
             toast({
-              title: "Inventory Warning",
-              description: "Sale completed but inventory update failed. Please check stock levels manually.",
+              title: "Sale Creation Failed",
+              description: result.error || "Failed to create sale. Please try again.",
               variant: "destructive",
             })
+            return
           }
+        } catch (apiError: any) {
+          console.error('💥 SalesAPI.create threw an error:', apiError)
+          console.error('💥 Error details:', {
+            message: apiError?.message,
+            status: apiError?.response?.status,
+            statusText: apiError?.response?.statusText,
+            data: apiError?.response?.data
+          })
+          
+          // Show error toast to user
+          toast({
+            title: "Sale Creation Failed",
+            description: apiError?.response?.data?.error || apiError?.message || "Failed to create sale. Please try again.",
+            variant: "destructive",
+          })
+          
+          // Don't proceed with receipt or form reset if backend fails
+          return
         }
-      } catch (err: any) {
-        console.error('❌ Failed to add sale record:', err)
-        console.error('📄 Error details:', err.response?.data)
-        console.error('🔢 Error status:', err.response?.status)
-        console.error('🌐 Error message:', err.message)
-        console.error('📋 Full error object:', err)
+      } catch (error) {
+        console.error('❌ Error creating sale in backend:', error)
+        
+        // Show error toast to user
+        toast({
+          title: "Sale Creation Failed",
+          description: "Failed to create sale. Please try again.",
+          variant: "destructive",
+        })
+        
+        // Don't proceed with receipt or form reset if backend fails
+        return
       }
+      
 
       // Reset form
       resetForm()
-
-      // Show appropriate success message based on bill status
-      const statusMessage = billStatus === 'completed' ? 
-        `Sale completed successfully! Receipt #${receipt.receiptNumber}` :
-        billStatus === 'partial' ? 
-        `Partial payment bill created! Receipt #${receipt.receiptNumber} - Remaining: ₹${(calculatedTotal - totalPaid).toFixed(2)}` :
-        `Unpaid bill created! Receipt #${receipt.receiptNumber} - Amount due: ₹${calculatedTotal.toFixed(2)}`
-      
-      toast({
-        title: billStatus === 'completed' ? "Checkout Successful" : 
-               billStatus === 'partial' ? "Partial Payment Bill Created" : "Unpaid Bill Created",
-        description: statusMessage,
-      })
     } catch (error: any) {
       console.error('❌ Checkout failed:', error)
       console.error('❌ Error details:', {

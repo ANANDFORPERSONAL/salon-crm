@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useToast } from "@/hooks/use-toast"
 import { useCurrency } from "@/hooks/use-currency"
-import { apiClient } from "@/lib/api"
+import { InventoryAPI } from "@/lib/api"
 import { 
   Search, 
   Filter, 
@@ -29,7 +29,7 @@ interface InventoryTransaction {
   _id: string;
   productId: string;
   productName: string;
-  transactionType: 'sale' | 'return' | 'adjustment' | 'restock' | 'damage' | 'expiry';
+  transactionType: 'sale' | 'return' | 'adjustment' | 'restock' | 'damage' | 'expiry' | 'service_usage' | 'theft' | 'purchase';
   quantity: number;
   previousStock: number;
   newStock: number;
@@ -60,27 +60,30 @@ export function InventoryLogs() {
   const fetchTransactions = async () => {
     try {
       setLoading(true)
-      const params = new URLSearchParams()
-      if (typeFilter) params.append('transactionType', typeFilter)
+      const params: any = {
+        page: 1,
+        limit: 100
+      }
+      
+      if (typeFilter) params.transactionType = typeFilter
       if (dateFilter) {
         const today = new Date()
         if (dateFilter === 'today') {
-          params.append('startDate', today.toISOString().split('T')[0])
-          params.append('endDate', today.toISOString().split('T')[0])
+          params.dateFrom = today.toISOString().split('T')[0]
+          params.dateTo = today.toISOString().split('T')[0]
         } else if (dateFilter === 'week') {
           const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000)
-          params.append('startDate', weekAgo.toISOString().split('T')[0])
-          params.append('endDate', today.toISOString().split('T')[0])
+          params.dateFrom = weekAgo.toISOString().split('T')[0]
+          params.dateTo = today.toISOString().split('T')[0]
         } else if (dateFilter === 'month') {
           const monthAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000)
-          params.append('startDate', monthAgo.toISOString().split('T')[0])
-          params.append('endDate', today.toISOString().split('T')[0])
+          params.dateFrom = monthAgo.toISOString().split('T')[0]
+          params.dateTo = today.toISOString().split('T')[0]
         }
       }
-      params.append('limit', '100')
 
-      const response = await apiClient.get(`/inventory-transactions?${params.toString()}`)
-      setTransactions(response.data.data || [])
+      const response = await InventoryAPI.getTransactions(params)
+      setTransactions(response.data || [])
     } catch (error) {
       console.error('Error fetching inventory transactions:', error)
       toast({
@@ -97,6 +100,18 @@ export function InventoryLogs() {
     fetchTransactions()
   }, [typeFilter, dateFilter])
 
+  // Listen for new transactions
+  useEffect(() => {
+    const handleTransactionCreated = () => {
+      fetchTransactions()
+    }
+
+    window.addEventListener('inventoryTransactionCreated', handleTransactionCreated)
+    return () => {
+      window.removeEventListener('inventoryTransactionCreated', handleTransactionCreated)
+    }
+  }, [])
+
   // Filter transactions based on search term
   const filteredTransactions = transactions.filter(transaction =>
     transaction.productName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -110,18 +125,24 @@ export function InventoryLogs() {
     const baseClasses = "text-xs font-medium px-2 py-1 rounded-full"
     
     switch (type) {
-      case 'sale':
-        return <Badge className={`${baseClasses} bg-red-100 text-red-800 border-red-200`}>Sale</Badge>
+      case 'purchase':
+        return <Badge className={`${baseClasses} bg-green-100 text-green-800 border-green-200`}>Purchase</Badge>
       case 'return':
-        return <Badge className={`${baseClasses} bg-green-100 text-green-800 border-green-200`}>Return</Badge>
+        return <Badge className={`${baseClasses} bg-blue-100 text-blue-800 border-blue-200`}>Return</Badge>
       case 'restock':
         return <Badge className={`${baseClasses} bg-blue-100 text-blue-800 border-blue-200`}>Restock</Badge>
       case 'adjustment':
         return <Badge className={`${baseClasses} bg-yellow-100 text-yellow-800 border-yellow-200`}>Adjustment</Badge>
+      case 'service_usage':
+        return <Badge className={`${baseClasses} bg-purple-100 text-purple-800 border-purple-200`}>Service Usage</Badge>
       case 'damage':
         return <Badge className={`${baseClasses} bg-orange-100 text-orange-800 border-orange-200`}>Damage</Badge>
       case 'expiry':
         return <Badge className={`${baseClasses} bg-gray-100 text-gray-800 border-gray-200`}>Expiry</Badge>
+      case 'theft':
+        return <Badge className={`${baseClasses} bg-red-100 text-red-800 border-red-200`}>Theft</Badge>
+      case 'sale':
+        return <Badge className={`${baseClasses} bg-red-100 text-red-800 border-red-200`}>Sale</Badge>
       default:
         return <Badge className={`${baseClasses} bg-gray-100 text-gray-800 border-gray-200`}>{type}</Badge>
     }
@@ -161,6 +182,50 @@ export function InventoryLogs() {
         </DialogHeader>
         
         <div className="space-y-4">
+          {/* Summary Stats */}
+          {!loading && filteredTransactions.length > 0 && (
+            <div className="grid grid-cols-4 gap-4">
+              <Card>
+                <CardContent className="p-4">
+                  <div className="text-2xl font-bold text-red-600">
+                    {filteredTransactions
+                      .filter(t => t.quantity < 0)
+                      .reduce((sum, t) => sum + Math.abs(t.quantity), 0)}
+                  </div>
+                  <div className="text-sm text-gray-600">Items Deducted</div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-4">
+                  <div className="text-2xl font-bold text-green-600">
+                    {filteredTransactions
+                      .filter(t => t.quantity > 0)
+                      .reduce((sum, t) => sum + t.quantity, 0)}
+                  </div>
+                  <div className="text-sm text-gray-600">Items Added</div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-4">
+                  <div className="text-2xl font-bold text-blue-600">
+                    {filteredTransactions.length}
+                  </div>
+                  <div className="text-sm text-gray-600">Total Transactions</div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-4">
+                  <div className="text-2xl font-bold text-purple-600">
+                    {formatAmount(
+                      filteredTransactions.reduce((sum, t) => sum + t.totalValue, 0)
+                    )}
+                  </div>
+                  <div className="text-sm text-gray-600">Total Value</div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
           {/* Filters */}
           <div className="flex gap-4">
             <div className="flex-1">
@@ -184,12 +249,15 @@ export function InventoryLogs() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All types</SelectItem>
-                  <SelectItem value="sale">Sales</SelectItem>
-                  <SelectItem value="return">Returns</SelectItem>
+                  <SelectItem value="purchase">Purchase</SelectItem>
+                  <SelectItem value="return">Return</SelectItem>
                   <SelectItem value="restock">Restock</SelectItem>
                   <SelectItem value="adjustment">Adjustment</SelectItem>
+                  <SelectItem value="service_usage">Service Usage</SelectItem>
                   <SelectItem value="damage">Damage</SelectItem>
                   <SelectItem value="expiry">Expiry</SelectItem>
+                  <SelectItem value="theft">Theft</SelectItem>
+                  <SelectItem value="sale">Sale</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -307,49 +375,6 @@ export function InventoryLogs() {
             </CardContent>
           </Card>
 
-          {/* Summary Stats */}
-          {!loading && filteredTransactions.length > 0 && (
-            <div className="grid grid-cols-4 gap-4">
-              <Card>
-                <CardContent className="p-4">
-                  <div className="text-2xl font-bold text-red-600">
-                    {filteredTransactions
-                      .filter(t => t.quantity < 0)
-                      .reduce((sum, t) => sum + Math.abs(t.quantity), 0)}
-                  </div>
-                  <div className="text-sm text-gray-600">Items Deducted</div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-4">
-                  <div className="text-2xl font-bold text-green-600">
-                    {filteredTransactions
-                      .filter(t => t.quantity > 0)
-                      .reduce((sum, t) => sum + t.quantity, 0)}
-                  </div>
-                  <div className="text-sm text-gray-600">Items Added</div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-4">
-                  <div className="text-2xl font-bold text-blue-600">
-                    {filteredTransactions.length}
-                  </div>
-                  <div className="text-sm text-gray-600">Total Transactions</div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-4">
-                  <div className="text-2xl font-bold text-purple-600">
-                    {formatAmount(
-                      filteredTransactions.reduce((sum, t) => sum + t.totalValue, 0)
-                    )}
-                  </div>
-                  <div className="text-sm text-gray-600">Total Value</div>
-                </CardContent>
-              </Card>
-            </div>
-          )}
         </div>
       </DialogContent>
     </Dialog>
