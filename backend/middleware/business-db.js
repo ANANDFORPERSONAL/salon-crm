@@ -28,21 +28,28 @@ const setupBusinessDatabase = async (req, res, next) => {
     }
 
     // Get business-specific database connection
+    console.log('🔍 Getting business connection for ID:', businessId);
     const businessConnection = await databaseManager.getConnection(businessId);
+    console.log('🔍 Business connection obtained:', !!businessConnection);
     
     // Create business-specific models
+    console.log('🔍 Creating business models...');
     const businessModels = modelFactory.createBusinessModels(businessConnection);
+    console.log('🔍 Business models created:', Object.keys(businessModels));
     
     // Attach models to request object
     req.businessModels = businessModels;
     req.businessConnection = businessConnection;
     
+    console.log('✅ Business database setup complete');
     next();
   } catch (error) {
-    console.error('Error setting up business database:', error);
+    console.error('❌ Error setting up business database:', error);
+    console.error('❌ Error stack:', error.stack);
     res.status(500).json({
       success: false,
-      error: 'Failed to connect to business database'
+      error: 'Failed to connect to business database',
+      details: error.message
     });
   }
 };

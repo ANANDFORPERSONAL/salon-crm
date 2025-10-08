@@ -12,6 +12,7 @@ const connectDB = require('./config/database');
 
 // Import database manager and middleware
 const databaseManager = require('./config/database-manager');
+const modelFactory = require('./models/model-factory');
 const { setupBusinessDatabase, setupMainDatabase } = require('./middleware/business-db');
 
 // Import main database models (for admin operations)
@@ -66,6 +67,11 @@ app.use(cors({
   preflightContinue: false,
   optionsSuccessStatus: 200
 }));
+
+app.use((req, res, next) => {
+  console.log(`📥 Incoming ${req.method} ${req.path}`);
+  next();
+});
 
 app.use(morgan('combined'));
 app.use(express.json({ limit: '10mb' }));
@@ -2443,6 +2449,10 @@ app.get('/api/sales', authenticateToken, setupBusinessDatabase, requireManager, 
 
 app.post('/api/sales', authenticateToken, setupBusinessDatabase, requireStaff, async (req, res) => {
   try {
+    console.log('🔍 Sales POST request received');
+    console.log('📋 Request body:', JSON.stringify(req.body, null, 2));
+    console.log('👤 User:', req.user);
+    
     const { Sale, Product, InventoryTransaction } = req.businessModels;
     const saleData = req.body;
     
@@ -2509,9 +2519,21 @@ app.post('/api/sales', authenticateToken, setupBusinessDatabase, requireStaff, a
       }
     }
 
+    console.log('✅ Sale created successfully:', sale._id);
     res.status(201).json({ success: true, data: sale });
   } catch (err) {
-    res.status(400).json({ success: false, error: err.message });
+    console.error('❌ Sales creation error:', err);
+    console.error('❌ Error details:', {
+      message: err.message,
+      name: err.name,
+      stack: err.stack,
+      validationErrors: err.errors
+    });
+    res.status(400).json({ 
+      success: false, 
+      error: err.message,
+      details: err.errors || err.message
+    });
   }
 });
 
@@ -2904,33 +2926,204 @@ app.put("/api/settings/business", authenticateToken, setupBusinessDatabase, asyn
   }
 });
 
-// API to increment receipt number
-app.post("/api/settings/business/increment-receipt", authenticateToken, setupBusinessDatabase, async (req, res) => {
+// Test endpoint to check authentication
+app.get("/api/test-auth", authenticateToken, (req, res) => {
+  res.json({
+    success: true,
+    message: "Authentication working",
+    user: {
+      id: req.user._id,
+      email: req.user.email,
+      branchId: req.user.branchId,
+      role: req.user.role
+    }
+  });
+});
+
+// Test endpoint to check business database setup
+app.get("/api/test-business-db", authenticateToken, setupBusinessDatabase, (req, res) => {
+  res.json({
+    success: true,
+    message: "Business database setup working",
+    user: {
+      id: req.user._id,
+      email: req.user.email,
+      branchId: req.user.branchId,
+      role: req.user.role
+    },
+    businessModels: Object.keys(req.businessModels || {})
+  });
+});
+
+// Test endpoint to verify logging is working
+app.post("/api/test-increment", authenticateToken, async (req, res) => {
+  console.log('🧪 ===== TEST INCREMENT ENDPOINT CALLED =====');
+  console.log('🧪 User:', req.user);
+  res.json({ success: true, message: "Test endpoint working", user: req.user });
+});
+
+// API to increment receipt number atomically
+app.post("/api/settings/business/increment-receipt", authenticateToken, async (req, res) => {
   try {
-    const { BusinessSettings } = req.businessModels;
-    let settings = await BusinessSettings.findOne();
-    
-    if (!settings) {
-      return res.status(404).json({
+    console.log('🔢 ===== INCREMENT RECEIPT ENDPOINT CALLED =====');
+    console.log('🔢 Increment receipt number request received');
+    console.log('👤 User:', req.user?.email, 'Branch:', req.user?.branchId);
+
+    // Set up business database manually to avoid middleware issues
+    const businessId = req.user?.branchId;
+    if (!businessId) {
+      console.error('❌ Business ID not found in user data');
+      return res.status(400).json({
         success: false,
-        error: "Business settings not found"
+        error: 'Business ID not found in user data'
       });
     }
 
-    // Increment receipt number
-    settings.receiptNumber = (settings.receiptNumber || 0) + 1;
-    await settings.save();
+    console.log('🔍 Getting business connection for ID:', businessId);
+    let businessConnection;
+    try {
+      businessConnection = await databaseManager.getConnection(businessId);
+    } catch (connectionError) {
+      console.error('❌ Error getting business connection:', connectionError);
+      return res.status(500).json({
+        success: false,
+        error: 'Failed to connect to business database',
+        details: connectionError.message
+      });
+    }
+    console.log('🔍 Business connection obtained:', !!businessConnection);
+
+    let businessModels;
+    try {
+      businessModels = modelFactory.createBusinessModels(businessConnection);
+    } catch (modelsError) {
+      console.error('❌ Error creating business models:', modelsError);
+      return res.status(500).json({
+        success: false,
+        error: 'Failed to create business models',
+        details: modelsError.message
+      });
+    }
+    console.log('🔍 Business models created:', Object.keys(businessModels));
+
+    const { BusinessSettings, Sale } = businessModels;
+    
+    if (!BusinessSettings) {
+      console.error('❌ BusinessSettings model not found in businessModels');
+      return res.status(500).json({
+        success: false,
+        error: 'BusinessSettings model not available'
+      });
+    }
+    
+    // Atomically increment receipt number to prevent race conditions
+    console.log('🔍 Atomically incrementing receipt number...');
+    
+    // First, ensure settings exist
+    let settings = await BusinessSettings.findOne();
+    if (!settings) {
+      console.log('❌ Business settings not found, creating new one');
+      console.log('📝 Creating with branchId:', businessId);
+      settings = new BusinessSettings({
+        branchId: businessId,
+        receiptNumber: 0
+      });
+      try {
+        await settings.save();
+      } catch (createError) {
+        console.error('❌ Error creating settings:', createError);
+        return res.status(500).json({
+          success: false,
+          error: 'Failed to create business settings',
+          details: createError.message
+        });
+      }
+    } else if (!settings.branchId) {
+      // Ensure existing settings have branchId (for backward compatibility)
+      console.log('⚠️ Existing settings missing branchId, adding it now');
+      settings.branchId = businessId;
+      await settings.save();
+    }
+
+    // Use findOneAndUpdate with $inc for atomic increment
+    const updatedSettings = await BusinessSettings.findOneAndUpdate(
+      { _id: settings._id },
+      { $inc: { receiptNumber: 1 } },
+      { new: true } // Return the updated document
+    );
+
+    if (!updatedSettings) {
+      console.error('❌ Failed to atomically increment receipt number');
+      return res.status(500).json({
+        success: false,
+        error: 'Failed to increment receipt number'
+      });
+    }
+
+    const newReceiptNumber = updatedSettings.receiptNumber;
+    console.log('📊 Atomically incremented to:', newReceiptNumber);
+
+    // Check if receipt number already exists (duplicate prevention)
+    const prefix = updatedSettings.invoicePrefix || updatedSettings.receiptPrefix || "INV";
+    let formattedReceiptNumber = `${prefix}-${newReceiptNumber.toString().padStart(6, '0')}`;
+
+    console.log('🔍 Checking for duplicate receipt number:', formattedReceiptNumber);
+
+    let existingSale = await Sale.findOne({ billNo: formattedReceiptNumber });
+
+    if (existingSale) {
+      console.log('⚠️ Duplicate receipt number found, finding next available');
+      // If duplicate exists, find the next available number
+      let nextNumber = newReceiptNumber + 1;
+      let nextFormattedNumber = `${prefix}-${nextNumber.toString().padStart(6, '0')}`;
+
+      // Set a reasonable limit to prevent infinite loops
+      let attempts = 0;
+      const maxAttempts = 1000;
+
+      while (attempts < maxAttempts && await Sale.findOne({ billNo: nextFormattedNumber })) {
+        nextNumber++;
+        nextFormattedNumber = `${prefix}-${nextNumber.toString().padStart(6, '0')}`;
+        attempts++;
+      }
+
+      if (attempts >= maxAttempts) {
+        console.error('❌ Could not find available receipt number after', maxAttempts, 'attempts');
+        return res.status(500).json({
+          success: false,
+          error: 'Could not find available receipt number. Please contact support.'
+        });
+      }
+
+      // Update to the next available number
+      await BusinessSettings.findOneAndUpdate(
+        { _id: settings._id },
+        { receiptNumber: nextNumber }
+      );
+
+      formattedReceiptNumber = nextFormattedNumber;
+      console.log('✅ Using next available receipt number:', nextNumber);
+    } else {
+      console.log('✅ Using incremented receipt number:', newReceiptNumber);
+    }
+
+    // Extract the final number from the formatted receipt number
+    const finalReceiptNumber = parseInt(formattedReceiptNumber.split('-').pop() || '0');
 
     res.json({
       success: true,
-      data: { receiptNumber: settings.receiptNumber },
+      data: { 
+        receiptNumber: finalReceiptNumber,
+        formattedReceiptNumber: formattedReceiptNumber
+      },
       message: "Receipt number incremented successfully"
     });
   } catch (error) {
-    console.error("Increment receipt number error:", error);
+    console.error("❌ Increment receipt number error:", error);
     res.status(500).json({
       success: false,
-      error: "Internal server error"
+      error: "Internal server error",
+      details: error.message
     });
   }
 });
@@ -2954,11 +3147,14 @@ app.get("/api/settings/pos", authenticateToken, setupBusinessDatabase, async (re
     console.log('settings.receiptPrefix:', settings.receiptPrefix)
     console.log('settings.receiptNumber:', settings.receiptNumber)
 
+    // Return the NEXT receipt number (current + 1) for display
+    const nextReceiptNumber = (settings.receiptNumber || 0) + 1;
+
     res.json({
       success: true,
       data: {
         invoicePrefix: settings.invoicePrefix || "INV",
-        receiptNumber: settings.receiptNumber || 1,
+        receiptNumber: nextReceiptNumber,
         autoResetReceipt: settings.autoResetReceipt || false
       }
     });
@@ -3034,14 +3230,14 @@ app.post("/api/settings/pos/reset-sequence", authenticateToken, setupBusinessDat
       });
     }
 
-    // Reset receipt number to 1
-    settings.receiptNumber = 1;
+    // Reset receipt number to 0 (so next bill will be 1)
+    settings.receiptNumber = 0;
     await settings.save();
 
     res.json({
       success: true,
       data: { receiptNumber: settings.receiptNumber },
-      message: "Receipt sequence reset to 1 successfully"
+      message: "Receipt sequence reset successfully. Next receipt will be 1."
     });
   } catch (error) {
     console.error("Reset receipt sequence error:", error);
@@ -3263,7 +3459,8 @@ app.post('/api/cash-registry', authenticateToken, setupBusinessDatabase, async (
       openingBalance,
       closingBalance,
       onlineCash,
-      posCash
+      posCash,
+      createdBy
     } = req.body;
     
     // Calculate totals from denominations
@@ -3316,8 +3513,9 @@ app.post('/api/cash-registry', authenticateToken, setupBusinessDatabase, async (
     const cashRegistry = new CashRegistry({
       date: new Date(date),
       shiftType,
-      createdBy: req.user.name,
+      createdBy: createdBy || `${req.user.firstName} ${req.user.lastName}`.trim() || req.user.email,
       userId: req.user.id,
+      branchId: req.user.branchId,
       denominations,
       openingBalance: shiftType === 'opening' ? totalBalance : openingBalance,
       closingBalance: shiftType === 'closing' ? totalBalance : 0,
@@ -3335,10 +3533,18 @@ app.post('/api/cash-registry', authenticateToken, setupBusinessDatabase, async (
     });
     
     await cashRegistry.save();
-    res.status(201).json(cashRegistry);
+    res.status(201).json({
+      success: true,
+      data: cashRegistry,
+      message: 'Cash registry entry created successfully'
+    });
   } catch (error) {
     console.error('Error creating cash registry:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ 
+      success: false,
+      error: error.message,
+      details: error
+    });
   }
 });
 
@@ -3392,8 +3598,9 @@ app.put('/api/cash-registry/:id', authenticateToken, async (req, res) => {
   }
 });
 
-app.post('/api/cash-registry/:id/verify', authenticateToken, async (req, res) => {
+app.post('/api/cash-registry/:id/verify', authenticateToken, setupBusinessDatabase, async (req, res) => {
   try {
+    const { CashRegistry } = req.businessModels;
     const { verificationNotes, balanceDifferenceReason, onlineCashDifferenceReason } = req.body;
     
     const cashRegistry = await CashRegistry.findById(req.params.id);
@@ -3414,7 +3621,9 @@ app.post('/api/cash-registry/:id/verify', authenticateToken, async (req, res) =>
     // Update verification fields
     const updates = {
       isVerified: true,
-      verifiedBy: req.user.name,
+      verifiedBy: req.user.firstName && req.user.lastName ? 
+        `${req.user.firstName} ${req.user.lastName}`.trim() : 
+        req.user.email || 'Unknown User',
       verifiedAt: new Date(),
       verificationNotes,
       status: 'verified'
@@ -3441,17 +3650,18 @@ app.post('/api/cash-registry/:id/verify', authenticateToken, async (req, res) =>
   }
 });
 
-app.delete('/api/cash-registry/:id', authenticateToken, async (req, res) => {
+app.delete('/api/cash-registry/:id', authenticateToken, setupBusinessDatabase, async (req, res) => {
   try {
+    const { CashRegistry } = req.businessModels;
     const cashRegistry = await CashRegistry.findById(req.params.id);
     if (!cashRegistry) {
       return res.status(404).json({ message: 'Cash registry entry not found' });
     }
     
-    // Only allow deletion of unverified entries
-    if (cashRegistry.isVerified) {
+    // Only allow deletion of unverified entries, unless user is admin
+    if (cashRegistry.isVerified && req.user.role !== 'admin') {
       return res.status(400).json({ 
-        message: 'Cannot delete verified cash registry entries' 
+        message: 'Cannot delete verified cash registry entries. Only administrators can delete verified entries.' 
       });
     }
     

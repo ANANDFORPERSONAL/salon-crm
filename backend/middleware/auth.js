@@ -32,14 +32,66 @@ const authenticateToken = (req, res, next) => {
     console.log('🔍 JWT decoded successfully:', decoded);
 
     try {
-      // Get main database connection
+      // First try to find user in main database
       const mainConnection = await databaseManager.getMainConnection();
       const User = mainConnection.model('User', require('../models/User').schema);
       
-      const user = await User.findById(decoded.id).select('-password');
+      let user = await User.findById(decoded.id).select('-password');
+      
       if (!user) {
-        console.log('🔍 User not found in main database for ID:', decoded.id);
-        return res.status(401).json({ success: false, error: 'User not found' });
+        console.log('🔍 User not found in main database, checking if it\'s a staff user');
+        
+        // If not found in main database, check if it's a staff user
+        // We need to check all business databases for staff users
+        const Business = mainConnection.model('Business', require('../models/Business').schema);
+        const businesses = await Business.find({}).lean();
+        
+        let staffUser = null;
+        let businessId = null;
+        
+        for (const business of businesses) {
+          try {
+            const businessDb = mainConnection.useDb(`salon_crm_${business._id}`);
+            const Staff = businessDb.model('Staff', require('../models/Staff').schema);
+            
+            const staff = await Staff.findById(decoded.id).select('-password');
+            if (staff) {
+              staffUser = staff;
+              businessId = business._id;
+              console.log('🔍 Staff user found in business database:', business.name, business._id);
+              break;
+            }
+          } catch (error) {
+            console.log('🔍 Error checking business database:', business.name, error.message);
+            // Continue to next business
+          }
+        }
+        
+        if (!staffUser) {
+          console.log('🔍 User not found in any database for ID:', decoded.id);
+          return res.status(401).json({ success: false, error: 'User not found' });
+        }
+        
+        // Convert staff user to user format
+        user = {
+          _id: staffUser._id,
+          firstName: staffUser.name?.split(' ')[0] || '',
+          lastName: staffUser.name?.split(' ').slice(1).join(' ') || '',
+          email: staffUser.email,
+          mobile: staffUser.phone,
+          role: staffUser.role,
+          branchId: businessId,
+          hasLoginAccess: staffUser.hasLoginAccess,
+          allowAppointmentScheduling: staffUser.allowAppointmentScheduling,
+          isActive: staffUser.isActive,
+          specialties: staffUser.specialties,
+          hourlyRate: staffUser.hourlyRate,
+          commissionRate: staffUser.commissionRate,
+          notes: staffUser.notes,
+          commissionProfileIds: staffUser.commissionProfileIds,
+          createdAt: staffUser.createdAt,
+          updatedAt: staffUser.updatedAt
+        };
       }
 
       console.log('🔍 Auth middleware user:', {

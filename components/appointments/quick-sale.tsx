@@ -917,41 +917,60 @@ export function QuickSale() {
   const totalPaid = cashAmount + cardAmount + onlineAmount
   const change = totalPaid - roundedTotal
 
-  // Generate receipt number
+  // Generate receipt number with proper increment
   const generateReceiptNumber = async () => {
     try {
-      // Fetch fresh business settings to get the current receipt number
-      const response = await SettingsAPI.getBusinessSettings()
-      if (response.success) {
-        const currentSettings = response.data
-        const prefix = currentSettings?.invoicePrefix || currentSettings?.receiptPrefix || "INV"
-        const receiptNumber = currentSettings?.receiptNumber || 1
+      console.log('=== RECEIPT NUMBER GENERATION DEBUG ===')
+      
+      // First, increment the receipt number atomically
+      const incrementResponse = await SettingsAPI.incrementReceiptNumber()
+      if (incrementResponse.success) {
+        const newReceiptNumber = incrementResponse.data.receiptNumber
+        console.log('✅ Receipt number incremented successfully:', newReceiptNumber)
         
-        console.log('=== RECEIPT NUMBER GENERATION DEBUG ===')
-        console.log('Fresh business settings:', currentSettings)
-        console.log('Current receipt number from server:', receiptNumber)
-        console.log('Final prefix used:', prefix)
-        console.log('Final receipt number generated:', `${prefix}-${receiptNumber.toString().padStart(6, '0')}`)
-        
-        // Format: PREFIX-000001, PREFIX-000002, etc.
-        return `${prefix}-${receiptNumber.toString().padStart(6, '0')}`
+        // Get fresh business settings to get the prefix
+        const settingsResponse = await SettingsAPI.getBusinessSettings()
+        if (settingsResponse.success) {
+          const currentSettings = settingsResponse.data
+          const prefix = currentSettings?.invoicePrefix || currentSettings?.receiptPrefix || "INV"
+          
+          console.log('Fresh business settings:', currentSettings)
+          console.log('New receipt number from increment:', newReceiptNumber)
+          console.log('Final prefix used:', prefix)
+          
+          const formattedReceiptNumber = `${prefix}-${newReceiptNumber.toString().padStart(6, '0')}`
+          console.log('Final receipt number generated:', formattedReceiptNumber)
+          
+          // Update local state with new receipt number
+          setBusinessSettings((prev: any) => ({
+            ...prev,
+            receiptNumber: newReceiptNumber
+          }))
+          
+          return formattedReceiptNumber
+        }
+      } else {
+        console.error('Failed to increment receipt number:', incrementResponse.error)
+        throw new Error(incrementResponse.error || 'Failed to increment receipt number')
       }
     } catch (error) {
-      console.error('Failed to fetch fresh business settings for receipt generation:', error)
+      console.error('Failed to generate receipt number:', error)
+      
+      // Fallback to cached settings if API call fails
+      const prefix = posSettings?.invoicePrefix || businessSettings?.invoicePrefix || businessSettings?.receiptPrefix || "INV"
+      const receiptNumber = (posSettings?.receiptNumber || businessSettings?.receiptNumber || 1)
+      
+      console.log('=== FALLBACK RECEIPT NUMBER GENERATION ===')
+      console.log('Using cached settings - posSettings:', posSettings)
+      console.log('Using cached settings - businessSettings:', businessSettings)
+      console.log('Final prefix used:', prefix)
+      console.log('Final receipt number used:', receiptNumber)
+      
+      const formattedReceiptNumber = `${prefix}-${receiptNumber.toString().padStart(6, '0')}`
+      console.log('Final receipt number generated (fallback):', formattedReceiptNumber)
+      
+      return formattedReceiptNumber
     }
-    
-    // Fallback to cached settings if API call fails
-    const prefix = posSettings?.invoicePrefix || businessSettings?.invoicePrefix || businessSettings?.receiptPrefix || "INV"
-    const receiptNumber = posSettings?.receiptNumber || businessSettings?.receiptNumber || 1
-    
-    console.log('=== FALLBACK RECEIPT NUMBER GENERATION ===')
-    console.log('Using cached settings - posSettings:', posSettings)
-    console.log('Using cached settings - businessSettings:', businessSettings)
-    console.log('Final prefix used:', prefix)
-    console.log('Final receipt number used:', receiptNumber)
-    console.log('Final receipt number generated:', `${prefix}-${receiptNumber.toString().padStart(6, '0')}`)
-    
-    return `${prefix}-${receiptNumber.toString().padStart(6, '0')}`
   }
 
   // Handle checkout
@@ -959,6 +978,13 @@ export function QuickSale() {
     console.log('🚀 handleCheckout function called!')
     console.log('🚀 selectedCustomer:', selectedCustomer)
     console.log('🚀 customerSearch:', customerSearch)
+    console.log('🚀 isProcessing:', isProcessing)
+    
+    // Prevent multiple simultaneous checkouts
+    if (isProcessing) {
+      console.log('❌ Checkout already in progress, ignoring')
+      return
+    }
     
     if (!selectedCustomer && !customerSearch) {
       toast({
@@ -976,6 +1002,26 @@ export function QuickSale() {
       toast({
         title: "No Items",
         description: "Please add at least one service or product",
+        variant: "destructive",
+      })
+      return
+    }
+
+    // Validate that we have a valid total amount
+    if (roundedTotal <= 0) {
+      toast({
+        title: "Invalid Amount",
+        description: "Total amount must be greater than 0",
+        variant: "destructive",
+      })
+      return
+    }
+
+    // Validate payment amounts don't exceed total
+    if (totalPaid > roundedTotal) {
+      toast({
+        title: "Payment Error",
+        description: `Total paid (₹${totalPaid.toFixed(2)}) cannot exceed total amount (₹${roundedTotal.toFixed(2)})`,
         variant: "destructive",
       })
       return
@@ -1238,8 +1284,23 @@ export function QuickSale() {
         }
       }
       
-      // Generate receipt number first
-      const receiptNumber = await generateReceiptNumber()
+      // Generate receipt number first with error handling
+      let receiptNumber
+      try {
+        receiptNumber = await generateReceiptNumber()
+        if (!receiptNumber) {
+          throw new Error('Failed to generate receipt number')
+        }
+        console.log('✅ Receipt number generated successfully:', receiptNumber)
+      } catch (error) {
+        console.error('❌ Failed to generate receipt number:', error)
+        toast({
+          title: "Receipt Generation Failed",
+          description: "Failed to generate receipt number. Please try again.",
+          variant: "destructive",
+        })
+        return
+      }
       
       // Create receipt
       const receipt: any = {
@@ -1268,22 +1329,8 @@ export function QuickSale() {
       addReceipt(receipt)
       setCurrentReceipt(receipt)
       
-      // Increment receipt number in business settings ONLY after successful receipt creation
-      if (businessSettings?.autoIncrementReceipt) {
-        try {
-          await SettingsAPI.incrementReceiptNumber()
-          console.log('Receipt number incremented successfully')
-          
-          // Refresh business settings to get the updated receipt number
-          const updatedSettings = await SettingsAPI.getBusinessSettings()
-          if (updatedSettings.success) {
-            setBusinessSettings(updatedSettings.data)
-            console.log('Business settings refreshed with new receipt number:', updatedSettings.data.receiptNumber)
-          }
-        } catch (error) {
-          console.error('Failed to increment receipt number:', error)
-        }
-      }
+      // Receipt number was already incremented in generateReceiptNumber()
+      console.log('✅ Receipt created with number:', receipt.receiptNumber)
       // setShowReceiptDialog(true) // Comment out modal dialog
 
       console.log('🎯 RECEIPT DIALOG DEBUG:')
@@ -1309,10 +1356,27 @@ export function QuickSale() {
       console.log('🔍 Looking for receipt with number:', receipt.receiptNumber)
 
       // Open receipt in new tab using bill number (not receipt ID)
+      try {
         const receiptUrl = `/receipt/${receipt.receiptNumber}?data=${encodeURIComponent(JSON.stringify(receipt))}&t=${Date.now()}`
-      console.log('🎯 Opening receipt in new tab:', receiptUrl)
-      console.log('🎯 Using bill number:', receipt.receiptNumber)
-      window.open(receiptUrl, '_blank')
+        console.log('🎯 Opening receipt in new tab:', receiptUrl)
+        console.log('🎯 Using bill number:', receipt.receiptNumber)
+        
+        // Check if popup was blocked
+        const newWindow = window.open(receiptUrl, '_blank')
+        if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
+          console.warn('⚠️ Popup was blocked, trying alternative method')
+          // Fallback: try to navigate in the same tab
+          window.location.href = receiptUrl
+        } else {
+          console.log('✅ Receipt opened successfully in new tab')
+        }
+      } catch (error) {
+        console.error('❌ Error opening receipt:', error)
+        toast({
+          title: "Receipt Generated",
+          description: `Receipt #${receipt.receiptNumber} created successfully. Please check the receipts page.`,
+        })
+      }
 
       // Determine bill status based on payment
       const billStatus = totalPaid === 0 ? 'unpaid' : 
@@ -1476,10 +1540,26 @@ export function QuickSale() {
                billStatus === 'partial' ? "Partial Payment Bill Created" : "Unpaid Bill Created",
         description: statusMessage,
       })
-    } catch (error) {
+    } catch (error: any) {
+      console.error('❌ Checkout failed:', error)
+      console.error('❌ Error details:', {
+        message: error.message,
+        stack: error.stack,
+        name: error.name
+      })
+      
+      let errorMessage = "An error occurred during checkout"
+      if (error.message) {
+        errorMessage = error.message
+      } else if (error.response?.data?.error) {
+        errorMessage = error.response.data.error
+      } else if (error.response?.data?.message) {
+        errorMessage = error.response.data.message
+      }
+      
       toast({
         title: "Checkout Failed",
-        description: "An error occurred during checkout",
+        description: errorMessage,
         variant: "destructive",
       })
     } finally {
@@ -2941,14 +3021,35 @@ export function QuickSale() {
           <div className="flex gap-3">
             <Button 
               onClick={() => {
-                if (roundedTotal > 0 && totalPaid < roundedTotal) {
+                console.log('🔍 Checkout button clicked!')
+                console.log('🔍 roundedTotal:', roundedTotal)
+                console.log('🔍 totalPaid:', totalPaid)
+                console.log('🔍 isProcessing:', isProcessing)
+                
+                if (isProcessing) {
+                  console.log('❌ Already processing, ignoring click')
+                  return
+                }
+                
+                if (roundedTotal <= 0) {
+                  toast({
+                    title: "Invalid Amount",
+                    description: "Total amount must be greater than 0",
+                    variant: "destructive",
+                  })
+                  return
+                }
+                
+                if (totalPaid < roundedTotal) {
+                  console.log('💰 Opening payment modal for partial/unpaid bill')
                   setShowPaymentModal(true)
                 } else {
+                  console.log('✅ Full payment, proceeding with checkout')
                   handleCheckout()
                 }
               }} 
-              disabled={isProcessing} 
-              className="flex-1 h-10 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg shadow-sm hover:shadow-md transition-all duration-200"
+              disabled={isProcessing || roundedTotal <= 0} 
+              className="flex-1 h-10 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg shadow-sm hover:shadow-md transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isProcessing ? (
                 <>
@@ -3441,6 +3542,12 @@ export function QuickSale() {
                 console.log('🔍 confirmUnpaid:', confirmUnpaid)
                 console.log('🔍 roundedTotal:', roundedTotal)
                 console.log('🔍 totalPaid:', totalPaid)
+                console.log('🔍 isProcessing:', isProcessing)
+                
+                if (isProcessing) {
+                  console.log('❌ Already processing, ignoring click')
+                  return
+                }
                 
                 if (confirmUnpaid) {
                   console.log('✅ Checkbox confirmed, proceeding with checkout...')
@@ -3449,10 +3556,15 @@ export function QuickSale() {
                   handleCheckout()
                 } else {
                   console.log('❌ Checkbox not confirmed')
+                  toast({
+                    title: "Confirmation Required",
+                    description: "Please confirm the unpaid/partial payment bill",
+                    variant: "destructive",
+                  })
                 }
               }}
-              disabled={!confirmUnpaid}
-              className="bg-orange-600 hover:bg-orange-700"
+              disabled={!confirmUnpaid || isProcessing}
+              className="bg-orange-600 hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Confirm & Checkout
             </Button>

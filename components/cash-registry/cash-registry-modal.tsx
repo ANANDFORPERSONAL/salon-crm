@@ -139,6 +139,19 @@ export function CashRegistryModal({ open, onOpenChange, onSaveSuccess, onlineSal
 
     setIsLoading(true)
     try {
+      // Get auth token from localStorage
+      const authToken = localStorage.getItem('salon-auth-token')
+      
+      if (!authToken) {
+        toast({
+          title: "Authentication Error",
+          description: "Please log in to save cash registry data.",
+          variant: "destructive",
+        })
+        setIsLoading(false)
+        return
+      }
+
       // Clean and validate denominations data
       const cleanDenominations = denominations
         .filter(d => d.count > 0 && d.value > 0 && d.total > 0)
@@ -166,7 +179,6 @@ export function CashRegistryModal({ open, onOpenChange, onSaveSuccess, onlineSal
       console.log("Saving cash registry data:", cashRegistryData)
       console.log("User info:", { name: user?.name, email: user?.email })
       console.log("User object:", user)
-      // Auth token is managed by AuthContext
       console.log("Token starts with 'mock':", authToken?.startsWith('mock-token-'))
       console.log("Denominations structure:", denominations.filter(d => d.count > 0).map(d => ({ value: d.value, count: d.count, total: d.total })))
 
@@ -197,18 +209,28 @@ export function CashRegistryModal({ open, onOpenChange, onSaveSuccess, onlineSal
         console.log("API Response:", response)
         console.log("Response type:", typeof response)
         console.log("Response keys:", Object.keys(response))
-        console.log("Response success:", response.success)
-        console.log("Response message:", response.message)
-        console.log("Response data:", response.data)
+        
+        // Check if response has success property (API wrapper) or is direct data
+        if (response.success === false) {
+          console.error("❌ API returned error:", response)
+          throw new Error(response.error || response.message || "API returned error")
+        }
+        
+        // If response has data property, use it; otherwise use response directly
+        const responseData = response.data || response
+        console.log("Cash registry response data:", responseData)
+        
       } catch (apiError: any) {
         console.error("❌ API Call Failed:", apiError)
         console.error("API Error details:", {
-          message: apiError.message,
-          response: apiError.response?.data,
-          status: apiError.response?.status,
-          statusText: apiError.response?.statusText,
-          url: apiError.config?.url,
-          method: apiError.config?.method
+          message: apiError.message || 'Unknown error',
+          response: apiError.response?.data || 'No response data',
+          status: apiError.response?.status || 'No status',
+          statusText: apiError.response?.statusText || 'No status text',
+          url: apiError.config?.url || 'No URL',
+          method: apiError.config?.method || 'No method',
+          code: apiError.code || 'No error code',
+          name: apiError.name || 'Unknown error type'
         })
         
         // Check if it's a network error
@@ -245,7 +267,10 @@ export function CashRegistryModal({ open, onOpenChange, onSaveSuccess, onlineSal
         return
       }
 
-      if (response.success) {
+      // Check if response indicates success (either has success: true or is a valid cash registry object)
+      const isSuccess = response.success === true || (response._id && response.shiftType)
+      
+      if (isSuccess) {
         const action = shift === "opening" ? "Opening balance" : "Closing balance"
         toast({
           title: "Success",
@@ -280,9 +305,11 @@ export function CashRegistryModal({ open, onOpenChange, onSaveSuccess, onlineSal
     } catch (error: any) {
       console.error("Error saving cash registry:", error)
       console.error("Error details:", {
-        message: error.message,
-        response: error.response?.data,
-        status: error.response?.status
+        message: error.message || 'Unknown error',
+        response: error.response?.data || 'No response data',
+        status: error.response?.status || 'No status',
+        name: error.name || 'Unknown error type',
+        stack: error.stack || 'No stack trace'
       })
       toast({
         title: "Error",
