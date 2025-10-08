@@ -55,7 +55,7 @@ import {
   type PaymentMethod,
   getAllReceipts,
 } from "@/lib/data"
-import { ServicesAPI, ProductsAPI, StaffAPI, SalesAPI, UsersAPI, SettingsAPI, ReceiptsAPI } from "@/lib/api"
+import { ServicesAPI, ProductsAPI, StaffAPI, SalesAPI, UsersAPI, SettingsAPI, ReceiptsAPI, StaffDirectoryAPI } from "@/lib/api"
 import { clientStore, type Client } from "@/lib/client-store"
 import { MultiStaffSelector, type StaffContribution } from "@/components/ui/multi-staff-selector"
 import { TaxCalculator, createTaxCalculator, type TaxSettings, type BillItem } from "@/lib/tax-calculator"
@@ -314,7 +314,7 @@ export function QuickSale() {
     const fetchStaff = async () => {
       try {
         console.log('Fetching staff from API...')
-        const response = await StaffAPI.getAll()
+        const response = await StaffDirectoryAPI.getAll()
         console.log('Staff API response:', response)
         if (response.success) {
           // Filter for active staff members with appointment scheduling enabled
@@ -1022,6 +1022,17 @@ export function QuickSale() {
       toast({
         title: "Payment Error",
         description: `Total paid (₹${totalPaid.toFixed(2)}) cannot exceed total amount (₹${roundedTotal.toFixed(2)})`,
+        variant: "destructive",
+      })
+      return
+    }
+
+    // Validate that all services have staff assigned
+    const servicesWithoutStaff = validServiceItems.filter((item) => !item.staffId)
+    if (servicesWithoutStaff.length > 0) {
+      toast({
+        title: "Staff Required",
+        description: "Please select staff for all services before checkout",
         variant: "destructive",
       })
       return

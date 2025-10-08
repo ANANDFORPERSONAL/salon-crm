@@ -14,7 +14,7 @@ import { Calendar as CalendarComponent } from "@/components/ui/calendar"
 import type { DateRange } from "react-day-picker"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { UsersAPI, SalesAPI, StaffPerformanceAPI, SettingsAPI, CommissionProfileAPI } from "@/lib/api"
+import { UsersAPI, SalesAPI, StaffPerformanceAPI, SettingsAPI, CommissionProfileAPI, StaffDirectoryAPI } from "@/lib/api"
 import { CommissionProfileCalculator, StaffCommissionResult } from "@/lib/commission-profile-calculator"
 import { CommissionProfile } from "@/lib/commission-profile-types"
 import { useToast } from "@/hooks/use-toast"
@@ -132,8 +132,8 @@ export function StaffPerformanceReport() {
   useEffect(() => {
     const loadInitialData = async () => {
       try {
-        // Load staff members
-        const staffResponse = await UsersAPI.getAll()
+        // Load staff members (includes business owners and staff)
+        const staffResponse = await StaffDirectoryAPI.getAll()
         if (staffResponse.success) {
           setStaffMembers(staffResponse.data)
         }

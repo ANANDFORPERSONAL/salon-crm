@@ -30,7 +30,7 @@ import {
 import { useToast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
 import { clientStore, type Client } from "@/lib/client-store"
-import { ServicesAPI, StaffAPI, AppointmentsAPI, UsersAPI } from "@/lib/api"
+import { ServicesAPI, StaffAPI, AppointmentsAPI, UsersAPI, StaffDirectoryAPI } from "@/lib/api"
 
 // Time slots for appointments
 const timeSlots = [
@@ -154,8 +154,8 @@ export function AppointmentForm() {
   const fetchStaff = async () => {
     try {
       setLoadingStaff(true)
-      // Align with Quick Sale behavior: use Users API and filter enabled staff
-      const response = await UsersAPI.getAll()
+      // Use StaffDirectory API to get business-specific staff (includes business owners and staff)
+      const response = await StaffDirectoryAPI.getAll()
       if (response.success) {
         const staffMembers = (response.data || []).filter((user: any) => {
           const hasValidId = user._id || user.id
