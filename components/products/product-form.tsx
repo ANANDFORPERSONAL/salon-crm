@@ -33,6 +33,7 @@ export function ProductForm({ onClose, product, onProductUpdated }: ProductFormP
     description: product?.description || "",
     barcode: product?.barcode || "",
     taxCategory: product?.taxCategory || "standard",
+    productType: product?.productType || "retail",
   })
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -42,12 +43,13 @@ export function ProductForm({ onClose, product, onProductUpdated }: ProductFormP
       const productData = {
         name: formData.name,
         category: formData.category,
-        price: parseFloat(formData.price),
+        price: formData.productType === 'service' ? 0 : parseFloat(formData.price),
         stock: parseInt(formData.stock),
         sku: formData.sku || `SKU-${Date.now()}`,
         supplier: formData.supplier,
         description: formData.description,
         taxCategory: formData.taxCategory,
+        productType: formData.productType,
         isActive: true
       }
 
@@ -133,18 +135,20 @@ export function ProductForm({ onClose, product, onProductUpdated }: ProductFormP
           />
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="price">Selling Price *</Label>
-          <Input
-            id="price"
-            type="number"
-            step="0.01"
-            value={formData.price}
-            onChange={(e) => handleChange("price", e.target.value)}
-            placeholder="0.00"
-            required
-          />
-        </div>
+        {formData.productType !== 'service' && (
+          <div className="space-y-2">
+            <Label htmlFor="price">Selling Price *</Label>
+            <Input
+              id="price"
+              type="number"
+              step="0.01"
+              value={formData.price}
+              onChange={(e) => handleChange("price", e.target.value)}
+              placeholder="0.00"
+              required
+            />
+          </div>
+        )}
 
         <div className="space-y-2">
           <Label htmlFor="cost">Cost Price</Label>
@@ -218,6 +222,26 @@ export function ProductForm({ onClose, product, onProductUpdated }: ProductFormP
           </Select>
           <p className="text-xs text-slate-500">
             Select the appropriate tax category for this product as per Indian GST law
+          </p>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="productType">Product Type *</Label>
+          <Select
+            value={formData.productType}
+            onValueChange={(value) => handleChange("productType", value)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select product type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="retail">Retail - Sold to customers</SelectItem>
+              <SelectItem value="service">Service - Used in services only</SelectItem>
+              <SelectItem value="both">Both - Retail & Service</SelectItem>
+            </SelectContent>
+          </Select>
+          <p className="text-xs text-slate-500">
+            How this product will be used in your business
           </p>
         </div>
       </div>

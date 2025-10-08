@@ -297,8 +297,14 @@ export function QuickSale() {
         const response = await ProductsAPI.getAll()
         console.log('Products API response:', response)
         if (response.success) {
-          setProducts(response.data || [])
+          // Filter out service-only products (only show retail and both)
+          const sellableProducts = (response.data || []).filter((product: any) => {
+            const productType = product.productType || 'retail'
+            return productType === 'retail' || productType === 'both'
+          })
+          setProducts(sellableProducts)
           console.log('Products loaded:', response.data?.length || 0)
+          console.log('Sellable products (retail + both):', sellableProducts.length)
         } else {
           console.log('Products API returned unsuccessful response:', response)
           setProducts([])

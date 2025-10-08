@@ -1580,24 +1580,43 @@ app.get('/api/products', authenticateToken, setupBusinessDatabase, requireStaff,
 app.post('/api/products', authenticateToken, setupBusinessDatabase, requireManager, async (req, res) => {
   try {
     const { Product } = req.businessModels;
-    const { name, category, price, stock, sku, supplier, description, taxCategory } = req.body;
+    const { name, category, price, stock, sku, supplier, description, taxCategory, productType } = req.body;
 
-    if (!name || !category || !price || !stock) {
+    console.log('🔍 Product creation request body:', req.body);
+    console.log('🔍 Extracted fields:', { name, category, price, stock, sku, supplier, description, taxCategory, productType });
+
+    // For service products, price is not required
+    const isServiceProduct = productType === 'service';
+    const priceRequired = !isServiceProduct;
+    
+    if (!name || !category || !stock || (priceRequired && (price === undefined || price === null || price === ''))) {
+      console.log('❌ Validation failed - missing required fields:', { 
+        name: !!name, 
+        category: !!category, 
+        price: price, 
+        stock: !!stock,
+        productType: productType,
+        isServiceProduct: isServiceProduct,
+        priceRequired: priceRequired
+      });
       return res.status(400).json({
         success: false,
-        error: 'Name, category, price, and stock are required'
+        error: isServiceProduct 
+          ? 'Name, category, and stock are required for service products' 
+          : 'Name, category, price, and stock are required'
       });
     }
 
     const newProduct = new Product({
       name,
       category,
-      price: parseFloat(price),
+      price: isServiceProduct ? 0 : parseFloat(price), // Service products have price 0
       stock: parseInt(stock),
       sku: sku || `SKU-${Date.now()}`,
       supplier,
       description,
       taxCategory: taxCategory || 'standard',
+      productType: productType || 'retail',
       isActive: true,
       branchId: req.user.branchId
     });
@@ -1620,12 +1639,18 @@ app.post('/api/products', authenticateToken, setupBusinessDatabase, requireManag
 app.put('/api/products/:id', authenticateToken, setupBusinessDatabase, requireManager, async (req, res) => {
   try {
     const { Product } = req.businessModels;
-    const { name, category, price, stock, sku, supplier, description, isActive, taxCategory } = req.body;
+    const { name, category, price, stock, sku, supplier, description, isActive, taxCategory, productType } = req.body;
 
-    if (!name || !category || !price || !stock) {
+    // For service products, price is not required
+    const isServiceProduct = productType === 'service';
+    const priceRequired = !isServiceProduct;
+    
+    if (!name || !category || !stock || (priceRequired && (price === undefined || price === null || price === ''))) {
       return res.status(400).json({
         success: false,
-        error: 'Name, category, price, and stock are required'
+        error: isServiceProduct 
+          ? 'Name, category, and stock are required for service products' 
+          : 'Name, category, price, and stock are required'
       });
     }
 
@@ -1634,12 +1659,13 @@ app.put('/api/products/:id', authenticateToken, setupBusinessDatabase, requireMa
       {
         name,
         category,
-        price: parseFloat(price),
+        price: isServiceProduct ? 0 : parseFloat(price), // Service products have price 0
         stock: parseInt(stock),
         sku: sku || `SKU-${Date.now()}`,
         supplier,
         description,
         taxCategory: taxCategory || 'standard',
+        productType: productType || 'retail',
         isActive: isActive !== undefined ? isActive : true,
       },
       { new: true }

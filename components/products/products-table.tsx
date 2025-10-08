@@ -8,7 +8,8 @@ import { Badge } from "@/components/ui/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Plus, Search, MoreHorizontal, Edit, Trash2, Package, Download, FileText, FileSpreadsheet, ChevronDown } from "lucide-react"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Plus, Search, MoreHorizontal, Edit, Trash2, Package, Download, FileText, FileSpreadsheet, ChevronDown, Filter } from "lucide-react"
 import { ProductsAPI } from "@/lib/api"
 import { ProductForm } from "@/components/products/product-form"
 import { InventoryLogs } from "@/components/products/inventory-logs"
@@ -24,6 +25,7 @@ export function ProductsTable() {
   const { formatAmount } = useCurrency()
   const { toast } = useToast()
   const [searchTerm, setSearchTerm] = useState("")
+  const [productTypeFilter, setProductTypeFilter] = useState<string>("all")
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [selectedProduct, setSelectedProduct] = useState<any>(null)
@@ -87,10 +89,18 @@ export function ProductsTable() {
   }
 
   const filteredProducts = products.filter(
-    (product) =>
-      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (product.supplier && product.supplier.toLowerCase().includes(searchTerm.toLowerCase())),
+    (product) => {
+      // Search filter
+      const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (product.supplier && product.supplier.toLowerCase().includes(searchTerm.toLowerCase()))
+      
+      // Product type filter
+      const matchesType = productTypeFilter === "all" || 
+        (product.productType || 'retail') === productTypeFilter
+      
+      return matchesSearch && matchesType
+    }
   )
 
   const handleExportPDF = () => {
@@ -123,6 +133,7 @@ export function ProductsTable() {
         const headers = [
           "Product Name",
           "Category",
+          "Product Type",
           "Price",
           "Stock",
           "Supplier",
@@ -133,6 +144,7 @@ export function ProductsTable() {
         const data = filteredProducts.map(product => [
           product.name,
           product.category,
+          product.productType || "retail",
           `₹${product.price.toFixed(2)}`,
           product.stock || 0,
           product.supplier || "N/A",
@@ -172,6 +184,7 @@ export function ProductsTable() {
       const data = filteredProducts.map(product => ({
         "Product Name": product.name,
         "Category": product.category,
+        "Product Type": product.productType || "retail",
         "Price": product.price,
         "Stock": product.stock || 0,
         "Supplier": product.supplier || "",
@@ -234,24 +247,58 @@ export function ProductsTable() {
     <div className="space-y-4 p-4">
       {/* Enhanced Search and Add Section */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-        <div className="relative flex-1 max-w-sm">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Search className="h-4 w-4 text-gray-400" />
-          </div>
-          <Input
-            placeholder="Search products..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-9 h-10 border-gray-200 focus:border-emerald-500 focus:ring-emerald-500/20 transition-all duration-300"
-          />
-          {searchTerm && (
-            <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
-              <div className="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded-full">
-                {filteredProducts.length} results
-              </div>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 flex-1">
+          <div className="relative flex-1 max-w-sm">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Search className="h-4 w-4 text-gray-400" />
             </div>
-          )}
+            <Input
+              placeholder="Search products..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-9 h-10 border-gray-200 focus:border-emerald-500 focus:ring-emerald-500/20 transition-all duration-300"
+            />
+            {searchTerm && (
+              <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+                <div className="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded-full">
+                  {filteredProducts.length} results
+                </div>
+              </div>
+            )}
+          </div>
+          
+          {/* Product Type Filter */}
+          <Select value={productTypeFilter} onValueChange={setProductTypeFilter}>
+            <SelectTrigger className="w-[180px] h-10 border-gray-200">
+              <div className="flex items-center gap-2">
+                <Filter className="h-4 w-4 text-gray-500" />
+                <SelectValue placeholder="Filter by type" />
+              </div>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Types</SelectItem>
+              <SelectItem value="retail">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                  Retail
+                </div>
+              </SelectItem>
+              <SelectItem value="service">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-purple-500"></div>
+                  Service
+                </div>
+              </SelectItem>
+              <SelectItem value="both">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-orange-500"></div>
+                  Both
+                </div>
+              </SelectItem>
+            </SelectContent>
+          </Select>
         </div>
+        
         <div className="flex items-center gap-3">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -340,6 +387,7 @@ export function ProductsTable() {
               <TableRow className="bg-gray-50/50 hover:bg-gray-50">
                 <TableHead className="px-4 py-3 text-left font-semibold text-gray-700">Product Name</TableHead>
                 <TableHead className="px-4 py-3 text-left font-semibold text-gray-700">Category</TableHead>
+                <TableHead className="px-4 py-3 text-left font-semibold text-gray-700">Product Type</TableHead>
                 <TableHead className="px-4 py-3 text-left font-semibold text-gray-700">Tax Category</TableHead>
                 <TableHead className="px-4 py-3 text-left font-semibold text-gray-700">Stock</TableHead>
                 <TableHead className="px-4 py-3 text-left font-semibold text-gray-700">Price</TableHead>
@@ -351,7 +399,7 @@ export function ProductsTable() {
             <TableBody>
               {loading ? (
                 <TableRow key="loading">
-                  <TableCell colSpan={canManageProducts ? 8 : 7} className="text-center py-8">
+                  <TableCell colSpan={canManageProducts ? 9 : 8} className="text-center py-8">
                     <div className="flex flex-col items-center space-y-2">
                       <div className="w-6 h-6 border-2 border-emerald-600 border-t-transparent rounded-full animate-spin"></div>
                       <p className="text-gray-600 text-sm">Loading products...</p>
@@ -360,7 +408,7 @@ export function ProductsTable() {
                 </TableRow>
               ) : filteredProducts.length === 0 ? (
                 <TableRow key="empty">
-                  <TableCell colSpan={canManageProducts ? 8 : 7} className="text-center py-8">
+                  <TableCell colSpan={canManageProducts ? 9 : 8} className="text-center py-8">
                     <div className="flex flex-col items-center space-y-2">
                       <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
                         <Package className="h-6 w-6 text-gray-400" />
@@ -395,6 +443,23 @@ export function ProductsTable() {
                       <Badge variant="outline" className="px-2 py-1 bg-emerald-50 text-emerald-700 border-emerald-200 text-xs">
                         {product.category}
                       </Badge>
+                    </TableCell>
+                    <TableCell className="px-4 py-3">
+                      {(() => {
+                        const getProductTypeBadge = (type: string) => {
+                          switch (type) {
+                            case 'retail':
+                              return <Badge variant="outline" className="px-2 py-1 bg-blue-50 text-blue-700 border-blue-200 text-xs">Retail</Badge>
+                            case 'service':
+                              return <Badge variant="outline" className="px-2 py-1 bg-purple-50 text-purple-700 border-purple-200 text-xs">Service</Badge>
+                            case 'both':
+                              return <Badge variant="outline" className="px-2 py-1 bg-orange-50 text-orange-700 border-orange-200 text-xs">Both</Badge>
+                            default:
+                              return <Badge variant="outline" className="px-2 py-1 bg-gray-50 text-gray-700 border-gray-200 text-xs">Retail</Badge>
+                          }
+                        }
+                        return getProductTypeBadge(product.productType || 'retail')
+                      })()}
                     </TableCell>
                     <TableCell className="px-4 py-3">
                       {(() => {
