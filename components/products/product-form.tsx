@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useToast } from "@/hooks/use-toast"
 import { ProductsAPI } from "@/lib/api"
+import { SupplierCombobox } from "./supplier-combobox"
 
 interface ProductFormProps {
   onClose: () => void
@@ -188,11 +189,9 @@ export function ProductForm({ onClose, product, onProductUpdated }: ProductFormP
 
         <div className="space-y-2">
           <Label htmlFor="supplier">Supplier</Label>
-          <Input
-            id="supplier"
+          <SupplierCombobox
             value={formData.supplier}
-            onChange={(e) => handleChange("supplier", e.target.value)}
-            placeholder="Supplier name"
+            onChange={(value) => handleChange("supplier", value)}
           />
         </div>
 

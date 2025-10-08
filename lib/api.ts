@@ -232,6 +232,33 @@ export class ProductsAPI {
   }
 }
 
+export class SuppliersAPI {
+  static async getAll(params?: { search?: string; activeOnly?: boolean }): Promise<ApiResponse<any[]>> {
+    const response = await apiClient.get('/suppliers', { params })
+    return response.data
+  }
+
+  static async getById(id: string): Promise<ApiResponse<any>> {
+    const response = await apiClient.get(`/suppliers/${id}`)
+    return response.data
+  }
+
+  static async create(data: { name: string; contactPerson?: string; phone?: string; email?: string; address?: string; notes?: string }): Promise<ApiResponse<any>> {
+    const response = await apiClient.post('/suppliers', data)
+    return response.data
+  }
+
+  static async update(id: string, data: { name?: string; contactPerson?: string; phone?: string; email?: string; address?: string; notes?: string; isActive?: boolean }): Promise<ApiResponse<any>> {
+    const response = await apiClient.put(`/suppliers/${id}`, data)
+    return response.data
+  }
+
+  static async delete(id: string): Promise<ApiResponse> {
+    const response = await apiClient.delete(`/suppliers/${id}`)
+    return response.data
+  }
+}
+
 export class AppointmentsAPI {
   static async getAll(params?: { page?: number; limit?: number; date?: string; status?: string }): Promise<PaginatedResponse<any>> {
     const response = await apiClient.get('/appointments', { params })

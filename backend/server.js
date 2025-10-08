@@ -999,8 +999,9 @@ app.delete('/api/users/:id', authenticateToken, setupMainDatabase, requireAdmin,
 });
 
 // Get user permissions
-app.get('/api/users/:id/permissions', authenticateToken, requireAdmin, async (req, res) => {
+app.get('/api/users/:id/permissions', authenticateToken, setupMainDatabase, requireAdmin, async (req, res) => {
   try {
+    const { User } = req.mainModels;
     const user = await User.findById(req.params.id).select('permissions');
     
     if (!user) {
@@ -1024,9 +1025,10 @@ app.get('/api/users/:id/permissions', authenticateToken, requireAdmin, async (re
 });
 
 // Update user permissions
-app.put('/api/users/:id/permissions', authenticateToken, requireAdmin, async (req, res) => {
+app.put('/api/users/:id/permissions', authenticateToken, setupMainDatabase, requireAdmin, async (req, res) => {
   try {
     const { permissions } = req.body;
+    const { User } = req.mainModels;
 
     const user = await User.findByIdAndUpdate(
       req.params.id,
@@ -1055,9 +1057,10 @@ app.put('/api/users/:id/permissions', authenticateToken, requireAdmin, async (re
 });
 
 // Change user password with old password verification
-app.post('/api/users/:id/change-password', authenticateToken, requireAdmin, async (req, res) => {
+app.post('/api/users/:id/change-password', authenticateToken, setupMainDatabase, requireAdmin, async (req, res) => {
   try {
     const { oldPassword, newPassword } = req.body;
+    const { User } = req.mainModels;
 
     if (!oldPassword || !newPassword) {
       return res.status(400).json({
@@ -1108,9 +1111,10 @@ app.post('/api/users/:id/change-password', authenticateToken, requireAdmin, asyn
 });
 
 // Verify admin password for editing admin details
-app.post('/api/users/:id/verify-admin-password', authenticateToken, requireAdmin, async (req, res) => {
+app.post('/api/users/:id/verify-admin-password', authenticateToken, setupMainDatabase, requireAdmin, async (req, res) => {
   try {
     const { password } = req.body;
+    const { User } = req.mainModels;
 
     if (!password) {
       return res.status(400).json({
@@ -1679,6 +1683,209 @@ app.delete('/api/products/:id', authenticateToken, setupBusinessDatabase, requir
     });
   } catch (error) {
     console.error('Error deleting product:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error'
+    });
+  }
+});
+
+// ==================== SUPPLIER ROUTES ====================
+
+// Get all suppliers
+app.get('/api/suppliers', authenticateToken, setupBusinessDatabase, requireStaff, async (req, res) => {
+  try {
+    const { Supplier } = req.businessModels;
+    const { search, activeOnly } = req.query;
+
+    let query = { branchId: req.user.branchId };
+
+    // Filter by active status if requested
+    if (activeOnly === 'true') {
+      query.isActive = true;
+    }
+
+    // Search by name if provided
+    if (search) {
+      query.name = { $regex: search, $options: 'i' };
+    }
+
+    const suppliers = await Supplier.find(query).sort({ name: 1 });
+
+    res.json({
+      success: true,
+      data: suppliers
+    });
+  } catch (error) {
+    console.error('Error fetching suppliers:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error'
+    });
+  }
+});
+
+// Get a single supplier by ID
+app.get('/api/suppliers/:id', authenticateToken, setupBusinessDatabase, requireStaff, async (req, res) => {
+  try {
+    const { Supplier } = req.businessModels;
+    const supplier = await Supplier.findById(req.params.id);
+
+    if (!supplier) {
+      return res.status(404).json({
+        success: false,
+        error: 'Supplier not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      data: supplier
+    });
+  } catch (error) {
+    console.error('Error fetching supplier:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error'
+    });
+  }
+});
+
+// Create a new supplier
+app.post('/api/suppliers', authenticateToken, setupBusinessDatabase, requireStaff, async (req, res) => {
+  try {
+    const { Supplier } = req.businessModels;
+    const { name, contactPerson, phone, email, address, notes } = req.body;
+
+    // Validate required fields
+    if (!name) {
+      return res.status(400).json({
+        success: false,
+        error: 'Supplier name is required'
+      });
+    }
+
+    // Check if supplier with same name already exists for this branch
+    const existingSupplier = await Supplier.findOne({
+      branchId: req.user.branchId,
+      name: { $regex: new RegExp(`^${name}$`, 'i') }
+    });
+
+    if (existingSupplier) {
+      return res.status(400).json({
+        success: false,
+        error: 'A supplier with this name already exists'
+      });
+    }
+
+    // Create new supplier
+    const supplier = new Supplier({
+      name: name.trim(),
+      contactPerson: contactPerson || '',
+      phone: phone || '',
+      email: email || '',
+      address: address || '',
+      notes: notes || '',
+      branchId: req.user.branchId,
+      isActive: true
+    });
+
+    await supplier.save();
+
+    res.status(201).json({
+      success: true,
+      data: supplier
+    });
+  } catch (error) {
+    console.error('Error creating supplier:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error'
+    });
+  }
+});
+
+// Update a supplier
+app.put('/api/suppliers/:id', authenticateToken, setupBusinessDatabase, requireStaff, async (req, res) => {
+  try {
+    const { Supplier } = req.businessModels;
+    const { name, contactPerson, phone, email, address, notes, isActive } = req.body;
+
+    // Validate required fields
+    if (!name) {
+      return res.status(400).json({
+        success: false,
+        error: 'Supplier name is required'
+      });
+    }
+
+    // Check if another supplier with same name exists
+    const existingSupplier = await Supplier.findOne({
+      _id: { $ne: req.params.id },
+      branchId: req.user.branchId,
+      name: { $regex: new RegExp(`^${name}$`, 'i') }
+    });
+
+    if (existingSupplier) {
+      return res.status(400).json({
+        success: false,
+        error: 'A supplier with this name already exists'
+      });
+    }
+
+    const updatedSupplier = await Supplier.findByIdAndUpdate(
+      req.params.id,
+      {
+        name: name.trim(),
+        contactPerson: contactPerson || '',
+        phone: phone || '',
+        email: email || '',
+        address: address || '',
+        notes: notes || '',
+        isActive: isActive !== undefined ? isActive : true
+      },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedSupplier) {
+      return res.status(404).json({
+        success: false,
+        error: 'Supplier not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      data: updatedSupplier
+    });
+  } catch (error) {
+    console.error('Error updating supplier:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error'
+    });
+  }
+});
+
+// Delete a supplier
+app.delete('/api/suppliers/:id', authenticateToken, setupBusinessDatabase, requireAdmin, async (req, res) => {
+  try {
+    const { Supplier } = req.businessModels;
+    const deletedSupplier = await Supplier.findByIdAndDelete(req.params.id);
+
+    if (!deletedSupplier) {
+      return res.status(404).json({
+        success: false,
+        error: 'Supplier not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Supplier deleted successfully'
+    });
+  } catch (error) {
+    console.error('Error deleting supplier:', error);
     res.status(500).json({
       success: false,
       error: 'Internal server error'
@@ -2293,10 +2500,11 @@ app.post('/api/receipts', authenticateToken, setupBusinessDatabase, async (req, 
 });
 
 // Update appointment
-app.put('/api/appointments/:id', authenticateToken, async (req, res) => {
+app.put('/api/appointments/:id', authenticateToken, setupBusinessDatabase, async (req, res) => {
   try {
     const { id } = req.params;
     const updateData = req.body;
+    const { Appointment } = req.businessModels;
 
     // Find the appointment
     const appointment = await Appointment.findById(id);
@@ -2331,9 +2539,10 @@ app.put('/api/appointments/:id', authenticateToken, async (req, res) => {
 });
 
 // Delete appointment
-app.delete('/api/appointments/:id', authenticateToken, async (req, res) => {
+app.delete('/api/appointments/:id', authenticateToken, setupBusinessDatabase, async (req, res) => {
   try {
     const { id } = req.params;
+    const { Appointment } = req.businessModels;
 
     const appointment = await Appointment.findById(id);
     if (!appointment) {
@@ -2359,8 +2568,9 @@ app.delete('/api/appointments/:id', authenticateToken, async (req, res) => {
 });
 
 // Get receipts by client ID
-app.get('/api/receipts/client/:clientId', authenticateToken, async (req, res) => {
+app.get('/api/receipts/client/:clientId', authenticateToken, setupBusinessDatabase, async (req, res) => {
   const { clientId } = req.params;
+  const { Receipt } = req.businessModels;
   
   try {
     const clientReceipts = await Receipt.find({ clientId }).sort({ createdAt: -1 });
@@ -2537,8 +2747,9 @@ app.post('/api/sales', authenticateToken, setupBusinessDatabase, requireStaff, a
   }
 });
 
-app.get('/api/sales/:id', authenticateToken, async (req, res) => {
+app.get('/api/sales/:id', authenticateToken, setupBusinessDatabase, async (req, res) => {
   try {
+    const { Sale } = req.businessModels;
     const sale = await Sale.findById(req.params.id);
     if (!sale) return res.status(404).json({ success: false, error: 'Sale not found' });
     res.json({ success: true, data: sale });
@@ -2547,8 +2758,9 @@ app.get('/api/sales/:id', authenticateToken, async (req, res) => {
   }
 });
 
-app.put('/api/sales/:id', authenticateToken, requireManager, async (req, res) => {
+app.put('/api/sales/:id', authenticateToken, setupBusinessDatabase, requireManager, async (req, res) => {
   try {
+    const { Sale } = req.businessModels;
     const sale = await Sale.findByIdAndUpdate(req.params.id, req.body, { new: true });
     if (!sale) return res.status(404).json({ success: false, error: 'Sale not found' });
     res.json({ success: true, data: sale });
@@ -2558,9 +2770,11 @@ app.put('/api/sales/:id', authenticateToken, requireManager, async (req, res) =>
 });
 
 // Get sales by client name
-app.get('/api/sales/client/:clientName', authenticateToken, async (req, res) => {
+app.get('/api/sales/client/:clientName', authenticateToken, setupBusinessDatabase, async (req, res) => {
   try {
     const { clientName } = req.params;
+    
+    const { Sale } = req.businessModels;
     
     // Search for sales by customer name (case-insensitive)
     const sales = await Sale.find({
@@ -2581,8 +2795,9 @@ app.get('/api/sales/client/:clientName', authenticateToken, async (req, res) => 
 });
 
 // Get sales by bill number
-app.get('/api/sales/bill/:billNo', authenticateToken, async (req, res) => {
+app.get('/api/sales/bill/:billNo', authenticateToken, setupBusinessDatabase, async (req, res) => {
   try {
+    const { Sale } = req.businessModels;
     const sale = await Sale.findOne({ billNo: req.params.billNo });
     if (!sale) return res.status(404).json({ success: false, error: 'Sale not found' });
     res.json({ success: true, data: sale });
@@ -2592,10 +2807,11 @@ app.get('/api/sales/bill/:billNo', authenticateToken, async (req, res) => {
 });
 
 // Add payment to a sale
-app.post('/api/sales/:id/payment', authenticateToken, requireStaff, async (req, res) => {
+app.post('/api/sales/:id/payment', authenticateToken, setupBusinessDatabase, requireStaff, async (req, res) => {
   try {
     const { id } = req.params;
     const { amount, method, notes, collectedBy } = req.body;
+    const { Sale } = req.businessModels;
     
     if (!amount || !method) {
       return res.status(400).json({ 
@@ -2643,9 +2859,10 @@ app.post('/api/sales/:id/payment', authenticateToken, requireStaff, async (req, 
 });
 
 // Get payment summary for a sale
-app.get('/api/sales/:id/payment-summary', authenticateToken, async (req, res) => {
+app.get('/api/sales/:id/payment-summary', authenticateToken, setupBusinessDatabase, async (req, res) => {
   try {
     const { id } = req.params;
+    const { Sale } = req.businessModels;
     const sale = await Sale.findById(id);
     
     if (!sale) {
@@ -2666,10 +2883,11 @@ app.get('/api/sales/:id/payment-summary', authenticateToken, async (req, res) =>
 });
 
 // Get unpaid/overdue bills
-app.get('/api/sales/unpaid/overdue', authenticateToken, requireManager, async (req, res) => {
+app.get('/api/sales/unpaid/overdue', authenticateToken, setupBusinessDatabase, requireManager, async (req, res) => {
   try {
     const { page = 1, limit = 50 } = req.query;
     const skip = (page - 1) * limit;
+    const { Sale } = req.businessModels;
     
     const unpaidBills = await Sale.find({
       status: { $in: ['unpaid', 'partial', 'overdue', 'Unpaid', 'Partial', 'Overdue'] }
@@ -2771,8 +2989,9 @@ app.post('/api/expenses', authenticateToken, setupBusinessDatabase, requireStaff
   }
 });
 
-app.get('/api/expenses/:id', authenticateToken, async (req, res) => {
+app.get('/api/expenses/:id', authenticateToken, setupBusinessDatabase, async (req, res) => {
   try {
+    const { Expense } = req.businessModels;
     const expense = await Expense.findById(req.params.id);
     if (!expense) return res.status(404).json({ success: false, error: 'Expense not found' });
     res.json({ success: true, data: expense });
@@ -2781,8 +3000,9 @@ app.get('/api/expenses/:id', authenticateToken, async (req, res) => {
   }
 });
 
-app.put('/api/expenses/:id', authenticateToken, requireManager, async (req, res) => {
+app.put('/api/expenses/:id', authenticateToken, setupBusinessDatabase, requireManager, async (req, res) => {
   try {
+    const { Expense } = req.businessModels;
     const expense = await Expense.findByIdAndUpdate(req.params.id, req.body, { new: true });
     if (!expense) return res.status(404).json({ success: false, error: 'Expense not found' });
     res.json({ success: true, data: expense });
@@ -2791,8 +3011,9 @@ app.put('/api/expenses/:id', authenticateToken, requireManager, async (req, res)
   }
 });
 
-app.delete('/api/expenses/:id', authenticateToken, requireManager, async (req, res) => {
+app.delete('/api/expenses/:id', authenticateToken, setupBusinessDatabase, requireManager, async (req, res) => {
   try {
+    const { Expense } = req.businessModels;
     const expense = await Expense.findByIdAndDelete(req.params.id);
     if (!expense) return res.status(404).json({ success: false, error: 'Expense not found' });
     res.json({ success: true, message: 'Expense deleted successfully' });
@@ -3249,8 +3470,9 @@ app.post("/api/settings/pos/reset-sequence", authenticateToken, setupBusinessDat
 });
 
 // --- PAYMENT SETTINGS API ---
-app.get("/api/settings/payment", authenticateToken, async (req, res) => {
+app.get("/api/settings/payment", authenticateToken, setupBusinessDatabase, async (req, res) => {
   try {
+    const { BusinessSettings } = req.businessModels;
     let settings = await BusinessSettings.findOne();
     
     if (!settings) {
@@ -3280,9 +3502,10 @@ app.get("/api/settings/payment", authenticateToken, async (req, res) => {
   }
 });
 
-app.put("/api/settings/payment", authenticateToken, async (req, res) => {
+app.put("/api/settings/payment", authenticateToken, setupBusinessDatabase, async (req, res) => {
   try {
     const { currency, taxRate, processingFee, enableCurrency, enableTax, enableProcessingFees } = req.body;
+    const { BusinessSettings } = req.businessModels;
 
     let settings = await BusinessSettings.findOne();
     
@@ -3317,8 +3540,9 @@ app.put("/api/settings/payment", authenticateToken, async (req, res) => {
   }
 });
 
-app.delete('/api/sales/:id', authenticateToken, requireAdmin, async (req, res) => {
+app.delete('/api/sales/:id', authenticateToken, setupBusinessDatabase, requireAdmin, async (req, res) => {
   try {
+    const { Sale } = req.businessModels;
     const sale = await Sale.findByIdAndDelete(req.params.id);
     if (!sale) return res.status(404).json({ success: false, error: 'Sale not found' });
     res.json({ success: true, data: sale });
@@ -3435,8 +3659,9 @@ app.get('/api/cash-registry', authenticateToken, setupBusinessDatabase, async (r
   }
 });
 
-app.get('/api/cash-registry/:id', authenticateToken, async (req, res) => {
+app.get('/api/cash-registry/:id', authenticateToken, setupBusinessDatabase, async (req, res) => {
   try {
+    const { CashRegistry } = req.businessModels;
     const cashRegistry = await CashRegistry.findById(req.params.id);
     if (!cashRegistry) {
       return res.status(404).json({ message: 'Cash registry entry not found' });
@@ -3548,7 +3773,7 @@ app.post('/api/cash-registry', authenticateToken, setupBusinessDatabase, async (
   }
 });
 
-app.put('/api/cash-registry/:id', authenticateToken, async (req, res) => {
+app.put('/api/cash-registry/:id', authenticateToken, setupBusinessDatabase, async (req, res) => {
   try {
     const {
       denominations,
@@ -3559,6 +3784,7 @@ app.put('/api/cash-registry/:id', authenticateToken, async (req, res) => {
       balanceDifferenceReason,
       onlineCashDifferenceReason
     } = req.body;
+    const { CashRegistry } = req.businessModels;
     
     const cashRegistry = await CashRegistry.findById(req.params.id);
     if (!cashRegistry) {
@@ -3675,7 +3901,7 @@ app.delete('/api/cash-registry/:id', authenticateToken, setupBusinessDatabase, a
 
 // Commission Profiles API
 // Get all commission profiles
-app.get('/api/commission-profiles', authenticateToken, requireManager, async (req, res) => {
+app.get('/api/commission-profiles', authenticateToken, setupBusinessDatabase, requireManager, async (req, res) => {
   try {
     // For now, return mock data. In production, this would come from a database
     const commissionProfiles = [
@@ -3730,7 +3956,7 @@ app.get('/api/commission-profiles', authenticateToken, requireManager, async (re
 });
 
 // Create commission profile
-app.post('/api/commission-profiles', authenticateToken, requireAdmin, async (req, res) => {
+app.post('/api/commission-profiles', authenticateToken, setupBusinessDatabase, requireAdmin, async (req, res) => {
   try {
     const profileData = {
       id: Date.now().toString(),
@@ -3755,7 +3981,7 @@ app.post('/api/commission-profiles', authenticateToken, requireAdmin, async (req
 });
 
 // Update commission profile
-app.put('/api/commission-profiles/:id', authenticateToken, requireAdmin, async (req, res) => {
+app.put('/api/commission-profiles/:id', authenticateToken, setupBusinessDatabase, requireAdmin, async (req, res) => {
   try {
     const { id } = req.params;
     const updateData = {
@@ -3778,7 +4004,7 @@ app.put('/api/commission-profiles/:id', authenticateToken, requireAdmin, async (
 });
 
 // Delete commission profile
-app.delete('/api/commission-profiles/:id', authenticateToken, requireAdmin, async (req, res) => {
+app.delete('/api/commission-profiles/:id', authenticateToken, setupBusinessDatabase, requireAdmin, async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -3797,9 +4023,10 @@ app.delete('/api/commission-profiles/:id', authenticateToken, requireAdmin, asyn
 });
 
 // Get inventory transactions
-app.get('/api/inventory-transactions', authenticateToken, async (req, res) => {
+app.get('/api/inventory-transactions', authenticateToken, setupBusinessDatabase, async (req, res) => {
   try {
     const { productId, transactionType, startDate, endDate, page = 1, limit = 50 } = req.query;
+    const { InventoryTransaction } = req.businessModels;
     
     const filter = {};
     if (productId) filter.productId = productId;

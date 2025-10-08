@@ -65,7 +65,10 @@ class ModelFactory {
       InventoryTransaction: this.getModel('InventoryTransaction', require('./InventoryTransaction').schema, connection),
       
       // BusinessSettings model
-      BusinessSettings: this.getModel('BusinessSettings', require('./BusinessSettings').schema, connection)
+      BusinessSettings: this.getModel('BusinessSettings', require('./BusinessSettings').schema, connection),
+      
+      // Supplier model
+      Supplier: this.getModel('Supplier', require('./Supplier').schema, connection)
     };
   }
 
