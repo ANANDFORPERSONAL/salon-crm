@@ -259,6 +259,33 @@ export class SuppliersAPI {
   }
 }
 
+export class CategoriesAPI {
+  static async getAll(params?: { search?: string; type?: 'product' | 'service' | 'both'; activeOnly?: boolean }): Promise<ApiResponse<any[]>> {
+    const response = await apiClient.get('/categories', { params })
+    return response.data
+  }
+
+  static async getById(id: string): Promise<ApiResponse<any>> {
+    const response = await apiClient.get(`/categories/${id}`)
+    return response.data
+  }
+
+  static async create(data: { name: string; type?: 'product' | 'service' | 'both'; description?: string }): Promise<ApiResponse<any>> {
+    const response = await apiClient.post('/categories', data)
+    return response.data
+  }
+
+  static async update(id: string, data: { name?: string; type?: 'product' | 'service' | 'both'; description?: string; isActive?: boolean }): Promise<ApiResponse<any>> {
+    const response = await apiClient.put(`/categories/${id}`, data)
+    return response.data
+  }
+
+  static async delete(id: string): Promise<ApiResponse> {
+    const response = await apiClient.delete(`/categories/${id}`)
+    return response.data
+  }
+}
+
 export class AppointmentsAPI {
   static async getAll(params?: { page?: number; limit?: number; date?: string; status?: string }): Promise<PaginatedResponse<any>> {
     const response = await apiClient.get('/appointments', { params })

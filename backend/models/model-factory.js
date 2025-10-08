@@ -68,7 +68,10 @@ class ModelFactory {
       BusinessSettings: this.getModel('BusinessSettings', require('./BusinessSettings').schema, connection),
       
       // Supplier model
-      Supplier: this.getModel('Supplier', require('./Supplier').schema, connection)
+      Supplier: this.getModel('Supplier', require('./Supplier').schema, connection),
+      
+      // Category model
+      Category: this.getModel('Category', require('./Category').schema, connection)
     };
   }
 

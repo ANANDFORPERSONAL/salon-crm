@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast"
 import { ProductsAPI } from "@/lib/api"
 import { SupplierCombobox } from "./supplier-combobox"
+import { CategoryCombobox } from "./category-combobox"
 
 interface ProductFormProps {
   onClose: () => void
@@ -125,18 +126,11 @@ export function ProductForm({ onClose, product, onProductUpdated }: ProductFormP
 
         <div className="space-y-2">
           <Label htmlFor="category">Category *</Label>
-          <Select value={formData.category} onValueChange={(value) => handleChange("category", value)}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select category" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Hair Care">Hair Care</SelectItem>
-              <SelectItem value="Skin Care">Skin Care</SelectItem>
-              <SelectItem value="Styling Tools">Styling Tools</SelectItem>
-              <SelectItem value="Color Products">Color Products</SelectItem>
-              <SelectItem value="Accessories">Accessories</SelectItem>
-            </SelectContent>
-          </Select>
+          <CategoryCombobox
+            value={formData.category}
+            onChange={(value) => handleChange("category", value)}
+            type="product"
+          />
         </div>
 
         <div className="space-y-2">

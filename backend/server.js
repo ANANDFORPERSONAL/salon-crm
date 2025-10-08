@@ -1893,6 +1893,227 @@ app.delete('/api/suppliers/:id', authenticateToken, setupBusinessDatabase, requi
   }
 });
 
+// ==================== CATEGORY ROUTES ====================
+
+// Get all categories
+app.get('/api/categories', authenticateToken, setupBusinessDatabase, requireStaff, async (req, res) => {
+  try {
+    const { Category } = req.businessModels;
+    const { search, type, activeOnly } = req.query;
+
+    let query = { branchId: req.user.branchId };
+
+    // Filter by type if provided (product, service, both)
+    if (type && ['product', 'service', 'both'].includes(type)) {
+      query.$or = [
+        { type: type },
+        { type: 'both' }
+      ];
+    }
+
+    // Filter by active status if requested
+    if (activeOnly === 'true') {
+      query.isActive = true;
+    }
+
+    // Search by name if provided
+    if (search) {
+      query.name = { $regex: search, $options: 'i' };
+    }
+
+    const categories = await Category.find(query).sort({ name: 1 });
+
+    res.json({
+      success: true,
+      data: categories
+    });
+  } catch (error) {
+    console.error('Error fetching categories:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error'
+    });
+  }
+});
+
+// Get a single category by ID
+app.get('/api/categories/:id', authenticateToken, setupBusinessDatabase, requireStaff, async (req, res) => {
+  try {
+    const { Category } = req.businessModels;
+    const category = await Category.findById(req.params.id);
+
+    if (!category) {
+      return res.status(404).json({
+        success: false,
+        error: 'Category not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      data: category
+    });
+  } catch (error) {
+    console.error('Error fetching category:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error'
+    });
+  }
+});
+
+// Create a new category
+app.post('/api/categories', authenticateToken, setupBusinessDatabase, requireStaff, async (req, res) => {
+  try {
+    const { Category } = req.businessModels;
+    const { name, type, description } = req.body;
+
+    // Validate required fields
+    if (!name) {
+      return res.status(400).json({
+        success: false,
+        error: 'Category name is required'
+      });
+    }
+
+    // Validate type if provided
+    if (type && !['product', 'service', 'both'].includes(type)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid category type. Must be: product, service, or both'
+      });
+    }
+
+    // Check if category with same name already exists for this branch
+    const existingCategory = await Category.findOne({
+      branchId: req.user.branchId,
+      name: { $regex: new RegExp(`^${name}$`, 'i') }
+    });
+
+    if (existingCategory) {
+      return res.status(400).json({
+        success: false,
+        error: 'A category with this name already exists'
+      });
+    }
+
+    // Create new category
+    const category = new Category({
+      name: name.trim(),
+      type: type || 'both',
+      description: description || '',
+      branchId: req.user.branchId,
+      isActive: true
+    });
+
+    await category.save();
+
+    res.status(201).json({
+      success: true,
+      data: category
+    });
+  } catch (error) {
+    console.error('Error creating category:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error'
+    });
+  }
+});
+
+// Update a category
+app.put('/api/categories/:id', authenticateToken, setupBusinessDatabase, requireStaff, async (req, res) => {
+  try {
+    const { Category } = req.businessModels;
+    const { name, type, description, isActive } = req.body;
+
+    // Validate required fields
+    if (!name) {
+      return res.status(400).json({
+        success: false,
+        error: 'Category name is required'
+      });
+    }
+
+    // Validate type if provided
+    if (type && !['product', 'service', 'both'].includes(type)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid category type. Must be: product, service, or both'
+      });
+    }
+
+    // Check if another category with same name exists
+    const existingCategory = await Category.findOne({
+      _id: { $ne: req.params.id },
+      branchId: req.user.branchId,
+      name: { $regex: new RegExp(`^${name}$`, 'i') }
+    });
+
+    if (existingCategory) {
+      return res.status(400).json({
+        success: false,
+        error: 'A category with this name already exists'
+      });
+    }
+
+    const updatedCategory = await Category.findByIdAndUpdate(
+      req.params.id,
+      {
+        name: name.trim(),
+        type: type || 'both',
+        description: description || '',
+        isActive: isActive !== undefined ? isActive : true
+      },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedCategory) {
+      return res.status(404).json({
+        success: false,
+        error: 'Category not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      data: updatedCategory
+    });
+  } catch (error) {
+    console.error('Error updating category:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error'
+    });
+  }
+});
+
+// Delete a category
+app.delete('/api/categories/:id', authenticateToken, setupBusinessDatabase, requireAdmin, async (req, res) => {
+  try {
+    const { Category } = req.businessModels;
+    const deletedCategory = await Category.findByIdAndDelete(req.params.id);
+
+    if (!deletedCategory) {
+      return res.status(404).json({
+        success: false,
+        error: 'Category not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Category deleted successfully'
+    });
+  } catch (error) {
+    console.error('Error deleting category:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error'
+    });
+  }
+});
+
 // Update product stock
 app.patch('/api/products/:id/stock', authenticateToken, setupBusinessDatabase, requireStaff, async (req, res) => {
   try {
