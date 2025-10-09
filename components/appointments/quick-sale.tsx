@@ -552,10 +552,10 @@ export function QuickSale() {
 
   // Handle saving new customer
   const handleSaveNewCustomer = async () => {
-    if (!newCustomer.firstName || !newCustomer.lastName) {
+    if (!newCustomer.firstName) {
       toast({
         title: "Missing Information",
-        description: "Please provide both first and last name.",
+        description: "Please provide a first name.",
         variant: "destructive",
       })
       return
@@ -563,7 +563,7 @@ export function QuickSale() {
 
     const customer: Client = {
       id: Date.now().toString(),
-      name: `${newCustomer.firstName} ${newCustomer.lastName}`,
+      name: newCustomer.lastName ? `${newCustomer.firstName} ${newCustomer.lastName}` : newCustomer.firstName,
       phone: newCustomer.phone || customerSearch,
       email: newCustomer.email,
       totalVisits: 0,
@@ -1874,7 +1874,7 @@ export function QuickSale() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium text-gray-700">Last Name *</Label>
+                    <Label className="text-sm font-medium text-gray-700">Last Name</Label>
                     <Input
                       value={newCustomer.lastName}
                       onChange={(e) => setNewCustomer({ ...newCustomer, lastName: e.target.value })}
@@ -3265,7 +3265,7 @@ export function QuickSale() {
                     textTransform: 'uppercase',
                     letterSpacing: '0.5px'
                   }}>
-                    Last Name *
+                    Last Name
                   </label>
                   <input
                     type="text"

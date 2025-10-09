@@ -227,10 +227,10 @@ export function AppointmentForm() {
 
   // Handle saving new customer
   const handleSaveNewCustomer = async () => {
-    if (!newClient.firstName || !newClient.lastName) {
+    if (!newClient.firstName) {
       toast({
         title: "Missing Information",
-        description: "Please provide both first and last name.",
+        description: "Please provide a first name.",
         variant: "destructive",
       })
       return
@@ -239,7 +239,7 @@ export function AppointmentForm() {
     try {
              const newClientData = {
          id: `new-${Date.now()}`,
-         name: `${newClient.firstName} ${newClient.lastName}`,
+         name: newClient.lastName ? `${newClient.firstName} ${newClient.lastName}` : newClient.firstName,
          phone: newClient.phone || customerSearch,
          email: newClient.email,
          status: "active" as const,
@@ -905,12 +905,11 @@ export function AppointmentForm() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="lastName">Last Name *</Label>
+                <Label htmlFor="lastName">Last Name</Label>
                 <Input
                   id="lastName"
                   value={newClient.lastName}
                   onChange={(e) => setNewClient({ ...newClient, lastName: e.target.value })}
-                  required
                 />
               </div>
             </div>
