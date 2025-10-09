@@ -37,6 +37,13 @@ export function ProductsTable() {
 
   const canManageProducts = user?.role === "admin" || user?.role === "manager"
 
+  // Handle switching from add to edit mode
+  const handleSwitchToEdit = (product: any) => {
+    setSelectedProduct(product)
+    setIsAddDialogOpen(false)
+    setIsEditDialogOpen(true)
+  }
+
   const fetchProducts = async () => {
     try {
       const response = await ProductsAPI.getAll()
@@ -345,6 +352,7 @@ export function ProductsTable() {
                   <ProductForm 
                     onClose={() => setIsAddDialogOpen(false)} 
                     onProductUpdated={fetchProducts}
+                    onSwitchToEdit={handleSwitchToEdit}
                   />
                 </DialogContent>
               </Dialog>

@@ -1660,8 +1660,12 @@ app.post('/api/products', authenticateToken, setupBusinessDatabase, requireManag
 
 app.put('/api/products/:id', authenticateToken, setupBusinessDatabase, requireManager, async (req, res) => {
   try {
-    const { Product } = req.businessModels;
-    const { name, category, price, stock, sku, supplier, description, isActive, taxCategory, productType } = req.body;
+    console.log('🔍 PUT /api/products/:id - Product update request received');
+    console.log('🔍 Product ID:', req.params.id);
+    console.log('🔍 Request body:', req.body);
+    
+    const { Product, InventoryTransaction } = req.businessModels;
+    const { name, category, price, stock, sku, supplier, description, isActive, taxCategory, productType, transactionType } = req.body;
 
     // For service products, price is not required
     const isServiceProduct = productType === 'service';
@@ -1676,13 +1680,27 @@ app.put('/api/products/:id', authenticateToken, setupBusinessDatabase, requireMa
       });
     }
 
+    // Get current product to compare stock levels
+    const currentProduct = await Product.findById(req.params.id);
+    if (!currentProduct) {
+      return res.status(404).json({
+        success: false,
+        error: 'Product not found'
+      });
+    }
+
+    const previousStock = currentProduct.stock || 0;
+    const newStock = parseInt(stock);
+    const stockDifference = newStock - previousStock;
+
+    // Update the product
     const updatedProduct = await Product.findByIdAndUpdate(
       req.params.id,
       {
         name,
         category,
         price: isServiceProduct ? 0 : parseFloat(price), // Service products have price 0
-        stock: parseInt(stock),
+        stock: newStock,
         sku: sku || `SKU-${Date.now()}`,
         supplier,
         description,
@@ -1693,11 +1711,45 @@ app.put('/api/products/:id', authenticateToken, setupBusinessDatabase, requireMa
       { new: true }
     );
 
-    if (!updatedProduct) {
-      return res.status(404).json({
-        success: false,
-        error: 'Product not found'
-      });
+    // Create inventory transaction if stock changed
+    console.log('🔍 Stock difference:', stockDifference);
+    if (stockDifference !== 0) {
+      console.log('🔍 Creating inventory transaction...');
+      try {
+        const inventoryTransaction = new InventoryTransaction({
+          productId: req.params.id,
+          productName: updatedProduct.name,
+          transactionType: transactionType || (stockDifference > 0 ? 'purchase' : 'adjustment'),
+          quantity: stockDifference,
+          previousStock: previousStock,
+          newStock: newStock,
+          unitCost: parseFloat(price) || 0,
+          totalValue: Math.abs(stockDifference * (parseFloat(price) || 0)),
+          referenceType: 'product_edit',
+          referenceId: req.params.id,
+          referenceNumber: `EDIT-${Date.now()}`,
+          processedBy: req.user.firstName + ' ' + req.user.lastName || 'System',
+          reason: stockDifference > 0 ? 'Stock restocked via product edit' : 'Stock adjusted via product edit',
+          notes: `Stock updated from ${previousStock} to ${newStock} units`,
+          transactionDate: new Date()
+        });
+        
+        await inventoryTransaction.save();
+        console.log(`✅ Inventory transaction created for product ${updatedProduct.name}: ${stockDifference > 0 ? '+' : ''}${stockDifference} units`);
+        console.log('🔍 Inventory transaction details:', {
+          productId: req.params.id,
+          productName: updatedProduct.name,
+          transactionType: transactionType || (stockDifference > 0 ? 'purchase' : 'adjustment'),
+          quantity: stockDifference,
+          previousStock: previousStock,
+          newStock: newStock
+        });
+      } catch (inventoryError) {
+        console.error('❌ Error creating inventory transaction:', inventoryError);
+        // Don't fail the product update if inventory tracking fails
+      }
+    } else {
+      console.log('🔍 No stock change detected, skipping inventory transaction');
     }
 
     res.json({
@@ -2036,16 +2088,26 @@ app.get('/api/inventory/transactions', authenticateToken, setupBusinessDatabase,
       query.transactionDate = {};
       if (dateFrom) {
         query.transactionDate.$gte = new Date(dateFrom);
+        console.log('🔍 Date filter - From:', dateFrom, 'Parsed:', new Date(dateFrom));
       }
       if (dateTo) {
         query.transactionDate.$lte = new Date(dateTo);
+        console.log('🔍 Date filter - To:', dateTo, 'Parsed:', new Date(dateTo));
       }
+      console.log('🔍 Final date query:', query.transactionDate);
     }
 
+    console.log('🔍 Final query being executed:', JSON.stringify(query, null, 2));
+    
     const transactions = await InventoryTransaction.find(query)
       .sort({ transactionDate: -1 })
       .limit(parseInt(limit))
       .skip((parseInt(page) - 1) * parseInt(limit));
+
+    console.log('🔍 Found transactions:', transactions.length);
+    if (transactions.length > 0) {
+      console.log('🔍 First transaction date:', transactions[0].transactionDate);
+    }
 
     const total = await InventoryTransaction.countDocuments(query);
 

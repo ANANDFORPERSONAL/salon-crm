@@ -217,7 +217,11 @@ export class ProductsAPI {
   }
 
   static async update(id: string, data: any): Promise<ApiResponse<any>> {
+    console.log('🔍 ProductsAPI.update - Making PUT request to:', `/products/${id}`)
+    console.log('🔍 ProductsAPI.update - Full URL will be:', `${API_BASE_URL}/products/${id}`)
+    console.log('🔍 ProductsAPI.update - Data being sent:', data)
     const response = await apiClient.put(`/products/${id}`, data)
+    console.log('🔍 ProductsAPI.update - Response received:', response.status, response.data)
     return response.data
   }
 
