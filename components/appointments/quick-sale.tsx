@@ -42,6 +42,7 @@ import {
 import { Separator } from "@/components/ui/separator"
 import { useToast } from "@/components/ui/use-toast"
 import { ReceiptDialog } from "@/components/receipts/receipt-dialog"
+import { PaymentCollectionModal } from "@/components/reports/payment-collection-modal"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Switch } from "@/components/ui/switch"
@@ -202,6 +203,10 @@ export function QuickSale() {
   const [showNewCustomerDialog, setShowNewCustomerDialog] = useState(false)
   const [showBillActivityDialog, setShowBillActivityDialog] = useState(false)
   const [customerBills, setCustomerBills] = useState<any[]>([])
+  const [showDuesDialog, setShowDuesDialog] = useState(false)
+  const [unpaidBills, setUnpaidBills] = useState<any[]>([])
+  const [showDuesPaymentModal, setShowDuesPaymentModal] = useState(false)
+  const [selectedBillForPayment, setSelectedBillForPayment] = useState<any>(null)
   const [newCustomer, setNewCustomer] = useState({
     firstName: "",
     lastName: "",
@@ -689,6 +694,72 @@ export function QuickSale() {
     }
   }
 
+  // Fetch unpaid/partially paid bills for the customer
+  const fetchUnpaidBills = async (customerName: string) => {
+    try {
+      const salesResponse = await SalesAPI.getByClient(customerName)
+      if (salesResponse.success) {
+        const sales = salesResponse.data || []
+        
+        // Filter only unpaid or partially paid bills
+        const unpaid = sales.filter((sale: any) => {
+          const remainingAmount = sale.paymentStatus?.remainingAmount || 0
+          return remainingAmount > 0
+        }).map((sale: any) => ({
+          _id: sale._id || sale.id,
+          id: sale._id || sale.id,
+          billNo: sale.billNo,
+          date: sale.date,
+          time: sale.time || '00:00',
+          grossTotal: sale.grossTotal || sale.netTotal || 0,
+          totalAmount: sale.grossTotal || sale.netTotal || 0,
+          paidAmount: sale.paymentStatus?.paidAmount || 0,
+          remainingAmount: sale.paymentStatus?.remainingAmount || 0,
+          dueDate: sale.paymentStatus?.dueDate,
+          items: sale.items || [],
+          customerName: sale.customerName,
+          staffName: sale.staffName || 'Unassigned Staff',
+          status: sale.paymentStatus?.status || 'partial',
+          paymentStatus: sale.paymentStatus,
+          paymentHistory: sale.paymentHistory || []
+        }))
+        
+        setUnpaidBills(unpaid)
+      }
+    } catch (error) {
+      console.error('Error fetching unpaid bills:', error)
+      toast({
+        title: "Error",
+        description: "Failed to fetch unpaid bills. Please try again.",
+        variant: "destructive",
+      })
+    }
+  }
+
+  // Handle collect payment button click
+  const handleCollectPayment = (bill: any) => {
+    setSelectedBillForPayment(bill)
+    setShowDuesDialog(false) // Close dues dialog first
+    setShowDuesPaymentModal(true)
+  }
+
+  // Handle payment collected successfully
+  const handlePaymentCollected = async () => {
+    // Refresh unpaid bills list
+    if (selectedCustomer) {
+      await fetchUnpaidBills(selectedCustomer.name)
+      // Refresh customer stats to update dues amount
+      const customerId = getCustomerId(selectedCustomer)
+      if (customerId) {
+        await fetchCustomerStats(customerId)
+      }
+    }
+    // Close payment modal and reopen dues dialog
+    setShowDuesPaymentModal(false)
+    setSelectedBillForPayment(null)
+    setShowDuesDialog(true)
+  }
+
   // Fetch customer statistics including visits, revenue, and last visit
   const fetchCustomerStats = async (customerId: string) => {
     console.log('🔍 Fetching customer stats for ID:', customerId)
@@ -712,20 +783,71 @@ export function QuickSale() {
         const totalRevenue = sales.reduce((sum: number, sale: any) => sum + (sale.grossTotal || sale.netTotal || 0), 0)
         const lastVisit = sales.length > 0 ? sales[0]?.date : null // Sales are sorted by date desc, so first is most recent
         
-        console.log('📈 Calculated stats from sales:', { totalVisits, totalRevenue, lastVisit, salesCount: sales.length })
+        // Calculate total dues (unpaid + partially paid)
+        const totalDues = sales.reduce((sum: number, sale: any) => {
+          const remainingAmount = sale.paymentStatus?.remainingAmount || 0
+          
+          // Count any sale with remaining amount > 0
+          if (remainingAmount > 0) {
+            return sum + remainingAmount
+          }
+          return sum
+        }, 0)
         
         // Update the customer object with real statistics
         setSelectedCustomer(prev => prev ? {
           ...prev,
           totalVisits,
           totalSpent: totalRevenue,
-          lastVisit
+          lastVisit,
+          totalDues
         } : null)
       } else {
         console.error('❌ Failed to fetch sales data:', salesResponse.error)
       }
     } catch (error) {
       console.error('❌ Error fetching customer statistics:', error)
+    }
+  }
+
+  // Fetch customer bills for Bill Activity dialog
+  const fetchCustomerBills = async (customerName: string) => {
+    console.log('🔍 fetchCustomerBills called with:', customerName)
+    try {
+      console.log('🔍 Calling SalesAPI.getByClient...')
+      const salesResponse = await SalesAPI.getByClient(customerName)
+      console.log('📊 Customer bills API response:', salesResponse)
+      
+      if (salesResponse.success) {
+        const sales = salesResponse.data || []
+        console.log('📊 Sales data received:', sales)
+        console.log('📊 Sales response full data:', salesResponse.data)
+        console.log('📊 Sales array length:', sales.length)
+        
+        // Transform sales data to match the expected bill format
+        const bills = sales.map((sale: any) => ({
+          id: sale._id || sale.id,
+          receiptNumber: sale.billNo,
+          date: sale.date,
+          time: sale.time || '00:00',
+          total: sale.grossTotal || sale.netTotal || 0,
+          payments: sale.payments || [{ type: sale.paymentMode?.toLowerCase() || 'cash', amount: sale.grossTotal || sale.netTotal || 0 }],
+          items: sale.items || [],
+          notes: sale.notes || '',
+          clientName: sale.customerName,
+          staffName: sale.staffName || 'Unassigned Staff'
+        }))
+        
+        console.log('📋 Transformed bills:', bills)
+        setCustomerBills(bills)
+        console.log('📋 Customer bills state updated')
+      } else {
+        console.error('❌ Failed to fetch customer bills:', salesResponse.error)
+        setCustomerBills([])
+      }
+    } catch (error) {
+      console.error('❌ Error fetching customer bills:', error)
+      setCustomerBills([])
     }
   }
 
@@ -1132,7 +1254,7 @@ export function QuickSale() {
   const productTotal = productItems.reduce((sum, item) => sum + item.total, 0)
   const subtotal = serviceTotal + productTotal
   const totalDiscount = discountValue + (subtotal * discountPercentage) / 100
-
+  
   // Calculate tax breakdown for billing summary
   // Tax should be calculated on the discounted amount, not original price
   
@@ -1522,7 +1644,7 @@ export function QuickSale() {
       let taxBreakdown = { cgst: 0, sgst: 0, igst: 0 }
 
       // Calculate tax breakdown from individual items
-      const serviceTax = serviceItems.reduce((sum, item) => {
+        const serviceTax = serviceItems.reduce((sum, item) => {
         const baseAmount = item.price * item.quantity
         const discountAmount = (baseAmount * item.discount) / 100
         const discountedAmount = baseAmount - discountAmount
@@ -1537,8 +1659,8 @@ export function QuickSale() {
         const discountedAmount = baseAmount - discountAmount
         const product = products.find((p) => p._id === item.productId || p.id === item.productId)
         let productTaxRate = 18 // default standard rate
-        if (product?.taxCategory && taxSettings) {
-          switch (product.taxCategory) {
+          if (product?.taxCategory && taxSettings) {
+            switch (product.taxCategory) {
             case 'essential': productTaxRate = taxSettings.essentialProductRate || 5; break
             case 'intermediate': productTaxRate = taxSettings.intermediateProductRate || 12; break
             case 'standard': productTaxRate = taxSettings.standardProductRate || 18; break
@@ -1551,11 +1673,11 @@ export function QuickSale() {
       }, 0)
 
       calculatedTax = serviceTax + productTax
-      taxBreakdown = {
-        cgst: calculatedTax / 2,
-        sgst: calculatedTax / 2,
-        igst: 0
-      }
+        taxBreakdown = {
+          cgst: calculatedTax / 2,
+          sgst: calculatedTax / 2,
+          igst: 0
+        }
 
       // Update receipt items with tax information
       receiptItems.forEach((item) => {
@@ -1998,7 +2120,7 @@ export function QuickSale() {
                     )}
                   </div>
 
-                  <div className="grid grid-cols-3 gap-4 pt-2">
+                  <div className={`grid ${(selectedCustomer.totalDues || 0) > 0 ? 'grid-cols-4' : 'grid-cols-3'} gap-4 pt-2`}>
                     <div className="text-center">
                       <div className="flex items-center justify-center gap-1 text-sm text-muted-foreground mb-1">
                         <Calendar className="h-3 w-3" />
@@ -2020,17 +2142,52 @@ export function QuickSale() {
                       </div>
                       <div className="font-semibold text-xs">{formatDate(selectedCustomer.lastVisit || "")}</div>
                     </div>
+                    {(selectedCustomer.totalDues || 0) > 0 && (
+                      <div 
+                        className="text-center cursor-pointer hover:bg-red-50 rounded-lg p-2 transition-all duration-200"
+                        onClick={async () => {
+                          if (selectedCustomer) {
+                            await fetchUnpaidBills(selectedCustomer.name)
+                            setShowDuesDialog(true)
+                          }
+                        }}
+                      >
+                        <div className="flex items-center justify-center gap-1 text-sm text-red-600 mb-1">
+                          <CreditCard className="h-3 w-3" />
+                          Dues
+                        </div>
+                        <div className="font-semibold text-red-600">{formatCurrency(selectedCustomer.totalDues || 0)}</div>
+                      </div>
+                    )}
                   </div>
 
+                   <div className="flex gap-2">
                   <Button
                     variant="outline"
                     size="sm"
-                    className="w-full mt-3 bg-transparent"
-                    onClick={() => setShowBillActivityDialog(true)}
+                       className="flex-1 bg-transparent"
+                       onClick={async () => {
+                         if (selectedCustomer) {
+                           await fetchCustomerBills(selectedCustomer.name)
+                           setShowBillActivityDialog(true)
+                         }
+                       }}
                   >
                     <Eye className="h-4 w-4 mr-2" />
                     Bill Activity
                   </Button>
+                     <Button
+                       variant="outline"
+                       size="sm"
+                       className="px-2 bg-red-100 text-red-600"
+                       onClick={() => {
+                         console.log('🔍 TEST: Force opening dialog')
+                         setShowBillActivityDialog(true)
+                       }}
+                     >
+                       TEST
+                  </Button>
+                   </div>
                 </div>
               )}
             </CardContent>
@@ -2222,76 +2379,9 @@ export function QuickSale() {
           </div>
         )}
 
-        {/* Bill Activity Dialog */}
-        <Dialog open={showBillActivityDialog} onOpenChange={setShowBillActivityDialog}>
-          <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto border-gray-200 shadow-2xl">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2 text-xl font-bold text-gray-800">
-                <Receipt className="h-5 w-5 text-indigo-600" />
-                Bill Activity - {selectedCustomer?.name}
-              </DialogTitle>
-              <DialogDescription className="text-gray-600">View all previous bills and transactions for this customer.</DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4">
-              {customerBills.length > 0 ? (
-                <div className="space-y-3">
-                  {customerBills.map((bill) => (
-                    <Card 
-                      key={bill.id} 
-                      className="p-4 cursor-pointer hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 transition-all duration-200 border-gray-200 hover:border-indigo-200 hover:shadow-md"
-                      onClick={() => handleViewBillDetails(bill)}
-                    >
-                      <div className="flex items-center justify-between mb-3">
-                        <div>
-                          <h4 className="font-semibold text-gray-800">Receipt #{bill.receiptNumber}</h4>
-                          <p className="text-sm text-gray-600">
-                            {format(new Date(bill.date), "dd MMM yyyy")} at {bill.time}
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-xl font-bold text-indigo-600">₹{bill.total.toFixed(2)}</p>
-                          <p className="text-sm text-gray-600">{bill.payments.map((p: any) => p.type).join(", ")}</p>
-                        </div>
-                      </div>
-                      <div className="space-y-2">
-                        <h5 className="text-sm font-medium text-gray-700">Items:</h5>
-                        <div className="space-y-1">
-                          {bill.items.map((item: any, index: number) => (
-                            <div key={item.id || index} className="flex justify-between text-sm">
-                              <span>
-                                {item.name} x{item.quantity}
-                                {item.staffName && <span className="text-gray-500"> by {item.staffName}</span>}
-                              </span>
-                              <span className="font-medium">₹{item.total.toFixed(2)}</span>
-                            </div>
-                          ))}
-                        </div>
-                        {bill.notes && (
-                          <div className="mt-2 pt-2 border-t border-gray-100">
-                            <p className="text-sm text-gray-600">
-                              <strong>Notes:</strong> {bill.notes}
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    </Card>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8">
-                  <Receipt className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-                  <h3 className="text-lg font-medium text-gray-700 mb-2">No Bills Found</h3>
-                  <p className="text-gray-500">This customer doesn&apos;t have any previous bills or transactions.</p>
-                </div>
-              )}
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setShowBillActivityDialog(false)} className="border-gray-200 text-gray-700 hover:bg-gray-50">
-                Close
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+
+        
+        
 
         {/* Bill Details Dialog */}
         <Dialog open={showBillDetailsDialog} onOpenChange={setShowBillDetailsDialog}>
@@ -2511,7 +2601,7 @@ export function QuickSale() {
                     </Badge>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-4 mb-4">
+                  <div className={`grid ${(selectedCustomer.totalDues || 0) > 0 ? 'grid-cols-4' : 'grid-cols-3'} gap-4 mb-4`}>
                     <div className="text-center p-3 bg-white/60 rounded-lg border border-white/50">
                       <div className="flex items-center justify-center gap-2 mb-2">
                         <CalendarDays className="h-4 w-4 text-indigo-600" />
@@ -2535,6 +2625,23 @@ export function QuickSale() {
                         {selectedCustomer.lastVisit ? format(new Date(selectedCustomer.lastVisit), "dd MMM") : "Never"}
                       </p>
                     </div>
+                    {(selectedCustomer.totalDues || 0) > 0 && (
+                      <div 
+                        className="text-center p-3 bg-red-50/80 rounded-lg border border-red-200/50 cursor-pointer hover:bg-red-100/80 hover:border-red-300 transition-all duration-200"
+                        onClick={async () => {
+                          if (selectedCustomer) {
+                            await fetchUnpaidBills(selectedCustomer.name)
+                            setShowDuesDialog(true)
+                          }
+                        }}
+                      >
+                        <div className="flex items-center justify-center gap-2 mb-2">
+                          <CreditCard className="h-4 w-4 text-red-600" />
+                          <span className="text-xs font-medium text-red-700">Dues</span>
+                        </div>
+                        <p className="text-lg font-bold text-red-700">₹{Number(selectedCustomer.totalDues || 0).toFixed(2)}</p>
+                      </div>
+                    )}
                   </div>
 
                   <Button
@@ -3071,10 +3178,10 @@ export function QuickSale() {
               {/* Service Tax Breakdown */}
               {serviceTax > 0 && (
                 <>
-                  <div className="flex justify-between items-center py-1">
+                <div className="flex justify-between items-center py-1">
                     <span className="text-sm text-gray-600">CGST</span>
                     <span className="text-sm font-medium text-gray-900">{formatCurrency(serviceCGST)}</span>
-                  </div>
+                </div>
                   <div className="flex justify-between items-center py-1">
                     <span className="text-sm text-gray-600">SGST</span>
                     <span className="text-sm font-medium text-gray-900">{formatCurrency(serviceSGST)}</span>
@@ -3092,7 +3199,7 @@ export function QuickSale() {
                   <div className="flex justify-between items-center py-1">
                     <span className="text-sm text-gray-600">SGST</span>
                     <span className="text-sm font-medium text-gray-900">{formatCurrency(productSGST)}</span>
-                  </div>
+                          </div>
                 </>
               )}
               
@@ -3798,6 +3905,146 @@ export function QuickSale() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      
+      {/* Payment Collection Modal for Dues */}
+      <PaymentCollectionModal
+        isOpen={showDuesPaymentModal}
+        onClose={() => {
+          setShowDuesPaymentModal(false)
+          setSelectedBillForPayment(null)
+          setShowDuesDialog(true) // Reopen dues dialog when payment modal is closed
+        }}
+        sale={selectedBillForPayment}
+        onPaymentCollected={handlePaymentCollected}
+      />
+      
+      {/* Dues Settlement Dialog - Rendered at root level */}
+      {showDuesDialog && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center" style={{ zIndex: 99999 }}>
+          <div className="bg-white p-6 rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[80vh] overflow-y-auto" style={{ zIndex: 100000 }}>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-2xl font-bold text-gray-800">Settle Dues - {selectedCustomer?.name}</h2>
+              <Button 
+                onClick={() => setShowDuesDialog(false)}
+                variant="outline"
+                size="sm"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+            
+            {unpaidBills.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                <CreditCard className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                <p>No pending bills found</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <CreditCard className="h-5 w-5 text-red-600" />
+                      <span className="font-semibold text-red-900">Total Outstanding</span>
+                    </div>
+                    <span className="text-2xl font-bold text-red-600">
+                      ₹{unpaidBills.reduce((sum, bill) => sum + bill.remainingAmount, 0).toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+                
+                {unpaidBills.map((bill) => (
+                  <div key={bill.id} className="border rounded-lg p-4 hover:bg-gray-50">
+                    <div className="flex justify-between items-start mb-3">
+                      <div>
+                        <h3 className="font-semibold text-lg text-gray-800">Bill #{bill.billNo}</h3>
+                        <p className="text-sm text-gray-600">
+                          {format(new Date(bill.date), "dd MMM yyyy")} at {bill.time}
+                        </p>
+                        <p className="text-sm text-gray-600">Staff: {bill.staffName}</p>
+                      </div>
+                      <Badge variant="destructive">Partial</Badge>
+                    </div>
+                    
+                    <div className="grid grid-cols-3 gap-4 mb-3 p-3 bg-gray-50 rounded-lg">
+                      <div>
+                        <p className="text-xs text-gray-600">Total Amount</p>
+                        <p className="text-lg font-semibold text-gray-900">₹{bill.totalAmount.toFixed(2)}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-600">Paid Amount</p>
+                        <p className="text-lg font-semibold text-green-600">₹{bill.paidAmount.toFixed(2)}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-600">Remaining</p>
+                        <p className="text-lg font-bold text-red-600">₹{bill.remainingAmount.toFixed(2)}</p>
+                      </div>
+                    </div>
+                    
+                    <Button
+                      className="w-full bg-green-600 hover:bg-green-700 text-white"
+                      onClick={() => handleCollectPayment(bill)}
+                    >
+                      <CreditCard className="h-4 w-4 mr-2" />
+                      Collect Payment
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+      
+      {/* Bill Activity Dialog - Rendered at root level */}
+      {showBillActivityDialog && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center" style={{ zIndex: 99999 }}>
+          <div className="bg-white p-6 rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[80vh] overflow-y-auto" style={{ zIndex: 100000 }}>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-2xl font-bold text-gray-800">Bill Activity - {selectedCustomer?.name}</h2>
+              <Button 
+                onClick={() => setShowBillActivityDialog(false)}
+                variant="outline"
+                size="sm"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+            
+            {customerBills.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                <Receipt className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                <p>No bills found for this customer</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {customerBills.map((bill) => (
+                  <div key={bill.id} className="border rounded-lg p-4 hover:bg-gray-50">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h3 className="font-semibold text-lg">Bill #{bill.receiptNumber}</h3>
+                        <p className="text-sm text-gray-600">
+                          {bill.date} at {bill.time}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          Staff: {bill.staffName}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-lg font-bold text-green-600">
+                          ₹{bill.total.toFixed(2)}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          {bill.payments?.[0]?.type || 'Cash'}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
