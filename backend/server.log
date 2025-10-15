@@ -9781,3 +9781,65 @@ Total revenue: 0
 🔍 Business settings request for user: admin@elegant.com branchId: new ObjectId('68db3d367d2a8df8f4023d6e')
 ✅ Business settings found: Elegant Beauty Lounge
 ::1 - - [12/Oct/2025:14:26:21 +0000] "GET /api/settings/business HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming POST /api/auth/logout
+🔍 AuthenticateToken middleware called
+🔍 No token found in request
+::1 - - [12/Oct/2025:14:27:36 +0000] "POST /api/auth/logout HTTP/1.1" 401 49 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+[2025-10-12T20:39:27.324Z] [PID: 20997] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Mon Oct 13 2025 02:00:00 GMT+0530 (India Standard Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+📥 Incoming POST /api/auth/logout
+🔍 AuthenticateToken middleware called
+🔍 No token found in request
+::1 - - [13/Oct/2025:06:38:06 +0000] "POST /api/auth/logout HTTP/1.1" 401 49 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming POST /api/auth/logout
+🔍 AuthenticateToken middleware called
+🔍 No token found in request
+::1 - - [13/Oct/2025:06:38:06 +0000] "POST /api/auth/logout HTTP/1.1" 401 49 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming POST /api/auth/logout
+🔍 AuthenticateToken middleware called
+🔍 No token found in request
+::1 - - [13/Oct/2025:06:38:56 +0000] "POST /api/auth/logout HTTP/1.1" 401 49 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming POST /api/auth/logout
+🔍 AuthenticateToken middleware called
+🔍 No token found in request
+::1 - - [13/Oct/2025:09:38:58 +0000] "POST /api/auth/logout HTTP/1.1" 401 49 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming POST /api/auth/logout
+🔍 AuthenticateToken middleware called
+🔍 No token found in request
+::1 - - [13/Oct/2025:10:57:21 +0000] "POST /api/auth/logout HTTP/1.1" 401 49 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming POST /api/auth/logout
+🔍 AuthenticateToken middleware called
+🔍 No token found in request
+::1 - - [13/Oct/2025:12:39:00 +0000] "POST /api/auth/logout HTTP/1.1" 401 49 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming POST /api/auth/logout
+🔍 AuthenticateToken middleware called
+🔍 No token found in request
+::1 - - [13/Oct/2025:13:57:23 +0000] "POST /api/auth/logout HTTP/1.1" 401 49 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming POST /api/auth/logout
+🔍 AuthenticateToken middleware called
+🔍 No token found in request
+::1 - - [13/Oct/2025:15:39:02 +0000] "POST /api/auth/logout HTTP/1.1" 401 49 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming POST /api/auth/logout
+🔍 AuthenticateToken middleware called
+🔍 No token found in request
+::1 - - [13/Oct/2025:16:57:25 +0000] "POST /api/auth/logout HTTP/1.1" 401 49 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming POST /api/auth/logout
+🔍 AuthenticateToken middleware called
+🔍 No token found in request
+::1 - - [13/Oct/2025:18:39:04 +0000] "POST /api/auth/logout HTTP/1.1" 401 49 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming POST /api/auth/logout
+🔍 AuthenticateToken middleware called
+🔍 No token found in request
+::1 - - [13/Oct/2025:19:57:27 +0000] "POST /api/auth/logout HTTP/1.1" 401 49 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+🕐 Running daily inactivity check...
+🔍 Checking for inactive businesses...
+❌ Failed to connect to main database: MongooseError: Can't call `openUri()` on an active connection with different connection strings. Make sure you aren't calling `mongoose.connect()` multiple times. See: https://mongoosejs.com/docs/connections.html#multiple_connections
+    at NativeConnection.createClient (/Users/shubhamanand/salon-crm/backend/node_modules/mongoose/lib/drivers/node-mongodb-native/connection.js:251:13)
+    at NativeConnection.openUri (/Users/shubhamanand/salon-crm/backend/node_modules/mongoose/lib/connection.js:1071:34)
+    at Mongoose.connect (/Users/shubhamanand/salon-crm/backend/node_modules/mongoose/lib/mongoose.js:450:15)
+    at connectToMainDatabase (/Users/shubhamanand/salon-crm/backend/inactivity-checker.js:7:20)
+    at checkInactiveBusinesses (/Users/shubhamanand/salon-crm/backend/inactivity-checker.js:24:11)
+    at cron.schedule.scheduled (/Users/shubhamanand/salon-crm/backend/server.js:4584:11)
+    at Runner.onMatch (/Users/shubhamanand/salon-crm/backend/node_modules/node-cron/dist/cjs/tasks/inline-scheduled-task.js:69:20)
+    at Timeout._onTimeout (/Users/shubhamanand/salon-crm/backend/node_modules/node-cron/dist/cjs/scheduler/runner.js:70:55)
+    at listOnTimeout (node:internal/timers:608:17)
+    at process.processTimers (node:internal/timers:543:7)

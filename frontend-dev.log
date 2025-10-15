@@ -4,99 +4,27 @@
 
    ▲ Next.js 15.2.4
    - Local:        http://localhost:3000
-   - Network:      http://192.168.29.101:3000
+   - Network:      http://192.168.29.207:3000
    - Environments: .env.local
 
  ✓ Starting...
- ✓ Ready in 1897ms
+ ✓ Ready in 1337ms
  ○ Compiling / ...
- ✓ Compiled / in 2.8s (3288 modules)
- GET / 200 in 3119ms
- ✓ Compiled in 449ms (1551 modules)
- GET / 200 in 49ms
- ○ Compiling /login ...
- ✓ Compiled /login in 1041ms (3431 modules)
- GET /login 200 in 1136ms
- GET / 200 in 53ms
- GET / 200 in 16ms
+ ✓ Compiled / in 2.5s (3288 modules)
+ GET / 200 in 2762ms
+ ✓ Compiled in 315ms (1551 modules)
+ GET / 200 in 134ms
  ○ Compiling /quick-sale ...
- ✓ Compiled /quick-sale in 1107ms (3498 modules)
- GET /quick-sale 200 in 1183ms
- ✓ Compiled in 1154ms (3512 modules)
- GET /quick-sale 200 in 65ms
- ✓ Compiled in 1554ms (3518 modules)
- GET /quick-sale 200 in 120ms
- ✓ Compiled in 1162ms (3512 modules)
- GET /quick-sale 200 in 114ms
- ✓ Compiled in 641ms (3512 modules)
- GET /quick-sale 200 in 52ms
-🔍 ClientStore: Loading clients from API...
-(node:21104) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
-(Use `node --trace-deprecation ...` to show where the warning was created)
- GET /quick-sale 200 in 200ms
-❌ API Response Interceptor: Error response: {
-  url: '/clients',
-  status: 401,
-  method: 'get',
-  data: { success: false, error: 'Access token required' },
-  message: 'Request failed with status code 401'
-}
-🔐 API Response Interceptor: Unauthorized, clearing auth data
-❌ ClientStore: Error loading clients: Error [AxiosError]: Request failed with status code 401
-    at async ClientsAPI.getAll (lib/api.ts:146:21)
-    at async ClientStore.loadClients (lib/client-store.ts:40:23)
-  144 | export class ClientsAPI {
-  145 |   static async getAll(params?: { page?: number; limit?: number; search?: string }): Promise<PaginatedResponse<any>> {
-> 146 |     const response = await apiClient.get('/clients', { params })
-      |                     ^
-  147 |     return response.data
-  148 |   }
-  149 | {
-  code: 'ERR_BAD_REQUEST',
-  config: [Object],
-  request: [ClientRequest],
-  response: [Object],
-  status: 401,
-  constructor: [Function],
-  toJSON: [Function: toJSON]
-}
-API not available, no fallback in production
- ✓ Compiled in 996ms (3512 modules)
- GET /quick-sale 200 in 55ms
- ✓ Compiled in 864ms (3512 modules)
- GET /quick-sale 200 in 51ms
- ✓ Compiled in 850ms (3512 modules)
- GET /quick-sale 200 in 64ms
- ✓ Compiled in 483ms (3512 modules)
- GET /quick-sale 200 in 44ms
- ○ Compiling /reports ...
- ✓ Compiled /reports in 1510ms (3948 modules)
- GET /reports 200 in 1642ms
- ✓ Compiled /reports/unpaid-bills in 361ms (3957 modules)
- GET /reports/unpaid-bills 200 in 409ms
- GET /reports 200 in 29ms
- ○ Compiling /cash-registry ...
- ✓ Compiled /cash-registry in 1578ms (3976 modules)
- GET /cash-registry 200 in 1670ms
- GET /reports 200 in 46ms
- ✓ Compiled in 3.7s (3913 modules)
- GET /reports 200 in 156ms
- ✓ Compiled /login in 368ms (2098 modules)
- GET /login 200 in 553ms
- GET /login 200 in 97ms
- GET /login 200 in 46ms
- GET / 200 in 102ms
- GET / 200 in 15ms
- GET /quick-sale 200 in 43ms
- ○ Compiling /appointments ...
- ✓ Compiled /appointments in 1370ms (3376 modules)
- GET /appointments 200 in 1462ms
- ✓ Compiled / in 201ms (2110 modules)
- GET / 200 in 293ms
- GET /appointments 200 in 24ms
- ○ Compiling /appointments/new ...
- ✓ Compiled /appointments/new in 820ms (4009 modules)
- GET /appointments/new 200 in 865ms
+ ✓ Compiled /quick-sale in 1426ms (3347 modules)
+ GET /quick-sale 200 in 1516ms
+ ○ Compiling /clients ...
+ ✓ Compiled /clients in 1073ms (3121 modules)
+ GET /clients 200 in 1164ms
+ ✓ Compiled /services in 476ms (3164 modules)
+ GET /services 200 in 537ms
+ ○ Compiling /products ...
+ ✓ Compiled /products in 863ms (3171 modules)
+ GET /products 200 in 924ms
  ○ Compiling /settings ...
- ✓ Compiled /settings in 1175ms (4111 modules)
- GET /settings 200 in 1262ms
+ ✓ Compiled /settings in 1203ms (3175 modules)
+ GET /settings 200 in 1274ms

@@ -199,6 +199,8 @@ export function QuickSale() {
   // Search states for service items dropdown
   const [serviceDropdownSearch, setServiceDropdownSearch] = useState("")
   const [productDropdownSearch, setProductDropdownSearch] = useState("")
+  const [activeServiceDropdown, setActiveServiceDropdown] = useState<string | null>(null)
+  const [activeProductDropdown, setActiveProductDropdown] = useState<string | null>(null)
   const [isProcessing, setIsProcessing] = useState(false)
   const [showNewCustomerDialog, setShowNewCustomerDialog] = useState(false)
   const [showBillActivityDialog, setShowBillActivityDialog] = useState(false)
@@ -2737,11 +2739,17 @@ export function QuickSale() {
                             value={serviceDropdownSearch}
                             onChange={(e) => setServiceDropdownSearch(e.target.value)}
                             className="h-8 pl-7 pr-8 text-sm"
-                            onFocus={(e) => e.target.select()}
+                            onFocus={(e) => {
+                              e.target.select()
+                              setActiveServiceDropdown(item.id)
+                            }}
                           />
                           {serviceDropdownSearch && (
                             <button
-                              onClick={() => setServiceDropdownSearch("")}
+                              onClick={() => {
+                                setServiceDropdownSearch("")
+                                setActiveServiceDropdown(null)
+                              }}
                               className="absolute right-2 top-1/2 transform -translate-y-1/2 h-3 w-3 text-muted-foreground hover:text-foreground"
                             >
                               ×
@@ -2749,7 +2757,7 @@ export function QuickSale() {
                           )}
                         </div>
                       )}
-                      {serviceDropdownSearch && (
+                      {serviceDropdownSearch && activeServiceDropdown === item.id && (
                         <div className="absolute top-full left-0 right-0 z-[9999] mt-1 bg-white border border-gray-200 rounded-md shadow-lg" style={{ maxHeight: 'none', overflow: 'visible' }}>
                           {loadingServices ? (
                             <div className="p-2 text-center text-sm text-muted-foreground">Loading services...</div>
@@ -2767,6 +2775,7 @@ export function QuickSale() {
                                     onClick={() => {
                                       updateServiceItem(item.id, "serviceId", service._id || service.id)
                                       setServiceDropdownSearch("")
+                                      setActiveServiceDropdown(null)
                                     }}
                                   >
                                     <div className="font-medium">{service.name}</div>
@@ -2909,11 +2918,17 @@ export function QuickSale() {
                               value={productDropdownSearch}
                               onChange={(e) => setProductDropdownSearch(e.target.value)}
                               className="h-8 pl-7 pr-8 text-sm"
-                              onFocus={(e) => e.target.select()}
+                              onFocus={(e) => {
+                                e.target.select()
+                                setActiveProductDropdown(item.id)
+                              }}
                             />
                             {productDropdownSearch && (
                               <button
-                                onClick={() => setProductDropdownSearch("")}
+                                onClick={() => {
+                                  setProductDropdownSearch("")
+                                  setActiveProductDropdown(null)
+                                }}
                                 className="absolute right-2 top-1/2 transform -translate-y-1/2 h-3 w-3 text-muted-foreground hover:text-foreground"
                               >
                                 ×
@@ -2921,7 +2936,7 @@ export function QuickSale() {
                             )}
                           </div>
                         )}
-                        {productDropdownSearch && (
+                        {productDropdownSearch && activeProductDropdown === item.id && (
                           <div className="absolute top-full left-0 right-0 z-[9999] mt-1 bg-white border border-gray-200 rounded-md shadow-lg" style={{ maxHeight: 'none', overflow: 'visible' }}>
                             {loadingProducts ? (
                               <div className="p-2 text-center text-sm text-muted-foreground">Loading products...</div>
@@ -2939,6 +2954,7 @@ export function QuickSale() {
                                       onClick={() => {
                                         updateProductItem(item.id, "productId", product._id || product.id)
                                         setProductDropdownSearch("")
+                                        setActiveProductDropdown(null)
                                       }}
                                     >
                                       <div className="font-medium">{product.name}</div>

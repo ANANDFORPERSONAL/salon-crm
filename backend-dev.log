@@ -1,0 +1,4600 @@
+
+> salon-crm-backend@1.0.0 dev
+> nodemon server.js
+
+[33m[nodemon] 3.1.10[39m
+[33m[nodemon] to restart at any time, enter `rs`[39m
+[33m[nodemon] watching path(s): *.*[39m
+[33m[nodemon] watching extensions: js,mjs,cjs,json[39m
+[32m[nodemon] starting `node server.js`[39m
+🚀 Starting Salon CRM Backend Server...
+🌍 Environment: development
+🔗 CORS Origins: [ 'http://localhost:3000', 'http://127.0.0.1:3000' ]
+🗄️ MongoDB URI: Not set
+🔑 JWT Secret: Not set
+(node:61496) [MONGOOSE] Warning: Duplicate schema index on {"phone":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:61496) [MONGODB DRIVER] Warning: useNewUrlParser is a deprecated option: useNewUrlParser has no effect since Node.js Driver version 4.0.0 and will be removed in the next major version
+(node:61496) [MONGODB DRIVER] Warning: useUnifiedTopology is a deprecated option: useUnifiedTopology has no effect since Node.js Driver version 4.0.0 and will be removed in the next major version
+🚀 Salon CRM Backend running on port 3001
+📊 Health check: http://localhost:3001/api/health
+🔐 API Base: http://localhost:3001/api
+MongoDB Connected: localhost
+⏰ Inactivity checker scheduled to run daily at 2 AM IST
+📥 Incoming POST /api/auth/login
+🔗 Connecting to main database: salon_crm_main
+(node:61496) [MONGODB DRIVER] Warning: useNewUrlParser is a deprecated option: useNewUrlParser has no effect since Node.js Driver version 4.0.0 and will be removed in the next major version
+(node:61496) [MONGODB DRIVER] Warning: useUnifiedTopology is a deprecated option: useUnifiedTopology has no effect since Node.js Driver version 4.0.0 and will be removed in the next major version
+✅ Connected to main database: salon_crm_main
+::1 - - [15/Oct/2025:20:34:31 +0000] "POST /api/auth/login HTTP/1.1" 200 2545881 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming GET /api/settings/business
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+📥 Incoming GET /api/services
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+📥 Incoming GET /api/sales
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+📥 Incoming GET /api/reports/dashboard
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+📥 Incoming GET /api/appointments
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+📥 Incoming GET /api/appointments
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔗 Connecting to database: salon_crm_68db3d367d2a8df8f4023d6e
+✅ Connected to business database: salon_crm_68db3d367d2a8df8f4023d6e
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+🔍 Business settings request for user: admin@elegant.com branchId: new ObjectId('68db3d367d2a8df8f4023d6e')
+(node:61496) [MONGODB DRIVER] Warning: useNewUrlParser is a deprecated option: useNewUrlParser has no effect since Node.js Driver version 4.0.0 and will be removed in the next major version
+(node:61496) [MONGODB DRIVER] Warning: useUnifiedTopology is a deprecated option: useUnifiedTopology has no effect since Node.js Driver version 4.0.0 and will be removed in the next major version
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+🔍 Dashboard stats request for user: admin@elegant.com branchId: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+🔍 Sales request for user: admin@elegant.com branchId: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+🔍 Services request for user: admin@elegant.com branchId: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+✅ Business settings found: Elegant Beauty Lounge
+::1 - - [15/Oct/2025:20:34:34 +0000] "GET /api/settings/business HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+✅ Sales found: 35
+::1 - - [15/Oct/2025:20:34:34 +0000] "GET /api/sales HTTP/1.1" 200 34930 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+Total services: 5
+📥 Incoming GET /api/products
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+📥 Incoming GET /api/settings/payment
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+::1 - - [15/Oct/2025:20:34:34 +0000] "GET /api/appointments?limit=200&date=2025-10-16 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+🔍 Products request for user: admin@elegant.com branchId: new ObjectId('68db3d367d2a8df8f4023d6e')
+Total products: 6
+✅ Services found: 5
+::1 - - [15/Oct/2025:20:34:34 +0000] "GET /api/services HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+📥 Incoming GET /api/appointments
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+📥 Incoming GET /api/settings/business
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+::1 - - [15/Oct/2025:20:34:34 +0000] "GET /api/settings/payment HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+::1 - - [15/Oct/2025:20:34:34 +0000] "GET /api/appointments?limit=5 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+Total staff: 1
+✅ Products found: 6
+::1 - - [15/Oct/2025:20:34:34 +0000] "GET /api/products HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+🔍 Business settings request for user: admin@elegant.com branchId: new ObjectId('68db3d367d2a8df8f4023d6e')
+📥 Incoming GET /api/sales
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+📥 Incoming GET /api/appointments
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+Total clients: 4
+✅ Business settings found: Elegant Beauty Lounge
+::1 - - [15/Oct/2025:20:34:34 +0000] "GET /api/settings/business HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming GET /api/services
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+Total appointments: 2
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+🔍 Sales request for user: admin@elegant.com branchId: new ObjectId('68db3d367d2a8df8f4023d6e')
+::1 - - [15/Oct/2025:20:34:34 +0000] "GET /api/appointments?limit=500 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming GET /api/settings/payment
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+Total receipts: 0
+✅ Sales found: 35
+::1 - - [15/Oct/2025:20:34:34 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+📥 Incoming GET /api/appointments
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+Total revenue: 0
+✅ Dashboard stats calculated for business: new ObjectId('68db3d367d2a8df8f4023d6e')
+::1 - - [15/Oct/2025:20:34:34 +0000] "GET /api/reports/dashboard HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+🔍 Services request for user: admin@elegant.com branchId: new ObjectId('68db3d367d2a8df8f4023d6e')
+📥 Incoming GET /api/products
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+::1 - - [15/Oct/2025:20:34:34 +0000] "GET /api/appointments?limit=200&date=2025-10-16 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+📥 Incoming GET /api/appointments
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+✅ Services found: 5
+::1 - - [15/Oct/2025:20:34:34 +0000] "GET /api/services HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+::1 - - [15/Oct/2025:20:34:34 +0000] "GET /api/settings/payment HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+📥 Incoming GET /api/sales
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+🔍 Products request for user: admin@elegant.com branchId: new ObjectId('68db3d367d2a8df8f4023d6e')
+📥 Incoming GET /api/reports/dashboard
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+🔍 Sales request for user: admin@elegant.com branchId: new ObjectId('68db3d367d2a8df8f4023d6e')
+::1 - - [15/Oct/2025:20:34:34 +0000] "GET /api/appointments?limit=5 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+✅ Sales found: 35
+::1 - - [15/Oct/2025:20:34:34 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+🔍 Dashboard stats request for user: admin@elegant.com branchId: new ObjectId('68db3d367d2a8df8f4023d6e')
+✅ Products found: 6
+::1 - - [15/Oct/2025:20:34:34 +0000] "GET /api/products HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+Total services: 5
+📥 Incoming GET /api/sales
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+Total products: 6
+::1 - - [15/Oct/2025:20:34:34 +0000] "GET /api/appointments?limit=500 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+Total staff: 1
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+🔍 Sales request for user: admin@elegant.com branchId: new ObjectId('68db3d367d2a8df8f4023d6e')
+Total clients: 4
+✅ Sales found: 35
+::1 - - [15/Oct/2025:20:34:34 +0000] "GET /api/sales HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+Total appointments: 2
+Total receipts: 0
+Total revenue: 0
+✅ Dashboard stats calculated for business: new ObjectId('68db3d367d2a8df8f4023d6e')
+::1 - - [15/Oct/2025:20:34:34 +0000] "GET /api/reports/dashboard HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming GET /api/clients
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+🔍 Clients API Debug: {
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  userEmail: 'admin@elegant.com',
+  query: {},
+  database: 'salon_crm_68db3d367d2a8df8f4023d6e'
+}
+📊 Total clients found: 4
+📋 Clients returned: 4
+::1 - - [15/Oct/2025:20:34:38 +0000] "GET /api/clients HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming GET /api/settings/business
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+📥 Incoming GET /api/services
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+📥 Incoming GET /api/products
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+📥 Incoming GET /api/settings/payment
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+🔍 Business settings request for user: admin@elegant.com branchId: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+🔍 Services request for user: admin@elegant.com branchId: new ObjectId('68db3d367d2a8df8f4023d6e')
+📥 Incoming GET /api/clients
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+🔍 Products request for user: admin@elegant.com branchId: new ObjectId('68db3d367d2a8df8f4023d6e')
+✅ Business settings found: Elegant Beauty Lounge
+::1 - - [15/Oct/2025:20:34:38 +0000] "GET /api/settings/business HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+🔍 Clients API Debug: {
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  userEmail: 'admin@elegant.com',
+  query: {},
+  database: 'salon_crm_68db3d367d2a8df8f4023d6e'
+}
+📥 Incoming GET /api/staff-directory
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+📥 Incoming GET /api/settings/pos
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+✅ Products found: 6
+::1 - - [15/Oct/2025:20:34:38 +0000] "GET /api/products HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+✅ Services found: 5
+::1 - - [15/Oct/2025:20:34:38 +0000] "GET /api/services HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📊 Total clients found: 4
+::1 - - [15/Oct/2025:20:34:38 +0000] "GET /api/settings/payment HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+📥 Incoming GET /api/settings/business
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+📥 Incoming GET /api/products
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+📥 Incoming GET /api/services
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+📋 Clients returned: 4
+::1 - - [15/Oct/2025:20:34:38 +0000] "GET /api/clients HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+=== POS SETTINGS DEBUG ===
+Full settings object: {
+  _id: new ObjectId('68db45a939aa5019464c4b7a'),
+  name: 'Elegant Beauty Lounge',
+  email: 'info@elegantbeauty.com',
+  phone: '+91 98765 43212',
+  website: 'www.glamoursalon.com',
+  description: 'Premium salon and spa services in the heart of the city',
+  address: '789 Style Street',
+  city: 'Bangalore',
+  state: 'Karnataka',
+  zipCode: '560001',
+  receiptPrefix: 'INV',
+  invoicePrefix: 'ELEGANT',
+  receiptNumber: 26,
+  autoIncrementReceipt: true,
+  currency: 'INR',
+  taxRate: 8.25,
+  processingFee: 2.9,
+  enableCurrency: true,
+  enableTax: true,
+  enableProcessingFees: true,
+  socialMedia: '@glamoursalon',
+  logo: '',
+  gstNumber: '',
+  createdAt: 2025-09-30T02:51:21.075Z,
+  updatedAt: 2025-10-15T20:25:47.670Z,
+  __v: 0,
+  autoResetReceipt: false,
+  resetFrequency: 'monthly',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+settings.invoicePrefix: ELEGANT
+settings.receiptPrefix: INV
+settings.receiptNumber: 26
+::1 - - [15/Oct/2025:20:34:38 +0000] "GET /api/settings/pos HTTP/1.1" 200 95 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+🔍 Business settings request for user: admin@elegant.com branchId: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+🔍 Products request for user: admin@elegant.com branchId: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+🔍 Services request for user: admin@elegant.com branchId: new ObjectId('68db3d367d2a8df8f4023d6e')
+📥 Incoming GET /api/settings/payment
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+::1 - - [15/Oct/2025:20:34:38 +0000] "GET /api/staff-directory HTTP/1.1" 200 4266 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming GET /api/settings/pos
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+✅ Business settings found: Elegant Beauty Lounge
+::1 - - [15/Oct/2025:20:34:38 +0000] "GET /api/settings/business HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+📥 Incoming GET /api/staff-directory
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+📥 Incoming GET /api/settings/business
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+✅ Products found: 6
+::1 - - [15/Oct/2025:20:34:38 +0000] "GET /api/products HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+✅ Services found: 5
+::1 - - [15/Oct/2025:20:34:38 +0000] "GET /api/services HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+::1 - - [15/Oct/2025:20:34:38 +0000] "GET /api/settings/payment HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+=== POS SETTINGS DEBUG ===
+Full settings object: {
+  _id: new ObjectId('68db45a939aa5019464c4b7a'),
+  name: 'Elegant Beauty Lounge',
+  email: 'info@elegantbeauty.com',
+  phone: '+91 98765 43212',
+  website: 'www.glamoursalon.com',
+  description: 'Premium salon and spa services in the heart of the city',
+  address: '789 Style Street',
+  city: 'Bangalore',
+  state: 'Karnataka',
+  zipCode: '560001',
+  receiptPrefix: 'INV',
+  invoicePrefix: 'ELEGANT',
+  receiptNumber: 26,
+  autoIncrementReceipt: true,
+  currency: 'INR',
+  taxRate: 8.25,
+  processingFee: 2.9,
+  enableCurrency: true,
+  enableTax: true,
+  enableProcessingFees: true,
+  socialMedia: '@glamoursalon',
+  logo: '',
+  gstNumber: '',
+  createdAt: 2025-09-30T02:51:21.075Z,
+  updatedAt: 2025-10-15T20:25:47.670Z,
+  __v: 0,
+  autoResetReceipt: false,
+  resetFrequency: 'monthly',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+settings.invoicePrefix: ELEGANT
+settings.receiptPrefix: INV
+settings.receiptNumber: 26
+::1 - - [15/Oct/2025:20:34:38 +0000] "GET /api/settings/pos HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+🔍 Business settings request for user: admin@elegant.com branchId: new ObjectId('68db3d367d2a8df8f4023d6e')
+📥 Incoming GET /api/settings/payment
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+✅ Business settings found: Elegant Beauty Lounge
+::1 - - [15/Oct/2025:20:34:38 +0000] "GET /api/settings/business HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming GET /api/settings/business
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+::1 - - [15/Oct/2025:20:34:38 +0000] "GET /api/staff-directory HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+🔍 Business settings request for user: admin@elegant.com branchId: new ObjectId('68db3d367d2a8df8f4023d6e')
+::1 - - [15/Oct/2025:20:34:38 +0000] "GET /api/settings/payment HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+✅ Business settings found: Elegant Beauty Lounge
+::1 - - [15/Oct/2025:20:34:38 +0000] "GET /api/settings/business HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming GET /api/settings/payment
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+::1 - - [15/Oct/2025:20:34:38 +0000] "GET /api/settings/payment HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming GET /api/sales/client/Shubham
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+::1 - - [15/Oct/2025:20:34:41 +0000] "GET /api/sales/client/Shubham HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming GET /api/sales/client/Shubham
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+::1 - - [15/Oct/2025:20:36:20 +0000] "GET /api/sales/client/Shubham HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming GET /api/sales/68e86151a0d6a0129a6ce216/payment-summary
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+::1 - - [15/Oct/2025:20:36:27 +0000] "GET /api/sales/68e86151a0d6a0129a6ce216/payment-summary HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming GET /api/sales/client/Shivam
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+📥 Incoming GET /api/sales/client/Shubham
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+📥 Incoming GET /api/settings/business
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+📥 Incoming GET /api/sales/client/test%20test
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+📥 Incoming GET /api/sales/client/Test%20Client
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+🔍 Business settings request for user: admin@elegant.com branchId: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+✅ Business settings found: Elegant Beauty Lounge
+::1 - - [15/Oct/2025:20:37:35 +0000] "GET /api/settings/business HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+::1 - - [15/Oct/2025:20:37:35 +0000] "GET /api/sales/client/Shubham HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+::1 - - [15/Oct/2025:20:37:35 +0000] "GET /api/sales/client/Shivam HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+::1 - - [15/Oct/2025:20:37:35 +0000] "GET /api/sales/client/test%20test HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+::1 - - [15/Oct/2025:20:37:35 +0000] "GET /api/sales/client/Test%20Client HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming GET /api/settings/business
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+📥 Incoming GET /api/sales/client/Shubham
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+📥 Incoming GET /api/sales/client/Shivam
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+📥 Incoming GET /api/sales/client/test%20test
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+📥 Incoming GET /api/sales/client/Test%20Client
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+🔍 Business settings request for user: admin@elegant.com branchId: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+✅ Business settings found: Elegant Beauty Lounge
+::1 - - [15/Oct/2025:20:37:35 +0000] "GET /api/settings/business HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+::1 - - [15/Oct/2025:20:37:35 +0000] "GET /api/sales/client/Shivam HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+::1 - - [15/Oct/2025:20:37:35 +0000] "GET /api/sales/client/test%20test HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+::1 - - [15/Oct/2025:20:37:35 +0000] "GET /api/sales/client/Shubham HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+::1 - - [15/Oct/2025:20:37:35 +0000] "GET /api/sales/client/Test%20Client HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming GET /api/sales/client/Shivam
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+::1 - - [15/Oct/2025:20:37:35 +0000] "GET /api/sales/client/Shivam HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming GET /api/sales/client/Shivam
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+📥 Incoming GET /api/sales/client/Shubham
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+::1 - - [15/Oct/2025:20:37:35 +0000] "GET /api/sales/client/Shivam HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+::1 - - [15/Oct/2025:20:37:35 +0000] "GET /api/sales/client/Shubham HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming GET /api/sales/client/Shubham
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+📥 Incoming GET /api/sales/client/test%20test
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+::1 - - [15/Oct/2025:20:37:35 +0000] "GET /api/sales/client/Shubham HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+::1 - - [15/Oct/2025:20:37:35 +0000] "GET /api/sales/client/test%20test HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming GET /api/sales/client/test%20test
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+📥 Incoming GET /api/sales/client/Test%20Client
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+::1 - - [15/Oct/2025:20:37:35 +0000] "GET /api/sales/client/test%20test HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+::1 - - [15/Oct/2025:20:37:35 +0000] "GET /api/sales/client/Test%20Client HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming GET /api/sales/client/Test%20Client
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+::1 - - [15/Oct/2025:20:37:35 +0000] "GET /api/sales/client/Test%20Client HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming GET /api/settings/business
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+📥 Incoming GET /api/services
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+🔍 Business settings request for user: admin@elegant.com branchId: new ObjectId('68db3d367d2a8df8f4023d6e')
+📥 Incoming GET /api/settings/payment
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+✅ Business settings found: Elegant Beauty Lounge
+::1 - - [15/Oct/2025:20:37:40 +0000] "GET /api/settings/business HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+🔍 Services request for user: admin@elegant.com branchId: new ObjectId('68db3d367d2a8df8f4023d6e')
+📥 Incoming GET /api/settings/business
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+🔍 Business settings request for user: admin@elegant.com branchId: new ObjectId('68db3d367d2a8df8f4023d6e')
+::1 - - [15/Oct/2025:20:37:40 +0000] "GET /api/settings/payment HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+✅ Services found: 5
+::1 - - [15/Oct/2025:20:37:40 +0000] "GET /api/services HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+✅ Business settings found: Elegant Beauty Lounge
+::1 - - [15/Oct/2025:20:37:40 +0000] "GET /api/settings/business HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming GET /api/settings/payment
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+📥 Incoming GET /api/services
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+🔍 Services request for user: admin@elegant.com branchId: new ObjectId('68db3d367d2a8df8f4023d6e')
+::1 - - [15/Oct/2025:20:37:40 +0000] "GET /api/settings/payment HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+✅ Services found: 5
+::1 - - [15/Oct/2025:20:37:40 +0000] "GET /api/services HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming GET /api/services
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+🔍 Services request for user: admin@elegant.com branchId: new ObjectId('68db3d367d2a8df8f4023d6e')
+✅ Services found: 5
+::1 - - [15/Oct/2025:20:37:40 +0000] "GET /api/services HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming GET /api/services
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+🔍 Services request for user: admin@elegant.com branchId: new ObjectId('68db3d367d2a8df8f4023d6e')
+✅ Services found: 5
+::1 - - [15/Oct/2025:20:37:40 +0000] "GET /api/services HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming GET /api/products
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+📥 Incoming GET /api/settings/business
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+📥 Incoming GET /api/settings/payment
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+📥 Incoming GET /api/inventory/transactions
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+🔍 Business settings request for user: admin@elegant.com branchId: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+🔍 Date filter - From: 2025-10-15T18:30:00.000Z Parsed: 2025-10-15T18:30:00.000Z
+🔍 Date filter - To: 2025-10-16T18:29:59.999Z Parsed: 2025-10-16T18:29:59.999Z
+🔍 Final date query: { '$gte': 2025-10-15T18:30:00.000Z, '$lte': 2025-10-16T18:29:59.999Z }
+🔍 Final query being executed: {
+  "transactionDate": {
+    "$gte": "2025-10-15T18:30:00.000Z",
+    "$lte": "2025-10-16T18:29:59.999Z"
+  }
+}
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+🔍 Products request for user: admin@elegant.com branchId: new ObjectId('68db3d367d2a8df8f4023d6e')
+✅ Business settings found: Elegant Beauty Lounge
+::1 - - [15/Oct/2025:20:40:37 +0000] "GET /api/settings/business HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+🔍 Found transactions: 0
+::1 - - [15/Oct/2025:20:40:37 +0000] "GET /api/settings/payment HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming GET /api/settings/business
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+📥 Incoming GET /api/settings/payment
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+✅ Products found: 6
+::1 - - [15/Oct/2025:20:40:37 +0000] "GET /api/products HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+::1 - - [15/Oct/2025:20:40:37 +0000] "GET /api/inventory/transactions?page=1&limit=100&dateFrom=2025-10-15T18:30:00.000Z&dateTo=2025-10-16T18:29:59.999Z HTTP/1.1" 200 82 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+🔍 Business settings request for user: admin@elegant.com branchId: new ObjectId('68db3d367d2a8df8f4023d6e')
+::1 - - [15/Oct/2025:20:40:37 +0000] "GET /api/settings/payment HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming GET /api/products
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+📥 Incoming GET /api/inventory/transactions
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+✅ Business settings found: Elegant Beauty Lounge
+::1 - - [15/Oct/2025:20:40:37 +0000] "GET /api/settings/business HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming GET /api/settings/payment
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+🔍 Products request for user: admin@elegant.com branchId: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+🔍 Date filter - From: 2025-10-15T18:30:00.000Z Parsed: 2025-10-15T18:30:00.000Z
+🔍 Date filter - To: 2025-10-16T18:29:59.999Z Parsed: 2025-10-16T18:29:59.999Z
+🔍 Final date query: { '$gte': 2025-10-15T18:30:00.000Z, '$lte': 2025-10-16T18:29:59.999Z }
+🔍 Final query being executed: {
+  "transactionDate": {
+    "$gte": "2025-10-15T18:30:00.000Z",
+    "$lte": "2025-10-16T18:29:59.999Z"
+  }
+}
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+🔍 Found transactions: 0
+::1 - - [15/Oct/2025:20:40:37 +0000] "GET /api/settings/payment HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+✅ Products found: 6
+::1 - - [15/Oct/2025:20:40:37 +0000] "GET /api/products HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+::1 - - [15/Oct/2025:20:40:37 +0000] "GET /api/inventory/transactions?page=1&limit=100&dateFrom=2025-10-15T18:30:00.000Z&dateTo=2025-10-16T18:29:59.999Z HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming GET /api/settings/payment
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+📥 Incoming GET /api/products
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+🔍 Products request for user: admin@elegant.com branchId: new ObjectId('68db3d367d2a8df8f4023d6e')
+::1 - - [15/Oct/2025:20:40:37 +0000] "GET /api/settings/payment HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+✅ Products found: 6
+::1 - - [15/Oct/2025:20:40:37 +0000] "GET /api/products HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming GET /api/products
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+🔍 Products request for user: admin@elegant.com branchId: new ObjectId('68db3d367d2a8df8f4023d6e')
+✅ Products found: 6
+::1 - - [15/Oct/2025:20:40:37 +0000] "GET /api/products HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming GET /api/inventory/transactions
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+📥 Incoming GET /api/inventory/transactions
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+🔍 Date filter - From: 2025-10-15T18:30:00.000Z Parsed: 2025-10-15T18:30:00.000Z
+🔍 Date filter - To: 2025-10-16T18:29:59.999Z Parsed: 2025-10-16T18:29:59.999Z
+🔍 Final date query: { '$gte': 2025-10-15T18:30:00.000Z, '$lte': 2025-10-16T18:29:59.999Z }
+🔍 Final query being executed: {
+  "transactionDate": {
+    "$gte": "2025-10-15T18:30:00.000Z",
+    "$lte": "2025-10-16T18:29:59.999Z"
+  }
+}
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+🔍 Date filter - From: 2025-10-08T18:30:00.000Z Parsed: 2025-10-08T18:30:00.000Z
+🔍 Date filter - To: 2025-10-16T18:29:59.999Z Parsed: 2025-10-16T18:29:59.999Z
+🔍 Final date query: { '$gte': 2025-10-08T18:30:00.000Z, '$lte': 2025-10-16T18:29:59.999Z }
+🔍 Final query being executed: {
+  "transactionDate": {
+    "$gte": "2025-10-08T18:30:00.000Z",
+    "$lte": "2025-10-16T18:29:59.999Z"
+  }
+}
+🔍 Found transactions: 0
+🔍 Found transactions: 20
+🔍 First transaction date: 2025-10-09T22:57:48.770Z
+::1 - - [15/Oct/2025:20:40:55 +0000] "GET /api/inventory/transactions?page=1&limit=100&dateFrom=2025-10-15T18:30:00.000Z&dateTo=2025-10-16T18:29:59.999Z HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+::1 - - [15/Oct/2025:20:40:55 +0000] "GET /api/inventory/transactions?page=1&limit=100&dateFrom=2025-10-08T18:30:00.000Z&dateTo=2025-10-16T18:29:59.999Z HTTP/1.1" 200 11112 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming GET /api/products
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+🔍 Products request for user: admin@elegant.com branchId: new ObjectId('68db3d367d2a8df8f4023d6e')
+✅ Products found: 6
+::1 - - [15/Oct/2025:20:45:35 +0000] "GET /api/products HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming GET /api/products
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+🔍 Products request for user: admin@elegant.com branchId: new ObjectId('68db3d367d2a8df8f4023d6e')
+✅ Products found: 6
+::1 - - [15/Oct/2025:20:45:35 +0000] "GET /api/products HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming GET /api/settings/business
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+🔍 Business settings request for user: admin@elegant.com branchId: new ObjectId('68db3d367d2a8df8f4023d6e')
+✅ Business settings found: Elegant Beauty Lounge
+::1 - - [15/Oct/2025:20:53:59 +0000] "GET /api/settings/business HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming GET /api/settings/business
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+🔍 Business settings request for user: admin@elegant.com branchId: new ObjectId('68db3d367d2a8df8f4023d6e')
+✅ Business settings found: Elegant Beauty Lounge
+::1 - - [15/Oct/2025:20:53:59 +0000] "GET /api/settings/business HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming GET /api/staff-directory
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+::1 - - [15/Oct/2025:20:54:03 +0000] "GET /api/staff-directory?search= HTTP/1.1" 200 4266 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming GET /api/staff-directory
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '68db3d367d2a8df8f4023d6c',
+  email: 'admin@elegant.com',
+  role: 'admin',
+  iat: 1760560471,
+  exp: 1760646871
+}
+🔍 Auth middleware user: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+  email: 'admin@elegant.com',
+  branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+  role: 'admin'
+}
+🔍 Business DB Middleware Debug: {
+  user: {
+    id: new ObjectId('68db3d367d2a8df8f4023d6c'),
+    email: 'admin@elegant.com',
+    branchId: new ObjectId('68db3d367d2a8df8f4023d6e'),
+    role: 'admin'
+  },
+  businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
+}
+🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
+🔍 Business connection obtained: true
+🔍 Creating business models...
+🔍 Business models created: [
+  'Client',
+  'Appointment',
+  'Sale',
+  'Receipt',
+  'Product',
+  'Service',
+  'Staff',
+  'CashRegistry',
+  'Expense',
+  'InventoryTransaction',
+  'BusinessSettings',
+  'Supplier',
+  'Category'
+]
+✅ Business database setup complete
+::1 - - [15/Oct/2025:20:54:03 +0000] "GET /api/staff-directory?search= HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
