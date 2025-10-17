@@ -582,20 +582,25 @@ export const AppointmentsCalendar = forwardRef<{ showCancelledModal: () => void 
                   onClick={() => {
                     if (!selectedAppointment) return
                     const anySel: any = selectedAppointment as any
-                    const payload = {
-                      source: 'appointment',
+                    
+                    // Prepare appointment data to pass to quick sale
+                    const appointmentData = {
                       appointmentId: anySel._id,
-                      client: anySel.clientId,
-                      items: [
-                        {
-                          serviceId: anySel?.serviceId?._id || anySel?.serviceId,
-                          staffId: anySel?.staffId?._id || anySel?.staffId,
-                        },
-                      ],
+                      clientId: anySel.clientId?._id || anySel.clientId,
+                      clientName: anySel.clientId?.name || '',
+                      serviceId: anySel.serviceId?._id || anySel.serviceId,
+                      serviceName: anySel.serviceId?.name || '',
+                      servicePrice: anySel.price || 0,
+                      serviceDuration: anySel.duration || 0,
+                      staffId: anySel.staffId?._id || anySel.staffId,
+                      staffName: anySel.staffId?.name || '',
                     }
-                    // In production, pass data via URL params or API
+                    
+                    // Encode data as base64 to pass via URL
+                    const encodedData = btoa(JSON.stringify(appointmentData))
+                    
                     setShowDetails(false)
-                    router.push('/quick-sale')
+                    router.push(`/quick-sale?appointment=${encodedData}`)
                   }}
                 >
                   Raise Sale

@@ -11,8 +11,11 @@ const productSchema = new mongoose.Schema({
   },
   price: {
     type: Number,
-    required: true,
-    min: 0
+    required: function() {
+      return this.productType !== 'service';
+    },
+    min: 0,
+    default: 0
   },
   stock: {
     type: Number,
@@ -41,9 +44,23 @@ const productSchema = new mongoose.Schema({
     type: String,
     enum: ['essential', 'intermediate', 'standard', 'luxury', 'exempt'],
     default: 'standard'
+  },
+  productType: {
+    type: String,
+    enum: ['retail', 'service', 'both'],
+    default: 'retail'
+  },
+  branchId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Business',
+    required: true
   }
 }, {
   timestamps: true
 });
 
-module.exports = mongoose.model('Product', productSchema); 
+// Export both schema and model for flexibility
+module.exports = {
+  schema: productSchema,
+  model: mongoose.model('Product', productSchema)
+}; 

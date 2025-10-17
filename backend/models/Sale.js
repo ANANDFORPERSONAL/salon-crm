@@ -33,6 +33,7 @@ const saleSchema = new mongoose.Schema({
   customerName: { type: String, required: true },
   customerPhone: { type: String, default: '' },
   date: { type: Date, required: true },
+  time: { type: String, default: '' },
   
   // Enhanced payment status system
   status: { 
@@ -74,7 +75,12 @@ const saleSchema = new mongoose.Schema({
   // Additional fields
   notes: { type: String, default: '' },
   customerAddress: { type: String, default: '' },
-  customerEmail: { type: String, default: '' }
+  customerEmail: { type: String, default: '' },
+  branchId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Business',
+    required: true
+  }
 }, {
   timestamps: true
 });
@@ -171,4 +177,8 @@ saleSchema.methods.getAllStaffInvolved = function() {
   return Array.from(staffSet);
 };
 
-module.exports = mongoose.model('Sale', saleSchema);
+// Export both schema and model for flexibility
+module.exports = {
+  schema: saleSchema,
+  model: mongoose.model('Sale', saleSchema)
+};

@@ -26,9 +26,18 @@ const serviceSchema = new mongoose.Schema({
   isActive: {
     type: Boolean,
     default: true
+  },
+  branchId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Business',
+    required: true
   }
 }, {
   timestamps: true
 });
 
-module.exports = mongoose.model('Service', serviceSchema); 
+// Export both schema and model for flexibility
+module.exports = {
+  schema: serviceSchema,
+  model: mongoose.model('Service', serviceSchema)
+}; 

@@ -17,6 +17,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Label } from "@/components/ui/label"
 import { CashRegistryAPI, ExpensesAPI, SalesAPI } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
+import { useAuth } from "@/lib/auth-context"
 import { CashRegistryModal } from "./cash-registry-modal"
 import { VerificationModal } from "./verification-modal"
 import jsPDF from "jspdf"
@@ -59,6 +60,7 @@ interface CashRegistryReportProps {
 
 export function CashRegistryReport({ isVerificationModalOpen, onVerificationModalChange }: CashRegistryReportProps) {
   const { toast } = useToast()
+  const { user } = useAuth()
   const [searchTerm, setSearchTerm] = useState("")
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined)
   const [datePeriod, setDatePeriod] = useState<DatePeriod>("today")
@@ -1132,6 +1134,23 @@ export function CashRegistryReport({ isVerificationModalOpen, onVerificationModa
   }
 
   const handleDeleteEntry = (entry: CashRegistryEntry) => {
+    // Check if entry is verified - show special warning for verified entries
+    if (entry.isVerified) {
+      // Check if user is admin - allow deletion with confirmation
+      if (user?.role === 'admin') {
+        setSelectedEntry(entry)
+        setIsDeleteDialogOpen(true)
+        return
+      } else {
+        toast({
+          title: "Cannot Delete Verified Entry",
+          description: "Verified cash registry entries cannot be deleted. Only administrators can delete verified entries.",
+          variant: "destructive"
+        })
+        return
+      }
+    }
+
     // Check if this is a closing shift and if there's also opening data
     const hasOpeningData = entry.openingBalance > 0
     const hasClosingData = entry.closingBalance > 0
@@ -1956,9 +1975,6 @@ export function CashRegistryReport({ isVerificationModalOpen, onVerificationModa
                                           <div className="text-xs text-muted-foreground">
                                             <span className="font-medium">Verified by:</span> {entry.verifiedBy || 'Unknown'}
                                           </div>
-                                          <div className="text-xs text-muted-foreground">
-                                            <span className="font-medium">Verified at:</span> {entry.verifiedAt ? format(new Date(entry.verifiedAt), "dd MMM yyyy, HH:mm") : 'Unknown'}
-                                          </div>
                                         </>
                                       ) : (
                                         <div className="text-xs text-muted-foreground">
@@ -2025,8 +2041,21 @@ export function CashRegistryReport({ isVerificationModalOpen, onVerificationModa
                                     variant="ghost"
                                     size="sm"
                                     onClick={() => handleDeleteEntry(entry)}
-                                    className="h-9 w-9 p-0 text-destructive hover:text-destructive hover:bg-red-50 transition-all duration-200 rounded-xl hover:shadow-md transform hover:scale-105"
-                                    title="Delete entry"
+                                    disabled={entry.isVerified && user?.role !== 'admin'}
+                                    className={`h-9 w-9 p-0 transition-all duration-200 rounded-xl ${
+                                      entry.isVerified && user?.role !== 'admin'
+                                        ? 'text-muted-foreground cursor-not-allowed opacity-50' 
+                                        : entry.isVerified && user?.role === 'admin'
+                                        ? 'text-orange-600 hover:text-orange-700 hover:bg-orange-50 hover:shadow-md transform hover:scale-105'
+                                        : 'text-destructive hover:text-destructive hover:bg-red-50 hover:shadow-md transform hover:scale-105'
+                                    }`}
+                                    title={
+                                      entry.isVerified && user?.role !== 'admin'
+                                        ? "Cannot delete verified entry (Admin only)"
+                                        : entry.isVerified && user?.role === 'admin'
+                                        ? "Delete verified entry (Admin override)"
+                                        : "Delete entry"
+                                    }
                                   >
                                     <Trash2 className="h-4 w-4" />
                                   </Button>
@@ -2050,7 +2079,7 @@ export function CashRegistryReport({ isVerificationModalOpen, onVerificationModa
                                   ₹{entry.closingBalance.toFixed(2)}
                                 </TableCell>
                                 <TableCell>
-                                  {entry.closingDenominations && entry.closingDenominations.length > 0 ? (
+                                  {entry.denominations && entry.denominations.length > 0 ? (
                                     <Button
                                       variant="link"
                                       size="sm"
@@ -2069,8 +2098,21 @@ export function CashRegistryReport({ isVerificationModalOpen, onVerificationModa
                                     variant="ghost"
                                     size="sm"
                                     onClick={() => handleDeleteEntry(entry)}
-                                    className="h-9 w-9 p-0 text-destructive hover:text-destructive hover:bg-red-50 transition-all duration-200 rounded-xl hover:shadow-md transform hover:scale-105"
-                                    title="Delete entry"
+                                    disabled={entry.isVerified && user?.role !== 'admin'}
+                                    className={`h-9 w-9 p-0 transition-all duration-200 rounded-xl ${
+                                      entry.isVerified && user?.role !== 'admin'
+                                        ? 'text-muted-foreground cursor-not-allowed opacity-50' 
+                                        : entry.isVerified && user?.role === 'admin'
+                                        ? 'text-orange-600 hover:text-orange-700 hover:bg-orange-50 hover:shadow-md transform hover:scale-105'
+                                        : 'text-destructive hover:text-destructive hover:bg-red-50 hover:shadow-md transform hover:scale-105'
+                                    }`}
+                                    title={
+                                      entry.isVerified && user?.role !== 'admin'
+                                        ? "Cannot delete verified entry (Admin only)"
+                                        : entry.isVerified && user?.role === 'admin'
+                                        ? "Delete verified entry (Admin override)"
+                                        : "Delete entry"
+                                    }
                                   >
                                     <Trash2 className="h-4 w-4" />
                                   </Button>
@@ -2139,8 +2181,8 @@ export function CashRegistryReport({ isVerificationModalOpen, onVerificationModa
                   <div className="text-center py-4 text-muted-foreground">No denominations recorded</div>
                 )
               ) : (
-                selectedDenominationsEntry.closingDenominations && selectedDenominationsEntry.closingDenominations.length > 0 ? (
-                  selectedDenominationsEntry.closingDenominations.map((denom, index) => (
+                selectedDenominationsEntry.denominations && selectedDenominationsEntry.denominations.length > 0 ? (
+                  selectedDenominationsEntry.denominations.map((denom, index) => (
                     <div key={denom.value} className={`grid grid-cols-3 border-b last:border-b-0 ${index % 2 === 0 ? 'bg-background' : 'bg-muted/20'}`}>
                       <div className="px-3 py-2">₹{denom.value}</div>
                       <div className="px-3 py-2">{denom.count}</div>
@@ -2258,7 +2300,9 @@ export function CashRegistryReport({ isVerificationModalOpen, onVerificationModa
             <DialogDescription>
               {isDeletingDailySummary 
                 ? `Are you sure you want to delete the daily summary for ${selectedSummaryDate ? format(new Date(selectedSummaryDate), "MMM dd, yyyy") : "this date"}? This will delete all cash registry entries for that date and cannot be undone.`
-                : "Are you sure you want to delete this cash registry entry? This action cannot be undone."
+                : selectedEntry?.isVerified 
+                  ? `⚠️ WARNING: You are about to delete a VERIFIED cash registry entry. This action cannot be undone and may affect your financial records. Are you sure you want to proceed?`
+                  : "Are you sure you want to delete this cash registry entry? This action cannot be undone."
               }
             </DialogDescription>
           </DialogHeader>

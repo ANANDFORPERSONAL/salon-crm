@@ -28,6 +28,10 @@ const businessSettingsSchema = new mongoose.Schema({
   enableTax: { type: Boolean, default: true },
   enableProcessingFees: { type: Boolean, default: true },
   
+  // Auto Reset Settings
+  autoResetReceipt: { type: Boolean, default: false },
+  resetFrequency: { type: String, enum: ['monthly', 'yearly'], default: 'monthly' },
+  
   // Social Media
   socialMedia: { type: String, default: "@glamoursalon" },
   
@@ -37,6 +41,13 @@ const businessSettingsSchema = new mongoose.Schema({
   // Tax Information
   gstNumber: { type: String, default: "" },
   
+  // Multi-tenant support
+  branchId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Business',
+    required: true
+  },
+  
   // Timestamps
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }
@@ -44,4 +55,8 @@ const businessSettingsSchema = new mongoose.Schema({
   timestamps: true
 });
 
-module.exports = mongoose.model("BusinessSettings", businessSettingsSchema);
+// Export both schema and model for flexibility
+module.exports = {
+  schema: businessSettingsSchema,
+  model: mongoose.model("BusinessSettings", businessSettingsSchema)
+};

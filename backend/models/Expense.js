@@ -78,6 +78,11 @@ const expenseSchema = new mongoose.Schema({
   updatedAt: {
     type: Date,
     default: Date.now
+  },
+  branchId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Business',
+    required: true
   }
 }, {
   timestamps: true
@@ -90,4 +95,8 @@ expenseSchema.index({ paymentMode: 1 });
 expenseSchema.index({ status: 1 });
 expenseSchema.index({ createdBy: 1 });
 
-module.exports = mongoose.model('Expense', expenseSchema);
+// Export both schema and model for flexibility
+module.exports = {
+  schema: expenseSchema,
+  model: mongoose.model('Expense', expenseSchema)
+};

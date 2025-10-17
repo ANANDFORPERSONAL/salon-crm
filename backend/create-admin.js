@@ -1,83 +1,83 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
-const User = require('./models/User');
 require('dotenv').config();
 
-const createAdminUser = async () => {
+// Connect to MongoDB
+const connectDB = async () => {
   try {
-    // Connect to MongoDB
-    const conn = await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/salon-crm', {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
-    console.log(`MongoDB Connected: ${conn.connection.host}`);
-
-    // Check if admin user already exists
-    const existingAdmin = await User.findOne({ email: 'admin@salon.com' });
-    if (existingAdmin) {
-      console.log('Admin user already exists');
-      process.exit(0);
-    }
-
-    // Hash the password
-    const hashedPassword = await bcrypt.hash('admin123', 10);
-
-    // Create admin user
-    const adminUser = new User({
-      firstName: 'Admin',
-      lastName: 'User',
-      email: 'admin@salon.com',
-      password: hashedPassword,
-      mobile: '+1234567890',
-      role: 'admin',
-      hasLoginAccess: true,
-      allowAppointmentScheduling: true,
-      isActive: true,
-      permissions: [
-        // Admin gets all permissions
-        { module: 'dashboard', feature: 'view', enabled: true },
-        { module: 'dashboard', feature: 'edit', enabled: true },
-        { module: 'appointments', feature: 'view', enabled: true },
-        { module: 'appointments', feature: 'create', enabled: true },
-        { module: 'appointments', feature: 'edit', enabled: true },
-        { module: 'appointments', feature: 'delete', enabled: true },
-        { module: 'customers', feature: 'view', enabled: true },
-        { module: 'customers', feature: 'create', enabled: true },
-        { module: 'customers', feature: 'edit', enabled: true },
-        { module: 'customers', feature: 'delete', enabled: true },
-        { module: 'services', feature: 'view', enabled: true },
-        { module: 'services', feature: 'create', enabled: true },
-        { module: 'services', feature: 'edit', enabled: true },
-        { module: 'services', feature: 'delete', enabled: true },
-        { module: 'products', feature: 'view', enabled: true },
-        { module: 'products', feature: 'create', enabled: true },
-        { module: 'products', feature: 'edit', enabled: true },
-        { module: 'products', feature: 'delete', enabled: true },
-        { module: 'staff', feature: 'view', enabled: true },
-        { module: 'staff', feature: 'create', enabled: true },
-        { module: 'staff', feature: 'edit', enabled: true },
-        { module: 'staff', feature: 'delete', enabled: true },
-        { module: 'sales', feature: 'view', enabled: true },
-        { module: 'sales', feature: 'create', enabled: true },
-        { module: 'sales', feature: 'edit', enabled: true },
-        { module: 'sales', feature: 'delete', enabled: true },
-        { module: 'reports', feature: 'view', enabled: true },
-        { module: 'settings', feature: 'view', enabled: true },
-        { module: 'settings', feature: 'edit', enabled: true },
-      ]
-    });
-
-    await adminUser.save();
-    console.log('Admin user created successfully');
-    console.log('Email: admin@salon.com');
-    console.log('Password: admin123');
-    
-    process.exit(0);
+    await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/salon_crm_main');
+    console.log('MongoDB connected to main database');
   } catch (error) {
-    console.error('Error creating admin user:', error);
+    console.error('MongoDB connection error:', error);
     process.exit(1);
   }
 };
 
-createAdminUser();
+// Admin Schema
+const adminSchema = new mongoose.Schema({
+  firstName: { type: String, required: true },
+  lastName: { type: String, required: true },
+  email: { type: String, required: true, unique: true, lowercase: true },
+  password: { type: String, required: true },
+  role: { 
+    type: String, 
+    enum: ['super_admin', 'admin', 'support'], 
+    default: 'admin' 
+  },
+  permissions: [{
+    module: { type: String, required: true },
+    actions: [{ type: String }]
+  }],
+  isActive: { type: Boolean, default: true },
+  lastLogin: { type: Date },
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now }
+}, {
+  timestamps: true
+});
 
+const Admin = mongoose.model('Admin', adminSchema);
+
+const createAdmin = async () => {
+  try {
+    await connectDB();
+    
+    // Check if admin already exists
+    const existingAdmin = await Admin.findOne({ email: 'admin@salon.com' });
+    if (existingAdmin) {
+      console.log('Admin user already exists');
+      process.exit(0);
+    }
+    
+    // Hash password
+    const hashedPassword = await bcrypt.hash('admin123', 10);
+    
+    // Create admin user
+    const admin = new Admin({
+      firstName: 'Admin',
+      lastName: 'User',
+      email: 'admin@salon.com',
+      password: hashedPassword,
+      role: 'super_admin',
+      permissions: [
+        { module: 'businesses', actions: ['create', 'read', 'update', 'delete'] },
+        { module: 'users', actions: ['create', 'read', 'update', 'delete'] },
+        { module: 'billing', actions: ['create', 'read', 'update', 'delete'] },
+        { module: 'settings', actions: ['create', 'read', 'update', 'delete'] }
+      ],
+      isActive: true
+    });
+    
+    await admin.save();
+    console.log('Admin user created successfully');
+    console.log('Email: admin@salon.com');
+    console.log('Password: admin123');
+    
+  } catch (error) {
+    console.error('Error creating admin:', error);
+  } finally {
+    mongoose.connection.close();
+  }
+};
+
+createAdmin();

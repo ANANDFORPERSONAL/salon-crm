@@ -1,10 +1,10 @@
-import { ProtectedRoute } from "@/components/auth/protected-route"
+import { ProtectedLayout } from "@/components/layout/protected-layout"
 import { ProfilePage } from "@/components/profile/profile-page"
 
 export default function Profile() {
   return (
-    <ProtectedRoute>
+    <ProtectedLayout>
       <ProfilePage />
-    </ProtectedRoute>
+    </ProtectedLayout>
   )
 }

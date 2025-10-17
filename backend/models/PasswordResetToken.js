@@ -46,4 +46,8 @@ passwordResetTokenSchema.methods.isValid = function() {
   return !this.used && this.expiresAt > new Date();
 };
 
-module.exports = mongoose.model('PasswordResetToken', passwordResetTokenSchema);
+// Export both schema and model for flexibility
+module.exports = {
+  schema: passwordResetTokenSchema,
+  model: mongoose.model('PasswordResetToken', passwordResetTokenSchema)
+};

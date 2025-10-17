@@ -1,6 +1,6 @@
 "use client"
 
-import { UsersTable } from "@/components/users/users-table"
+import { StaffTable } from "@/components/staff/staff-table"
 import { Users } from "lucide-react"
 
 export function StaffDirectory() {
@@ -24,7 +24,7 @@ export function StaffDirectory() {
       {/* Content */}
       <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
         <div className="p-6">
-          <UsersTable />
+          <StaffTable />
         </div>
       </div>
     </div>

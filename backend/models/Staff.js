@@ -23,26 +23,44 @@ const staffSchema = new mongoose.Schema({
   specialties: [{
     type: String
   }],
-  hourlyRate: {
+  salary: {
     type: Number,
     default: 0,
     min: 0
   },
-  commissionRate: {
-    type: Number,
-    default: 0,
-    min: 0
+  commissionProfileIds: [{
+    type: String
+  }],
+  password: {
+    type: String
   },
   notes: {
     type: String,
     default: ''
   },
+  hasLoginAccess: {
+    type: Boolean,
+    default: false
+  },
+  allowAppointmentScheduling: {
+    type: Boolean,
+    default: false
+  },
   isActive: {
     type: Boolean,
     default: true
+  },
+  branchId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Business',
+    required: true
   }
 }, {
   timestamps: true
 });
 
-module.exports = mongoose.model('Staff', staffSchema); 
+// Export both schema and model for flexibility
+module.exports = {
+  schema: staffSchema,
+  model: mongoose.model('Staff', staffSchema)
+}; 

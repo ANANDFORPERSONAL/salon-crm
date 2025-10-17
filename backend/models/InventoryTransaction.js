@@ -12,7 +12,7 @@ const inventoryTransactionSchema = new mongoose.Schema({
   },
   transactionType: { 
     type: String, 
-    enum: ['sale', 'return', 'adjustment', 'restock', 'damage', 'expiry'],
+    enum: ['sale', 'return', 'adjustment', 'restock', 'purchase', 'damage', 'expiry', 'service_usage', 'theft'],
     required: true 
   },
   quantity: { 
@@ -40,7 +40,7 @@ const inventoryTransactionSchema = new mongoose.Schema({
   // Reference to related documents
   referenceType: { 
     type: String, 
-    enum: ['sale', 'return', 'adjustment', 'purchase', 'other'],
+    enum: ['sale', 'return', 'adjustment', 'purchase', 'product_edit', 'other'],
     required: true 
   },
   referenceId: { 
@@ -88,4 +88,8 @@ inventoryTransactionSchema.index({ referenceType: 1, referenceId: 1 });
 inventoryTransactionSchema.index({ transactionType: 1 });
 inventoryTransactionSchema.index({ transactionDate: -1 });
 
-module.exports = mongoose.model('InventoryTransaction', inventoryTransactionSchema);
+// Export both schema and model for flexibility
+module.exports = {
+  schema: inventoryTransactionSchema,
+  model: mongoose.model('InventoryTransaction', inventoryTransactionSchema)
+};

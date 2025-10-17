@@ -13,8 +13,6 @@ import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "@/components/ui/use-toast"
-import { SideNav } from "@/components/side-nav"
-import { TopNav } from "@/components/top-nav"
 import { useAuth } from "@/lib/auth-context"
 import { UsersAPI } from "@/lib/api"
 
@@ -26,7 +24,7 @@ const profileSchema = z.object({
 })
 
 export function ProfilePage() {
-  const { user } = useAuth()
+  const { user, updateUser } = useAuth()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isEditMode, setIsEditMode] = useState(false)
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null)
@@ -152,6 +150,14 @@ export function ProfilePage() {
       if (response.success) {
         // Update local state
         setStaffData({ ...staffData, ...updateData })
+        
+        // Update auth context to sync with dropdown menu
+        updateUser({
+          name: `${values.firstName} ${values.lastName}`,
+          email: values.email,
+          avatar: profilePhoto || staffData.avatar
+        })
+        
         setIsEditMode(false)
         
         toast({
@@ -186,27 +192,14 @@ export function ProfilePage() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen flex-col">
-        <TopNav />
-        <div className="flex flex-1">
-          <SideNav />
-          <main className="flex-1 p-6 md:p-8">
-            <div className="flex items-center justify-center h-64">
-              <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
-            </div>
-          </main>
-        </div>
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
       </div>
     )
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <TopNav />
-      <div className="flex flex-1">
-        <SideNav />
-        <main className="flex-1 p-6 md:p-8">
-          <div className="flex flex-col space-y-6 max-w-2xl">
+    <div className="flex flex-col space-y-6 max-w-2xl">
             <div className="flex justify-between items-center">
               <div>
                 <h1 className="text-3xl font-bold tracking-tight">Profile</h1>
@@ -237,7 +230,10 @@ export function ProfilePage() {
                 <div className="flex items-center space-x-4">
                   <div className="relative">
                     <Avatar className="h-20 w-20">
-                      <AvatarImage src={profilePhoto || staffData?.avatar || "/placeholder.svg"} alt={staffData?.name || "User"} />
+                      <AvatarImage 
+                        src={profilePhoto || staffData?.avatar || "/placeholder.svg"} 
+                        alt={staffData?.name || "User"} 
+                      />
                       <AvatarFallback className="text-lg">
                         {staffData?.firstName?.charAt(0) || staffData?.name?.charAt(0) || "U"}
                       </AvatarFallback>
@@ -383,8 +379,5 @@ export function ProfilePage() {
               </CardContent>
             </Card>
           </div>
-        </main>
-      </div>
-    </div>
   )
 }

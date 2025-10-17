@@ -12,6 +12,7 @@ export interface Client {
   status?: "active" | "inactive"
   totalVisits?: number
   totalSpent?: number
+  totalDues?: number
   createdAt?: string
   address?: string
   notes?: string

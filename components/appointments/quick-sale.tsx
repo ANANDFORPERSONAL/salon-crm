@@ -3,6 +3,7 @@
 import type React from "react"
 
 import { useState, useRef, useEffect } from "react"
+import { useSearchParams } from "next/navigation"
 import {
   Search,
   Plus,
@@ -40,8 +41,9 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog"
 import { Separator } from "@/components/ui/separator"
-import { useToast } from "@/hooks/use-toast"
+import { useToast } from "@/components/ui/use-toast"
 import { ReceiptDialog } from "@/components/receipts/receipt-dialog"
+import { PaymentCollectionModal } from "@/components/reports/payment-collection-modal"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Switch } from "@/components/ui/switch"
@@ -55,7 +57,7 @@ import {
   type PaymentMethod,
   getAllReceipts,
 } from "@/lib/data"
-import { ServicesAPI, ProductsAPI, StaffAPI, SalesAPI, UsersAPI, SettingsAPI, ReceiptsAPI } from "@/lib/api"
+import { ServicesAPI, ProductsAPI, StaffAPI, SalesAPI, UsersAPI, SettingsAPI, ReceiptsAPI, StaffDirectoryAPI } from "@/lib/api"
 import { clientStore, type Client } from "@/lib/client-store"
 import { MultiStaffSelector, type StaffContribution } from "@/components/ui/multi-staff-selector"
 import { TaxCalculator, createTaxCalculator, type TaxSettings, type BillItem } from "@/lib/tax-calculator"
@@ -175,6 +177,7 @@ interface ProductItem {
 
 export function QuickSale() {
   const { toast } = useToast()
+  const searchParams = useSearchParams()
   const [selectedCustomer, setSelectedCustomer] = useState<Client | null>(null)
   const [customerSearch, setCustomerSearch] = useState("")
   const [showCustomerDropdown, setShowCustomerDropdown] = useState(false)
@@ -185,6 +188,8 @@ export function QuickSale() {
   const [discountPercentage, setDiscountPercentage] = useState(0)
   const [giftVoucher, setGiftVoucher] = useState("")
   const [tip, setTip] = useState(0)
+  const [isGlobalDiscountActive, setIsGlobalDiscountActive] = useState(false)
+  const [isValueDiscountActive, setIsValueDiscountActive] = useState(false)
   const [cashAmount, setCashAmount] = useState(0)
   const [cardAmount, setCardAmount] = useState(0)
   const [onlineAmount, setOnlineAmount] = useState(0)
@@ -192,11 +197,20 @@ export function QuickSale() {
   const [isOldQuickSale, setIsOldQuickSale] = useState(false)
   const [currentReceipt, setCurrentReceipt] = useState<any | null>(null)
   const [showReceiptDialog, setShowReceiptDialog] = useState(false)
+  
+  // Search states for service items dropdown
+  const [serviceDropdownSearch, setServiceDropdownSearch] = useState("")
+  const [productDropdownSearch, setProductDropdownSearch] = useState("")
+  const [activeServiceDropdown, setActiveServiceDropdown] = useState<string | null>(null)
+  const [activeProductDropdown, setActiveProductDropdown] = useState<string | null>(null)
   const [isProcessing, setIsProcessing] = useState(false)
   const [showNewCustomerDialog, setShowNewCustomerDialog] = useState(false)
   const [showBillActivityDialog, setShowBillActivityDialog] = useState(false)
   const [customerBills, setCustomerBills] = useState<any[]>([])
-  const [showTaxBreakdown, setShowTaxBreakdown] = useState(false)
+  const [showDuesDialog, setShowDuesDialog] = useState(false)
+  const [unpaidBills, setUnpaidBills] = useState<any[]>([])
+  const [showDuesPaymentModal, setShowDuesPaymentModal] = useState(false)
+  const [selectedBillForPayment, setSelectedBillForPayment] = useState<any>(null)
   const [newCustomer, setNewCustomer] = useState({
     firstName: "",
     lastName: "",
@@ -219,6 +233,49 @@ export function QuickSale() {
   const [businessSettings, setBusinessSettings] = useState<any>(null)
   const [posSettings, setPOSSettings] = useState<any>(null)
   const [paymentSettings, setPaymentSettings] = useState<any>(null)
+
+  // Filtered services and products for dropdown search
+  const filteredServicesForDropdown = services.filter(service =>
+    service.name.toLowerCase().includes(serviceDropdownSearch.toLowerCase())
+  )
+  const filteredProductsForDropdown = products.filter(product =>
+    product.name.toLowerCase().includes(productDropdownSearch.toLowerCase())
+  )
+
+  // Add item to cart function
+  const addToCart = (item: any, type: "service" | "product") => {
+    if (type === "service") {
+      const newItem: ServiceItem = {
+        id: Date.now().toString(),
+        serviceId: item._id || item.id,
+        staffId: "",
+        quantity: 1,
+        price: item.price || 0,
+        discount: 0,
+        total: item.price || 0,
+      }
+      setServiceItems([...serviceItems, newItem])
+    } else if (type === "product") {
+      const newItem: ProductItem = {
+        id: Date.now().toString(),
+        productId: item._id || item.id,
+        staffId: "",
+        quantity: 1,
+        price: item.price || 0,
+        discount: 0,
+        total: item.price || 0,
+      }
+      setProductItems([...productItems, newItem])
+    }
+    
+    // Clear search after adding
+          // Clear search when item is added
+          if (type === "service") {
+            setServiceDropdownSearch("")
+          } else {
+            setProductDropdownSearch("")
+          }
+  }
   const [taxSettings, setTaxSettings] = useState<TaxSettings | null>(null)
   const [taxCalculator, setTaxCalculator] = useState<TaxCalculator | null>(null)
   const [loadingServices, setLoadingServices] = useState(true)
@@ -250,11 +307,21 @@ export function QuickSale() {
         const response = await ProductsAPI.getAll()
         console.log('Products API response:', response)
         if (response.success) {
-          setProducts(response.data || [])
+          // Filter out service-only products (only show retail and both)
+          const sellableProducts = (response.data || []).filter((product: any) => {
+            const productType = product.productType || 'retail'
+            return productType === 'retail' || productType === 'both'
+          })
+          setProducts(sellableProducts)
           console.log('Products loaded:', response.data?.length || 0)
+          console.log('Sellable products (retail + both):', sellableProducts.length)
+        } else {
+          console.log('Products API returned unsuccessful response:', response)
+          setProducts([])
         }
       } catch (error) {
         console.error('Failed to fetch products:', error)
+        setProducts([]) // Ensure products array is empty on error
       } finally {
         setLoadingProducts(false)
       }
@@ -263,8 +330,8 @@ export function QuickSale() {
     const fetchStaff = async () => {
       try {
         console.log('Fetching staff from API...')
-        const response = await UsersAPI.getAll()
-        console.log('Users API response:', response)
+        const response = await StaffDirectoryAPI.getAll()
+        console.log('Staff API response:', response)
         if (response.success) {
           // Filter for active staff members with appointment scheduling enabled
           const staffMembers = response.data.filter((user: any) => {
@@ -279,7 +346,7 @@ export function QuickSale() {
           console.log('Active staff loaded:', staffMembers.length)
           console.log('Active staff members:', staffMembers.map(s => ({ name: s.name, id: s._id || s.id, allowAppointmentScheduling: s.allowAppointmentScheduling })))
         } else {
-          console.error('Users API returned error:', response.error)
+          console.error('Staff API returned error:', response.error)
         }
       } catch (error) {
         console.error('Failed to fetch staff:', error)
@@ -398,6 +465,83 @@ export function QuickSale() {
     return unsubscribe
   }, [])
 
+  // Pre-fill form from appointment data in URL
+  useEffect(() => {
+    const appointmentParam = searchParams.get('appointment')
+    if (!appointmentParam || services.length === 0 || clients.length === 0 || staff.length === 0) return
+
+    const prefillAppointmentData = async () => {
+      try {
+        // Decode the base64 appointment data
+        const appointmentData = JSON.parse(atob(appointmentParam))
+        console.log('Pre-filling from appointment:', appointmentData)
+
+        // Find and set the client
+        if (appointmentData.clientId) {
+          const client = clients.find(c => c._id === appointmentData.clientId || c.id === appointmentData.clientId)
+          if (client) {
+            setSelectedCustomer(client)
+            setCustomerSearch(client.name)
+            console.log('Pre-filled client:', client.name)
+            
+            // Fetch customer statistics (visits, revenue, last visit)
+            const customerId = client._id || client.id
+            if (customerId) {
+              await fetchCustomerStats(customerId)
+              console.log('Fetched customer stats for pre-filled client')
+            }
+          }
+        }
+
+        // Find and add the service
+        if (appointmentData.serviceId) {
+          const service = services.find(s => 
+            (s._id || s.id) === appointmentData.serviceId
+          )
+          
+          if (service) {
+            // Find staff member for name
+            const staffMember = staff.find(s => 
+              (s._id || s.id) === appointmentData.staffId
+            )
+            
+            // Add service item with pre-filled data
+            const newServiceItem: ServiceItem = {
+              id: Date.now().toString(),
+              serviceId: service._id || service.id,
+              staffId: appointmentData.staffId || "",
+              quantity: 1,
+              price: service.price || appointmentData.servicePrice || 0,
+              discount: 0,
+              total: service.price || appointmentData.servicePrice || 0,
+              staffContributions: (appointmentData.staffId && staffMember) ? [{
+                staffId: appointmentData.staffId,
+                staffName: staffMember.name || appointmentData.staffName || '',
+                percentage: 100,
+                amount: service.price || appointmentData.servicePrice || 0
+              }] : []
+            }
+            
+            setServiceItems([newServiceItem])
+            console.log('Pre-filled service:', service.name)
+          }
+        }
+
+        // Clear the URL parameter after reading it
+        if (typeof window !== 'undefined') {
+          const url = new URL(window.location.href)
+          url.searchParams.delete('appointment')
+          window.history.replaceState({}, '', url.toString())
+        }
+      } catch (error) {
+        console.error('Failed to parse appointment data:', error)
+      }
+    }
+    
+    // Call the async function
+    prefillAppointmentData()
+  }, [searchParams, services, clients, staff])
+
   // In production, prefill data should come from URL params or API
   // No localStorage dependency for critical business functionality
 
@@ -495,10 +639,10 @@ export function QuickSale() {
 
   // Handle saving new customer
   const handleSaveNewCustomer = async () => {
-    if (!newCustomer.firstName || !newCustomer.lastName) {
+    if (!newCustomer.firstName) {
       toast({
         title: "Missing Information",
-        description: "Please provide both first and last name.",
+        description: "Please provide a first name.",
         variant: "destructive",
       })
       return
@@ -506,7 +650,7 @@ export function QuickSale() {
 
     const customer: Client = {
       id: Date.now().toString(),
-      name: `${newCustomer.firstName} ${newCustomer.lastName}`,
+      name: newCustomer.lastName ? `${newCustomer.firstName} ${newCustomer.lastName}` : newCustomer.firstName,
       phone: newCustomer.phone || customerSearch,
       email: newCustomer.email,
       totalVisits: 0,
@@ -631,6 +775,72 @@ export function QuickSale() {
     }
   }
 
+  // Fetch unpaid/partially paid bills for the customer
+  const fetchUnpaidBills = async (customerName: string) => {
+    try {
+      const salesResponse = await SalesAPI.getByClient(customerName)
+      if (salesResponse.success) {
+        const sales = salesResponse.data || []
+        
+        // Filter only unpaid or partially paid bills
+        const unpaid = sales.filter((sale: any) => {
+          const remainingAmount = sale.paymentStatus?.remainingAmount || 0
+          return remainingAmount > 0
+        }).map((sale: any) => ({
+          _id: sale._id || sale.id,
+          id: sale._id || sale.id,
+          billNo: sale.billNo,
+          date: sale.date,
+          time: sale.time || '00:00',
+          grossTotal: sale.grossTotal || sale.netTotal || 0,
+          totalAmount: sale.grossTotal || sale.netTotal || 0,
+          paidAmount: sale.paymentStatus?.paidAmount || 0,
+          remainingAmount: sale.paymentStatus?.remainingAmount || 0,
+          dueDate: sale.paymentStatus?.dueDate,
+          items: sale.items || [],
+          customerName: sale.customerName,
+          staffName: sale.staffName || 'Unassigned Staff',
+          status: sale.paymentStatus?.status || 'partial',
+          paymentStatus: sale.paymentStatus,
+          paymentHistory: sale.paymentHistory || []
+        }))
+        
+        setUnpaidBills(unpaid)
+      }
+    } catch (error) {
+      console.error('Error fetching unpaid bills:', error)
+      toast({
+        title: "Error",
+        description: "Failed to fetch unpaid bills. Please try again.",
+        variant: "destructive",
+      })
+    }
+  }
+
+  // Handle collect payment button click
+  const handleCollectPayment = (bill: any) => {
+    setSelectedBillForPayment(bill)
+    setShowDuesDialog(false) // Close dues dialog first
+    setShowDuesPaymentModal(true)
+  }
+
+  // Handle payment collected successfully
+  const handlePaymentCollected = async () => {
+    // Refresh unpaid bills list
+    if (selectedCustomer) {
+      await fetchUnpaidBills(selectedCustomer.name)
+      // Refresh customer stats to update dues amount
+      const customerId = getCustomerId(selectedCustomer)
+      if (customerId) {
+        await fetchCustomerStats(customerId)
+      }
+    }
+    // Close payment modal and reopen dues dialog
+    setShowDuesPaymentModal(false)
+    setSelectedBillForPayment(null)
+    setShowDuesDialog(true)
+  }
+
   // Fetch customer statistics including visits, revenue, and last visit
   const fetchCustomerStats = async (customerId: string) => {
     console.log('🔍 Fetching customer stats for ID:', customerId)
@@ -654,20 +864,71 @@ export function QuickSale() {
         const totalRevenue = sales.reduce((sum: number, sale: any) => sum + (sale.grossTotal || sale.netTotal || 0), 0)
         const lastVisit = sales.length > 0 ? sales[0]?.date : null // Sales are sorted by date desc, so first is most recent
         
-        console.log('📈 Calculated stats from sales:', { totalVisits, totalRevenue, lastVisit, salesCount: sales.length })
+        // Calculate total dues (unpaid + partially paid)
+        const totalDues = sales.reduce((sum: number, sale: any) => {
+          const remainingAmount = sale.paymentStatus?.remainingAmount || 0
+          
+          // Count any sale with remaining amount > 0
+          if (remainingAmount > 0) {
+            return sum + remainingAmount
+          }
+          return sum
+        }, 0)
         
         // Update the customer object with real statistics
         setSelectedCustomer(prev => prev ? {
           ...prev,
           totalVisits,
           totalSpent: totalRevenue,
-          lastVisit
+          lastVisit,
+          totalDues
         } : null)
       } else {
         console.error('❌ Failed to fetch sales data:', salesResponse.error)
       }
     } catch (error) {
       console.error('❌ Error fetching customer statistics:', error)
+    }
+  }
+
+  // Fetch customer bills for Bill Activity dialog
+  const fetchCustomerBills = async (customerName: string) => {
+    console.log('🔍 fetchCustomerBills called with:', customerName)
+    try {
+      console.log('🔍 Calling SalesAPI.getByClient...')
+      const salesResponse = await SalesAPI.getByClient(customerName)
+      console.log('📊 Customer bills API response:', salesResponse)
+      
+      if (salesResponse.success) {
+        const sales = salesResponse.data || []
+        console.log('📊 Sales data received:', sales)
+        console.log('📊 Sales response full data:', salesResponse.data)
+        console.log('📊 Sales array length:', sales.length)
+        
+        // Transform sales data to match the expected bill format
+        const bills = sales.map((sale: any) => ({
+          id: sale._id || sale.id,
+          receiptNumber: sale.billNo,
+          date: sale.date,
+          time: sale.time || '00:00',
+          total: sale.grossTotal || sale.netTotal || 0,
+          payments: sale.payments || [{ type: sale.paymentMode?.toLowerCase() || 'cash', amount: sale.grossTotal || sale.netTotal || 0 }],
+          items: sale.items || [],
+          notes: sale.notes || '',
+          clientName: sale.customerName,
+          staffName: sale.staffName || 'Unassigned Staff'
+        }))
+        
+        console.log('📋 Transformed bills:', bills)
+        setCustomerBills(bills)
+        console.log('📋 Customer bills state updated')
+      } else {
+        console.error('❌ Failed to fetch customer bills:', salesResponse.error)
+        setCustomerBills([])
+      }
+    } catch (error) {
+      console.error('❌ Error fetching customer bills:', error)
+      setCustomerBills([])
     }
   }
 
@@ -683,6 +944,234 @@ export function QuickSale() {
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [])
 
+  // Handle discount state flags
+  useEffect(() => {
+    if (discountPercentage > 0) {
+      setIsGlobalDiscountActive(true)
+      setIsValueDiscountActive(false)
+    } else if (discountValue > 0) {
+      setIsValueDiscountActive(true)
+      setIsGlobalDiscountActive(false)
+    } else {
+      setIsGlobalDiscountActive(false)
+      setIsValueDiscountActive(false)
+    }
+  }, [discountPercentage, discountValue])
+
+  // Function to recalculate discounts
+  const recalculateDiscounts = () => {
+    console.log('🔄 Recalculating discounts...', { discountValue, discountPercentage, serviceItems: serviceItems.length, productItems: productItems.length })
+    console.log('📋 Current service items:', serviceItems)
+    console.log('📋 Current product items:', productItems)
+    
+    if (discountValue > 0) {
+      // Value discount logic
+      const serviceItemsWithGST = serviceItems.map(item => {
+        const baseAmount = item.price * item.quantity
+        const serviceTaxRate = taxSettings?.serviceTaxRate || 5
+        const gstAmount = (taxSettings?.enableTax !== false) ? (baseAmount * serviceTaxRate) / 100 : 0
+        return { ...item, totalWithGST: baseAmount + gstAmount }
+      })
+      
+      const productItemsWithGST = productItems.map(item => {
+        const baseAmount = item.price * item.quantity
+        const product = products.find((p) => p._id === item.productId || p.id === item.productId)
+        let productTaxRate = 18
+        if (product?.taxCategory && taxSettings) {
+          switch (product.taxCategory) {
+            case 'essential': productTaxRate = taxSettings.essentialProductRate || 5; break
+            case 'intermediate': productTaxRate = taxSettings.intermediateProductRate || 12; break
+            case 'standard': productTaxRate = taxSettings.standardProductRate || 18; break
+            case 'luxury': productTaxRate = taxSettings.luxuryProductRate || 28; break
+            case 'exempt': productTaxRate = taxSettings.exemptProductRate || 0; break
+          }
+        }
+        const gstAmount = (taxSettings?.enableTax !== false) ? (baseAmount * productTaxRate) / 100 : 0
+        return { ...item, totalWithGST: baseAmount + gstAmount }
+      })
+      
+      const totalPayableAmount = serviceItemsWithGST.reduce((sum, item) => sum + item.totalWithGST, 0) + 
+                                productItemsWithGST.reduce((sum, item) => sum + item.totalWithGST, 0)
+      
+      if (totalPayableAmount > 0) {
+        setServiceItems(prev => prev.map((item, index) => {
+          const baseAmount = item.price * item.quantity
+          const serviceTaxRate = taxSettings?.serviceTaxRate || 5
+          const gstAmount = (taxSettings?.enableTax !== false) ? (baseAmount * serviceTaxRate) / 100 : 0
+          const totalWithGST = baseAmount + gstAmount
+          const proportionalDiscountValue = (totalWithGST / totalPayableAmount) * discountValue
+          const proportionalDiscountPercentage = (proportionalDiscountValue / totalWithGST) * 100
+          const finalTotal = totalWithGST - proportionalDiscountValue
+          
+          console.log(`🔧 Service item ${index + 1} calculation:`, {
+            id: item.id,
+            serviceId: item.serviceId,
+            price: item.price,
+            quantity: item.quantity,
+            baseAmount,
+            gstAmount,
+            totalWithGST,
+            proportionalDiscountValue,
+            proportionalDiscountPercentage,
+            finalTotal,
+            totalPayableAmount
+          })
+          
+          return { ...item, discount: proportionalDiscountPercentage, total: finalTotal }
+        }))
+        
+        console.log('✅ Service items updated with new totals')
+        
+        setProductItems(prev => prev.map(item => {
+          const baseAmount = item.price * item.quantity
+          const product = products.find((p) => p._id === item.productId || p.id === item.productId)
+          let productTaxRate = 18
+          if (product?.taxCategory && taxSettings) {
+            switch (product.taxCategory) {
+              case 'essential': productTaxRate = taxSettings.essentialProductRate || 5; break
+              case 'intermediate': productTaxRate = taxSettings.intermediateProductRate || 12; break
+              case 'standard': productTaxRate = taxSettings.standardProductRate || 18; break
+              case 'luxury': productTaxRate = taxSettings.luxuryProductRate || 28; break
+              case 'exempt': productTaxRate = taxSettings.exemptProductRate || 0; break
+            }
+          }
+          const gstAmount = (taxSettings?.enableTax !== false) ? (baseAmount * productTaxRate) / 100 : 0
+          const totalWithGST = baseAmount + gstAmount
+          const proportionalDiscountValue = (totalWithGST / totalPayableAmount) * discountValue
+          const proportionalDiscountPercentage = (proportionalDiscountValue / totalWithGST) * 100
+          const finalTotal = totalWithGST - proportionalDiscountValue
+          return { ...item, discount: proportionalDiscountPercentage, total: finalTotal }
+        }))
+      }
+    } else if (discountPercentage > 0) {
+      // Percentage discount logic
+      const serviceItemsWithGST = serviceItems.map(item => {
+        const baseAmount = item.price * item.quantity
+        const serviceTaxRate = taxSettings?.serviceTaxRate || 5
+        const gstAmount = (taxSettings?.enableTax !== false) ? (baseAmount * serviceTaxRate) / 100 : 0
+        return { ...item, totalWithGST: baseAmount + gstAmount }
+      })
+      
+      const productItemsWithGST = productItems.map(item => {
+        const baseAmount = item.price * item.quantity
+        const product = products.find((p) => p._id === item.productId || p.id === item.productId)
+        let productTaxRate = 18
+        if (product?.taxCategory && taxSettings) {
+          switch (product.taxCategory) {
+            case 'essential': productTaxRate = taxSettings.essentialProductRate || 5; break
+            case 'intermediate': productTaxRate = taxSettings.intermediateProductRate || 12; break
+            case 'standard': productTaxRate = taxSettings.standardProductRate || 18; break
+            case 'luxury': productTaxRate = taxSettings.luxuryProductRate || 28; break
+            case 'exempt': productTaxRate = taxSettings.exemptProductRate || 0; break
+          }
+        }
+        const gstAmount = (taxSettings?.enableTax !== false) ? (baseAmount * productTaxRate) / 100 : 0
+        return { ...item, totalWithGST: baseAmount + gstAmount }
+      })
+      
+      const totalPayableAmount = serviceItemsWithGST.reduce((sum, item) => sum + item.totalWithGST, 0) + 
+                                productItemsWithGST.reduce((sum, item) => sum + item.totalWithGST, 0)
+      
+      const totalDiscountAmount = (totalPayableAmount * discountPercentage) / 100
+      
+      setServiceItems(prev => prev.map(item => {
+        const baseAmount = item.price * item.quantity
+        const serviceTaxRate = taxSettings?.serviceTaxRate || 5
+        const gstAmount = (taxSettings?.enableTax !== false) ? (baseAmount * serviceTaxRate) / 100 : 0
+        const totalWithGST = baseAmount + gstAmount
+        const proportionalDiscountValue = (totalWithGST / totalPayableAmount) * totalDiscountAmount
+        const proportionalDiscountPercentage = (proportionalDiscountValue / totalWithGST) * 100
+        const finalTotal = totalWithGST - proportionalDiscountValue
+        
+        console.log('🔧 Service item calculation (percentage):', {
+          name: item.serviceId,
+          baseAmount,
+          gstAmount,
+          totalWithGST,
+          proportionalDiscountValue,
+          proportionalDiscountPercentage,
+          finalTotal
+        })
+        
+        return { ...item, discount: proportionalDiscountPercentage, total: finalTotal }
+      }))
+      
+      setProductItems(prev => prev.map(item => {
+        const baseAmount = item.price * item.quantity
+        const product = products.find((p) => p._id === item.productId || p.id === item.productId)
+        let productTaxRate = 18
+        if (product?.taxCategory && taxSettings) {
+          switch (product.taxCategory) {
+            case 'essential': productTaxRate = taxSettings.essentialProductRate || 5; break
+            case 'intermediate': productTaxRate = taxSettings.intermediateProductRate || 12; break
+            case 'standard': productTaxRate = taxSettings.standardProductRate || 18; break
+            case 'luxury': productTaxRate = taxSettings.luxuryProductRate || 28; break
+            case 'exempt': productTaxRate = taxSettings.exemptProductRate || 0; break
+          }
+        }
+        const gstAmount = (taxSettings?.enableTax !== false) ? (baseAmount * productTaxRate) / 100 : 0
+        const totalWithGST = baseAmount + gstAmount
+        const proportionalDiscountValue = (totalWithGST / totalPayableAmount) * totalDiscountAmount
+        const proportionalDiscountPercentage = (proportionalDiscountValue / totalWithGST) * 100
+        const finalTotal = totalWithGST - proportionalDiscountValue
+        return { ...item, discount: proportionalDiscountPercentage, total: finalTotal }
+      }))
+    } else {
+      // No discount - reset to GST-inclusive amounts (only if tax is enabled)
+      setServiceItems(prev => prev.map(item => {
+        const baseAmount = item.price * item.quantity
+        const serviceTaxRate = taxSettings?.serviceTaxRate || 5
+        const gstAmount = (taxSettings?.enableTax !== false) ? (baseAmount * serviceTaxRate) / 100 : 0
+        return { ...item, discount: 0, total: baseAmount + gstAmount }
+      }))
+      
+      setProductItems(prev => prev.map(item => {
+        const baseAmount = item.price * item.quantity
+        const product = products.find((p) => p._id === item.productId || p.id === item.productId)
+        let productTaxRate = 18
+        if (product?.taxCategory && taxSettings) {
+          switch (product.taxCategory) {
+            case 'essential': productTaxRate = taxSettings.essentialProductRate || 5; break
+            case 'intermediate': productTaxRate = taxSettings.intermediateProductRate || 12; break
+            case 'standard': productTaxRate = taxSettings.standardProductRate || 18; break
+            case 'luxury': productTaxRate = taxSettings.luxuryProductRate || 28; break
+            case 'exempt': productTaxRate = taxSettings.exemptProductRate || 0; break
+          }
+        }
+        const gstAmount = (taxSettings?.enableTax !== false) ? (baseAmount * productTaxRate) / 100 : 0
+        return { ...item, discount: 0, total: baseAmount + gstAmount }
+      }))
+    }
+  }
+
+  // Recalculate discounts when discount values or tax settings change
+  useEffect(() => {
+    recalculateDiscounts()
+  }, [discountValue, discountPercentage, taxSettings])
+
+  // Log when service items change
+  useEffect(() => {
+    console.log('🔄 Service items state changed:', serviceItems.map(item => ({
+      id: item.id,
+      price: item.price,
+      quantity: item.quantity,
+      total: item.total,
+      discount: item.discount
+    })))
+  }, [serviceItems])
+
+  // Recalculate discounts when item properties change (but avoid infinite loops)
+  useEffect(() => {
+    if (discountValue > 0 || discountPercentage > 0) {
+      // Use setTimeout to avoid infinite loops
+      const timeoutId = setTimeout(() => {
+        recalculateDiscounts()
+      }, 0)
+      return () => clearTimeout(timeoutId)
+    }
+  }, [serviceItems.map(item => `${item.price}-${item.quantity}-${item.serviceId}`).join(','), 
+       productItems.map(item => `${item.price}-${item.quantity}-${item.productId}`).join(',')])
+
   // Add service item
   const addServiceItem = () => {
     const newItem: ServiceItem = {
@@ -693,12 +1182,38 @@ export function QuickSale() {
       price: 0,
       discount: 0,
       total: 0,
+      staffContributions: [],
     }
     setServiceItems([...serviceItems, newItem])
+    
+    // Recalculate discounts after adding new item
+    setTimeout(() => {
+      recalculateDiscounts()
+    }, 0)
   }
 
   // Add product item
   const addProductItem = () => {
+    // Check if products are still loading
+    if (loadingProducts) {
+      toast({
+        title: "Loading Products",
+        description: "Please wait while products are being loaded...",
+        variant: "default",
+      })
+      return
+    }
+    
+    // Check if there are any products available
+    if (products.length === 0) {
+      toast({
+        title: "No Products Available",
+        description: "Please add products to the inventory first.",
+        variant: "destructive",
+      })
+      return
+    }
+
     const newItem: ProductItem = {
       id: Date.now().toString(),
       productId: "",
@@ -709,6 +1224,11 @@ export function QuickSale() {
       total: 0,
     }
     setProductItems([...productItems, newItem])
+    
+    // Recalculate discounts after adding new item
+    setTimeout(() => {
+      recalculateDiscounts()
+    }, 0)
   }
 
   // Update service item
@@ -730,10 +1250,15 @@ export function QuickSale() {
             }
           }
 
-          // Calculate total
-          const subtotal = updatedItem.price * updatedItem.quantity
-          const discountAmount = (subtotal * updatedItem.discount) / 100
-          updatedItem.total = subtotal - discountAmount
+          // Calculate total with GST for services (without discount - discount will be applied by useEffect)
+          const baseAmount = updatedItem.price * updatedItem.quantity
+          const serviceTaxRate = taxSettings?.serviceTaxRate || 5
+          const gstAmount = (taxSettings?.enableTax !== false) ? (baseAmount * serviceTaxRate) / 100 : 0
+          
+          // Only update total if no discount is active, otherwise let discount logic handle it
+          if (discountValue === 0 && discountPercentage === 0) {
+            updatedItem.total = baseAmount + gstAmount
+          }
 
           return updatedItem
         }
@@ -761,10 +1286,30 @@ export function QuickSale() {
             }
           }
 
-          // Calculate total
-          const subtotal = updatedItem.price * updatedItem.quantity
-          const discountAmount = (subtotal * updatedItem.discount) / 100
-          updatedItem.total = subtotal - discountAmount
+          // Calculate total with GST for products
+          const baseAmount = updatedItem.price * updatedItem.quantity
+          
+          // Add GST for products based on tax category (only if tax is enabled)
+          let productTaxRate = 18 // default standard rate
+          if (field === "productId" && value) {
+            const product = products.find((p) => p._id === value || p.id === value)
+            if (product?.taxCategory && taxSettings) {
+              switch (product.taxCategory) {
+                case 'essential': productTaxRate = taxSettings.essentialProductRate || 5; break
+                case 'intermediate': productTaxRate = taxSettings.intermediateProductRate || 12; break
+                case 'standard': productTaxRate = taxSettings.standardProductRate || 18; break
+                case 'luxury': productTaxRate = taxSettings.luxuryProductRate || 28; break
+                case 'exempt': productTaxRate = taxSettings.exemptProductRate || 0; break
+              }
+            }
+          }
+          
+          const gstAmount = (taxSettings?.enableTax !== false) ? (baseAmount * productTaxRate) / 100 : 0
+          
+          // Only update total if no discount is active, otherwise let discount logic handle it
+          if (discountValue === 0 && discountPercentage === 0) {
+            updatedItem.total = baseAmount + gstAmount
+          }
 
           console.log('Updated Product Item:', updatedItem)
           return updatedItem
@@ -785,102 +1330,172 @@ export function QuickSale() {
     setProductItems((items) => items.filter((item) => item.id !== id))
   }
 
-  // Calculate totals
+  // Calculate totals (now includes GST in individual items)
   const serviceTotal = serviceItems.reduce((sum, item) => sum + item.total, 0)
   const productTotal = productItems.reduce((sum, item) => sum + item.total, 0)
   const subtotal = serviceTotal + productTotal
   const totalDiscount = discountValue + (subtotal * discountPercentage) / 100
   
-  // Calculate tax using advanced tax calculator
-  let taxAmount = 0
-  let taxBreakdown = { cgst: 0, sgst: 0, igst: 0 }
+  // Calculate tax breakdown for billing summary
+  // Tax should be calculated on the discounted amount, not original price
   
-  if (taxCalculator && taxSettings?.enableTax) {
-    // Convert items to BillItem format for tax calculation
-    const billItems: BillItem[] = [
-      ...serviceItems.map(item => {
-        const service = services.find(s => (s._id || s.id) === item.serviceId)
-        return {
-          id: item.id,
-          name: service?.name || 'Unknown Service',
-          type: 'service' as const,
-          price: item.price,
-          quantity: item.quantity
-        }
-      }),
-      ...productItems.map(item => {
-        const product = products.find(p => (p._id || p.id) === item.productId)
-        return {
-          id: item.id,
-          name: product?.name || 'Unknown Product',
-          type: 'product' as const,
-          price: item.price,
-          quantity: item.quantity,
-          taxCategory: product?.taxCategory || 'standard'
-        }
-      })
-    ]
+  // Helper function to calculate discounted amount for an item
+  const calculateDiscountedAmount = (baseAmount: number, taxRate: number) => {
+    if (discountValue === 0 && discountPercentage === 0) {
+      return baseAmount
+    }
     
-    if (billItems.length > 0) {
-      const taxResult = taxCalculator.calculateBillTax(billItems)
-      taxAmount = taxResult.summary.totalTaxAmount
-      taxBreakdown = {
-        cgst: taxResult.summary.totalCGST,
-        sgst: taxResult.summary.totalSGST,
-        igst: taxResult.summary.totalIGST
+    // Calculate total payable amount (original prices + GST, only if tax is enabled)
+    const totalPayableAmount = serviceItems.reduce((total, serviceItem) => {
+      const serviceBaseAmount = serviceItem.price * serviceItem.quantity
+      const serviceTaxRate = taxSettings?.serviceTaxRate || 5
+      const serviceGstAmount = (taxSettings?.enableTax !== false) ? (serviceBaseAmount * serviceTaxRate) / 100 : 0
+      return total + serviceBaseAmount + serviceGstAmount
+    }, 0) + productItems.reduce((total, productItem) => {
+      const productBaseAmount = productItem.price * productItem.quantity
+      const product = products.find((p) => p._id === productItem.productId || p.id === productItem.productId)
+      let productTaxRate = 18
+      if (product?.taxCategory && taxSettings) {
+        switch (product.taxCategory) {
+          case 'essential': productTaxRate = taxSettings.essentialProductRate || 5; break
+          case 'intermediate': productTaxRate = taxSettings.intermediateProductRate || 12; break
+          case 'standard': productTaxRate = taxSettings.standardProductRate || 18; break
+          case 'luxury': productTaxRate = taxSettings.luxuryProductRate || 28; break
+          case 'exempt': productTaxRate = taxSettings.exemptProductRate || 0; break
+        }
       }
-    }
-  } else {
-    // Fallback to simple tax calculation
-    taxAmount = paymentSettings?.enableTax ? (subtotal - totalDiscount) * ((paymentSettings?.taxRate || 8.25) / 100) : 0
-    taxBreakdown = {
-      cgst: taxAmount / 2,
-      sgst: taxAmount / 2,
-      igst: 0
-    }
+      const productGstAmount = (taxSettings?.enableTax !== false) ? (productBaseAmount * productTaxRate) / 100 : 0
+      return total + productBaseAmount + productGstAmount
+    }, 0)
+    
+    const gstForItem = (taxSettings?.enableTax !== false) ? (baseAmount * taxRate) / 100 : 0
+    const itemAmountWithGST = baseAmount + gstForItem
+    const totalDiscountAmount = discountValue + (totalPayableAmount * discountPercentage / 100)
+    const proportionalDiscount = totalPayableAmount > 0 ? (itemAmountWithGST / totalPayableAmount) * totalDiscountAmount : 0
+    const discountOnBaseAmount = proportionalDiscount * baseAmount / itemAmountWithGST
+    
+    return baseAmount - discountOnBaseAmount
   }
   
-  const grandTotal = subtotal - totalDiscount + taxAmount + tip
+  // Calculate service tax on discounted amounts (only if tax is enabled)
+  const serviceTax = (taxSettings?.enableTax !== false) ? serviceItems.reduce((sum, item) => {
+    const baseAmount = item.price * item.quantity
+    const serviceTaxRate = taxSettings?.serviceTaxRate || 5
+    const discountedAmount = calculateDiscountedAmount(baseAmount, serviceTaxRate)
+    const gstAmount = (discountedAmount * serviceTaxRate) / 100
+    return sum + gstAmount
+  }, 0) : 0
+  
+  // Calculate product tax on discounted amounts (only if tax is enabled)
+  const productTax = (taxSettings?.enableTax !== false) ? productItems.reduce((sum, item) => {
+    const baseAmount = item.price * item.quantity
+    const product = products.find((p) => p._id === item.productId || p.id === item.productId)
+    let productTaxRate = 18
+    if (product?.taxCategory && taxSettings) {
+      switch (product.taxCategory) {
+        case 'essential': productTaxRate = taxSettings.essentialProductRate || 5; break
+        case 'intermediate': productTaxRate = taxSettings.intermediateProductRate || 12; break
+        case 'standard': productTaxRate = taxSettings.standardProductRate || 18; break
+        case 'luxury': productTaxRate = taxSettings.luxuryProductRate || 28; break
+        case 'exempt': productTaxRate = taxSettings.exemptProductRate || 0; break
+      }
+    }
+    const discountedAmount = calculateDiscountedAmount(baseAmount, productTaxRate)
+    const gstAmount = (discountedAmount * productTaxRate) / 100
+    return sum + gstAmount
+  }, 0) : 0
+
+  const totalTax = serviceTax + productTax
+  
+  // Calculate subtotal excluding tax (discounted amounts)
+  const subtotalExcludingTax = serviceItems.reduce((sum, item) => {
+    const baseAmount = item.price * item.quantity
+    const serviceTaxRate = taxSettings?.serviceTaxRate || 5
+    const discountedAmount = calculateDiscountedAmount(baseAmount, serviceTaxRate)
+    return sum + discountedAmount
+  }, 0) + productItems.reduce((sum, item) => {
+    const baseAmount = item.price * item.quantity
+    const product = products.find((p) => p._id === item.productId || p.id === item.productId)
+    let productTaxRate = 18
+    if (product?.taxCategory && taxSettings) {
+      switch (product.taxCategory) {
+        case 'essential': productTaxRate = taxSettings.essentialProductRate || 5; break
+        case 'intermediate': productTaxRate = taxSettings.intermediateProductRate || 12; break
+        case 'standard': productTaxRate = taxSettings.standardProductRate || 18; break
+        case 'luxury': productTaxRate = taxSettings.luxuryProductRate || 28; break
+        case 'exempt': productTaxRate = taxSettings.exemptProductRate || 0; break
+      }
+    }
+    const discountedAmount = calculateDiscountedAmount(baseAmount, productTaxRate)
+    return sum + discountedAmount
+  }, 0)
+  
+  const serviceCGST = serviceTax / 2
+  const serviceSGST = serviceTax / 2
+  const productCGST = productTax / 2
+  const productSGST = productTax / 2
+
+  // Grand total = subtotal + tip (GST already included in subtotal)
+  const grandTotal = subtotal + tip
   const roundedTotal = Math.round(grandTotal)
   const roundOff = roundedTotal - grandTotal
   const totalPaid = cashAmount + cardAmount + onlineAmount
   const change = totalPaid - roundedTotal
 
-  // Generate receipt number
+  // Generate receipt number with proper increment
   const generateReceiptNumber = async () => {
     try {
-      // Fetch fresh business settings to get the current receipt number
-      const response = await SettingsAPI.getBusinessSettings()
-      if (response.success) {
-        const currentSettings = response.data
+      console.log('=== RECEIPT NUMBER GENERATION DEBUG ===')
+      
+      // First, increment the receipt number atomically
+      const incrementResponse = await SettingsAPI.incrementReceiptNumber()
+      if (incrementResponse.success) {
+        const newReceiptNumber = incrementResponse.data.receiptNumber
+        console.log('✅ Receipt number incremented successfully:', newReceiptNumber)
+        
+        // Get fresh business settings to get the prefix
+        const settingsResponse = await SettingsAPI.getBusinessSettings()
+        if (settingsResponse.success) {
+          const currentSettings = settingsResponse.data
         const prefix = currentSettings?.invoicePrefix || currentSettings?.receiptPrefix || "INV"
-        const receiptNumber = currentSettings?.receiptNumber || 1
         
-        console.log('=== RECEIPT NUMBER GENERATION DEBUG ===')
         console.log('Fresh business settings:', currentSettings)
-        console.log('Current receipt number from server:', receiptNumber)
+          console.log('New receipt number from increment:', newReceiptNumber)
         console.log('Final prefix used:', prefix)
-        console.log('Final receipt number generated:', `${prefix}-${receiptNumber.toString().padStart(6, '0')}`)
-        
-        // Format: PREFIX-000001, PREFIX-000002, etc.
-        return `${prefix}-${receiptNumber.toString().padStart(6, '0')}`
+          
+          const formattedReceiptNumber = `${prefix}-${newReceiptNumber.toString().padStart(6, '0')}`
+          console.log('Final receipt number generated:', formattedReceiptNumber)
+          
+          // Update local state with new receipt number
+          setBusinessSettings((prev: any) => ({
+            ...prev,
+            receiptNumber: newReceiptNumber
+          }))
+          
+          return formattedReceiptNumber
+        }
+      } else {
+        console.error('Failed to increment receipt number:', incrementResponse.error)
+        throw new Error(incrementResponse.error || 'Failed to increment receipt number')
       }
     } catch (error) {
-      console.error('Failed to fetch fresh business settings for receipt generation:', error)
-    }
+      console.error('Failed to generate receipt number:', error)
     
     // Fallback to cached settings if API call fails
     const prefix = posSettings?.invoicePrefix || businessSettings?.invoicePrefix || businessSettings?.receiptPrefix || "INV"
-    const receiptNumber = posSettings?.receiptNumber || businessSettings?.receiptNumber || 1
+      const receiptNumber = (posSettings?.receiptNumber || businessSettings?.receiptNumber || 1)
     
     console.log('=== FALLBACK RECEIPT NUMBER GENERATION ===')
     console.log('Using cached settings - posSettings:', posSettings)
     console.log('Using cached settings - businessSettings:', businessSettings)
     console.log('Final prefix used:', prefix)
     console.log('Final receipt number used:', receiptNumber)
-    console.log('Final receipt number generated:', `${prefix}-${receiptNumber.toString().padStart(6, '0')}`)
-    
-    return `${prefix}-${receiptNumber.toString().padStart(6, '0')}`
+      
+      const formattedReceiptNumber = `${prefix}-${receiptNumber.toString().padStart(6, '0')}`
+      console.log('Final receipt number generated (fallback):', formattedReceiptNumber)
+      
+      return formattedReceiptNumber
+    }
   }
 
   // Handle checkout
@@ -888,6 +1503,13 @@ export function QuickSale() {
     console.log('🚀 handleCheckout function called!')
     console.log('🚀 selectedCustomer:', selectedCustomer)
     console.log('🚀 customerSearch:', customerSearch)
+    console.log('🚀 isProcessing:', isProcessing)
+    
+    // Prevent multiple simultaneous checkouts
+    if (isProcessing) {
+      console.log('❌ Checkout already in progress, ignoring')
+      return
+    }
     
     if (!selectedCustomer && !customerSearch) {
       toast({
@@ -905,6 +1527,37 @@ export function QuickSale() {
       toast({
         title: "No Items",
         description: "Please add at least one service or product",
+        variant: "destructive",
+      })
+      return
+    }
+
+    // Validate that we have a valid total amount
+    if (roundedTotal <= 0) {
+      toast({
+        title: "Invalid Amount",
+        description: "Total amount must be greater than 0",
+        variant: "destructive",
+      })
+      return
+    }
+
+    // Validate payment amounts don't exceed total
+    if (totalPaid > roundedTotal) {
+      toast({
+        title: "Payment Error",
+        description: `Total paid (₹${totalPaid.toFixed(2)}) cannot exceed total amount (₹${roundedTotal.toFixed(2)})`,
+        variant: "destructive",
+      })
+      return
+    }
+
+    // Validate that all services have staff assigned
+    const servicesWithoutStaff = validServiceItems.filter((item) => !item.staffId)
+    if (servicesWithoutStaff.length > 0) {
+      toast({
+        title: "Staff Required",
+        description: "Please select staff for all services before checkout",
         variant: "destructive",
       })
       return
@@ -1067,110 +1720,204 @@ export function QuickSale() {
         staffName: receiptItems[0].staffName
       } : 'No items')
       
-      // Calculate tax using advanced tax calculator
+      // Calculate tax breakdown from individual items (GST already included in totals)
       let calculatedTax = 0
-      let calculatedTotal = subtotal - totalDiscount + tip
+      let calculatedTotal = subtotal + tip
       let taxBreakdown = { cgst: 0, sgst: 0, igst: 0 }
 
-      if (taxCalculator && taxSettings?.enableTax) {
-        // Convert receipt items to BillItem format for tax calculation
-        const billItems: BillItem[] = receiptItems.map(item => ({
-          id: item.id,
-          name: item.name,
-          type: item.type,
-          price: item.price,
-          quantity: item.quantity,
-          taxCategory: item.type === 'product' ? 
-            (products.find(p => (p._id || p.id) === item.productId)?.taxCategory || 'standard') : 
-            undefined
-        }))
+      // Calculate tax breakdown from individual items (only if tax is enabled)
+        const serviceTax = (taxSettings?.enableTax !== false) ? serviceItems.reduce((sum, item) => {
+        const baseAmount = item.price * item.quantity
+        const discountAmount = (baseAmount * item.discount) / 100
+        const discountedAmount = baseAmount - discountAmount
+        const serviceTaxRate = taxSettings?.serviceTaxRate || 5
+        const gstAmount = (discountedAmount * serviceTaxRate) / 100
+        return sum + gstAmount
+      }, 0) : 0
 
-        // Calculate tax for all items
-        const taxResult = taxCalculator.calculateBillTax(billItems)
-        
-        // Update receipt items with tax information
-        receiptItems.forEach((item, index) => {
-          const taxItem = taxResult.items[index]
-          if (taxItem) {
-            item.taxAmount = taxItem.taxAmount
-            item.cgst = taxItem.cgst
-            item.sgst = taxItem.sgst
-            item.totalWithTax = taxItem.totalAmount
-          }
-        })
-
-        calculatedTax = taxResult.summary.totalTaxAmount
-        const preRoundTotal = subtotal - totalDiscount + calculatedTax + tip
-        calculatedTotal = Math.round(preRoundTotal)
-        
-        // Calculate detailed tax breakdown for receipt
-        const serviceTax = serviceItems.reduce((sum, item) => {
-          const service = services.find(s => (s._id || s.id) === item.serviceId)
-          const itemTax = taxCalculator ? taxCalculator.calculateItemTax({
-            id: item.id,
-            name: service?.name || 'Unknown Service',
-            type: 'service',
-            price: item.price,
-            quantity: item.quantity
-          }).taxAmount : 0
-          return sum + itemTax
-        }, 0)
-        
-        // Group product taxes by their actual tax rates
-        const productTaxByRate = productItems.reduce((acc, item) => {
-          const product = products.find(p => (p._id || p.id) === item.productId)
-          let taxRate = '18' // default
+      const productTax = (taxSettings?.enableTax !== false) ? productItems.reduce((sum, item) => {
+        const baseAmount = item.price * item.quantity
+        const discountAmount = (baseAmount * item.discount) / 100
+        const discountedAmount = baseAmount - discountAmount
+        const product = products.find((p) => p._id === item.productId || p.id === item.productId)
+        let productTaxRate = 18 // default standard rate
           if (product?.taxCategory && taxSettings) {
             switch (product.taxCategory) {
-              case 'essential': taxRate = taxSettings.essentialProductRate?.toString() || '5'; break
-              case 'intermediate': taxRate = taxSettings.intermediateProductRate?.toString() || '12'; break
-              case 'standard': taxRate = taxSettings.standardProductRate?.toString() || '18'; break
-              case 'luxury': taxRate = taxSettings.luxuryProductRate?.toString() || '28'; break
-              case 'exempt': taxRate = taxSettings.exemptProductRate?.toString() || '0'; break
-            }
+            case 'essential': productTaxRate = taxSettings.essentialProductRate || 5; break
+            case 'intermediate': productTaxRate = taxSettings.intermediateProductRate || 12; break
+            case 'standard': productTaxRate = taxSettings.standardProductRate || 18; break
+            case 'luxury': productTaxRate = taxSettings.luxuryProductRate || 28; break
+            case 'exempt': productTaxRate = taxSettings.exemptProductRate || 0; break
           }
-          
-          const itemTax = taxCalculator ? taxCalculator.calculateItemTax({
-            id: item.id,
-            name: product?.name || 'Unknown Product',
-            type: 'product',
-            price: item.price,
-            quantity: item.quantity,
-            taxCategory: product?.taxCategory || 'standard'
-          }).taxAmount : 0
-          
-          if (!acc[taxRate]) {
-            acc[taxRate] = 0
-          }
-          acc[taxRate] += itemTax
-          return acc
-        }, {} as { [rate: string]: number })
-        
-        taxBreakdown = {
-          cgst: taxResult.summary.totalCGST,
-          sgst: taxResult.summary.totalSGST,
-          igst: taxResult.summary.totalIGST,
-          serviceTax: serviceTax,
-          serviceRate: taxSettings?.serviceTaxRate || 5,
-          productTaxByRate: productTaxByRate
-        } as any
-      } else {
-        // Fallback to simple tax calculation if tax calculator not available
-        const taxRate = paymentSettings?.enableTax ? (paymentSettings?.taxRate || 8.25) / 100 : 0
-        calculatedTax = (subtotal - totalDiscount) * taxRate
-        const preRoundTotal = subtotal - totalDiscount + calculatedTax + tip
-        calculatedTotal = Math.round(preRoundTotal)
+        }
+        const gstAmount = (discountedAmount * productTaxRate) / 100
+        return sum + gstAmount
+      }, 0) : 0
+
+      calculatedTax = serviceTax + productTax
         taxBreakdown = {
           cgst: calculatedTax / 2,
           sgst: calculatedTax / 2,
           igst: 0
         }
-      }
+
+      // Update receipt items with tax information (only if tax is enabled)
+      receiptItems.forEach((item) => {
+        if (item.type === 'service') {
+          const baseAmount = item.price * item.quantity
+          const discountAmount = (baseAmount * item.discount) / 100
+          const discountedAmount = baseAmount - discountAmount
+          
+          if (taxSettings?.enableTax !== false) {
+            const serviceTaxRate = taxSettings?.serviceTaxRate || 5
+            const gstAmount = (discountedAmount * serviceTaxRate) / 100
+            item.taxAmount = gstAmount
+            item.cgst = gstAmount / 2
+            item.sgst = gstAmount / 2
+          } else {
+            item.taxAmount = 0
+            item.cgst = 0
+            item.sgst = 0
+          }
+          item.totalWithTax = item.total
+        } else if (item.type === 'product') {
+          const baseAmount = item.price * item.quantity
+          const discountAmount = (baseAmount * item.discount) / 100
+          const discountedAmount = baseAmount - discountAmount
+          
+          if (taxSettings?.enableTax !== false) {
+            const product = products.find((p) => p._id === item.productId || p.id === item.productId)
+            let productTaxRate = 18
+            if (product?.taxCategory && taxSettings) {
+              switch (product.taxCategory) {
+                case 'essential': productTaxRate = taxSettings.essentialProductRate || 5; break
+                case 'intermediate': productTaxRate = taxSettings.intermediateProductRate || 12; break
+                case 'standard': productTaxRate = taxSettings.standardProductRate || 18; break
+                case 'luxury': productTaxRate = taxSettings.luxuryProductRate || 28; break
+                case 'exempt': productTaxRate = taxSettings.exemptProductRate || 0; break
+              }
+            }
+            const gstAmount = (discountedAmount * productTaxRate) / 100
+            item.taxAmount = gstAmount
+            item.cgst = gstAmount / 2
+            item.sgst = gstAmount / 2
+          } else {
+            item.taxAmount = 0
+            item.cgst = 0
+            item.sgst = 0
+          }
+          item.totalWithTax = item.total
+        }
+      })
       
+      // Create sale in backend database for inventory tracking FIRST
+      // Generate receipt number only when we're about to create the sale
+      try {
       // Generate receipt number first
-      const receiptNumber = await generateReceiptNumber()
-      
-      // Create receipt
+        let receiptNumber
+        try {
+          receiptNumber = await generateReceiptNumber()
+          if (!receiptNumber) {
+            throw new Error('Failed to generate receipt number')
+          }
+          console.log('✅ Receipt number generated successfully:', receiptNumber)
+        } catch (error) {
+          console.error('❌ Failed to generate receipt number:', error)
+          toast({
+            title: "Receipt Generation Failed",
+            description: "Failed to generate receipt number. Please try again.",
+            variant: "destructive",
+          })
+          return
+        }
+
+        // Create sale data with the generated receipt number
+        const saleData = {
+          billNo: receiptNumber,
+          customerId: getCustomerId(customer),
+          customerName: customer!.name,
+          customerPhone: customer!.phone,
+          items: [
+            ...validServiceItems.map((item: any) => {
+              const service = services.find((s) => s._id === item.serviceId || s.id === item.serviceId)
+              const staffMember = staff.find((s) => s._id === item.staffId || s.id === item.staffId)
+              return {
+                serviceId: item.serviceId,
+                productId: null,
+                name: service?.name || 'Unknown Service',
+                type: 'service' as const,
+                quantity: item.quantity,
+                price: item.price,
+                total: item.total,
+                staffId: item.staffId || '',
+                staffName: staffMember?.name || '',
+                staffContributions: item.staffContributions || []
+              }
+            }),
+            ...validProductItems.map((item: any) => {
+              const product = products.find((p) => p._id === item.productId || p.id === item.productId)
+              const staffMember = staff.find((s) => s._id === item.staffId || s.id === item.staffId)
+              return {
+                productId: item.productId,
+                serviceId: null,
+                name: product?.name || 'Unknown Product',
+                type: 'product' as const,
+                quantity: item.quantity,
+                price: item.price,
+                total: item.total,
+                staffId: item.staffId || '',
+                staffName: staffMember?.name || '',
+                staffContributions: item.staffContributions || []
+              }
+            })
+          ],
+          // Sale model required fields
+          netTotal: subtotal,
+          taxAmount: calculatedTax,
+          grossTotal: calculatedTotal,
+          discount: totalDiscount || 0,
+          discountType: 'percentage',
+          // Payment status tracking
+          paymentStatus: {
+            totalAmount: calculatedTotal,
+            paidAmount: totalPaid,
+            remainingAmount: calculatedTotal - totalPaid,
+            dueDate: new Date()
+          },
+          status: totalPaid === 0 ? 'unpaid' : (totalPaid < calculatedTotal ? 'partial' : 'completed'),
+          paymentMode: payments.map(p => p.type).join(', '),
+          payments: payments.map(p => ({
+            mode: p.type.charAt(0).toUpperCase() + p.type.slice(1), // Capitalize first letter
+            amount: p.amount
+          })),
+          staffId: primaryStaff?.staffId || staff[0]?._id || staff[0]?.id || "",
+          staffName: primaryStaff?.staffName || staff[0]?.name || "Unassigned Staff",
+          notes: remarks || '',
+          date: selectedDate.toISOString(),
+          time: format(new Date(), "HH:mm")
+        }
+
+        console.log('💾 Creating sale in backend:', saleData)
+        console.log('💾 Sale data items:', saleData.items)
+        console.log('💾 Sale data validation:', {
+          hasBillNo: !!saleData.billNo,
+          hasCustomerName: !!saleData.customerName,
+          hasItems: !!saleData.items && saleData.items.length > 0,
+          hasGrossTotal: !!saleData.grossTotal,
+          itemsCount: saleData.items?.length || 0
+        })
+        
+        // Use the SalesAPI for proper authentication and error handling
+        try {
+          console.log('🚀 About to call SalesAPI.create with data:', saleData)
+          console.log('🔐 Current auth token:', localStorage.getItem('salon-auth-token') ? 'Present' : 'Missing')
+          const result = await SalesAPI.create(saleData)
+          console.log('📊 SalesAPI.create response:', result)
+          
+          if (result.success) {
+            console.log('✅ Sale created successfully in backend:', result)
+            
+            // Now that backend sale is successful, create and store the receipt locally
       const receipt: any = {
         id: Date.now().toString(),
         receiptNumber: receiptNumber,
@@ -1193,222 +1940,116 @@ export function QuickSale() {
         notes: remarks,
       }
 
-      // Add receipt to storage
+            // Store the receipt locally
       addReceipt(receipt)
       setCurrentReceipt(receipt)
-      
-      // Increment receipt number in business settings ONLY after successful receipt creation
-      if (businessSettings?.autoIncrementReceipt) {
-        try {
-          await SettingsAPI.incrementReceiptNumber()
-          console.log('Receipt number incremented successfully')
-          
-          // Refresh business settings to get the updated receipt number
-          const updatedSettings = await SettingsAPI.getBusinessSettings()
-          if (updatedSettings.success) {
-            setBusinessSettings(updatedSettings.data)
-            console.log('Business settings refreshed with new receipt number:', updatedSettings.data.receiptNumber)
-          }
-        } catch (error) {
-          console.error('Failed to increment receipt number:', error)
-        }
-      }
-      // setShowReceiptDialog(true) // Comment out modal dialog
-
-      console.log('🎯 RECEIPT DIALOG DEBUG:')
-      console.log('Current Receipt:', receipt)
-      console.log('Receipt Number:', receipt.receiptNumber)
-      console.log('Show Receipt Dialog:', true)
-      console.log('Receipt Items:', receipt.items)
-      console.log('Receipt Total:', receipt.total)
-      console.log('Receipt Structure Check:')
-      console.log('- Has ID:', !!receipt.id)
-      console.log('- Has Receipt Number:', !!receipt.receiptNumber)
-      console.log('- Has Client ID:', !!receipt.clientId)
-      console.log('- Has Client Name:', !!receipt.clientName)
-      console.log('- Has Items:', !!receipt.items && receipt.items.length > 0)
-      console.log('- Has Total:', !!receipt.total)
-      console.log('Full Receipt Object:', JSON.stringify(receipt, null, 2))
-
-      // Debug: Check if receipt was stored
-      const allReceipts = getAllReceipts()
-      console.log('📋 All receipts after storage:', allReceipts)
-      console.log('📊 Total receipts in store:', allReceipts.length)
-      console.log('🔍 Looking for receipt with ID:', receipt.id)
-      console.log('🔍 Looking for receipt with number:', receipt.receiptNumber)
-
-      // Open receipt in new tab using bill number (not receipt ID)
-        const receiptUrl = `/receipt/${receipt.receiptNumber}?data=${encodeURIComponent(JSON.stringify(receipt))}&t=${Date.now()}`
-      console.log('🎯 Opening receipt in new tab:', receiptUrl)
-      console.log('🎯 Using bill number:', receipt.receiptNumber)
-      window.open(receiptUrl, '_blank')
-
-      // Determine bill status based on payment
-      const billStatus = totalPaid === 0 ? 'unpaid' : 
-                        totalPaid < calculatedTotal ? 'partial' : 'completed'
-      
-      // --- Add to Sales Records (backend) ---
-      try {
-        // Create payments array for split payments
-        const salePayments = payments.map(payment => ({
-          mode: payment.type === 'cash' ? 'Cash' : payment.type === 'card' ? 'Card' : 'Online',
-          amount: payment.amount
-        }))
-
-        const saleData = {
-          billNo: receipt.receiptNumber,
-          customerName: receipt.clientName,
-          customerPhone: receipt.clientPhone,
-          // Use actual checkout timestamp so it appears in today's reports
-          date: new Date().toISOString(),
-          // For legacy display, store a combined payment mode string; keep blank when no payments
-          paymentMode: salePayments.length > 0 ? salePayments.map(p => p.mode).join(', ') : '',
-          payments: salePayments, // New split payment structure
-          netTotal: receipt.subtotal,
-          taxAmount: receipt.tax,
-          roundOff: receipt.roundOff,
-          grossTotal: receipt.total,
-          status: billStatus,
-          staffName: receipt.staffName,
-          items: receipt.items.map((item: any) => ({
-            name: item.name,
-            type: item.type,
-            quantity: item.quantity,
-            price: item.price,
-            total: item.total,
-            // Include staff contributions if available
-            staffContributions: item.staffContributions || (item.staffId ? [{
-              staffId: item.staffId,
-              staffName: item.staffName || '',
-              percentage: 100,
-              amount: item.total
-            }] : undefined),
-            // Legacy fields for backward compatibility
-            staffId: item.staffId,
-            staffName: item.staffName
-          })),
-          // Add payment status for unpaid/partial bills
-          paymentStatus: {
-            totalAmount: calculatedTotal,
-            paidAmount: totalPaid,
-            remainingAmount: calculatedTotal - totalPaid,
-            dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days from now
-            lastPaymentDate: totalPaid > 0 ? new Date().toISOString() : null,
-            isOverdue: false
-          },
-          notes: remarks
-        }
-        
-        console.log('🔍 DEBUG: Starting sale creation...')
-        console.log('📋 Sale data:', saleData)
-        console.log('💰 Split payments:', salePayments)
-        // Auth token and user are managed by AuthContext
-        
-        // Test API connection first
-        try {
-          const healthCheck = await fetch('http://localhost:3001/api/health')
-          const healthData = await healthCheck.json()
-          console.log('🏥 Backend health:', healthData.success)
-        } catch (healthError) {
-          console.error('❌ Backend health check failed:', healthError)
-        }
-        
-        const result = await SalesAPI.create(saleData)
-        console.log('✅ Sale created successfully:', result)
-        
-        // --- INVENTORY MANAGEMENT: Deduct product quantities from stock ---
-        if (validProductItems.length > 0) {
-          console.log('📦 Starting inventory management for products...')
-          
-          try {
-            // Process each product item to update inventory
-            for (const productItem of validProductItems) {
-              const product = products.find((p) => p._id === productItem.productId || p.id === productItem.productId)
-              
-              if (product) {
-                console.log(`📦 Updating inventory for product: ${product.name}`)
-                console.log(`📊 Current stock: ${product.stock}, Quantity sold: ${productItem.quantity}`)
-                
-                // Check if we have enough stock before proceeding
-                if (product.stock < productItem.quantity) {
-                  console.error(`❌ Insufficient stock for ${product.name}. Available: ${product.stock}, Required: ${productItem.quantity}`)
-                  toast({
-                    title: "Stock Warning",
-                    description: `Insufficient stock for ${product.name}. Available: ${product.stock}, Required: ${productItem.quantity}`,
-                    variant: "destructive",
+            console.log('✅ Receipt stored locally with number:', receipt.receiptNumber)
+            
+            // Refresh products to get updated stock levels from backend
+            if (validProductItems.length > 0) {
+              console.log('🔄 Refreshing product list to get updated stock levels...')
+              try {
+                const refreshResponse = await ProductsAPI.getAll()
+                if (refreshResponse.success) {
+                  const sellableProducts = (refreshResponse.data || []).filter((product: any) => {
+                    const productType = product.productType || 'retail'
+                    return productType === 'retail' || productType === 'both'
                   })
-                  continue // Skip this product but continue with others
+                  setProducts(sellableProducts)
+                  console.log('✅ Product list refreshed with updated stock levels')
                 }
-                
-                // Update product stock by decreasing it
-                const stockUpdateResult = await ProductsAPI.updateStock(
-                  product._id || product.id, 
-                  productItem.quantity, 
-                  'decrease'
-                )
-                
-                if (stockUpdateResult.success) {
-                  console.log(`✅ Stock updated successfully for ${product.name}`)
-                  console.log(`📊 New stock level: ${stockUpdateResult.data.stock}`)
-                  
-                  // Update the local products array to reflect the new stock
-                  setProducts(prevProducts => 
-                    prevProducts.map(p => 
-                      p._id === product._id || p.id === product.id 
-                        ? { ...p, stock: stockUpdateResult.data.stock }
-                        : p
-                    )
-                  )
-                } else {
-                  console.error(`❌ Failed to update stock for ${product.name}:`, stockUpdateResult.error)
-                  toast({
-                    title: "Stock Update Failed",
-                    description: `Failed to update stock for ${product.name}. Please check inventory manually.`,
-                    variant: "destructive",
-                  })
-                }
-              } else {
-                console.error(`❌ Product not found for ID: ${productItem.productId}`)
+              } catch (refreshError) {
+                console.warn('⚠️ Failed to refresh product list:', refreshError)
               }
             }
-            
-            console.log('✅ Inventory management completed')
-          } catch (inventoryError) {
-            console.error('❌ Error during inventory management:', inventoryError)
+
+            // Open receipt in new tab
+            try {
+        const receiptUrl = `/receipt/${receipt.receiptNumber}?data=${encodeURIComponent(JSON.stringify(receipt))}&t=${Date.now()}`
+      console.log('🎯 Opening receipt in new tab:', receiptUrl)
+              
+              const newWindow = window.open(receiptUrl, '_blank')
+              if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
+                console.warn('⚠️ Popup was blocked, showing fallback message')
+                toast({
+                  title: "Receipt Generated",
+                  description: `Receipt #${receipt.receiptNumber} created successfully. Please check the receipts page.`,
+                })
+              } else {
+                console.log('✅ Receipt opened successfully in new tab')
+              }
+            } catch (error) {
+              console.error('❌ Error opening receipt:', error)
+              toast({
+                title: "Receipt Generated",
+                description: `Receipt #${receipt.receiptNumber} created successfully. Please check the receipts page.`,
+              })
+            }
+          } else {
+            console.error('❌ Failed to create sale in backend:', result.error)
+                  toast({
+              title: "Sale Creation Failed",
+              description: result.error || "Failed to create sale. Please try again.",
+                    variant: "destructive",
+                  })
+            return
+          }
+        } catch (apiError: any) {
+          console.error('💥 SalesAPI.create threw an error:', apiError)
+          console.error('💥 Error details:', {
+            message: apiError?.message,
+            status: apiError?.response?.status,
+            statusText: apiError?.response?.statusText,
+            data: apiError?.response?.data
+          })
+          
+          // Show error toast to user
+                  toast({
+            title: "Sale Creation Failed",
+            description: apiError?.response?.data?.error || apiError?.message || "Failed to create sale. Please try again.",
+                    variant: "destructive",
+                  })
+          
+          // Don't proceed with receipt or form reset if backend fails
+          return
+        }
+      } catch (error) {
+        console.error('❌ Error creating sale in backend:', error)
+        
+        // Show error toast to user
             toast({
-              title: "Inventory Warning",
-              description: "Sale completed but inventory update failed. Please check stock levels manually.",
+          title: "Sale Creation Failed",
+          description: "Failed to create sale. Please try again.",
               variant: "destructive",
             })
-          }
-        }
-      } catch (err: any) {
-        console.error('❌ Failed to add sale record:', err)
-        console.error('📄 Error details:', err.response?.data)
-        console.error('🔢 Error status:', err.response?.status)
-        console.error('🌐 Error message:', err.message)
-        console.error('📋 Full error object:', err)
+        
+        // Don't proceed with receipt or form reset if backend fails
+        return
       }
+      
 
       // Reset form
       resetForm()
-
-      // Show appropriate success message based on bill status
-      const statusMessage = billStatus === 'completed' ? 
-        `Sale completed successfully! Receipt #${receipt.receiptNumber}` :
-        billStatus === 'partial' ? 
-        `Partial payment bill created! Receipt #${receipt.receiptNumber} - Remaining: ₹${(calculatedTotal - totalPaid).toFixed(2)}` :
-        `Unpaid bill created! Receipt #${receipt.receiptNumber} - Amount due: ₹${calculatedTotal.toFixed(2)}`
+    } catch (error: any) {
+      console.error('❌ Checkout failed:', error)
+      console.error('❌ Error details:', {
+        message: error.message,
+        stack: error.stack,
+        name: error.name
+      })
+      
+      let errorMessage = "An error occurred during checkout"
+      if (error.message) {
+        errorMessage = error.message
+      } else if (error.response?.data?.error) {
+        errorMessage = error.response.data.error
+      } else if (error.response?.data?.message) {
+        errorMessage = error.response.data.message
+      }
       
       toast({
-        title: billStatus === 'completed' ? "Checkout Successful" : 
-               billStatus === 'partial' ? "Partial Payment Bill Created" : "Unpaid Bill Created",
-        description: statusMessage,
-      })
-    } catch (error) {
-      toast({
         title: "Checkout Failed",
-        description: "An error occurred during checkout",
+        description: errorMessage,
         variant: "destructive",
       })
     } finally {
@@ -1426,6 +2067,8 @@ export function QuickSale() {
     setDiscountPercentage(0)
     setGiftVoucher("")
     setTip(0)
+    setIsGlobalDiscountActive(false)
+    setIsValueDiscountActive(false)
     setCashAmount(0)
     setCardAmount(0)
     setOnlineAmount(0)
@@ -1574,7 +2217,7 @@ export function QuickSale() {
                     )}
                   </div>
 
-                  <div className="grid grid-cols-3 gap-4 pt-2">
+                  <div className={`grid ${(selectedCustomer.totalDues || 0) > 0 ? 'grid-cols-4' : 'grid-cols-3'} gap-4 pt-2`}>
                     <div className="text-center">
                       <div className="flex items-center justify-center gap-1 text-sm text-muted-foreground mb-1">
                         <Calendar className="h-3 w-3" />
@@ -1596,99 +2239,57 @@ export function QuickSale() {
                       </div>
                       <div className="font-semibold text-xs">{formatDate(selectedCustomer.lastVisit || "")}</div>
                     </div>
+                    {(selectedCustomer.totalDues || 0) > 0 && (
+                      <div 
+                        className="text-center cursor-pointer hover:bg-red-50 rounded-lg p-2 transition-all duration-200"
+                        onClick={async () => {
+                          if (selectedCustomer) {
+                            await fetchUnpaidBills(selectedCustomer.name)
+                            setShowDuesDialog(true)
+                          }
+                        }}
+                      >
+                        <div className="flex items-center justify-center gap-1 text-sm text-red-600 mb-1">
+                          <CreditCard className="h-3 w-3" />
+                          Dues
+                        </div>
+                        <div className="font-semibold text-red-600">{formatCurrency(selectedCustomer.totalDues || 0)}</div>
+                      </div>
+                    )}
                   </div>
 
+                   <div className="flex gap-2">
                   <Button
                     variant="outline"
                     size="sm"
-                    className="w-full mt-3 bg-transparent"
-                    onClick={() => setShowBillActivityDialog(true)}
+                       className="flex-1 bg-transparent"
+                       onClick={async () => {
+                         if (selectedCustomer) {
+                           await fetchCustomerBills(selectedCustomer.name)
+                           setShowBillActivityDialog(true)
+                         }
+                       }}
                   >
                     <Eye className="h-4 w-4 mr-2" />
                     Bill Activity
                   </Button>
+                     <Button
+                       variant="outline"
+                       size="sm"
+                       className="px-2 bg-red-100 text-red-600"
+                       onClick={() => {
+                         console.log('🔍 TEST: Force opening dialog')
+                         setShowBillActivityDialog(true)
+                       }}
+                     >
+                       TEST
+                  </Button>
+                   </div>
                 </div>
               )}
             </CardContent>
           </Card>
 
-          {/* Services & Products */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Services & Products</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {/* Services */}
-              {/* <div className="space-y-2">
-                <Label>Services</Label>
-                <div className="relative">
-                  <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Search services..."
-                    value={serviceSearch}
-                    onChange={(e) => setServiceSearch(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
-                <div className="max-h-32 overflow-auto space-y-1">
-                  {filteredServices.map((service) => (
-                    <div
-                      key={service._id || service.id}
-                      className="flex items-center justify-between p-2 hover:bg-muted rounded cursor-pointer"
-                      onClick={() => addToCart(service, "service")}
-                    >
-                      <div>
-                        <div className="font-medium">{service.name}</div>
-                        <div className="text-sm text-muted-foreground">{service.duration} min</div>
-                      </div>
-                      <div className="text-right">
-                        <div className="font-medium">{formatCurrency(service.price)}</div>
-                        <Button size="sm" variant="outline">
-                          <Plus className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <Separator /> */}
-
-              {/* Products */}
-              {/* <div className="space-y-2">
-                <Label>Products</Label>
-                <div className="relative">
-                  <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Search products..."
-                    value={productSearch}
-                    onChange={(e) => setProductSearch(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
-                <div className="max-h-32 overflow-auto space-y-1">
-                  {filteredProducts.map((product) => (
-                    <div
-                      key={product._id || product.id}
-                      className="flex items-center justify-between p-2 hover:bg-muted rounded cursor-pointer"
-                      onClick={() => addToCart(product, "product")}
-                    >
-                      <div>
-                        <div className="font-medium">{product.name}</div>
-                        <div className="text-sm text-muted-foreground">Stock: {product.stock}</div>
-                      </div>
-                      <div className="text-right">
-                        <div className="font-medium">{formatCurrency(product.price)}</div>
-                        <Button size="sm" variant="outline">
-                          <Plus className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div> */}
-            </CardContent>
-          </Card>
         </div>
 
         {/* Cart */}
@@ -1820,7 +2421,7 @@ export function QuickSale() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium text-gray-700">Last Name *</Label>
+                    <Label className="text-sm font-medium text-gray-700">Last Name</Label>
                     <Input
                       value={newCustomer.lastName}
                       onChange={(e) => setNewCustomer({ ...newCustomer, lastName: e.target.value })}
@@ -1875,76 +2476,9 @@ export function QuickSale() {
           </div>
         )}
 
-        {/* Bill Activity Dialog */}
-        <Dialog open={showBillActivityDialog} onOpenChange={setShowBillActivityDialog}>
-          <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto border-gray-200 shadow-2xl">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2 text-xl font-bold text-gray-800">
-                <Receipt className="h-5 w-5 text-indigo-600" />
-                Bill Activity - {selectedCustomer?.name}
-              </DialogTitle>
-              <DialogDescription className="text-gray-600">View all previous bills and transactions for this customer.</DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4">
-              {customerBills.length > 0 ? (
-                <div className="space-y-3">
-                  {customerBills.map((bill) => (
-                    <Card 
-                      key={bill.id} 
-                      className="p-4 cursor-pointer hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 transition-all duration-200 border-gray-200 hover:border-indigo-200 hover:shadow-md"
-                      onClick={() => handleViewBillDetails(bill)}
-                    >
-                      <div className="flex items-center justify-between mb-3">
-                        <div>
-                          <h4 className="font-semibold text-gray-800">Receipt #{bill.receiptNumber}</h4>
-                          <p className="text-sm text-gray-600">
-                            {format(new Date(bill.date), "dd MMM yyyy")} at {bill.time}
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-xl font-bold text-indigo-600">₹{bill.total.toFixed(2)}</p>
-                          <p className="text-sm text-gray-600">{bill.payments.map((p: any) => p.type).join(", ")}</p>
-                        </div>
-                      </div>
-                      <div className="space-y-2">
-                        <h5 className="text-sm font-medium text-gray-700">Items:</h5>
-                        <div className="space-y-1">
-                          {bill.items.map((item: any, index: number) => (
-                            <div key={item.id || index} className="flex justify-between text-sm">
-                              <span>
-                                {item.name} x{item.quantity}
-                                {item.staffName && <span className="text-gray-500"> by {item.staffName}</span>}
-                              </span>
-                              <span className="font-medium">₹{item.total.toFixed(2)}</span>
-                            </div>
-                          ))}
-                        </div>
-                        {bill.notes && (
-                          <div className="mt-2 pt-2 border-t border-gray-100">
-                            <p className="text-sm text-gray-600">
-                              <strong>Notes:</strong> {bill.notes}
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    </Card>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8">
-                  <Receipt className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-                  <h3 className="text-lg font-medium text-gray-700 mb-2">No Bills Found</h3>
-                  <p className="text-gray-500">This customer doesn&apos;t have any previous bills or transactions.</p>
-                </div>
-              )}
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setShowBillActivityDialog(false)} className="border-gray-200 text-gray-700 hover:bg-gray-50">
-                Close
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+
+        
+        
 
         {/* Bill Details Dialog */}
         <Dialog open={showBillDetailsDialog} onOpenChange={setShowBillDetailsDialog}>
@@ -2164,7 +2698,7 @@ export function QuickSale() {
                     </Badge>
                   </div>
 
-                  <div className="grid grid-cols-3 gap-4 mb-4">
+                  <div className={`grid ${(selectedCustomer.totalDues || 0) > 0 ? 'grid-cols-4' : 'grid-cols-3'} gap-4 mb-4`}>
                     <div className="text-center p-3 bg-white/60 rounded-lg border border-white/50">
                       <div className="flex items-center justify-center gap-2 mb-2">
                         <CalendarDays className="h-4 w-4 text-indigo-600" />
@@ -2188,6 +2722,23 @@ export function QuickSale() {
                         {selectedCustomer.lastVisit ? format(new Date(selectedCustomer.lastVisit), "dd MMM") : "Never"}
                       </p>
                     </div>
+                    {(selectedCustomer.totalDues || 0) > 0 && (
+                      <div 
+                        className="text-center p-3 bg-red-50/80 rounded-lg border border-red-200/50 cursor-pointer hover:bg-red-100/80 hover:border-red-300 transition-all duration-200"
+                        onClick={async () => {
+                          if (selectedCustomer) {
+                            await fetchUnpaidBills(selectedCustomer.name)
+                            setShowDuesDialog(true)
+                          }
+                        }}
+                      >
+                        <div className="flex items-center justify-center gap-2 mb-2">
+                          <CreditCard className="h-4 w-4 text-red-600" />
+                          <span className="text-xs font-medium text-red-700">Dues</span>
+                        </div>
+                        <p className="text-lg font-bold text-red-700">₹{Number(selectedCustomer.totalDues || 0).toFixed(2)}</p>
+                      </div>
+                    )}
                   </div>
 
                   <Button
@@ -2230,6 +2781,7 @@ export function QuickSale() {
             </div>
           </div>
 
+
           {/* Services Section */}
           <div className="space-y-6">
             <div className="flex items-center justify-between">
@@ -2244,7 +2796,7 @@ export function QuickSale() {
             </div>
 
             {serviceItems.length > 0 && (
-              <div className="border border-gray-200 rounded-xl overflow-hidden shadow-sm bg-white max-h-96 overflow-y-auto">
+              <div className="border border-gray-200 rounded-xl shadow-sm bg-white">
                 <div className="grid grid-cols-[2fr_3fr_120px_100px_100px_100px_40px] gap-4 p-4 bg-gradient-to-r from-indigo-50 to-purple-50 font-semibold text-sm text-gray-700 border-b sticky top-0 bg-white z-10">
                   <div>Service *</div>
                   <div>Staff *</div>
@@ -2255,37 +2807,82 @@ export function QuickSale() {
                   <div></div>
                 </div>
 
-                <div className="max-h-80 overflow-y-auto">
+                <div style={{ overflow: 'visible' }}>
                   {serviceItems.map((item) => (
                   <div
                     key={item.id}
                     className="grid grid-cols-[2fr_3fr_120px_100px_100px_100px_40px] gap-4 p-4 border-b last:border-b-0 items-center hover:bg-gray-50/50 transition-all duration-200"
                   >
-                    <Select
-                      value={item.serviceId}
-                      onValueChange={(value) => updateServiceItem(item.id, "serviceId", value)}
-                    >
-                      <SelectTrigger className="h-8">
-                        <SelectValue placeholder="Select service" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {loadingServices ? (
-                          <SelectItem value="__loading__" disabled>
-                            Loading services...
-                          </SelectItem>
-                        ) : services.length === 0 ? (
-                          <SelectItem value="__none__" disabled>
-                            No services available
-                          </SelectItem>
-                        ) : (
-                          services.map((service) => (
-                            <SelectItem key={service._id || service.id} value={service._id || service.id}>
-                              {service.name}
-                            </SelectItem>
-                          ))
-                        )}
-                      </SelectContent>
-                    </Select>
+                    <div className="relative">
+                      {item.serviceId ? (
+                        <div className="flex items-center justify-between h-8 px-3 py-1 bg-muted rounded-md text-sm">
+                          <span className="truncate">
+                            {services.find(s => (s._id || s.id) === item.serviceId)?.name || 'Unknown Service'}
+                          </span>
+                          <button
+                            onClick={() => updateServiceItem(item.id, "serviceId", "")}
+                            className="ml-2 h-4 w-4 text-muted-foreground hover:text-foreground"
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="relative">
+                          <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-3 w-3 text-muted-foreground" />
+                          <Input
+                            placeholder="Search services..."
+                            value={serviceDropdownSearch}
+                            onChange={(e) => setServiceDropdownSearch(e.target.value)}
+                            className="h-8 pl-7 pr-8 text-sm"
+                            onFocus={(e) => {
+                              e.target.select()
+                              setActiveServiceDropdown(item.id)
+                            }}
+                          />
+                          {serviceDropdownSearch && (
+                            <button
+                              onClick={() => {
+                                setServiceDropdownSearch("")
+                                setActiveServiceDropdown(null)
+                              }}
+                              className="absolute right-2 top-1/2 transform -translate-y-1/2 h-3 w-3 text-muted-foreground hover:text-foreground"
+                            >
+                              ×
+                            </button>
+                          )}
+                        </div>
+                      )}
+                      {activeServiceDropdown === item.id && (
+                        <div className="absolute top-full left-0 right-0 z-[9999] mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-auto">
+                          {loadingServices ? (
+                            <div className="p-2 text-center text-sm text-muted-foreground">Loading services...</div>
+                          ) : (
+                            <>
+                              {filteredServicesForDropdown.length === 0 ? (
+                                <div className="p-2 text-center text-sm text-muted-foreground">
+                                  {serviceDropdownSearch ? `No services found matching "${serviceDropdownSearch}"` : 'No services available'}
+                                </div>
+                              ) : (
+                                filteredServicesForDropdown.map((service) => (
+                                  <div
+                                    key={service._id || service.id}
+                                    className="p-3 hover:bg-slate-50 cursor-pointer text-sm border-b last:border-b-0 transition-colors"
+                                    onClick={() => {
+                                      updateServiceItem(item.id, "serviceId", service._id || service.id)
+                                      setServiceDropdownSearch("")
+                                      setActiveServiceDropdown(null)
+                                    }}
+                                  >
+                                    <div className="font-medium text-slate-800">{service.name}</div>
+                                    <div className="text-xs text-slate-500 mt-1">{service.duration} min - {formatCurrency(service.price)}</div>
+                                  </div>
+                                ))
+                              )}
+                            </>
+                          )}
+                        </div>
+                      )}
+                    </div>
 
                     <MultiStaffSelector
                       key={`service-${item.id}-staff`}
@@ -2338,9 +2935,11 @@ export function QuickSale() {
 
                     <Input
                       type="number"
-                      value={item.discount}
+                      value={isGlobalDiscountActive ? discountPercentage : item.discount}
                       onChange={(e) => updateServiceItem(item.id, "discount", Number(e.target.value))}
-                      className="h-8"
+                      className={`h-8 ${(isGlobalDiscountActive || isValueDiscountActive) ? 'bg-amber-50 border-amber-200' : ''}`}
+                      disabled={isGlobalDiscountActive || isValueDiscountActive}
+                      placeholder={(isGlobalDiscountActive || isValueDiscountActive) ? "Global discount" : "0"}
                     />
 
                     <div className="text-sm font-medium">₹{item.total.toFixed(2)}</div>
@@ -2374,7 +2973,7 @@ export function QuickSale() {
             </div>
 
             {productItems.length > 0 && (
-              <div className="border border-gray-200 rounded-xl overflow-hidden shadow-sm bg-white max-h-96 overflow-y-auto">
+              <div className="border border-gray-200 rounded-xl shadow-sm bg-white">
                 <div className="grid grid-cols-[2fr_3fr_120px_100px_100px_100px_40px] gap-4 p-4 bg-gradient-to-r from-emerald-50 to-green-50 font-semibold text-sm text-gray-700 border-b sticky top-0 bg-white z-10">
                   <div>Product *</div>
                   <div>Staff *</div>
@@ -2385,7 +2984,7 @@ export function QuickSale() {
                   <div></div>
                 </div>
 
-                <div className="max-h-80 overflow-y-auto">
+                <div style={{ overflow: 'visible' }}>
                   {productItems.map((item) => {
                   console.log('=== RENDERING PRODUCT ITEM ===')
                   console.log('Product item ID:', item.id)
@@ -2393,31 +2992,76 @@ export function QuickSale() {
                   return (
                   <div key={item.id} className="space-y-2">
                     <div className="grid grid-cols-[2fr_3fr_120px_100px_100px_100px_40px] gap-4 p-4 border-b last:border-b-0 items-center hover:bg-emerald-50/30 transition-all duration-200">
-                      <Select
-                        value={item.productId}
-                        onValueChange={(value) => updateProductItem(item.id, "productId", value)}
-                      >
-                        <SelectTrigger className="h-8">
-                          <SelectValue placeholder="Select product" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {loadingProducts ? (
-                            <SelectItem value="" disabled>
-                              Loading products...
-                            </SelectItem>
-                          ) : products.length === 0 ? (
-                            <SelectItem value="" disabled>
-                              No products available
-                            </SelectItem>
-                          ) : (
-                            products.map((product) => (
-                              <SelectItem key={product._id || product.id} value={product._id || product.id}>
-                                {product.name} (Stock: {product.stock})
-                              </SelectItem>
-                            ))
-                          )}
-                        </SelectContent>
-                      </Select>
+                      <div className="relative">
+                        {item.productId ? (
+                          <div className="flex items-center justify-between h-8 px-3 py-1 bg-muted rounded-md text-sm">
+                            <span className="truncate">
+                              {products.find(p => (p._id || p.id) === item.productId)?.name || 'Unknown Product'}
+                            </span>
+                            <button
+                              onClick={() => updateProductItem(item.id, "productId", "")}
+                              className="ml-2 h-4 w-4 text-muted-foreground hover:text-foreground"
+                            >
+                              ×
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="relative">
+                            <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-3 w-3 text-muted-foreground" />
+                            <Input
+                              placeholder="Search products..."
+                              value={productDropdownSearch}
+                              onChange={(e) => setProductDropdownSearch(e.target.value)}
+                              className="h-8 pl-7 pr-8 text-sm"
+                              onFocus={(e) => {
+                                e.target.select()
+                                setActiveProductDropdown(item.id)
+                              }}
+                            />
+                            {productDropdownSearch && (
+                              <button
+                                onClick={() => {
+                                  setProductDropdownSearch("")
+                                  setActiveProductDropdown(null)
+                                }}
+                                className="absolute right-2 top-1/2 transform -translate-y-1/2 h-3 w-3 text-muted-foreground hover:text-foreground"
+                              >
+                                ×
+                              </button>
+                            )}
+                          </div>
+                        )}
+                        {activeProductDropdown === item.id && (
+                          <div className="absolute top-full left-0 right-0 z-[9999] mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-auto">
+                            {loadingProducts ? (
+                              <div className="p-2 text-center text-sm text-muted-foreground">Loading products...</div>
+                            ) : (
+                              <>
+                                {filteredProductsForDropdown.length === 0 ? (
+                                  <div className="p-2 text-center text-sm text-muted-foreground">
+                                    {productDropdownSearch ? `No products found matching "${productDropdownSearch}"` : 'No products available'}
+                                  </div>
+                                ) : (
+                                  filteredProductsForDropdown.map((product) => (
+                                    <div
+                                      key={product._id || product.id}
+                                      className="p-3 hover:bg-slate-50 cursor-pointer text-sm border-b last:border-b-0 transition-colors"
+                                      onClick={() => {
+                                        updateProductItem(item.id, "productId", product._id || product.id)
+                                        setProductDropdownSearch("")
+                                        setActiveProductDropdown(null)
+                                      }}
+                                    >
+                                      <div className="font-medium text-slate-800">{product.name}</div>
+                                      <div className="text-xs text-slate-500 mt-1">Stock: {product.stock} - {formatCurrency(product.price)}</div>
+                                    </div>
+                                  ))
+                                )}
+                              </>
+                            )}
+                          </div>
+                        )}
+                      </div>
 
                       <Select
                         key={`product-${item.id}-staff`}
@@ -2437,7 +3081,7 @@ export function QuickSale() {
                         </SelectTrigger>
                         <SelectContent>
                           {loadingStaff ? (
-                            <SelectItem value="" disabled>
+                            <SelectItem value="__loading__" disabled>
                               Loading staff...
                             </SelectItem>
                           ) : staff.length === 0 ? (
@@ -2503,9 +3147,11 @@ export function QuickSale() {
 
                       <Input
                         type="number"
-                        value={item.discount}
+                        value={isGlobalDiscountActive ? discountPercentage : item.discount}
                         onChange={(e) => updateProductItem(item.id, "discount", Number(e.target.value))}
-                        className="h-8"
+                        className={`h-8 ${(isGlobalDiscountActive || isValueDiscountActive) ? 'bg-amber-50 border-amber-200' : ''}`}
+                        disabled={isGlobalDiscountActive || isValueDiscountActive}
+                        placeholder={(isGlobalDiscountActive || isValueDiscountActive) ? "Global discount" : "0"}
                       />
 
                       <div className="text-sm font-medium">₹{item.total.toFixed(2)}</div>
@@ -2568,7 +3214,14 @@ export function QuickSale() {
 
           {/* Discounts & Offers */}
           <div className="space-y-4">
+            <div className="flex items-center justify-between">
             <h3 className="text-xl font-semibold">Discounts & Offers</h3>
+              {(isGlobalDiscountActive || isValueDiscountActive) && (
+                <div className="text-sm text-amber-600 bg-amber-50 px-3 py-1 rounded-full border border-amber-200">
+                  ⚠️ {isValueDiscountActive ? 'Value discount active' : 'Global discount active'} - Individual discounts disabled
+                </div>
+              )}
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="discount-value">Disc. by Value</Label>
@@ -2579,6 +3232,7 @@ export function QuickSale() {
                     type="number"
                     value={discountValue}
                     onChange={(e) => setDiscountValue(Number(e.target.value))}
+                    onFocus={(e) => e.target.select()}
                     className="pl-8"
                     placeholder="0"
                   />
@@ -2593,8 +3247,10 @@ export function QuickSale() {
                     type="number"
                     value={discountPercentage}
                     onChange={(e) => setDiscountPercentage(Number(e.target.value))}
-                    className="pr-8"
+                    onFocus={(e) => e.target.select()}
+                    className={`pr-8 ${isValueDiscountActive ? 'bg-amber-50 border-amber-200' : ''}`}
                     placeholder="0"
+                    disabled={isValueDiscountActive}
                   />
                   <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm">%</span>
                 </div>
@@ -2629,99 +3285,41 @@ export function QuickSale() {
             <div className="bg-gray-50/50 rounded-xl p-2 space-y-1 border border-gray-200">
               <div className="flex justify-between items-center py-1">
                 <span className="text-sm text-gray-600">Sub Total</span>
-                <span className="text-sm font-medium text-gray-900">{formatCurrency(subtotal)}</span>
+                <span className="text-sm font-medium text-gray-900">{formatCurrency(subtotalExcludingTax)}</span>
               </div>
               
-              {totalDiscount > 0 && (
+              {/* Service Tax Breakdown */}
+              {serviceTax > 0 && (
+                <>
                 <div className="flex justify-between items-center py-1">
-                  <span className="text-sm text-gray-600">Discount</span>
-                  <span className="text-sm font-medium text-red-500">-{formatCurrency(totalDiscount)}</span>
+                    <span className="text-sm text-gray-600">CGST</span>
+                    <span className="text-sm font-medium text-gray-900">{formatCurrency(serviceCGST)}</span>
                 </div>
+                  <div className="flex justify-between items-center py-1">
+                    <span className="text-sm text-gray-600">SGST</span>
+                    <span className="text-sm font-medium text-gray-900">{formatCurrency(serviceSGST)}</span>
+                  </div>
+                </>
               )}
               
-              {taxAmount > 0 && (
-                <div className="space-y-1">
+              {/* Product Tax Breakdown */}
+              {productTax > 0 && (
+                <>
                   <div className="flex justify-between items-center py-1">
-                    <button
-                      onClick={() => setShowTaxBreakdown(!showTaxBreakdown)}
-                      className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-800 transition-colors"
-                    >
-                      <span>Tax (GST)</span>
-                      <ChevronDown 
-                        className={`h-3 w-3 transition-transform duration-200 ${
-                          showTaxBreakdown ? 'rotate-180' : ''
-                        }`} 
-                      />
-                    </button>
-                    <span className="text-sm font-medium text-gray-900">{formatCurrency(taxAmount)}</span>
+                    <span className="text-sm text-gray-600">CGST</span>
+                    <span className="text-sm font-medium text-gray-900">{formatCurrency(productCGST)}</span>
                   </div>
-                  {showTaxBreakdown && (() => {
-                    // Calculate service and product tax separately
-                    const serviceTax = serviceItems.reduce((sum, item) => {
-                      const service = services.find(s => (s._id || s.id) === item.serviceId)
-                      const itemTax = taxCalculator ? taxCalculator.calculateItemTax({
-                        id: item.id,
-                        name: service?.name || 'Unknown Service',
-                        type: 'service',
-                        price: item.price,
-                        quantity: item.quantity
-                      }).taxAmount : 0
-                      return sum + itemTax
-                    }, 0)
-                    
-                    // Group product taxes by their actual tax rates
-                    const productTaxByRate = productItems.reduce((acc, item) => {
-                      const product = products.find(p => (p._id || p.id) === item.productId)
-                      const taxCategory = product?.taxCategory || 'standard'
-                      
-                      // Get the tax rate for this category
-                      let taxRate = 0
-                      if (taxSettings) {
-                        switch (taxCategory) {
-                          case 'essential': taxRate = taxSettings.essentialProductRate; break
-                          case 'intermediate': taxRate = taxSettings.intermediateProductRate; break
-                          case 'standard': taxRate = taxSettings.standardProductRate; break
-                          case 'luxury': taxRate = taxSettings.luxuryProductRate; break
-                          case 'exempt': taxRate = taxSettings.exemptProductRate; break
-                        }
-                      }
-                      
-                      const itemTax = taxCalculator ? taxCalculator.calculateItemTax({
-                        id: item.id,
-                        name: product?.name || 'Unknown Product',
-                        type: 'product',
-                        price: item.price,
-                        quantity: item.quantity,
-                        taxCategory: taxCategory
-                      }).taxAmount : 0
-                      
-                      if (!acc[taxRate]) {
-                        acc[taxRate] = 0
-                      }
-                      acc[taxRate] += itemTax
-                      
-                      return acc
-                    }, {} as Record<number, number>)
-                    
-                    return (
-                      <div className="space-y-1 ml-2 pt-2 border-t border-gray-100">
-                        {serviceTax > 0 && (
-                          <div className="flex justify-between text-xs text-gray-500">
-                            <span>Service Tax (5%)</span>
-                            <span>{formatCurrency(serviceTax)}</span>
+                  <div className="flex justify-between items-center py-1">
+                    <span className="text-sm text-gray-600">SGST</span>
+                    <span className="text-sm font-medium text-gray-900">{formatCurrency(productSGST)}</span>
                           </div>
-                        )}
-                        {Object.entries(productTaxByRate).map(([rate, amount]) => 
-                          amount > 0 && (
-                            <div key={rate} className="flex justify-between text-xs text-gray-500">
-                              <span>Product Tax ({rate}%)</span>
-                              <span>{formatCurrency(amount)}</span>
-                            </div>
-                          )
-                        )}
-                      </div>
-                    )
-                  })()}
+                </>
+              )}
+              
+              {(discountValue > 0 || discountPercentage > 0) && (
+                <div className="flex justify-between items-center py-1">
+                  <span className="text-sm text-gray-600">Discount</span>
+                  <span className="text-sm font-medium text-red-500">-{formatCurrency(discountValue + (subtotal * discountPercentage / 100))}</span>
                 </div>
               )}
               
@@ -2734,8 +3332,8 @@ export function QuickSale() {
               
               <div className="border-t border-gray-200 pt-3 mt-3">
                 <div className="flex justify-between items-center">
-                  <span className="text-base font-semibold text-gray-900">Grand Total</span>
-                  <span className="text-lg font-bold text-indigo-600">{formatCurrency(roundedTotal)}</span>
+                  <span className="text-base font-bold text-gray-900">Grand Total</span>
+                  <span className="text-lg font-bold text-gray-900">{formatCurrency(roundedTotal)}</span>
                 </div>
               </div>
             </div>
@@ -2800,6 +3398,7 @@ export function QuickSale() {
                       type="number"
                       value={cashAmount}
                       onChange={(e) => setCashAmount(Number(e.target.value))}
+                      onFocus={(e) => e.target.select()}
                       className="w-full h-8 text-sm border-green-300 text-center rounded-lg focus:border-green-400 focus:ring-green-200"
                       placeholder="0"
                     />
@@ -2812,6 +3411,7 @@ export function QuickSale() {
                       type="number"
                       value={cardAmount}
                       onChange={(e) => setCardAmount(Number(e.target.value))}
+                      onFocus={(e) => e.target.select()}
                       className="w-full h-8 text-sm border-blue-300 text-center rounded-lg focus:border-blue-400 focus:ring-blue-200"
                       placeholder="0"
                     />
@@ -2824,6 +3424,7 @@ export function QuickSale() {
                       type="number"
                       value={onlineAmount}
                       onChange={(e) => setOnlineAmount(Number(e.target.value))}
+                      onFocus={(e) => e.target.select()}
                       className="w-full h-8 text-sm border-purple-300 text-center rounded-lg focus:border-purple-400 focus:ring-purple-200"
                       placeholder="0"
                     />
@@ -2870,14 +3471,35 @@ export function QuickSale() {
           <div className="flex gap-3">
             <Button 
               onClick={() => {
-                if (roundedTotal > 0 && totalPaid < roundedTotal) {
+                console.log('🔍 Checkout button clicked!')
+                console.log('🔍 roundedTotal:', roundedTotal)
+                console.log('🔍 totalPaid:', totalPaid)
+                console.log('🔍 isProcessing:', isProcessing)
+                
+                if (isProcessing) {
+                  console.log('❌ Already processing, ignoring click')
+                  return
+                }
+                
+                if (roundedTotal <= 0) {
+                  toast({
+                    title: "Invalid Amount",
+                    description: "Total amount must be greater than 0",
+                    variant: "destructive",
+                  })
+                  return
+                }
+                
+                if (totalPaid < roundedTotal) {
+                  console.log('💰 Opening payment modal for partial/unpaid bill')
                   setShowPaymentModal(true)
                 } else {
+                  console.log('✅ Full payment, proceeding with checkout')
                   handleCheckout()
                 }
               }} 
-              disabled={isProcessing} 
-              className="flex-1 h-10 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg shadow-sm hover:shadow-md transition-all duration-200"
+              disabled={isProcessing || roundedTotal <= 0} 
+              className="flex-1 h-10 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-lg shadow-sm hover:shadow-md transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isProcessing ? (
                 <>
@@ -3113,7 +3735,7 @@ export function QuickSale() {
                     textTransform: 'uppercase',
                     letterSpacing: '0.5px'
                   }}>
-                    Last Name *
+                    Last Name
                   </label>
                   <input
                     type="text"
@@ -3370,6 +3992,12 @@ export function QuickSale() {
                 console.log('🔍 confirmUnpaid:', confirmUnpaid)
                 console.log('🔍 roundedTotal:', roundedTotal)
                 console.log('🔍 totalPaid:', totalPaid)
+                console.log('🔍 isProcessing:', isProcessing)
+                
+                if (isProcessing) {
+                  console.log('❌ Already processing, ignoring click')
+                  return
+                }
                 
                 if (confirmUnpaid) {
                   console.log('✅ Checkbox confirmed, proceeding with checkout...')
@@ -3378,16 +4006,161 @@ export function QuickSale() {
                   handleCheckout()
                 } else {
                   console.log('❌ Checkbox not confirmed')
+                  toast({
+                    title: "Confirmation Required",
+                    description: "Please confirm the unpaid/partial payment bill",
+                    variant: "destructive",
+                  })
                 }
               }}
-              disabled={!confirmUnpaid}
-              className="bg-orange-600 hover:bg-orange-700"
+              disabled={!confirmUnpaid || isProcessing}
+              className="bg-orange-600 hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Confirm & Checkout
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      
+      {/* Payment Collection Modal for Dues */}
+      <PaymentCollectionModal
+        isOpen={showDuesPaymentModal}
+        onClose={() => {
+          setShowDuesPaymentModal(false)
+          setSelectedBillForPayment(null)
+          setShowDuesDialog(true) // Reopen dues dialog when payment modal is closed
+        }}
+        sale={selectedBillForPayment}
+        onPaymentCollected={handlePaymentCollected}
+      />
+      
+      {/* Dues Settlement Dialog - Rendered at root level */}
+      {showDuesDialog && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center" style={{ zIndex: 99999 }}>
+          <div className="bg-white p-6 rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[80vh] overflow-y-auto" style={{ zIndex: 100000 }}>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-2xl font-bold text-gray-800">Settle Dues - {selectedCustomer?.name}</h2>
+              <Button 
+                onClick={() => setShowDuesDialog(false)}
+                variant="outline"
+                size="sm"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+            
+            {unpaidBills.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                <CreditCard className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                <p>No pending bills found</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <CreditCard className="h-5 w-5 text-red-600" />
+                      <span className="font-semibold text-red-900">Total Outstanding</span>
+                    </div>
+                    <span className="text-2xl font-bold text-red-600">
+                      ₹{unpaidBills.reduce((sum, bill) => sum + bill.remainingAmount, 0).toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+                
+                {unpaidBills.map((bill) => (
+                  <div key={bill.id} className="border rounded-lg p-4 hover:bg-gray-50">
+                    <div className="flex justify-between items-start mb-3">
+                      <div>
+                        <h3 className="font-semibold text-lg text-gray-800">Bill #{bill.billNo}</h3>
+                        <p className="text-sm text-gray-600">
+                          {format(new Date(bill.date), "dd MMM yyyy")} at {bill.time}
+                        </p>
+                        <p className="text-sm text-gray-600">Staff: {bill.staffName}</p>
+                      </div>
+                      <Badge variant="destructive">Partial</Badge>
+                    </div>
+                    
+                    <div className="grid grid-cols-3 gap-4 mb-3 p-3 bg-gray-50 rounded-lg">
+                      <div>
+                        <p className="text-xs text-gray-600">Total Amount</p>
+                        <p className="text-lg font-semibold text-gray-900">₹{bill.totalAmount.toFixed(2)}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-600">Paid Amount</p>
+                        <p className="text-lg font-semibold text-green-600">₹{bill.paidAmount.toFixed(2)}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-600">Remaining</p>
+                        <p className="text-lg font-bold text-red-600">₹{bill.remainingAmount.toFixed(2)}</p>
+                      </div>
+                    </div>
+                    
+                    <Button
+                      className="w-full bg-green-600 hover:bg-green-700 text-white"
+                      onClick={() => handleCollectPayment(bill)}
+                    >
+                      <CreditCard className="h-4 w-4 mr-2" />
+                      Collect Payment
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+      
+      {/* Bill Activity Dialog - Rendered at root level */}
+      {showBillActivityDialog && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center" style={{ zIndex: 99999 }}>
+          <div className="bg-white p-6 rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[80vh] overflow-y-auto" style={{ zIndex: 100000 }}>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-2xl font-bold text-gray-800">Bill Activity - {selectedCustomer?.name}</h2>
+              <Button 
+                onClick={() => setShowBillActivityDialog(false)}
+                variant="outline"
+                size="sm"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+            
+            {customerBills.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                <Receipt className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                <p>No bills found for this customer</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {customerBills.map((bill) => (
+                  <div key={bill.id} className="border rounded-lg p-4 hover:bg-gray-50">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h3 className="font-semibold text-lg">Bill #{bill.receiptNumber}</h3>
+                        <p className="text-sm text-gray-600">
+                          {bill.date} at {bill.time}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          Staff: {bill.staffName}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-lg font-bold text-green-600">
+                          ₹{bill.total.toFixed(2)}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          {bill.payments?.[0]?.type || 'Cash'}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

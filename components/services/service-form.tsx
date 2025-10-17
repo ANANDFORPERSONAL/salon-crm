@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast"
 import { ServicesAPI } from "@/lib/api"
 import { useCurrency } from "@/hooks/use-currency"
+import { CategoryCombobox } from "../products/category-combobox"
 
 interface ServiceFormProps {
   onClose?: () => void
@@ -126,19 +127,11 @@ export function ServiceForm({ onClose, service }: ServiceFormProps) {
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="category">Category</Label>
-          <Select value={formData.category} onValueChange={(value) => setFormData({ ...formData, category: value })}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select category" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Hair">Hair</SelectItem>
-              <SelectItem value="Nails">Nails</SelectItem>
-              <SelectItem value="Facial">Facial</SelectItem>
-              <SelectItem value="Massage">Massage</SelectItem>
-              <SelectItem value="Waxing">Waxing</SelectItem>
-              <SelectItem value="Coloring">Coloring</SelectItem>
-            </SelectContent>
-          </Select>
+          <CategoryCombobox
+            value={formData.category}
+            onChange={(value) => setFormData({ ...formData, category: value })}
+            type="service"
+          />
         </div>
 
         <div className="space-y-2">

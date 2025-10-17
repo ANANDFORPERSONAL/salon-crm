@@ -111,6 +111,11 @@ const cashRegistrySchema = new mongoose.Schema({
     type: String, 
     enum: ['active', 'closed', 'verified'], 
     default: 'active' 
+  },
+  branchId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Business',
+    required: true
   }
 }, {
   timestamps: true
@@ -121,4 +126,8 @@ cashRegistrySchema.index({ date: 1, shiftType: 1 });
 cashRegistrySchema.index({ createdBy: 1 });
 cashRegistrySchema.index({ status: 1 });
 
-module.exports = mongoose.model('CashRegistry', cashRegistrySchema);
+// Export both schema and model for flexibility
+module.exports = {
+  schema: cashRegistrySchema,
+  model: mongoose.model('CashRegistry', cashRegistrySchema)
+};

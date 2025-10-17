@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const User = require('../models/User');
+const databaseManager = require('../config/database-manager');
 
 // Use the same JWT_SECRET as server.js
 // Ensure dotenv is loaded first
@@ -7,10 +7,12 @@ require('dotenv').config();
 const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-this-in-production';
 
 const authenticateToken = (req, res, next) => {
+  console.log('🔍 AuthenticateToken middleware called');
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
 
   if (!token) {
+    console.log('🔍 No token found in request');
     return res.status(401).json({ success: false, error: 'Access token required' });
   }
 
@@ -23,16 +25,112 @@ const authenticateToken = (req, res, next) => {
   // Regular JWT verification for production tokens
   jwt.verify(token, JWT_SECRET, async (err, decoded) => {
     if (err) {
+      console.log('🔍 JWT verification error:', err);
       return res.status(403).json({ success: false, error: 'Invalid or expired token' });
     }
 
+    console.log('🔍 JWT decoded successfully:', decoded);
+
     try {
-      const user = await User.findById(decoded.id).select('-password');
+      // First try to find user in main database
+      const mainConnection = await databaseManager.getMainConnection();
+      const User = mainConnection.model('User', require('../models/User').schema);
+      
+      let user = await User.findById(decoded.id).select('-password');
+      
       if (!user) {
-        return res.status(401).json({ success: false, error: 'User not found' });
+        console.log('🔍 User not found in main database, checking if it\'s a staff user');
+        
+        // If not found in main database, check if it's a staff user
+        // We need to check all business databases for staff users
+        const Business = mainConnection.model('Business', require('../models/Business').schema);
+        const businesses = await Business.find({}).lean();
+        
+        let staffUser = null;
+        let businessId = null;
+        
+        for (const business of businesses) {
+          try {
+            const businessDb = mainConnection.useDb(`salon_crm_${business._id}`);
+            const Staff = businessDb.model('Staff', require('../models/Staff').schema);
+            
+            const staff = await Staff.findById(decoded.id).select('-password');
+            if (staff) {
+              staffUser = staff;
+              businessId = business._id;
+              console.log('🔍 Staff user found in business database:', business.name, business._id);
+              break;
+            }
+          } catch (error) {
+            console.log('🔍 Error checking business database:', business.name, error.message);
+            // Continue to next business
+          }
+        }
+        
+        if (!staffUser) {
+          console.log('🔍 User not found in any database for ID:', decoded.id);
+          return res.status(401).json({ success: false, error: 'User not found' });
+        }
+        
+        // Convert staff user to user format
+        user = {
+          _id: staffUser._id,
+          firstName: staffUser.name?.split(' ')[0] || '',
+          lastName: staffUser.name?.split(' ').slice(1).join(' ') || '',
+          email: staffUser.email,
+          mobile: staffUser.phone,
+          role: staffUser.role,
+          branchId: businessId,
+          hasLoginAccess: staffUser.hasLoginAccess,
+          allowAppointmentScheduling: staffUser.allowAppointmentScheduling,
+          isActive: staffUser.isActive,
+          specialties: staffUser.specialties,
+          hourlyRate: staffUser.hourlyRate,
+          commissionRate: staffUser.commissionRate,
+          notes: staffUser.notes,
+          commissionProfileIds: staffUser.commissionProfileIds,
+          createdAt: staffUser.createdAt,
+          updatedAt: staffUser.updatedAt
+        };
       }
 
-      req.user = user;
+      console.log('🔍 Auth middleware user:', {
+        id: user._id,
+        email: user.email,
+        branchId: user.branchId,
+        role: user.role
+      });
+
+      // Ensure the user object has all required fields
+      req.user = {
+        _id: user._id,
+        id: user._id,
+        email: user.email,
+        branchId: user.branchId,
+        role: user.role,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        mobile: user.mobile,
+        avatar: user.avatar,
+        hasLoginAccess: user.hasLoginAccess,
+        allowAppointmentScheduling: user.allowAppointmentScheduling,
+        isActive: user.isActive,
+        permissions: user.permissions,
+        specialties: user.specialties,
+        hourlyRate: user.hourlyRate,
+        commissionRate: user.commissionRate,
+        notes: user.notes,
+        commissionProfileIds: user.commissionProfileIds,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt
+      };
+
+      console.log('🔍 Auth middleware req.user set:', {
+        id: req.user.id,
+        email: req.user.email,
+        branchId: req.user.branchId,
+        role: req.user.role
+      });
       next();
     } catch (error) {
       console.error('Error in auth middleware:', error);

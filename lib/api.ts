@@ -134,6 +134,11 @@ export class AuthAPI {
     const response = await apiClient.get(`/auth/verify-reset-token/${token}`)
     return response.data
   }
+
+  static async staffLogin(email: string, password: string, businessCode: string): Promise<ApiResponse<{ user: any; token: string }>> {
+    const response = await apiClient.post('/auth/staff-login', { email, password, businessCode })
+    return response.data
+  }
 }
 
 export class ClientsAPI {
@@ -212,7 +217,11 @@ export class ProductsAPI {
   }
 
   static async update(id: string, data: any): Promise<ApiResponse<any>> {
+    console.log('🔍 ProductsAPI.update - Making PUT request to:', `/products/${id}`)
+    console.log('🔍 ProductsAPI.update - Full URL will be:', `${API_BASE_URL}/products/${id}`)
+    console.log('🔍 ProductsAPI.update - Data being sent:', data)
     const response = await apiClient.put(`/products/${id}`, data)
+    console.log('🔍 ProductsAPI.update - Response received:', response.status, response.data)
     return response.data
   }
 
@@ -223,6 +232,72 @@ export class ProductsAPI {
 
   static async updateStock(id: string, quantity: number, operation: 'decrease' | 'increase' = 'decrease'): Promise<ApiResponse<any>> {
     const response = await apiClient.patch(`/products/${id}/stock`, { quantity, operation })
+    return response.data
+  }
+}
+
+export class SuppliersAPI {
+  static async getAll(params?: { search?: string; activeOnly?: boolean }): Promise<ApiResponse<any[]>> {
+    const response = await apiClient.get('/suppliers', { params })
+    return response.data
+  }
+
+  static async getById(id: string): Promise<ApiResponse<any>> {
+    const response = await apiClient.get(`/suppliers/${id}`)
+    return response.data
+  }
+
+  static async create(data: { name: string; contactPerson?: string; phone?: string; email?: string; address?: string; notes?: string }): Promise<ApiResponse<any>> {
+    const response = await apiClient.post('/suppliers', data)
+    return response.data
+  }
+
+  static async update(id: string, data: { name?: string; contactPerson?: string; phone?: string; email?: string; address?: string; notes?: string; isActive?: boolean }): Promise<ApiResponse<any>> {
+    const response = await apiClient.put(`/suppliers/${id}`, data)
+    return response.data
+  }
+
+  static async delete(id: string): Promise<ApiResponse> {
+    const response = await apiClient.delete(`/suppliers/${id}`)
+    return response.data
+  }
+}
+
+export class CategoriesAPI {
+  static async getAll(params?: { search?: string; type?: 'product' | 'service' | 'both'; activeOnly?: boolean }): Promise<ApiResponse<any[]>> {
+    const response = await apiClient.get('/categories', { params })
+    return response.data
+  }
+
+  static async getById(id: string): Promise<ApiResponse<any>> {
+    const response = await apiClient.get(`/categories/${id}`)
+    return response.data
+  }
+
+  static async create(data: { name: string; type?: 'product' | 'service' | 'both'; description?: string }): Promise<ApiResponse<any>> {
+    const response = await apiClient.post('/categories', data)
+    return response.data
+  }
+
+  static async update(id: string, data: { name?: string; type?: 'product' | 'service' | 'both'; description?: string; isActive?: boolean }): Promise<ApiResponse<any>> {
+    const response = await apiClient.put(`/categories/${id}`, data)
+    return response.data
+  }
+
+  static async delete(id: string): Promise<ApiResponse> {
+    const response = await apiClient.delete(`/categories/${id}`)
+    return response.data
+  }
+}
+
+export class InventoryAPI {
+  static async deductProduct(data: { productId: string; quantity: number; transactionType: string; reason?: string; notes?: string }): Promise<ApiResponse<any>> {
+    const response = await apiClient.post('/inventory/out', data)
+    return response.data
+  }
+
+  static async getTransactions(params?: { page?: number; limit?: number; productId?: string; transactionType?: string; dateFrom?: string; dateTo?: string }): Promise<PaginatedResponse<any>> {
+    const response = await apiClient.get('/inventory/transactions', { params })
     return response.data
   }
 }
@@ -282,6 +357,13 @@ export class StaffAPI {
 
   static async delete(id: string): Promise<ApiResponse> {
     const response = await apiClient.delete(`/staff/${id}`)
+    return response.data
+  }
+}
+
+export class StaffDirectoryAPI {
+  static async getAll(params?: { search?: string }): Promise<PaginatedResponse<any>> {
+    const response = await apiClient.get('/staff-directory', { params })
     return response.data
   }
 }

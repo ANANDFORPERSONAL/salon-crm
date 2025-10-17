@@ -232,7 +232,10 @@ export function TopNav({ showQuickAdd = true, rightSlot }: TopNavProps) {
                 className="relative h-10 w-10 rounded-full p-0 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 transition-all duration-300 transform hover:scale-105 hover:shadow-md border-2 border-transparent hover:border-indigo-200 ml-1"
               >
                 <Avatar className="h-10 w-10 ring-2 ring-white shadow-md">
-                  <AvatarImage src={user?.avatar} alt={user?.name} />
+                  <AvatarImage 
+                    src={user?.avatar || `/placeholder.svg?height=32&width=32`} 
+                    alt={user?.name} 
+                  />
                   <AvatarFallback className="bg-gradient-to-br from-indigo-500 to-purple-600 text-white font-semibold text-sm">
                     {user?.name?.charAt(0) || user?.email?.charAt(0) || "U"}
                   </AvatarFallback>
@@ -243,7 +246,10 @@ export function TopNav({ showQuickAdd = true, rightSlot }: TopNavProps) {
               <DropdownMenuLabel className="font-normal p-3">
                 <div className="flex items-center gap-3 p-3 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg">
                   <Avatar className="h-12 w-12 ring-2 ring-white shadow-md">
-                    <AvatarImage src={user?.avatar} alt={user?.name} />
+                    <AvatarImage 
+                      src={user?.avatar || `/placeholder.svg?height=32&width=32`} 
+                      alt={user?.name} 
+                    />
                     <AvatarFallback className="bg-gradient-to-br from-indigo-500 to-purple-600 text-white font-semibold">
                       {user?.name?.charAt(0) || user?.email?.charAt(0) || "U"}
                     </AvatarFallback>

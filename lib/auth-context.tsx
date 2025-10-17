@@ -18,7 +18,9 @@ export interface User {
 interface AuthContextType {
   user: User | null
   login: (email: string, password: string) => Promise<boolean>
+  staffLogin: (email: string, password: string, businessCode: string) => Promise<boolean>
   logout: () => void
+  updateUser: (userData: Partial<User>) => void
   isLoading: boolean
   hasRole: (roles: string[]) => boolean
   isAdmin: () => boolean
@@ -136,6 +138,56 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  const staffLogin = async (email: string, password: string, businessCode: string): Promise<boolean> => {
+    setIsLoading(true)
+    console.log('🔍 DEBUG: Starting staff login process...')
+    console.log('📧 Email:', email)
+    console.log('🏢 Business Code:', businessCode)
+
+    try {
+      console.log('🌐 Attempting staff API login...')
+      const response = await AuthAPI.staffLogin(email, password, businessCode)
+      
+      if (response.success) {
+        const { user: userData, token } = response.data
+        console.log('✅ Staff API login successful')
+        console.log('👤 Staff data:', userData)
+        console.log('🔑 Token received:', token ? 'Yes' : 'No')
+        setUser(userData)
+        
+        // Only use localStorage in browser environment
+        if (typeof window !== 'undefined') {
+          localStorage.setItem("salon-auth-token", token)
+          localStorage.setItem("salon-auth-user", JSON.stringify(userData))
+        }
+        
+        setIsLoading(false)
+        return true
+      } else {
+        console.log('❌ Staff API login failed:', response.error)
+        setIsLoading(false)
+        return false
+      }
+    } catch (error) {
+      console.error("Staff API login error:", error)
+      console.log('❌ Staff login failed - API error or invalid credentials')
+      setIsLoading(false)
+      return false
+    }
+  }
+
+  const updateUser = (userData: Partial<User>) => {
+    if (user) {
+      const updatedUser = { ...user, ...userData }
+      setUser(updatedUser)
+      
+      // Update localStorage to keep it in sync
+      if (typeof window !== 'undefined') {
+        localStorage.setItem("salon-auth-user", JSON.stringify(updatedUser))
+      }
+    }
+  }
+
   const logout = async () => {
     try {
       // Clear user state first to prevent race conditions
@@ -204,7 +256,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     <AuthContext.Provider value={{ 
       user, 
       login, 
+      staffLogin,
       logout, 
+      updateUser,
       isLoading, 
       hasRole, 
       isAdmin, 
