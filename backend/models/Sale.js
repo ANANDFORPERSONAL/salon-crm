@@ -33,6 +33,7 @@ const saleSchema = new mongoose.Schema({
   customerName: { type: String, required: true },
   customerPhone: { type: String, default: '' },
   date: { type: Date, required: true },
+  time: { type: String, default: '' },
   
   // Enhanced payment status system
   status: { 

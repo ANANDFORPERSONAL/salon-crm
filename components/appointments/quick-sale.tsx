@@ -3,6 +3,7 @@
 import type React from "react"
 
 import { useState, useRef, useEffect } from "react"
+import { useSearchParams } from "next/navigation"
 import {
   Search,
   Plus,
@@ -176,6 +177,7 @@ interface ProductItem {
 
 export function QuickSale() {
   const { toast } = useToast()
+  const searchParams = useSearchParams()
   const [selectedCustomer, setSelectedCustomer] = useState<Client | null>(null)
   const [customerSearch, setCustomerSearch] = useState("")
   const [showCustomerDropdown, setShowCustomerDropdown] = useState(false)
@@ -462,6 +464,83 @@ export function QuickSale() {
 
     return unsubscribe
   }, [])
+
+  // Pre-fill form from appointment data in URL
+  useEffect(() => {
+    const appointmentParam = searchParams.get('appointment')
+    if (!appointmentParam || services.length === 0 || clients.length === 0 || staff.length === 0) return
+
+    const prefillAppointmentData = async () => {
+      try {
+        // Decode the base64 appointment data
+        const appointmentData = JSON.parse(atob(appointmentParam))
+        console.log('Pre-filling from appointment:', appointmentData)
+
+        // Find and set the client
+        if (appointmentData.clientId) {
+          const client = clients.find(c => c._id === appointmentData.clientId || c.id === appointmentData.clientId)
+          if (client) {
+            setSelectedCustomer(client)
+            setCustomerSearch(client.name)
+            console.log('Pre-filled client:', client.name)
+            
+            // Fetch customer statistics (visits, revenue, last visit)
+            const customerId = client._id || client.id
+            if (customerId) {
+              await fetchCustomerStats(customerId)
+              console.log('Fetched customer stats for pre-filled client')
+            }
+          }
+        }
+
+        // Find and add the service
+        if (appointmentData.serviceId) {
+          const service = services.find(s => 
+            (s._id || s.id) === appointmentData.serviceId
+          )
+          
+          if (service) {
+            // Find staff member for name
+            const staffMember = staff.find(s => 
+              (s._id || s.id) === appointmentData.staffId
+            )
+            
+            // Add service item with pre-filled data
+            const newServiceItem: ServiceItem = {
+              id: Date.now().toString(),
+              serviceId: service._id || service.id,
+              staffId: appointmentData.staffId || "",
+              quantity: 1,
+              price: service.price || appointmentData.servicePrice || 0,
+              discount: 0,
+              total: service.price || appointmentData.servicePrice || 0,
+              staffContributions: (appointmentData.staffId && staffMember) ? [{
+                staffId: appointmentData.staffId,
+                staffName: staffMember.name || appointmentData.staffName || '',
+                percentage: 100,
+                amount: service.price || appointmentData.servicePrice || 0
+              }] : []
+            }
+            
+            setServiceItems([newServiceItem])
+            console.log('Pre-filled service:', service.name)
+          }
+        }
+
+        // Clear the URL parameter after reading it
+        if (typeof window !== 'undefined') {
+          const url = new URL(window.location.href)
+          url.searchParams.delete('appointment')
+          window.history.replaceState({}, '', url.toString())
+        }
+      } catch (error) {
+        console.error('Failed to parse appointment data:', error)
+      }
+    }
+    
+    // Call the async function
+    prefillAppointmentData()
+  }, [searchParams, services, clients, staff])
 
   // In production, prefill data should come from URL params or API
   // No localStorage dependency for critical business functionality
@@ -890,7 +969,7 @@ export function QuickSale() {
       const serviceItemsWithGST = serviceItems.map(item => {
         const baseAmount = item.price * item.quantity
         const serviceTaxRate = taxSettings?.serviceTaxRate || 5
-        const gstAmount = (baseAmount * serviceTaxRate) / 100
+        const gstAmount = (taxSettings?.enableTax !== false) ? (baseAmount * serviceTaxRate) / 100 : 0
         return { ...item, totalWithGST: baseAmount + gstAmount }
       })
       
@@ -907,7 +986,7 @@ export function QuickSale() {
             case 'exempt': productTaxRate = taxSettings.exemptProductRate || 0; break
           }
         }
-        const gstAmount = (baseAmount * productTaxRate) / 100
+        const gstAmount = (taxSettings?.enableTax !== false) ? (baseAmount * productTaxRate) / 100 : 0
         return { ...item, totalWithGST: baseAmount + gstAmount }
       })
       
@@ -918,7 +997,7 @@ export function QuickSale() {
         setServiceItems(prev => prev.map((item, index) => {
           const baseAmount = item.price * item.quantity
           const serviceTaxRate = taxSettings?.serviceTaxRate || 5
-          const gstAmount = (baseAmount * serviceTaxRate) / 100
+          const gstAmount = (taxSettings?.enableTax !== false) ? (baseAmount * serviceTaxRate) / 100 : 0
           const totalWithGST = baseAmount + gstAmount
           const proportionalDiscountValue = (totalWithGST / totalPayableAmount) * discountValue
           const proportionalDiscountPercentage = (proportionalDiscountValue / totalWithGST) * 100
@@ -956,7 +1035,7 @@ export function QuickSale() {
               case 'exempt': productTaxRate = taxSettings.exemptProductRate || 0; break
             }
           }
-          const gstAmount = (baseAmount * productTaxRate) / 100
+          const gstAmount = (taxSettings?.enableTax !== false) ? (baseAmount * productTaxRate) / 100 : 0
           const totalWithGST = baseAmount + gstAmount
           const proportionalDiscountValue = (totalWithGST / totalPayableAmount) * discountValue
           const proportionalDiscountPercentage = (proportionalDiscountValue / totalWithGST) * 100
@@ -969,7 +1048,7 @@ export function QuickSale() {
       const serviceItemsWithGST = serviceItems.map(item => {
         const baseAmount = item.price * item.quantity
         const serviceTaxRate = taxSettings?.serviceTaxRate || 5
-        const gstAmount = (baseAmount * serviceTaxRate) / 100
+        const gstAmount = (taxSettings?.enableTax !== false) ? (baseAmount * serviceTaxRate) / 100 : 0
         return { ...item, totalWithGST: baseAmount + gstAmount }
       })
       
@@ -986,7 +1065,7 @@ export function QuickSale() {
             case 'exempt': productTaxRate = taxSettings.exemptProductRate || 0; break
           }
         }
-        const gstAmount = (baseAmount * productTaxRate) / 100
+        const gstAmount = (taxSettings?.enableTax !== false) ? (baseAmount * productTaxRate) / 100 : 0
         return { ...item, totalWithGST: baseAmount + gstAmount }
       })
       
@@ -998,7 +1077,7 @@ export function QuickSale() {
       setServiceItems(prev => prev.map(item => {
         const baseAmount = item.price * item.quantity
         const serviceTaxRate = taxSettings?.serviceTaxRate || 5
-        const gstAmount = (baseAmount * serviceTaxRate) / 100
+        const gstAmount = (taxSettings?.enableTax !== false) ? (baseAmount * serviceTaxRate) / 100 : 0
         const totalWithGST = baseAmount + gstAmount
         const proportionalDiscountValue = (totalWithGST / totalPayableAmount) * totalDiscountAmount
         const proportionalDiscountPercentage = (proportionalDiscountValue / totalWithGST) * 100
@@ -1030,7 +1109,7 @@ export function QuickSale() {
             case 'exempt': productTaxRate = taxSettings.exemptProductRate || 0; break
           }
         }
-        const gstAmount = (baseAmount * productTaxRate) / 100
+        const gstAmount = (taxSettings?.enableTax !== false) ? (baseAmount * productTaxRate) / 100 : 0
         const totalWithGST = baseAmount + gstAmount
         const proportionalDiscountValue = (totalWithGST / totalPayableAmount) * totalDiscountAmount
         const proportionalDiscountPercentage = (proportionalDiscountValue / totalWithGST) * 100
@@ -1038,11 +1117,11 @@ export function QuickSale() {
         return { ...item, discount: proportionalDiscountPercentage, total: finalTotal }
       }))
     } else {
-      // No discount - reset to GST-inclusive amounts
+      // No discount - reset to GST-inclusive amounts (only if tax is enabled)
       setServiceItems(prev => prev.map(item => {
         const baseAmount = item.price * item.quantity
         const serviceTaxRate = taxSettings?.serviceTaxRate || 5
-        const gstAmount = (baseAmount * serviceTaxRate) / 100
+        const gstAmount = (taxSettings?.enableTax !== false) ? (baseAmount * serviceTaxRate) / 100 : 0
         return { ...item, discount: 0, total: baseAmount + gstAmount }
       }))
       
@@ -1059,7 +1138,7 @@ export function QuickSale() {
             case 'exempt': productTaxRate = taxSettings.exemptProductRate || 0; break
           }
         }
-        const gstAmount = (baseAmount * productTaxRate) / 100
+        const gstAmount = (taxSettings?.enableTax !== false) ? (baseAmount * productTaxRate) / 100 : 0
         return { ...item, discount: 0, total: baseAmount + gstAmount }
       }))
     }
@@ -1174,7 +1253,7 @@ export function QuickSale() {
           // Calculate total with GST for services (without discount - discount will be applied by useEffect)
           const baseAmount = updatedItem.price * updatedItem.quantity
           const serviceTaxRate = taxSettings?.serviceTaxRate || 5
-          const gstAmount = (baseAmount * serviceTaxRate) / 100
+          const gstAmount = (taxSettings?.enableTax !== false) ? (baseAmount * serviceTaxRate) / 100 : 0
           
           // Only update total if no discount is active, otherwise let discount logic handle it
           if (discountValue === 0 && discountPercentage === 0) {
@@ -1210,7 +1289,7 @@ export function QuickSale() {
           // Calculate total with GST for products
           const baseAmount = updatedItem.price * updatedItem.quantity
           
-          // Add GST for products based on tax category
+          // Add GST for products based on tax category (only if tax is enabled)
           let productTaxRate = 18 // default standard rate
           if (field === "productId" && value) {
             const product = products.find((p) => p._id === value || p.id === value)
@@ -1225,7 +1304,7 @@ export function QuickSale() {
             }
           }
           
-          const gstAmount = (baseAmount * productTaxRate) / 100
+          const gstAmount = (taxSettings?.enableTax !== false) ? (baseAmount * productTaxRate) / 100 : 0
           
           // Only update total if no discount is active, otherwise let discount logic handle it
           if (discountValue === 0 && discountPercentage === 0) {
@@ -1266,11 +1345,11 @@ export function QuickSale() {
       return baseAmount
     }
     
-    // Calculate total payable amount (original prices + GST)
+    // Calculate total payable amount (original prices + GST, only if tax is enabled)
     const totalPayableAmount = serviceItems.reduce((total, serviceItem) => {
       const serviceBaseAmount = serviceItem.price * serviceItem.quantity
       const serviceTaxRate = taxSettings?.serviceTaxRate || 5
-      const serviceGstAmount = (serviceBaseAmount * serviceTaxRate) / 100
+      const serviceGstAmount = (taxSettings?.enableTax !== false) ? (serviceBaseAmount * serviceTaxRate) / 100 : 0
       return total + serviceBaseAmount + serviceGstAmount
     }, 0) + productItems.reduce((total, productItem) => {
       const productBaseAmount = productItem.price * productItem.quantity
@@ -1285,11 +1364,12 @@ export function QuickSale() {
           case 'exempt': productTaxRate = taxSettings.exemptProductRate || 0; break
         }
       }
-      const productGstAmount = (productBaseAmount * productTaxRate) / 100
+      const productGstAmount = (taxSettings?.enableTax !== false) ? (productBaseAmount * productTaxRate) / 100 : 0
       return total + productBaseAmount + productGstAmount
     }, 0)
     
-    const itemAmountWithGST = baseAmount + (baseAmount * taxRate) / 100
+    const gstForItem = (taxSettings?.enableTax !== false) ? (baseAmount * taxRate) / 100 : 0
+    const itemAmountWithGST = baseAmount + gstForItem
     const totalDiscountAmount = discountValue + (totalPayableAmount * discountPercentage / 100)
     const proportionalDiscount = totalPayableAmount > 0 ? (itemAmountWithGST / totalPayableAmount) * totalDiscountAmount : 0
     const discountOnBaseAmount = proportionalDiscount * baseAmount / itemAmountWithGST
@@ -1297,17 +1377,17 @@ export function QuickSale() {
     return baseAmount - discountOnBaseAmount
   }
   
-  // Calculate service tax on discounted amounts
-  const serviceTax = serviceItems.reduce((sum, item) => {
+  // Calculate service tax on discounted amounts (only if tax is enabled)
+  const serviceTax = (taxSettings?.enableTax !== false) ? serviceItems.reduce((sum, item) => {
     const baseAmount = item.price * item.quantity
     const serviceTaxRate = taxSettings?.serviceTaxRate || 5
     const discountedAmount = calculateDiscountedAmount(baseAmount, serviceTaxRate)
     const gstAmount = (discountedAmount * serviceTaxRate) / 100
     return sum + gstAmount
-  }, 0)
+  }, 0) : 0
   
-  // Calculate product tax on discounted amounts
-  const productTax = productItems.reduce((sum, item) => {
+  // Calculate product tax on discounted amounts (only if tax is enabled)
+  const productTax = (taxSettings?.enableTax !== false) ? productItems.reduce((sum, item) => {
     const baseAmount = item.price * item.quantity
     const product = products.find((p) => p._id === item.productId || p.id === item.productId)
     let productTaxRate = 18
@@ -1323,7 +1403,7 @@ export function QuickSale() {
     const discountedAmount = calculateDiscountedAmount(baseAmount, productTaxRate)
     const gstAmount = (discountedAmount * productTaxRate) / 100
     return sum + gstAmount
-  }, 0)
+  }, 0) : 0
 
   const totalTax = serviceTax + productTax
   
@@ -1645,17 +1725,17 @@ export function QuickSale() {
       let calculatedTotal = subtotal + tip
       let taxBreakdown = { cgst: 0, sgst: 0, igst: 0 }
 
-      // Calculate tax breakdown from individual items
-        const serviceTax = serviceItems.reduce((sum, item) => {
+      // Calculate tax breakdown from individual items (only if tax is enabled)
+        const serviceTax = (taxSettings?.enableTax !== false) ? serviceItems.reduce((sum, item) => {
         const baseAmount = item.price * item.quantity
         const discountAmount = (baseAmount * item.discount) / 100
         const discountedAmount = baseAmount - discountAmount
         const serviceTaxRate = taxSettings?.serviceTaxRate || 5
         const gstAmount = (discountedAmount * serviceTaxRate) / 100
         return sum + gstAmount
-      }, 0)
+      }, 0) : 0
 
-      const productTax = productItems.reduce((sum, item) => {
+      const productTax = (taxSettings?.enableTax !== false) ? productItems.reduce((sum, item) => {
         const baseAmount = item.price * item.quantity
         const discountAmount = (baseAmount * item.discount) / 100
         const discountedAmount = baseAmount - discountAmount
@@ -1672,7 +1752,7 @@ export function QuickSale() {
         }
         const gstAmount = (discountedAmount * productTaxRate) / 100
         return sum + gstAmount
-      }, 0)
+      }, 0) : 0
 
       calculatedTax = serviceTax + productTax
         taxBreakdown = {
@@ -1681,37 +1761,51 @@ export function QuickSale() {
           igst: 0
         }
 
-      // Update receipt items with tax information
+      // Update receipt items with tax information (only if tax is enabled)
       receiptItems.forEach((item) => {
         if (item.type === 'service') {
           const baseAmount = item.price * item.quantity
           const discountAmount = (baseAmount * item.discount) / 100
           const discountedAmount = baseAmount - discountAmount
-          const serviceTaxRate = taxSettings?.serviceTaxRate || 5
-          const gstAmount = (discountedAmount * serviceTaxRate) / 100
-          item.taxAmount = gstAmount
-          item.cgst = gstAmount / 2
-          item.sgst = gstAmount / 2
+          
+          if (taxSettings?.enableTax !== false) {
+            const serviceTaxRate = taxSettings?.serviceTaxRate || 5
+            const gstAmount = (discountedAmount * serviceTaxRate) / 100
+            item.taxAmount = gstAmount
+            item.cgst = gstAmount / 2
+            item.sgst = gstAmount / 2
+          } else {
+            item.taxAmount = 0
+            item.cgst = 0
+            item.sgst = 0
+          }
           item.totalWithTax = item.total
         } else if (item.type === 'product') {
           const baseAmount = item.price * item.quantity
           const discountAmount = (baseAmount * item.discount) / 100
           const discountedAmount = baseAmount - discountAmount
-          const product = products.find((p) => p._id === item.productId || p.id === item.productId)
-          let productTaxRate = 18
-          if (product?.taxCategory && taxSettings) {
-            switch (product.taxCategory) {
-              case 'essential': productTaxRate = taxSettings.essentialProductRate || 5; break
-              case 'intermediate': productTaxRate = taxSettings.intermediateProductRate || 12; break
-              case 'standard': productTaxRate = taxSettings.standardProductRate || 18; break
-              case 'luxury': productTaxRate = taxSettings.luxuryProductRate || 28; break
-              case 'exempt': productTaxRate = taxSettings.exemptProductRate || 0; break
+          
+          if (taxSettings?.enableTax !== false) {
+            const product = products.find((p) => p._id === item.productId || p.id === item.productId)
+            let productTaxRate = 18
+            if (product?.taxCategory && taxSettings) {
+              switch (product.taxCategory) {
+                case 'essential': productTaxRate = taxSettings.essentialProductRate || 5; break
+                case 'intermediate': productTaxRate = taxSettings.intermediateProductRate || 12; break
+                case 'standard': productTaxRate = taxSettings.standardProductRate || 18; break
+                case 'luxury': productTaxRate = taxSettings.luxuryProductRate || 28; break
+                case 'exempt': productTaxRate = taxSettings.exemptProductRate || 0; break
+              }
             }
+            const gstAmount = (discountedAmount * productTaxRate) / 100
+            item.taxAmount = gstAmount
+            item.cgst = gstAmount / 2
+            item.sgst = gstAmount / 2
+          } else {
+            item.taxAmount = 0
+            item.cgst = 0
+            item.sgst = 0
           }
-          const gstAmount = (discountedAmount * productTaxRate) / 100
-          item.taxAmount = gstAmount
-          item.cgst = gstAmount / 2
-          item.sgst = gstAmount / 2
           item.totalWithTax = item.total
         }
       })
@@ -1799,7 +1893,8 @@ export function QuickSale() {
           staffId: primaryStaff?.staffId || staff[0]?._id || staff[0]?.id || "",
           staffName: primaryStaff?.staffName || staff[0]?.name || "Unassigned Staff",
           notes: remarks || '',
-          date: selectedDate.toISOString()
+          date: selectedDate.toISOString(),
+          time: format(new Date(), "HH:mm")
         }
 
         console.log('💾 Creating sale in backend:', saleData)
@@ -2757,29 +2852,29 @@ export function QuickSale() {
                           )}
                         </div>
                       )}
-                      {serviceDropdownSearch && activeServiceDropdown === item.id && (
-                        <div className="absolute top-full left-0 right-0 z-[9999] mt-1 bg-white border border-gray-200 rounded-md shadow-lg" style={{ maxHeight: 'none', overflow: 'visible' }}>
+                      {activeServiceDropdown === item.id && (
+                        <div className="absolute top-full left-0 right-0 z-[9999] mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-auto">
                           {loadingServices ? (
                             <div className="p-2 text-center text-sm text-muted-foreground">Loading services...</div>
                           ) : (
                             <>
                               {filteredServicesForDropdown.length === 0 ? (
                                 <div className="p-2 text-center text-sm text-muted-foreground">
-                                  No services found matching "{serviceDropdownSearch}"
+                                  {serviceDropdownSearch ? `No services found matching "${serviceDropdownSearch}"` : 'No services available'}
                                 </div>
                               ) : (
                                 filteredServicesForDropdown.map((service) => (
                                   <div
                                     key={service._id || service.id}
-                                    className="p-2 hover:bg-muted cursor-pointer text-sm border-b last:border-b-0"
+                                    className="p-3 hover:bg-slate-50 cursor-pointer text-sm border-b last:border-b-0 transition-colors"
                                     onClick={() => {
                                       updateServiceItem(item.id, "serviceId", service._id || service.id)
                                       setServiceDropdownSearch("")
                                       setActiveServiceDropdown(null)
                                     }}
                                   >
-                                    <div className="font-medium">{service.name}</div>
-                                    <div className="text-xs text-muted-foreground">{service.duration} min - {formatCurrency(service.price)}</div>
+                                    <div className="font-medium text-slate-800">{service.name}</div>
+                                    <div className="text-xs text-slate-500 mt-1">{service.duration} min - {formatCurrency(service.price)}</div>
                                   </div>
                                 ))
                               )}
@@ -2936,29 +3031,29 @@ export function QuickSale() {
                             )}
                           </div>
                         )}
-                        {productDropdownSearch && activeProductDropdown === item.id && (
-                          <div className="absolute top-full left-0 right-0 z-[9999] mt-1 bg-white border border-gray-200 rounded-md shadow-lg" style={{ maxHeight: 'none', overflow: 'visible' }}>
+                        {activeProductDropdown === item.id && (
+                          <div className="absolute top-full left-0 right-0 z-[9999] mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-auto">
                             {loadingProducts ? (
                               <div className="p-2 text-center text-sm text-muted-foreground">Loading products...</div>
                             ) : (
                               <>
                                 {filteredProductsForDropdown.length === 0 ? (
                                   <div className="p-2 text-center text-sm text-muted-foreground">
-                                    No products found matching "{productDropdownSearch}"
+                                    {productDropdownSearch ? `No products found matching "${productDropdownSearch}"` : 'No products available'}
                                   </div>
                                 ) : (
                                   filteredProductsForDropdown.map((product) => (
                                     <div
                                       key={product._id || product.id}
-                                      className="p-2 hover:bg-muted cursor-pointer text-sm border-b last:border-b-0"
+                                      className="p-3 hover:bg-slate-50 cursor-pointer text-sm border-b last:border-b-0 transition-colors"
                                       onClick={() => {
                                         updateProductItem(item.id, "productId", product._id || product.id)
                                         setProductDropdownSearch("")
                                         setActiveProductDropdown(null)
                                       }}
                                     >
-                                      <div className="font-medium">{product.name}</div>
-                                      <div className="text-xs text-muted-foreground">Stock: {product.stock} - {formatCurrency(product.price)}</div>
+                                      <div className="font-medium text-slate-800">{product.name}</div>
+                                      <div className="text-xs text-slate-500 mt-1">Stock: {product.stock} - {formatCurrency(product.price)}</div>
                                     </div>
                                   ))
                                 )}
@@ -3137,6 +3232,7 @@ export function QuickSale() {
                     type="number"
                     value={discountValue}
                     onChange={(e) => setDiscountValue(Number(e.target.value))}
+                    onFocus={(e) => e.target.select()}
                     className="pl-8"
                     placeholder="0"
                   />
@@ -3151,6 +3247,7 @@ export function QuickSale() {
                     type="number"
                     value={discountPercentage}
                     onChange={(e) => setDiscountPercentage(Number(e.target.value))}
+                    onFocus={(e) => e.target.select()}
                     className={`pr-8 ${isValueDiscountActive ? 'bg-amber-50 border-amber-200' : ''}`}
                     placeholder="0"
                     disabled={isValueDiscountActive}
@@ -3301,6 +3398,7 @@ export function QuickSale() {
                       type="number"
                       value={cashAmount}
                       onChange={(e) => setCashAmount(Number(e.target.value))}
+                      onFocus={(e) => e.target.select()}
                       className="w-full h-8 text-sm border-green-300 text-center rounded-lg focus:border-green-400 focus:ring-green-200"
                       placeholder="0"
                     />
@@ -3313,6 +3411,7 @@ export function QuickSale() {
                       type="number"
                       value={cardAmount}
                       onChange={(e) => setCardAmount(Number(e.target.value))}
+                      onFocus={(e) => e.target.select()}
                       className="w-full h-8 text-sm border-blue-300 text-center rounded-lg focus:border-blue-400 focus:ring-blue-200"
                       placeholder="0"
                     />
@@ -3325,6 +3424,7 @@ export function QuickSale() {
                       type="number"
                       value={onlineAmount}
                       onChange={(e) => setOnlineAmount(Number(e.target.value))}
+                      onFocus={(e) => e.target.select()}
                       className="w-full h-8 text-sm border-purple-300 text-center rounded-lg focus:border-purple-400 focus:ring-purple-200"
                       placeholder="0"
                     />

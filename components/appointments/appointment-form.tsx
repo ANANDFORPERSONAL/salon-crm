@@ -73,6 +73,13 @@ interface SelectedService {
   price: number
 }
 
+interface ServiceDropdownState {
+  [key: string]: {
+    search: string
+    isOpen: boolean
+  }
+}
+
 export function AppointmentForm() {
   const router = useRouter()
   const { toast } = useToast()
@@ -90,6 +97,9 @@ export function AppointmentForm() {
   const [staff, setStaff] = useState<any[]>([])
   const [loadingServices, setLoadingServices] = useState(true)
   const [loadingStaff, setLoadingStaff] = useState(true)
+  
+  // Service dropdown search state
+  const [serviceDropdowns, setServiceDropdowns] = useState<ServiceDropdownState>({})
   
   // New client dialog
   const [showNewClientDialog, setShowNewClientDialog] = useState(false)
@@ -130,6 +140,16 @@ export function AppointmentForm() {
       const target = event.target as Element
       if (!target.closest('.customer-search-container')) {
         setShowCustomerDropdown(false)
+      }
+      // Close service dropdowns when clicking outside
+      if (!target.closest('.service-dropdown-container')) {
+        setServiceDropdowns(prev => {
+          const updated = { ...prev }
+          Object.keys(updated).forEach(key => {
+            updated[key] = { ...updated[key], isOpen: false }
+          })
+          return updated
+        })
       }
     }
 
@@ -330,6 +350,32 @@ export function AppointmentForm() {
         }
         return service
       })
+    )
+  }
+
+  // Get or initialize dropdown state for a service
+  const getDropdownState = (serviceId: string) => {
+    return serviceDropdowns[serviceId] || { search: '', isOpen: false }
+  }
+
+  // Update dropdown state
+  const updateDropdownState = (serviceId: string, updates: Partial<{ search: string, isOpen: boolean }>) => {
+    setServiceDropdowns(prev => ({
+      ...prev,
+      [serviceId]: {
+        ...getDropdownState(serviceId),
+        ...updates
+      }
+    }))
+  }
+
+  // Filter services based on search
+  const getFilteredServices = (serviceId: string) => {
+    const search = getDropdownState(serviceId).search.toLowerCase()
+    if (!search) return services
+    return services.filter(s => 
+      s.name.toLowerCase().includes(search) ||
+      s.price.toString().includes(search)
     )
   }
 
@@ -711,31 +757,70 @@ export function AppointmentForm() {
                       <div className="grid gap-4 md:grid-cols-2">
                         <div className="space-y-2">
                           <Label className="text-sm font-semibold text-slate-700">Service</Label>
-                          <Select
-                            value={service.serviceId}
-                            onValueChange={(value) => updateService(service.id, "serviceId", value)}
-                          >
-                            <SelectTrigger className="border-slate-200 hover:border-indigo-500 focus:border-indigo-500 focus:ring-indigo-500 rounded-lg">
-                              <SelectValue placeholder="Select service" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {loadingServices ? (
-                                <SelectItem value="__loading__" disabled>
-                                  Loading services...
-                                </SelectItem>
-                              ) : services.length === 0 ? (
-                                <SelectItem value="__none__" disabled>
-                                  No services available
-                                </SelectItem>
-                              ) : (
-                                services.map((s) => (
-                                  <SelectItem key={s._id || s.id} value={s._id || s.id}>
-                                    {s.name} - ₹{s.price}
-                                  </SelectItem>
-                                ))
-                              )}
-                            </SelectContent>
-                          </Select>
+                          <div className="relative service-dropdown-container">
+                            {service.serviceId && service.name ? (
+                              <div className="flex items-center justify-between h-10 px-3 py-2 bg-slate-100 rounded-lg text-sm border border-slate-200">
+                                <span className="truncate">{service.name}</span>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    updateService(service.id, "serviceId", "")
+                                    updateService(service.id, "name", "")
+                                    updateDropdownState(service.id, { search: '', isOpen: false })
+                                  }}
+                                  className="ml-2 text-slate-500 hover:text-slate-700"
+                                >
+                                  <X className="h-4 w-4" />
+                                </button>
+                              </div>
+                            ) : (
+                              <div className="relative">
+                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                <Input
+                                  placeholder="Search services..."
+                                  value={getDropdownState(service.id).search}
+                                  onChange={(e) => updateDropdownState(service.id, { search: e.target.value, isOpen: true })}
+                                  onFocus={() => updateDropdownState(service.id, { isOpen: true })}
+                                  className="pl-10 border-slate-200 hover:border-indigo-500 focus:border-indigo-500 focus:ring-indigo-500 rounded-lg"
+                                />
+                                {getDropdownState(service.id).search && (
+                                  <button
+                                    type="button"
+                                    onClick={() => updateDropdownState(service.id, { search: '', isOpen: false })}
+                                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                                  >
+                                    <X className="h-4 w-4" />
+                                  </button>
+                                )}
+                              </div>
+                            )}
+                            
+                            {getDropdownState(service.id).isOpen && !service.serviceId && (
+                              <div className="absolute top-full left-0 right-0 z-50 mt-1 bg-white border border-slate-200 rounded-lg shadow-lg max-h-60 overflow-auto">
+                                {loadingServices ? (
+                                  <div className="p-3 text-center text-sm text-slate-500">Loading services...</div>
+                                ) : getFilteredServices(service.id).length === 0 ? (
+                                  <div className="p-3 text-center text-sm text-slate-500">
+                                    No services found matching "{getDropdownState(service.id).search}"
+                                  </div>
+                                ) : (
+                                  getFilteredServices(service.id).map((s) => (
+                                    <div
+                                      key={s._id || s.id}
+                                      className="p-3 hover:bg-slate-50 cursor-pointer border-b last:border-b-0 transition-colors"
+                                      onClick={() => {
+                                        updateService(service.id, "serviceId", s._id || s.id)
+                                        updateDropdownState(service.id, { search: '', isOpen: false })
+                                      }}
+                                    >
+                                      <div className="font-medium text-slate-800">{s.name}</div>
+                                      <div className="text-xs text-slate-500 mt-1">{s.duration} min - ₹{s.price}</div>
+                                    </div>
+                                  ))
+                                )}
+                              </div>
+                            )}
+                          </div>
                         </div>
 
                         <div className="space-y-2">
