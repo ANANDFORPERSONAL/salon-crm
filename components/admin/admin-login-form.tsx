@@ -140,14 +140,6 @@ export function AdminLoginForm() {
             )}
           </Button>
         </form>
-
-        <div className="mt-6 text-center text-sm text-gray-600">
-          <p>Default Admin Credentials:</p>
-          <p className="font-mono text-xs mt-1">
-            Email: admin@salon.com<br />
-            Password: admin123
-          </p>
-        </div>
       </CardContent>
     </Card>
   )
