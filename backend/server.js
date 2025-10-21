@@ -51,7 +51,7 @@ app.use(helmet());
 
 // Enhanced CORS configuration for Railway deployment
 const allowedOrigins = process.env.CORS_ORIGINS 
-  ? process.env.CORS_ORIGINS.split(',')
+  ? process.env.CORS_ORIGINS.split(',').map(origin => origin.trim())
   : ['http://localhost:3000', 'http://127.0.0.1:3000'];
 
 console.log('🌍 Environment:', process.env.NODE_ENV || 'development');
@@ -59,8 +59,20 @@ console.log('🔗 CORS Origins:', allowedOrigins);
 console.log('🗄️ MongoDB URI:', process.env.MONGODB_URI ? 'Set' : 'Not set');
 console.log('🔑 JWT Secret:', process.env.JWT_SECRET ? 'Set' : 'Not set');
 
+// Dynamic CORS configuration
 app.use(cors({
-  origin: allowedOrigins,
+  origin: function (origin, callback) {
+    // Allow requests with no origin (mobile apps, Postman, etc.)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      console.log('❌ CORS blocked origin:', origin);
+      console.log('✅ Allowed origins:', allowedOrigins);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
