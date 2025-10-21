@@ -4576,7 +4576,7 @@ app.use('*', (req, res) => {
 
 // Start server
 
-app.listen(PORT, async () => {
+app.listen(PORT, '0.0.0.0', async () => {
   console.log(`🚀 Salon CRM Backend running on port ${PORT}`);
   console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
   console.log(`🔐 API Base: http://localhost:${PORT}/api`);
