@@ -4580,8 +4580,10 @@ app.listen(PORT, '0.0.0.0', async () => {
   console.log(`🚀 Salon CRM Backend running on port ${PORT}`);
   console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
   console.log(`🔐 API Base: http://localhost:${PORT}/api`);
-  await initializeDefaultUsers();
-  await initializeBusinessSettings();
+  // Old initialization functions disabled for multi-tenant architecture
+  // Admin users should be created via create-admin.js script
+  // await initializeDefaultUsers();
+  // await initializeBusinessSettings();
   
   // Setup cron job for inactivity checking
   setupInactivityChecker();
