@@ -39,6 +39,7 @@ class DatabaseManager {
     const connection = await mongoose.createConnection(uri, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
+      authSource: 'admin'
     });
 
     // Store connection
@@ -65,6 +66,7 @@ class DatabaseManager {
     const connection = await mongoose.createConnection(uri, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
+      authSource: 'admin'
     });
 
     this.connections.set(mainDbName, connection);
