@@ -91,7 +91,8 @@ export function AdminSettingsPage() {
 
   const loadSettings = async () => {
     try {
-      const response = await fetch('http://localhost:3001/api/admin/settings', {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'
+      const response = await fetch(`${API_URL}/admin/settings`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('admin-auth-token')}`
         }
@@ -119,7 +120,7 @@ export function AdminSettingsPage() {
   const handleSave = async () => {
     setIsLoading(true)
     try {
-      const response = await fetch(`http://localhost:3001/api/admin/settings/${activeCategory}`, {
+      const response = await fetch(`${API_URL}/admin/settings/${activeCategory}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

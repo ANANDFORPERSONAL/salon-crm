@@ -63,7 +63,8 @@ export function BusinessDetailsForm() {
 
   const fetchBusinessDetails = async () => {
     try {
-      const response = await fetch(`http://localhost:3001/api/admin/businesses/${params.id}`, {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'
+      const response = await fetch(`${API_URL}/admin/businesses/${params.id}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('admin-auth-token')}`,
           'Content-Type': 'application/json'
@@ -101,7 +102,7 @@ export function BusinessDetailsForm() {
     const newStatus = business.status === 'active' ? 'suspended' : 'active'
     
     try {
-      const response = await fetch(`http://localhost:3001/api/admin/businesses/${params.id}/status`, {
+      const response = await fetch(`${API_URL}/admin/businesses/${params.id}/status`, {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('admin-auth-token')}`,

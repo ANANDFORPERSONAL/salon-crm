@@ -187,7 +187,8 @@ export function CashRegistryModal({ open, onOpenChange, onSaveSuccess, onlineSal
       
       // Check if backend is reachable
       try {
-        const healthCheck = await fetch('http://localhost:3001/api/health')
+        const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'
+        const healthCheck = await fetch(`${API_URL}/health`)
         if (!healthCheck.ok) {
           throw new Error(`Backend health check failed: ${healthCheck.status}`)
         }

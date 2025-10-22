@@ -63,7 +63,8 @@ export function AdminDashboard() {
 
   const fetchDashboardStats = async () => {
     try {
-      const response = await fetch('http://localhost:3001/api/admin/dashboard/stats', {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'
+      const response = await fetch(`${API_URL}/admin/dashboard/stats`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('admin-auth-token')}`,
           'Content-Type': 'application/json'
@@ -89,7 +90,7 @@ export function AdminDashboard() {
       const token = localStorage.getItem('admin-auth-token')
       console.log('Admin token:', token ? 'Present' : 'Missing')
       
-      const response = await fetch('http://localhost:3001/api/admin/users', {
+      const response = await fetch(`${API_URL}/admin/users`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -157,7 +158,7 @@ export function AdminDashboard() {
     }
 
     try {
-      const response = await fetch(`http://localhost:3001/api/admin/businesses/${businessId}`, {
+      const response = await fetch(`${API_URL}/admin/businesses/${businessId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('admin-auth-token')}`,

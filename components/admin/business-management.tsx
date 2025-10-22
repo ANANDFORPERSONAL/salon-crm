@@ -58,7 +58,8 @@ export function BusinessManagement() {
         ...(statusFilter !== "all" && { status: statusFilter }),
       })
 
-      const response = await fetch(`http://localhost:3001/api/admin/businesses?${params}`, {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'
+      const response = await fetch(`${API_URL}/admin/businesses?${params}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('admin-auth-token')}`,
           'Content-Type': 'application/json'
@@ -86,7 +87,7 @@ export function BusinessManagement() {
 
   const handleStatusChange = async (businessId: string, newStatus: string) => {
     try {
-      const response = await fetch(`http://localhost:3001/api/admin/businesses/${businessId}/status`, {
+      const response = await fetch(`${API_URL}/admin/businesses/${businessId}/status`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -130,7 +131,7 @@ export function BusinessManagement() {
     }
 
     try {
-      const response = await fetch(`http://localhost:3001/api/admin/businesses/${businessId}`, {
+      const response = await fetch(`${API_URL}/admin/businesses/${businessId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('admin-auth-token')}`,

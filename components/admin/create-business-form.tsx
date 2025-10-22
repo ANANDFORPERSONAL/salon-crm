@@ -87,7 +87,8 @@ export function CreateBusinessForm({ mode = 'create', businessId }: BusinessForm
   const loadBusinessData = async () => {
     setIsLoading(true)
     try {
-      const response = await fetch(`http://localhost:3001/api/admin/businesses/${currentBusinessId}`, {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'
+      const response = await fetch(`${API_URL}/admin/businesses/${currentBusinessId}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('admin-auth-token')}`,
           'Content-Type': 'application/json'
@@ -197,7 +198,7 @@ export function CreateBusinessForm({ mode = 'create', businessId }: BusinessForm
       let response
       if (isEditMode) {
         // Update existing business
-        response = await fetch(`http://localhost:3001/api/admin/businesses/${currentBusinessId}`, {
+        response = await fetch(`${API_URL}/admin/businesses/${currentBusinessId}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -207,7 +208,7 @@ export function CreateBusinessForm({ mode = 'create', businessId }: BusinessForm
         })
       } else {
         // Create new business
-        response = await fetch('http://localhost:3001/api/admin/businesses', {
+        response = await fetch(`${API_URL}/admin/businesses`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
