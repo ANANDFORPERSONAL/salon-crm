@@ -51,6 +51,9 @@ export function AdminDashboard() {
   })
   const [loading, setLoading] = useState(true)
   const [showUsersModal, setShowUsersModal] = useState(false)
+  
+  // Define API_URL at component level
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'
   const [users, setUsers] = useState<User[]>([])
   const [usersLoading, setUsersLoading] = useState(false)
   const [usersSearch, setUsersSearch] = useState("")
@@ -63,7 +66,6 @@ export function AdminDashboard() {
 
   const fetchDashboardStats = async () => {
     try {
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'
       const response = await fetch(`${API_URL}/admin/dashboard/stats`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('admin-auth-token')}`,

@@ -83,6 +83,9 @@ export function AdminSettingsPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [settings, setSettings] = useState({})
   const { toast } = useToast()
+  
+  // Define API_URL at component level
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'
 
   // Load settings on component mount
   useEffect(() => {
@@ -91,7 +94,6 @@ export function AdminSettingsPage() {
 
   const loadSettings = async () => {
     try {
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'
       const response = await fetch(`${API_URL}/admin/settings`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('admin-auth-token')}`

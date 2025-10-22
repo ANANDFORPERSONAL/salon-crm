@@ -54,6 +54,9 @@ export function BusinessDetailsForm() {
   const { toast } = useToast()
   const [business, setBusiness] = useState<BusinessDetails | null>(null)
   const [loading, setLoading] = useState(true)
+  
+  // Define API_URL at component level
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'
 
   useEffect(() => {
     if (params.id) {
@@ -63,7 +66,6 @@ export function BusinessDetailsForm() {
 
   const fetchBusinessDetails = async () => {
     try {
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'
       const response = await fetch(`${API_URL}/admin/businesses/${params.id}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('admin-auth-token')}`,

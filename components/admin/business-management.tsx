@@ -43,6 +43,9 @@ export function BusinessManagement() {
   const [totalPages, setTotalPages] = useState(1)
   const { toast } = useToast()
   const router = useRouter()
+  
+  // Define API_URL at component level
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'
 
   useEffect(() => {
     fetchBusinesses()
@@ -58,7 +61,6 @@ export function BusinessManagement() {
         ...(statusFilter !== "all" && { status: statusFilter }),
       })
 
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'
       const response = await fetch(`${API_URL}/admin/businesses?${params}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('admin-auth-token')}`,

@@ -55,6 +55,9 @@ export function CreateBusinessForm({ mode = 'create', businessId }: BusinessForm
   // Get business ID from params if not provided as prop
   const currentBusinessId = businessId || params?.id as string
   const isEditMode = mode === 'edit' || !!currentBusinessId
+  
+  // Define API_URL at component level
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'
 
   const form = useForm<BusinessFormData>({
     resolver: zodResolver(createBusinessSchema(isEditMode)) as any,
@@ -87,7 +90,6 @@ export function CreateBusinessForm({ mode = 'create', businessId }: BusinessForm
   const loadBusinessData = async () => {
     setIsLoading(true)
     try {
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'
       const response = await fetch(`${API_URL}/admin/businesses/${currentBusinessId}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('admin-auth-token')}`,
