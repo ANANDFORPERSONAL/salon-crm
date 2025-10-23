@@ -285,8 +285,9 @@ app.post('/api/auth/login', setupMainDatabase, async (req, res) => {
 
     // If user is a business owner, reactivate any inactive businesses they own
     if (user.branchId) {
-      // Use the main database connection for Business model
-      const mainConnection = mongoose.connection.useDb('salon_crm_main');
+      // Use the database manager for Business model
+      const databaseManager = require('./config/database-manager');
+      const mainConnection = await databaseManager.getMainConnection();
       const Business = mainConnection.model('Business', require('./models/Business').schema);
       await Business.updateMany(
         { owner: user._id, status: 'inactive' },
@@ -327,7 +328,8 @@ app.post('/api/auth/staff-login', async (req, res) => {
     }
 
     // Get business ID from business code
-    const mainConnection = mongoose.connection.useDb('salon_crm_main');
+    const databaseManager = require('./config/database-manager');
+    const mainConnection = await databaseManager.getMainConnection();
     const Business = mainConnection.model('Business', require('./models/Business').schema);
     const business = await Business.findOne({ code: businessCode });
     
@@ -339,7 +341,7 @@ app.post('/api/auth/staff-login', async (req, res) => {
     }
     
     // Connect to business-specific database using business ID
-    const businessDb = mongoose.connection.useDb(`salon_crm_${business._id}`);
+    const businessDb = await databaseManager.getConnection(business._id);
     const Staff = businessDb.model('Staff', require('./models/Staff').schema);
     
     // Find staff member
