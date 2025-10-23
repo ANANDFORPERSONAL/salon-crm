@@ -14,6 +14,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { toast } from "@/components/ui/use-toast"
 import { useAuth } from "@/lib/auth-context"
+import { AccountSuspended } from "@/components/auth/account-suspended"
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -26,6 +27,8 @@ export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [activeTab, setActiveTab] = useState("admin")
+  const [isSuspended, setIsSuspended] = useState(false)
+  const [suspensionMessage, setSuspensionMessage] = useState("")
   const { login, staffLogin } = useAuth()
   const router = useRouter()
 
@@ -40,9 +43,10 @@ export function LoginForm() {
 
   async function onSubmit(values: z.infer<typeof loginSchema>) {
     setIsSubmitting(true)
+    setIsSuspended(false) // Reset suspension state
 
     try {
-      let success = false
+      let result: any = false
 
       if (activeTab === "staff") {
         if (!values.businessCode) {
@@ -54,23 +58,45 @@ export function LoginForm() {
           setIsSubmitting(false)
           return
         }
-        success = await staffLogin(values.email, values.password, values.businessCode)
+        result = await staffLogin(values.email, values.password, values.businessCode)
       } else {
-        success = await login(values.email, values.password)
+        result = await login(values.email, values.password)
       }
 
-      if (success) {
-        toast({
-          title: "Login successful",
-          description: "Welcome back to Salon CRM!",
-        })
-        router.push("/")
+      // Handle different result types
+      if (typeof result === 'boolean') {
+        // Staff login returns boolean
+        if (result) {
+          toast({
+            title: "Login successful",
+            description: "Welcome back to Salon CRM!",
+          })
+          router.push("/")
+        } else {
+          toast({
+            title: "Login failed",
+            description: "Invalid credentials. Please try again.",
+            variant: "destructive",
+          })
+        }
       } else {
-        toast({
-          title: "Login failed",
-          description: "Invalid credentials. Please try again.",
-          variant: "destructive",
-        })
+        // Admin login returns object with success, error, message
+        if (result.success) {
+          toast({
+            title: "Login successful",
+            description: "Welcome back to Salon CRM!",
+          })
+          router.push("/")
+        } else if (result.error === 'ACCOUNT_SUSPENDED') {
+          setIsSuspended(true)
+          setSuspensionMessage(result.message || "Your account has been suspended. Please contact your host for assistance.")
+        } else {
+          toast({
+            title: "Login failed",
+            description: result.message || "Invalid credentials. Please try again.",
+            variant: "destructive",
+          })
+        }
       }
     } catch (error) {
       toast({
@@ -83,6 +109,19 @@ export function LoginForm() {
     }
   }
 
+
+  // Show suspension message if account is suspended
+  if (isSuspended) {
+    return (
+      <AccountSuspended 
+        message={suspensionMessage}
+        onBackToLogin={() => {
+          setIsSuspended(false)
+          setSuspensionMessage("")
+        }}
+      />
+    )
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">

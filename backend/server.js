@@ -277,23 +277,45 @@ app.post('/api/auth/login', setupMainDatabase, async (req, res) => {
       });
     }
 
+    // If user is a business owner, check business status
+    if (user.branchId) {
+      const databaseManager = require('./config/database-manager');
+      const mainConnection = await databaseManager.getMainConnection();
+      const Business = mainConnection.model('Business', require('./models/Business').schema);
+      
+      // Find the business owned by this user
+      const business = await Business.findOne({ owner: user._id });
+      
+      if (!business) {
+        return res.status(403).json({
+          success: false,
+          error: 'Business not found for this user'
+        });
+      }
+      
+      // Check if business is suspended
+      if (business.status === 'suspended') {
+        return res.status(403).json({
+          success: false,
+          error: 'ACCOUNT_SUSPENDED',
+          message: 'Your account has been suspended. Please contact your host for assistance.'
+        });
+      }
+      
+      // Reactivate inactive businesses (but not suspended ones)
+      if (business.status === 'inactive') {
+        await Business.updateMany(
+          { owner: user._id, status: 'inactive' },
+          { status: 'active', updatedAt: new Date() }
+        );
+      }
+    }
+
     // Update last login timestamp
     await User.findByIdAndUpdate(user._id, { 
       lastLoginAt: new Date(),
       updatedAt: new Date()
     });
-
-    // If user is a business owner, reactivate any inactive businesses they own
-    if (user.branchId) {
-      // Use the database manager for Business model
-      const databaseManager = require('./config/database-manager');
-      const mainConnection = await databaseManager.getMainConnection();
-      const Business = mainConnection.model('Business', require('./models/Business').schema);
-      await Business.updateMany(
-        { owner: user._id, status: 'inactive' },
-        { status: 'active', updatedAt: new Date() }
-      );
-    }
 
     // Generate token
     const token = generateToken(user);

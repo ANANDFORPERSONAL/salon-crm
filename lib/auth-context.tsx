@@ -17,7 +17,7 @@ export interface User {
 
 interface AuthContextType {
   user: User | null
-  login: (email: string, password: string) => Promise<boolean>
+  login: (email: string, password: string) => Promise<{ success: boolean; error?: string; message?: string }>
   staffLogin: (email: string, password: string, businessCode: string) => Promise<boolean>
   logout: () => void
   updateUser: (userData: Partial<User>) => void
@@ -100,7 +100,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     checkAuth()
   }, [])
 
-  const login = async (email: string, password: string): Promise<boolean> => {
+  const login = async (email: string, password: string): Promise<{ success: boolean; error?: string; message?: string }> => {
     setIsLoading(true)
     console.log('🔍 DEBUG: Starting login process...')
     console.log('📧 Email:', email)
@@ -110,31 +110,49 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.log('🌐 Attempting real API login...')
       const response = await AuthAPI.login(email, password)
       
-            if (response.success) {
-              const { user: userData, token } = response.data
-              console.log('✅ Real API login successful')
-              console.log('👤 User data:', userData)
-              console.log('🔑 Token received:', token ? 'Yes' : 'No')
-              setUser(userData)
-              
-              // Only use localStorage in browser environment
-              if (typeof window !== 'undefined') {
-                localStorage.setItem("salon-auth-token", token)
-                localStorage.setItem("salon-auth-user", JSON.stringify(userData))
-              }
-              
-              setIsLoading(false)
-              return true
-            } else {
+      if (response.success) {
+        const { user: userData, token } = response.data
+        console.log('✅ Real API login successful')
+        console.log('👤 User data:', userData)
+        console.log('🔑 Token received:', token ? 'Yes' : 'No')
+        setUser(userData)
+        
+        // Only use localStorage in browser environment
+        if (typeof window !== 'undefined') {
+          localStorage.setItem("salon-auth-token", token)
+          localStorage.setItem("salon-auth-user", JSON.stringify(userData))
+        }
+        
+        setIsLoading(false)
+        return { success: true }
+      } else {
         console.log('❌ Real API login failed:', response.error)
         setIsLoading(false)
-        return false
+        return { 
+          success: false, 
+          error: response.error,
+          message: response.message 
+        }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("API login error:", error)
       console.log('❌ Login failed - API error or invalid credentials')
       setIsLoading(false)
-      return false
+      
+      // Check if it's a suspension error
+      if (error.response?.data?.error === 'ACCOUNT_SUSPENDED') {
+        return { 
+          success: false, 
+          error: 'ACCOUNT_SUSPENDED',
+          message: error.response.data.message 
+        }
+      }
+      
+      return { 
+        success: false, 
+        error: 'LOGIN_FAILED',
+        message: 'Login failed. Please check your credentials and try again.' 
+      }
     }
   }
 
