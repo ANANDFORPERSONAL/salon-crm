@@ -45,9 +45,10 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { useToast } from "@/components/ui/use-toast"
-import { StaffAPI, StaffDirectoryAPI } from "@/lib/api"
+import { StaffAPI, StaffDirectoryAPI, UsersAPI } from "@/lib/api"
 import { StaffForm } from "./staff-form"
 import { StaffPermissionsModal } from "./staff-permissions-modal"
+import { PasswordChangeForm } from "./password-change-form"
 
 interface Staff {
   _id: string
@@ -81,6 +82,7 @@ export function StaffTable() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [isPermissionsDialogOpen, setIsPermissionsDialogOpen] = useState(false)
   const [isAccessControlDialogOpen, setIsAccessControlDialogOpen] = useState(false)
+  const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false)
   const [selectedStaff, setSelectedStaff] = useState<Staff | null>(null)
   const { toast } = useToast()
   const router = useRouter()
@@ -118,11 +120,8 @@ export function StaffTable() {
 
   const handleEditStaff = (staff: Staff) => {
     if (staff.isOwner) {
-      toast({
-        title: "Cannot Edit",
-        description: "Business owner cannot be edited from staff directory",
-        variant: "destructive",
-      })
+      // Redirect business owner to their profile page instead of showing error
+      router.push('/profile')
       return
     }
     setSelectedStaff(staff)
@@ -140,6 +139,11 @@ export function StaffTable() {
     }
     setSelectedStaff(staff)
     setIsDeleteDialogOpen(true)
+  }
+
+  const handleChangePassword = (staff: Staff) => {
+    setSelectedStaff(staff)
+    setIsPasswordDialogOpen(true)
   }
 
   const handleToggleStatus = async (staff: Staff) => {
@@ -352,7 +356,6 @@ export function StaffTable() {
                         <Button 
                           variant="ghost" 
                           className="h-9 w-9 p-0 hover:bg-slate-100 rounded-lg transition-all duration-200"
-                          disabled={member.isOwner}
                         >
                           <MoreHorizontal className="h-4 w-4 text-slate-600" />
                         </Button>
@@ -360,12 +363,20 @@ export function StaffTable() {
                       <DropdownMenuContent align="end" className="w-48">
                         <DropdownMenuItem
                           onClick={() => handleEditStaff(member)}
-                          disabled={member.isOwner}
                           className="flex items-center gap-2 px-3 py-2.5 hover:bg-slate-50 cursor-pointer"
                         >
                           <Edit className="h-4 w-4 text-slate-600" />
-                          <span className="font-medium">Edit</span>
+                          <span className="font-medium">{member.isOwner ? "View Profile" : "Edit"}</span>
                         </DropdownMenuItem>
+                        {member.isOwner && (
+                          <DropdownMenuItem
+                            onClick={() => handleChangePassword(member)}
+                            className="flex items-center gap-2 px-3 py-2.5 hover:bg-slate-50 cursor-pointer"
+                          >
+                            <Lock className="h-4 w-4 text-slate-600" />
+                            <span className="font-medium">Change Password</span>
+                          </DropdownMenuItem>
+                        )}
                         <DropdownMenuItem
                           onClick={() => {
                             setSelectedStaff(member)
@@ -557,6 +568,29 @@ export function StaffTable() {
         staff={selectedStaff}
         onUpdate={fetchStaff}
       />
+
+      {/* Password Change Dialog */}
+      <Dialog open={isPasswordDialogOpen} onOpenChange={setIsPasswordDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Change Password</DialogTitle>
+            <DialogDescription>
+              Change password for {selectedStaff?.name}
+            </DialogDescription>
+          </DialogHeader>
+          <PasswordChangeForm 
+            staff={selectedStaff}
+            onSuccess={() => {
+              setIsPasswordDialogOpen(false)
+              toast({
+                title: "Success",
+                description: "Password changed successfully",
+              })
+            }}
+            onCancel={() => setIsPasswordDialogOpen(false)}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
