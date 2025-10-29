@@ -304,7 +304,7 @@ export function QuickSale() {
     const fetchProducts = async () => {
       try {
         console.log('Fetching products from API...')
-        const response = await ProductsAPI.getAll()
+        const response = await ProductsAPI.getAll({ limit: 1000 }) // Fetch up to 1000 products
         console.log('Products API response:', response)
         if (response.success) {
           // Filter out service-only products (only show retail and both)
@@ -1949,7 +1949,7 @@ export function QuickSale() {
             if (validProductItems.length > 0) {
               console.log('🔄 Refreshing product list to get updated stock levels...')
               try {
-                const refreshResponse = await ProductsAPI.getAll()
+                const refreshResponse = await ProductsAPI.getAll({ limit: 1000 }) // Fetch up to 1000 products
                 if (refreshResponse.success) {
                   const sellableProducts = (refreshResponse.data || []).filter((product: any) => {
                     const productType = product.productType || 'retail'

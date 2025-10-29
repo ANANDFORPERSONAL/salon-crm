@@ -336,7 +336,7 @@ export function ProductStatsCards() {
 
   const fetchProductStats = async () => {
     try {
-      const response = await ProductsAPI.getAll()
+      const response = await ProductsAPI.getAll({ limit: 1000 }) // Fetch up to 1000 products
       if (response.success) {
         const products = response.data || []
         

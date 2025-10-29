@@ -1591,7 +1591,7 @@ app.get('/api/products', authenticateToken, setupBusinessDatabase, requireStaff,
     const products = await Product.find(query)
       .skip((pageNum - 1) * limitNum)
       .limit(limitNum)
-      .sort({ createdAt: -1 });
+      .sort({ category: 1, name: 1 }); // Sort by category alphabetically, then by name
 
     console.log('✅ Products found:', products.length);
     res.json({
@@ -1801,6 +1801,30 @@ app.put('/api/products/:id', authenticateToken, setupBusinessDatabase, requireMa
   }
 });
 
+// Bulk delete all products
+app.delete('/api/products', authenticateToken, setupBusinessDatabase, requireAdmin, async (req, res) => {
+  try {
+    const { Product } = req.businessModels;
+    
+    // Delete all products for this branch
+    const result = await Product.deleteMany({ branchId: req.user.branchId });
+    
+    console.log(`✅ Deleted ${result.deletedCount} products for branch ${req.user.branchId}`);
+    
+    res.json({
+      success: true,
+      message: `Successfully deleted ${result.deletedCount} products`,
+      deletedCount: result.deletedCount
+    });
+  } catch (error) {
+    console.error('Error deleting all products:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error'
+    });
+  }
+});
+
 app.delete('/api/products/:id', authenticateToken, setupBusinessDatabase, requireAdmin, async (req, res) => {
   try {
     const { Product } = req.businessModels;
@@ -1822,6 +1846,175 @@ app.delete('/api/products/:id', authenticateToken, setupBusinessDatabase, requir
     res.status(500).json({
       success: false,
       error: 'Internal server error'
+    });
+  }
+});
+
+// Import products from Excel/CSV data
+app.post('/api/products/import', authenticateToken, setupBusinessDatabase, requireManager, async (req, res) => {
+  try {
+    console.log('🔍 Product import request received');
+    const { Product, InventoryTransaction } = req.businessModels;
+    const { products, mapping } = req.body;
+
+    if (!products || !Array.isArray(products) || products.length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'No products data provided'
+      });
+    }
+
+    if (!mapping || typeof mapping !== 'object') {
+      return res.status(400).json({
+        success: false,
+        error: 'Column mapping is required'
+      });
+    }
+
+    console.log(`📊 Processing ${products.length} products for import`);
+
+    const results = {
+      success: [],
+      errors: [],
+      skipped: []
+    };
+
+    // Process each product
+    for (let i = 0; i < products.length; i++) {
+      const productData = products[i];
+      const rowNumber = i + 1;
+
+      try {
+        // Map the data according to the mapping
+        const mappedData = {};
+        Object.keys(mapping).forEach(excelColumn => {
+          const productField = mapping[excelColumn];
+          if (productField && productField !== 'none') {
+            mappedData[productField] = productData[excelColumn];
+          }
+        });
+
+        // Validate required fields
+        if (!mappedData.name || !mappedData.category) {
+          results.errors.push({
+            row: rowNumber,
+            error: 'Name and category are required',
+            data: mappedData
+          });
+          continue;
+        }
+
+        // Convert to string and normalize name and category for duplicate check
+        const normalizedName = String(mappedData.name).trim().toLowerCase();
+        const normalizedCategory = String(mappedData.category).trim().toLowerCase();
+
+        // Check if product already exists (by normalized name and category)
+        const existingProduct = await Product.findOne({
+          name: { $regex: new RegExp(`^${normalizedName}$`, 'i') },
+          category: { $regex: new RegExp(`^${normalizedCategory}$`, 'i') },
+          branchId: req.user.branchId
+        });
+
+        if (existingProduct) {
+          results.skipped.push({
+            row: rowNumber,
+            reason: 'Product already exists',
+            data: mappedData
+          });
+          continue;
+        }
+
+        // Prepare product data
+        const productToCreate = {
+          name: mappedData.name,
+          category: mappedData.category,
+          price: mappedData.price ? parseFloat(mappedData.price) : (mappedData.productType === 'service' ? 0 : 0),
+          stock: mappedData.stock ? parseInt(mappedData.stock) : 0,
+          sku: mappedData.sku && mappedData.sku.trim() !== '' ? mappedData.sku.trim() : undefined,
+          supplier: mappedData.supplier || '',
+          description: mappedData.description || '',
+          taxCategory: mappedData.taxCategory || 'standard',
+          productType: mappedData.productType || 'retail',
+          branchId: req.user.branchId,
+          isActive: true
+        };
+
+        // Validate product type
+        if (!['retail', 'service', 'both'].includes(productToCreate.productType)) {
+          productToCreate.productType = 'retail';
+        }
+
+        // Validate tax category
+        if (!['essential', 'intermediate', 'standard', 'luxury', 'exempt'].includes(productToCreate.taxCategory)) {
+          productToCreate.taxCategory = 'standard';
+        }
+
+        // Create the product
+        const newProduct = new Product(productToCreate);
+        const savedProduct = await newProduct.save();
+
+        // Create inventory transaction if stock > 0
+        if (savedProduct.stock > 0) {
+          const inventoryTransaction = new InventoryTransaction({
+            productId: savedProduct._id,
+            productName: savedProduct.name,
+            transactionType: 'restock', // Changed from 'in' to 'restock'
+            quantity: savedProduct.stock,
+            previousStock: 0,
+            newStock: savedProduct.stock,
+            unitCost: savedProduct.price || 0,
+            totalValue: (savedProduct.price || 0) * savedProduct.stock,
+            referenceType: 'product_edit', // Changed from 'product_import' to 'product_edit'
+            referenceId: savedProduct._id.toString(),
+            referenceNumber: `IMPORT-${savedProduct._id.toString().slice(-6)}`,
+            reason: 'Product imported via Excel/CSV',
+            processedBy: req.user.name || req.user.email || 'System',
+            branchId: req.user.branchId
+          });
+
+          await inventoryTransaction.save();
+          console.log(`✅ Inventory transaction created for imported product ${savedProduct.name}: +${savedProduct.stock} units`);
+        }
+
+        results.success.push({
+          row: rowNumber,
+          product: savedProduct
+        });
+
+        console.log(`✅ Product imported successfully: ${savedProduct.name}`);
+
+      } catch (error) {
+        console.error(`❌ Error importing product at row ${rowNumber}:`, error);
+        results.errors.push({
+          row: rowNumber,
+          error: error.message || 'Unknown error occurred',
+          data: productData
+        });
+      }
+    }
+
+    console.log(`📊 Import completed: ${results.success.length} success, ${results.errors.length} errors, ${results.skipped.length} skipped`);
+
+    res.json({
+      success: true,
+      data: {
+        totalProcessed: products.length,
+        successful: results.success.length,
+        errors: results.errors.length,
+        skipped: results.skipped.length,
+        results: {
+          success: results.success,
+          errors: results.errors,
+          skipped: results.skipped
+        }
+      }
+    });
+
+  } catch (error) {
+    console.error('Error importing products:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error during import'
     });
   }
 });
