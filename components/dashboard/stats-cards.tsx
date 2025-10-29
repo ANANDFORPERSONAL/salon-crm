@@ -205,7 +205,7 @@ export function ServiceStatsCards() {
 
   const fetchServiceStats = async () => {
     try {
-      const response = await ServicesAPI.getAll()
+      const response = await ServicesAPI.getAll({ limit: 1000 }) // Fetch up to 1000 services
       if (response.success) {
         const services = response.data || []
         

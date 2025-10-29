@@ -288,7 +288,7 @@ export function QuickSale() {
     const fetchServices = async () => {
       try {
         console.log('Fetching services from API...')
-        const response = await ServicesAPI.getAll()
+        const response = await ServicesAPI.getAll({ limit: 1000 }) // Fetch up to 1000 services
         console.log('Services API response:', response)
         if (response.success) {
           setServices(response.data || [])

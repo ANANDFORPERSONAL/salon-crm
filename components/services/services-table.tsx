@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Search, Edit, Trash2, Plus, Scissors, Download, FileText, FileSpreadsheet, ChevronDown } from "lucide-react"
+import { Search, Edit, Trash2, Plus, Scissors, Download, FileText, FileSpreadsheet, ChevronDown, Upload } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -13,6 +13,7 @@ import { useAuth } from "@/lib/auth-context"
 import { useCurrency } from "@/hooks/use-currency"
 import { useToast } from "@/hooks/use-toast"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { ServiceImportModal } from "./service-import-modal"
 import jsPDF from "jspdf"
 import autoTable from "jspdf-autotable"
 import * as XLSX from "xlsx"
@@ -24,6 +25,7 @@ export function ServicesTable() {
   const [searchTerm, setSearchTerm] = useState("")
   const [isAddServiceOpen, setIsAddServiceOpen] = useState(false)
   const [isEditServiceOpen, setIsEditServiceOpen] = useState(false)
+  const [isImportDialogOpen, setIsImportDialogOpen] = useState(false)
   const [selectedService, setSelectedService] = useState<any>(null)
   const [services, setServices] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -33,7 +35,7 @@ export function ServicesTable() {
 
   const fetchServices = async () => {
     try {
-      const response = await ServicesAPI.getAll()
+      const response = await ServicesAPI.getAll({ limit: 1000 }) // Fetch up to 1000 services
       if (response.success) {
         setServices(response.data || [])
       }
@@ -255,20 +257,31 @@ export function ServicesTable() {
           </DropdownMenu>
           
           {canManageServices && (
-            <Dialog open={isAddServiceOpen} onOpenChange={setIsAddServiceOpen}>
-              <DialogTrigger asChild>
-                <Button className="h-10 px-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-md hover:shadow-lg transition-all duration-300">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Service
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-md">
-                <DialogHeader>
-                  <DialogTitle>Add New Service</DialogTitle>
-                </DialogHeader>
-                <ServiceForm onClose={() => setIsAddServiceOpen(false)} />
-              </DialogContent>
-            </Dialog>
+            <>
+              <Button 
+                onClick={() => setIsImportDialogOpen(true)}
+                variant="outline"
+                className="h-10 px-4 border-blue-300 text-blue-700 hover:bg-blue-50 hover:border-blue-400 transition-all duration-300"
+              >
+                <Upload className="mr-2 h-4 w-4" />
+                Import Services
+              </Button>
+
+              <Dialog open={isAddServiceOpen} onOpenChange={setIsAddServiceOpen}>
+                <DialogTrigger asChild>
+                  <Button className="h-10 px-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-md hover:shadow-lg transition-all duration-300">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Service
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>Add New Service</DialogTitle>
+                  </DialogHeader>
+                  <ServiceForm onClose={() => setIsAddServiceOpen(false)} />
+                </DialogContent>
+              </Dialog>
+            </>
           )}
         </div>
       </div>
@@ -409,6 +422,16 @@ export function ServicesTable() {
           </DialogContent>
         </Dialog>
       )}
+
+      {/* Service Import Modal */}
+      <ServiceImportModal
+        isOpen={isImportDialogOpen}
+        onClose={() => setIsImportDialogOpen(false)}
+        onImportComplete={() => {
+          fetchServices()
+          setIsImportDialogOpen(false)
+        }}
+      />
     </div>
   )
 }

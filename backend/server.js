@@ -1438,7 +1438,7 @@ app.get('/api/services', authenticateToken, setupBusinessDatabase, requireStaff,
     const services = await Service.find(query)
       .skip((pageNum - 1) * limitNum)
       .limit(limitNum)
-      .sort({ createdAt: -1 });
+      .sort({ category: 1, name: 1 }); // Sort by category alphabetically, then by name
 
     console.log('✅ Services found:', services.length);
     res.json({
@@ -1563,6 +1563,186 @@ app.delete('/api/services/:id', authenticateToken, setupBusinessDatabase, requir
     res.status(500).json({
       success: false,
       error: 'Internal server error'
+    });
+  }
+});
+
+// Bulk delete services
+app.delete('/api/services', authenticateToken, setupBusinessDatabase, requireAdmin, async (req, res) => {
+  try {
+    const { Service } = req.businessModels;
+    
+    // Delete all services for this branch
+    const result = await Service.deleteMany({ branchId: req.user.branchId });
+    
+    console.log(`✅ Deleted ${result.deletedCount} services for branch ${req.user.branchId}`);
+    
+    res.json({
+      success: true,
+      message: `Successfully deleted ${result.deletedCount} services`,
+      deletedCount: result.deletedCount
+    });
+  } catch (error) {
+    console.error('Error deleting all services:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error'
+    });
+  }
+});
+
+// Import services from Excel/CSV
+app.post('/api/services/import', authenticateToken, setupBusinessDatabase, requireManager, async (req, res) => {
+  try {
+    console.log('🔍 Service import request received');
+    const { Service } = req.businessModels;
+    const { services, mapping } = req.body;
+
+    if (!services || !Array.isArray(services) || services.length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'No services data provided'
+      });
+    }
+
+    if (!mapping || typeof mapping !== 'object') {
+      return res.status(400).json({
+        success: false,
+        error: 'Column mapping is required'
+      });
+    }
+
+    console.log(`📊 Processing ${services.length} services for import`);
+
+    const results = {
+      success: [],
+      errors: [],
+      skipped: []
+    };
+
+    // Process each service
+    for (let i = 0; i < services.length; i++) {
+      const serviceData = services[i];
+      const rowNumber = i + 1;
+
+      try {
+        // Map the data according to the mapping
+        const mappedData = {};
+        Object.keys(mapping).forEach(excelColumn => {
+          const serviceField = mapping[excelColumn];
+          if (serviceField && serviceField !== 'none') {
+            mappedData[serviceField] = serviceData[excelColumn];
+          }
+        });
+
+        // Validate required fields (price can be 0, so check for undefined/null/empty string)
+        if (!mappedData.name || !mappedData.category || !mappedData.duration || 
+            mappedData.price === undefined || mappedData.price === null || mappedData.price === '') {
+          results.errors.push({
+            row: rowNumber,
+            error: 'Name, category, duration, and price are required',
+            data: mappedData
+          });
+          continue;
+        }
+
+        // Convert to string and normalize name and category for duplicate check
+        const normalizedName = String(mappedData.name).trim().toLowerCase();
+        const normalizedCategory = String(mappedData.category).trim().toLowerCase();
+
+        // Check if service already exists (by normalized name and category)
+        const existingService = await Service.findOne({
+          name: { $regex: new RegExp(`^${normalizedName}$`, 'i') },
+          category: { $regex: new RegExp(`^${normalizedCategory}$`, 'i') },
+          branchId: req.user.branchId
+        });
+
+        if (existingService) {
+          results.skipped.push({
+            row: rowNumber,
+            reason: 'Service already exists',
+            data: mappedData
+          });
+          continue;
+        }
+
+        // Validate duration and price are numbers
+        const duration = parseInt(mappedData.duration);
+        const price = parseFloat(mappedData.price);
+
+        if (isNaN(duration) || duration < 1) {
+          results.errors.push({
+            row: rowNumber,
+            error: 'Duration must be a positive number (in minutes)',
+            data: mappedData
+          });
+          continue;
+        }
+
+        // Price can be 0 or greater (will be adjusted at billing time)
+        if (isNaN(price) || price < 0) {
+          results.errors.push({
+            row: rowNumber,
+            error: 'Price must be a valid number (0 or greater)',
+            data: mappedData
+          });
+          continue;
+        }
+
+        // Prepare service data
+        const serviceToCreate = {
+          name: String(mappedData.name).trim(),
+          category: String(mappedData.category).trim(),
+          duration: duration,
+          price: price,
+          description: mappedData.description ? String(mappedData.description).trim() : '',
+          branchId: req.user.branchId,
+          isActive: true
+        };
+
+        // Create the service
+        const newService = new Service(serviceToCreate);
+        const savedService = await newService.save();
+
+        results.success.push({
+          row: rowNumber,
+          service: savedService
+        });
+
+        console.log(`✅ Service imported successfully: ${savedService.name}`);
+
+      } catch (error) {
+        console.error(`❌ Error importing service at row ${rowNumber}:`, error);
+        results.errors.push({
+          row: rowNumber,
+          error: error.message || 'Unknown error occurred',
+          data: serviceData
+        });
+      }
+    }
+
+    console.log(`📊 Import completed: ${results.success.length} success, ${results.errors.length} errors, ${results.skipped.length} skipped`);
+
+    res.json({
+      success: true,
+      data: {
+        totalProcessed: services.length,
+        successful: results.success.length,
+        errors: results.errors.length,
+        skipped: results.skipped.length,
+        results: {
+          success: results.success,
+          errors: results.errors,
+          skipped: results.skipped
+        }
+      }
+    });
+
+  } catch (error) {
+    console.error('Error importing services:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error during import'
     });
   }
 });

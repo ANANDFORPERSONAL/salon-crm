@@ -160,7 +160,7 @@ export function AppointmentForm() {
   const fetchServices = async () => {
     try {
       setLoadingServices(true)
-      const response = await ServicesAPI.getAll()
+      const response = await ServicesAPI.getAll({ limit: 1000 }) // Fetch up to 1000 services
       if (response.success) {
         setServices(response.data || [])
       }
