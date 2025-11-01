@@ -1414,6 +1414,236 @@ app.delete('/api/clients/:id', authenticateToken, setupBusinessDatabase, require
   }
 });
 
+// Import clients from Excel/CSV
+app.post('/api/clients/import', authenticateToken, setupBusinessDatabase, requireManager, async (req, res) => {
+  try {
+    console.log('🔍 Client import request received');
+    const { Client } = req.businessModels;
+    const { clients, mapping, updateExisting } = req.body;
+
+    if (!clients || !Array.isArray(clients) || clients.length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'No clients data provided'
+      });
+    }
+
+    if (!mapping || typeof mapping !== 'object') {
+      return res.status(400).json({
+        success: false,
+        error: 'Column mapping is required'
+      });
+    }
+
+    console.log(`📊 Processing ${clients.length} clients for import`);
+
+    // Robust Excel date parser: supports numbers (Excel serial), and common string formats
+    const parseExcelDate = (input) => {
+      if (!input && input !== 0) return undefined
+      // If number: treat as Excel serial date (days since 1899-12-30)
+      if (typeof input === 'number') {
+        const excelEpoch = new Date(Date.UTC(1899, 11, 30))
+        const ms = input * 24 * 60 * 60 * 1000
+        const d = new Date(excelEpoch.getTime() + ms)
+        return isNaN(d.getTime()) ? undefined : d
+      }
+      // Trim string
+      const str = String(input).trim()
+      if (!str) return undefined
+      // Handle dd/mm/yyyy or dd-mm-yyyy
+      const dmY = str.match(/^([0-3]?\d)[\/-]([0-1]?\d)[\/-](\d{2,4})$/)
+      if (dmY) {
+        let [ , dd, mm, yyyy ] = dmY
+        if (yyyy.length === 2) yyyy = String(2000 + parseInt(yyyy, 10))
+        const iso = `${yyyy.padStart(4,'0')}-${mm.padStart(2,'0')}-${dd.padStart(2,'0')}`
+        const d = new Date(iso)
+        return isNaN(d.getTime()) ? undefined : d
+      }
+      // Handle yyyy-mm-dd or yyyy/mm/dd
+      const yMd = str.match(/^(\d{4})[\/-]([0-1]?\d)[\/-]([0-3]?\d)$/)
+      if (yMd) {
+        const iso = `${yMd[1]}-${String(yMd[2]).padStart(2,'0')}-${String(yMd[3]).padStart(2,'0')}`
+        const d = new Date(iso)
+        return isNaN(d.getTime()) ? undefined : d
+      }
+      // Fallback to Date.parse
+      const parsed = new Date(str)
+      return isNaN(parsed.getTime()) ? undefined : parsed
+    }
+
+    const results = {
+      success: [],
+      errors: [],
+      skipped: []
+    };
+
+    // Process each client
+    for (let i = 0; i < clients.length; i++) {
+      const clientData = clients[i];
+      const rowNumber = (clientData._rowIndex || i + 1) + 1; // Excel row number (accounting for header)
+
+      try {
+        // Map the data according to the mapping
+        const mappedData = {};
+        Object.keys(mapping).forEach(excelColumn => {
+          const clientField = mapping[excelColumn];
+          if (clientField && clientField !== 'none') {
+            mappedData[clientField] = clientData[excelColumn];
+          }
+        });
+
+        // Validate required fields (if updating existing, only phone is mandatory)
+        if ((!mappedData.name && !updateExisting) || !mappedData.phone) {
+          results.errors.push({
+            row: rowNumber,
+            error: 'Name and phone are required',
+            data: mappedData
+          });
+          continue;
+        }
+
+        // Normalize name and phone for duplicate check
+        const normalizedName = String(mappedData.name).trim();
+        const normalizedPhone = String(mappedData.phone).trim().replace(/\D/g, ''); // Remove non-digits
+
+        if (!normalizedPhone || normalizedPhone.length < 10) {
+          results.errors.push({
+            row: rowNumber,
+            error: 'Phone number must be at least 10 digits',
+            data: mappedData
+          });
+          continue;
+        }
+
+        // Check if client already exists (by phone number). Try exact and last 10 digits match
+        const last10 = normalizedPhone.slice(-10)
+        let existingClient = await Client.findOne({ phone: normalizedPhone })
+        if (!existingClient && last10) {
+          existingClient = await Client.findOne({ phone: { $regex: new RegExp(`${last10}$`) } })
+        }
+
+        if (existingClient) {
+          if (updateExisting) {
+            // Prepare fields to update: only those provided and mapped
+            const updateDoc = {};
+            if (mappedData.lastVisit) {
+            const lv = parseExcelDate(mappedData.lastVisit);
+              if (lv) updateDoc.lastVisit = lv;
+            }
+            if (mappedData.totalSpent !== undefined && mappedData.totalSpent !== null && mappedData.totalSpent !== '') {
+              const ts = parseFloat(mappedData.totalSpent);
+              if (!isNaN(ts)) updateDoc.totalSpent = ts;
+            }
+            if (mappedData.visits !== undefined && mappedData.visits !== null && mappedData.visits !== '') {
+              const vs = parseInt(mappedData.visits);
+              if (!isNaN(vs)) updateDoc.totalVisits = vs;
+            }
+            if (mappedData.dob) {
+            const d = parseExcelDate(mappedData.dob);
+              if (d) updateDoc.dob = d;
+            }
+            if (mappedData.gender) {
+              const g = String(mappedData.gender).toLowerCase().trim();
+              if (['male','female','other'].includes(g)) updateDoc.gender = g;
+            }
+            if (mappedData.email) updateDoc.email = String(mappedData.email).trim().toLowerCase();
+
+            if (Object.keys(updateDoc).length === 0) {
+              results.skipped.push({ row: rowNumber, reason: 'No updatable fields provided', data: mappedData });
+              continue;
+            }
+
+            const updated = await Client.findByIdAndUpdate(existingClient._id, updateDoc, { new: true });
+            results.success.push({ row: rowNumber, data: { id: updated._id, name: updated.name, phone: updated.phone }, updated: true });
+            continue;
+          } else {
+            results.skipped.push({
+              row: rowNumber,
+              reason: 'Client with this phone number already exists',
+              data: mappedData
+            });
+            continue;
+          }
+        }
+
+        // Prepare client data
+        const clientToCreate = {
+          name: normalizedName,
+          phone: normalizedPhone,
+          email: mappedData.email ? String(mappedData.email).trim().toLowerCase() : undefined,
+          gender: mappedData.gender ? String(mappedData.gender).toLowerCase().trim() : undefined,
+          totalVisits: mappedData.visits ? parseInt(mappedData.visits) || 0 : 0,
+          totalSpent: mappedData.totalSpent ? parseFloat(mappedData.totalSpent) || 0 : 0,
+          status: 'active',
+          branchId: req.user.branchId
+        };
+
+        // Parse date of birth
+        if (mappedData.dob) {
+          const dobDate = parseExcelDate(mappedData.dob);
+          if (dobDate) clientToCreate.dob = dobDate;
+        }
+
+        // Parse last visit date
+        if (mappedData.lastVisit) {
+          const lastVisitDate = parseExcelDate(mappedData.lastVisit);
+          if (lastVisitDate) clientToCreate.lastVisit = lastVisitDate;
+        }
+
+        // Validate gender if provided
+        if (clientToCreate.gender && !['male', 'female', 'other'].includes(clientToCreate.gender)) {
+          clientToCreate.gender = undefined; // Invalid gender, skip it
+        }
+
+        // Create new client
+        const newClient = new Client(clientToCreate);
+        const savedClient = await newClient.save();
+
+        results.success.push({
+          row: rowNumber,
+          data: {
+            id: savedClient._id,
+            name: savedClient.name,
+            phone: savedClient.phone
+          }
+        });
+
+      } catch (error) {
+        console.error(`Error processing client row ${rowNumber}:`, error);
+        results.errors.push({
+          row: rowNumber,
+          error: error.message || 'Failed to create client',
+          data: clientData
+        });
+      }
+    }
+
+    console.log(`📊 Import completed: ${results.success.length} success, ${results.errors.length} errors, ${results.skipped.length} skipped`);
+
+    res.json({
+      success: true,
+      data: {
+        totalProcessed: clients.length,
+        successful: results.success.length,
+        errors: results.errors.length,
+        skipped: results.skipped.length,
+        results: {
+          success: results.success,
+          errors: results.errors,
+          skipped: results.skipped
+        }
+      }
+    });
+
+  } catch (error) {
+    console.error('Error importing clients:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error during import'
+    });
+  }
+});
+
 // Services routes
 app.get('/api/services', authenticateToken, setupBusinessDatabase, requireStaff, async (req, res) => {
   try {

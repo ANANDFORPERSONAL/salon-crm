@@ -35,24 +35,30 @@ class ClientStore {
     
     this.isLoading = true
     try {
-      // Try to load from API
-      console.log('🔍 ClientStore: Loading clients from API...')
-      const response = await ClientsAPI.getAll()
-      console.log('📊 ClientStore: API response:', response)
-      if (response.success) {
-        console.log('✅ ClientStore: API call successful')
-        console.log('📋 ClientStore: Clients data:', response.data)
-        console.log('🔢 ClientStore: Number of clients:', response.data?.length || 0)
-        if (response.data && response.data.length > 0) {
-          console.log('🔑 ClientStore: First client ID (_id):', response.data[0]._id)
-          console.log('🔑 ClientStore: First client ID (id):', response.data[0].id)
-          console.log('🔑 ClientStore: First client object:', response.data[0])
+      // Fetch ALL clients from paginated API
+      console.log('🔍 ClientStore: Loading all clients from API (paginated)...')
+      const pageSize = 1000
+      let page = 1
+      let all: any[] = []
+      let total = Infinity
+
+      while (all.length < total) {
+        const resp = await ClientsAPI.getAll({ page, limit: pageSize })
+        if (!resp.success) {
+          console.error('❌ ClientStore: API page fetch failed:', resp.error)
+          break
         }
-        this.clients = response.data
-        this.notifyListeners()
-      } else {
-        console.error('❌ ClientStore: API call failed:', response.error)
+        const batch = resp.data || []
+        const normalized = batch.map((c: any) => ({ ...c, birthdate: c.birthdate || c.dob || undefined }))
+        all = all.concat(normalized)
+        total = resp.pagination?.total ?? all.length
+        console.log(`📥 ClientStore: fetched page ${page}, ${batch.length} items (total so far ${all.length}/${total})`)
+        if (!batch.length) break
+        page += 1
       }
+
+      this.clients = all
+      this.notifyListeners()
     } catch (error) {
       console.error('❌ ClientStore: Error loading clients:', error)
       console.warn("API not available, no fallback in production")
@@ -70,7 +76,8 @@ class ClientStore {
   async addClient(client: Client): Promise<boolean> {
     try {
       // Try API first
-      const response = await ClientsAPI.create(client)
+      const apiPayload = { ...client, dob: (client as any).birthdate || (client as any).dob }
+      const response = await ClientsAPI.create(apiPayload)
       if (response.success) {
         this.clients.push(response.data)
         this.notifyListeners()
@@ -103,7 +110,8 @@ class ClientStore {
   async updateClient(id: string, client: Client): Promise<boolean> {
     try {
       // Try API first
-      const response = await ClientsAPI.update(id, client)
+      const apiPayload = { ...client, dob: (client as any).birthdate || (client as any).dob }
+      const response = await ClientsAPI.update(id, apiPayload)
       if (response.success) {
         const index = this.clients.findIndex(c => c.id === id)
         if (index >= 0) {

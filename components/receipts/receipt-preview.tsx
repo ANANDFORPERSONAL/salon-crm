@@ -211,15 +211,10 @@ export function ReceiptPreview({ receipt, businessSettings }: ReceiptPreviewProp
           <div className="flex justify-between font-bold text-base border-t border-black pt-2 mt-2">
             <span>TOTAL:</span>
             <span>{formatAmount((() => {
-              // Calculate correct total using correct tax amount
-              if (receipt.taxBreakdown) {
-                const serviceTax = receipt.taxBreakdown.serviceTax || 0
-                const productTaxTotal = Object.values(receipt.taxBreakdown.productTaxByRate || {}).reduce((sum, amount) => sum + amount, 0)
-                const correctTaxAmount = serviceTax + productTaxTotal
-                const preRoundTotal = receipt.subtotal - receipt.discount + correctTaxAmount + receipt.tip
-                return Math.round(preRoundTotal)
-              }
-              return receipt.total
+              // Since items already include tax, total = subtotal - discount + tip (rounded)
+              // Tax breakdown is informational only, not added to total
+              const preRoundTotal = receipt.subtotal - receipt.discount + receipt.tip
+              return Math.round(preRoundTotal)
             })())}</span>
           </div>
         </div>

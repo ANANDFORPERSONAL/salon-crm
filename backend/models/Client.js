@@ -14,6 +14,17 @@ const clientSchema = new mongoose.Schema({
     type: String,
     lowercase: true
   },
+  gender: {
+    type: String,
+    enum: ['male', 'female', 'other'],
+    lowercase: true
+  },
+  dob: {
+    type: Date
+  },
+  lastVisit: {
+    type: Date
+  },
   totalVisits: {
     type: Number,
     default: 0
