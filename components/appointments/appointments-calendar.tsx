@@ -341,20 +341,20 @@ export const AppointmentsCalendar = forwardRef<{ showCancelledModal: () => void 
                   Selected Date Appointments
                 </CardTitle>
                 <p className="text-emerald-600 text-sm mt-1">Appointments for selected date</p>
-                <div className="mt-2">
-                  <input
-                    type="date"
-                    value={selectedDate}
-                    onChange={(e) => setSelectedDate(e.target.value)}
-                    aria-label="Select date to view appointments"
-                    className="text-sm px-3 py-1 border border-emerald-300 rounded-lg bg-white text-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-                  />
-                </div>
               </div>
-              <div className="bg-emerald-100 rounded-lg p-2 ml-4">
-                <svg className="h-5 w-5 text-emerald-600" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
+              <div className="flex items-center gap-2">
+                <input
+                  type="date"
+                  value={selectedDate}
+                  onChange={(e) => setSelectedDate(e.target.value)}
+                  aria-label="Select date to view appointments"
+                  className="text-sm px-3 py-1 border border-emerald-300 rounded-lg bg-white text-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                />
+                <div className="bg-emerald-100 rounded-lg p-2">
+                  <svg className="h-5 w-5 text-emerald-600" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
               </div>
             </div>
           </CardHeader>

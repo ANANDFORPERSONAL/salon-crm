@@ -51,7 +51,7 @@ interface CashRegistryEntry {
   createdAt: string
 }
 
-type DatePeriod = "today" | "yesterday" | "last7days" | "last30days" | "currentMonth" | "all"
+type DatePeriod = "today" | "yesterday" | "last7days" | "last30days" | "currentMonth" | "custom"
 
 interface CashRegistryReportProps {
   isVerificationModalOpen: boolean
@@ -613,6 +613,9 @@ export function CashRegistryReport({ isVerificationModalOpen, onVerificationModa
           from: firstDayOfMonth,
           to: new Date(today.getTime() + 24 * 60 * 60 * 1000 - 1)
         }
+      case "custom":
+        // For custom, don't set a date range automatically - let user select
+        return undefined
       default:
         return {
           from: new Date(0), // Start of epoch
@@ -1576,40 +1579,42 @@ export function CashRegistryReport({ isVerificationModalOpen, onVerificationModa
                   <SelectItem value="last7days">Last 7 days</SelectItem>
                   <SelectItem value="last30days">Last 30 days</SelectItem>
                   <SelectItem value="currentMonth">Current month</SelectItem>
-                  <SelectItem value="all">All time</SelectItem>
+                  <SelectItem value="custom">Custom Date</SelectItem>
                 </SelectContent>
               </Select>
               
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="w-[220px] justify-start text-left font-normal"
-                  >
-                    {dateRange?.from ? (
-                      dateRange.to ? (
-                        <>
-                          {format(dateRange.from, "MMM dd")} - {format(dateRange.to, "MMM dd, y")}
-                        </>
+              {datePeriod === "custom" && (
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="w-[220px] justify-start text-left font-normal"
+                    >
+                      {dateRange?.from ? (
+                        dateRange.to ? (
+                          <>
+                            {format(dateRange.from, "MMM dd")} - {format(dateRange.to, "MMM dd, y")}
+                          </>
+                        ) : (
+                          format(dateRange.from, "MMM dd, y")
+                        )
                       ) : (
-                        format(dateRange.from, "MMM dd, y")
-                      )
-                    ) : (
-                      <span>Pick a date range</span>
-                    )}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <CalendarComponent
-                    initialFocus
-                    mode="range"
-                    defaultMonth={dateRange?.from}
-                    selected={dateRange}
-                    onSelect={(range) => setDateRange(range)}
-                    numberOfMonths={2}
-                  />
-                </PopoverContent>
-              </Popover>
+                        <span>Pick a date range</span>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <CalendarComponent
+                      initialFocus
+                      mode="range"
+                      defaultMonth={dateRange?.from}
+                      selected={dateRange}
+                      onSelect={(range) => setDateRange(range)}
+                      numberOfMonths={2}
+                    />
+                  </PopoverContent>
+                </Popover>
+              )}
               
               <Select value={shiftFilter} onValueChange={setShiftFilter}>
                 <SelectTrigger className="w-28">

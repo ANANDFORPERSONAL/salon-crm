@@ -1,3 +1,6 @@
+"use client"
+
+import { useState } from "react"
 import { Package, Sparkles, TrendingUp, BarChart3 } from "lucide-react"
 import { ProductsTable } from "@/components/products/products-table"
 import { ProductStatsCards } from "@/components/dashboard/stats-cards"
@@ -5,6 +8,8 @@ import { ProtectedLayout } from "@/components/layout/protected-layout"
 import { ProtectedRoute } from "@/components/auth/protected-route"
 
 export default function ProductsPage() {
+  const [productTypeFilter, setProductTypeFilter] = useState<string>("all")
+
   return (
     <ProtectedRoute requiredRole="staff">
       <ProtectedLayout>
@@ -57,7 +62,7 @@ export default function ProductsPage() {
               <div className="w-1 h-6 bg-gradient-to-b from-emerald-500 to-teal-600 rounded-full"></div>
               <h2 className="text-lg font-semibold text-gray-800">Inventory Analytics</h2>
             </div>
-            <ProductStatsCards />
+            <ProductStatsCards productTypeFilter={productTypeFilter} />
           </div>
 
           {/* Products Table Section */}
@@ -67,7 +72,7 @@ export default function ProductsPage() {
               <h2 className="text-lg font-semibold text-gray-800">Product Directory</h2>
             </div>
             <div className="bg-white/80 backdrop-blur-sm rounded-xl border border-gray-200/50 shadow-lg overflow-hidden">
-              <ProductsTable />
+              <ProductsTable productTypeFilter={productTypeFilter} onProductTypeFilterChange={setProductTypeFilter} />
             </div>
           </div>
         </div>

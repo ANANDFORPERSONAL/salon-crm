@@ -51,10 +51,11 @@ export function InventoryLogs() {
   const { toast } = useToast()
   const { formatAmount } = useCurrency()
   const [transactions, setTransactions] = useState<InventoryTransaction[]>([])
+  const [allTransactions, setAllTransactions] = useState<InventoryTransaction[]>([]) // Store all transactions for product count
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
   const [typeFilter, setTypeFilter] = useState("all")
-  const [dateFilter, setDateFilter] = useState("today")
+  const [dateFilter, setDateFilter] = useState("all")
   const [customDateFrom, setCustomDateFrom] = useState("")
   const [customDateTo, setCustomDateTo] = useState("")
   const [showCustomDatePicker, setShowCustomDatePicker] = useState(false)
@@ -65,11 +66,11 @@ export function InventoryLogs() {
       setLoading(true)
       const params: any = {
         page: 1,
-        limit: 100
+        limit: 1000
       }
       
       if (typeFilter && typeFilter !== "all") params.transactionType = typeFilter
-      if (dateFilter) {
+      if (dateFilter && dateFilter !== "all") {
         const today = new Date()
         
         if (dateFilter === 'today') {
@@ -116,6 +117,52 @@ export function InventoryLogs() {
       const response = await InventoryAPI.getTransactions(params)
       console.log('🔍 Inventory Logs - Response:', response)
       setTransactions(response.data || [])
+      
+      // Also fetch all transactions (without date filter) to count unique imported products and calculate total units
+      // This is used for accurate statistics regardless of date filter
+      const allParams: any = {
+        page: 1,
+        limit: 10000 // Large limit to get all transactions
+      }
+      // Don't apply type or date filter for accurate totals
+      try {
+        const allResponse = await InventoryAPI.getTransactions(allParams)
+        let allTrans = allResponse.data || []
+        
+        // If there are more pages, fetch them
+        if (allResponse.pagination && allResponse.pagination.pages > 1) {
+          const additionalPages = []
+          const totalPages = allResponse.pagination.pages
+          console.log(`🔍 Fetching ${totalPages} pages of transactions for accurate totals...`)
+          for (let page = 2; page <= totalPages; page++) {
+            try {
+              const pageParams = { ...allParams, page }
+              const pageResponse = await InventoryAPI.getTransactions(pageParams)
+              additionalPages.push(...(pageResponse.data || []))
+            } catch (err) {
+              console.warn(`Failed to fetch page ${page} for product count:`, err)
+            }
+          }
+          allTrans = [...allTrans, ...additionalPages]
+        }
+        
+        setAllTransactions(allTrans)
+        const importTrans = allTrans.filter(t => 
+          t.quantity > 0 && 
+          t.referenceNumber?.startsWith('IMPORT-')
+        )
+        const totalUnitsFromImports = importTrans.reduce((sum, t) => sum + t.quantity, 0)
+        const uniqueProducts = new Set(importTrans.map(t => t.productId)).size
+        
+        console.log('🔍 Total transactions fetched:', allTrans.length)
+        console.log('🔍 Import transactions (IMPORT-):', importTrans.length)
+        console.log('🔍 Unique products imported:', uniqueProducts)
+        console.log('🔍 Total units added from imports only:', totalUnitsFromImports)
+      } catch (error) {
+        console.error('Error fetching all transactions for product count:', error)
+        // If this fails, just use the filtered transactions
+        setAllTransactions(response.data || [])
+      }
     } catch (error) {
       console.error('Error fetching inventory transactions:', error)
       toast({
@@ -235,33 +282,25 @@ export function InventoryLogs() {
         <div className="space-y-4">
           {/* Summary Stats */}
           {!loading && filteredTransactions.length > 0 && (
-            <div className="grid grid-cols-4 gap-4">
+            <div className="grid grid-cols-3 gap-4">
               <Card>
                 <CardContent className="p-4">
                   <div className="text-2xl font-bold text-red-600">
-                    {filteredTransactions
+                    {new Set(filteredTransactions
                       .filter(t => t.quantity < 0)
-                      .reduce((sum, t) => sum + Math.abs(t.quantity), 0)}
+                      .map(t => t.productId)).size}
                   </div>
-                  <div className="text-sm text-gray-600">Items Deducted</div>
+                  <div className="text-sm text-gray-600">Total Products Deducted</div>
                 </CardContent>
               </Card>
               <Card>
                 <CardContent className="p-4">
                   <div className="text-2xl font-bold text-green-600">
-                    {filteredTransactions
+                    {new Set(filteredTransactions
                       .filter(t => t.quantity > 0)
-                      .reduce((sum, t) => sum + t.quantity, 0)}
+                      .map(t => t.productId)).size}
                   </div>
-                  <div className="text-sm text-gray-600">Items Added</div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-4">
-                  <div className="text-2xl font-bold text-blue-600">
-                    {filteredTransactions.length}
-                  </div>
-                  <div className="text-sm text-gray-600">Total Transactions</div>
+                  <div className="text-sm text-gray-600">Total Products Added</div>
                 </CardContent>
               </Card>
               <Card>
@@ -271,7 +310,7 @@ export function InventoryLogs() {
                       filteredTransactions.reduce((sum, t) => sum + t.totalValue, 0)
                     )}
                   </div>
-                  <div className="text-sm text-gray-600">Total Value</div>
+                  <div className="text-sm text-gray-600">Total Value of Transactions</div>
                 </CardContent>
               </Card>
             </div>
@@ -319,6 +358,7 @@ export function InventoryLogs() {
                   <SelectValue placeholder="Select date range" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="all">All Time</SelectItem>
                   <SelectItem value="today">Today</SelectItem>
                   <SelectItem value="yesterday">Yesterday</SelectItem>
                   <SelectItem value="week">Last 7 days</SelectItem>

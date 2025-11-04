@@ -23,11 +23,26 @@ import autoTable from "jspdf-autotable"
 import * as XLSX from "xlsx"
 import { format } from "date-fns"
 
-export function ProductsTable() {
+interface ProductsTableProps {
+  productTypeFilter?: string
+  onProductTypeFilterChange?: (filter: string) => void
+}
+
+export function ProductsTable({ productTypeFilter: externalFilter, onProductTypeFilterChange }: ProductsTableProps = {}) {
   const { formatAmount } = useCurrency()
   const { toast } = useToast()
   const [searchTerm, setSearchTerm] = useState("")
-  const [productTypeFilter, setProductTypeFilter] = useState<string>("all")
+  const [internalFilter, setInternalFilter] = useState<string>("all")
+  
+  // Use external filter if provided, otherwise use internal state
+  const productTypeFilter = externalFilter !== undefined ? externalFilter : internalFilter
+  const setProductTypeFilter = (filter: string) => {
+    if (onProductTypeFilterChange) {
+      onProductTypeFilterChange(filter)
+    } else {
+      setInternalFilter(filter)
+    }
+  }
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [isProductOutDialogOpen, setIsProductOutDialogOpen] = useState(false)
