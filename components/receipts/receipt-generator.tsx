@@ -40,14 +40,13 @@ export function ReceiptGenerator({ receipt, businessSettings }: ReceiptGenerator
     }
 
     const calculateCorrectTotal = () => {
-      if (receipt.taxBreakdown) {
-        const serviceTax = receipt.taxBreakdown.serviceTax || 0
-        const productTaxTotal = Object.values(receipt.taxBreakdown.productTaxByRate || {}).reduce((sum, amount) => sum + amount, 0)
-        const correctTaxAmount = serviceTax + productTaxTotal
-        const preRoundTotal = receipt.subtotal - receipt.discount + correctTaxAmount + receipt.tip
-        return Math.round(preRoundTotal)
-      }
-      return receipt.total
+      // Since items already include tax, total = subtotal - discount + tip + roundOff
+      // Tax breakdown is informational only, not added to total
+      const preRoundTotal = receipt.subtotal - receipt.discount + receipt.tip
+      const roundedTotal = Math.round(preRoundTotal)
+      // If roundOff is provided, use it; otherwise calculate it
+      const actualRoundOff = receipt.roundOff !== undefined ? receipt.roundOff : (roundedTotal - preRoundTotal)
+      return roundedTotal
     }
 
     const correctTaxAmount = calculateCorrectTaxAmount()

@@ -205,7 +205,7 @@ export function ServiceStatsCards() {
 
   const fetchServiceStats = async () => {
     try {
-      const response = await ServicesAPI.getAll()
+      const response = await ServicesAPI.getAll({ limit: 1000 }) // Fetch up to 1000 services
       if (response.success) {
         const services = response.data || []
         
@@ -319,7 +319,11 @@ export function ServiceStatsCards() {
   )
 }
 
-export function ProductStatsCards() {
+interface ProductStatsCardsProps {
+  productTypeFilter?: string
+}
+
+export function ProductStatsCards({ productTypeFilter = "all" }: ProductStatsCardsProps = {}) {
   const [stats, setStats] = useState<ProductStats>({
     totalProducts: 0,
     lowStockCount: 0,
@@ -336,9 +340,19 @@ export function ProductStatsCards() {
 
   const fetchProductStats = async () => {
     try {
-      const response = await ProductsAPI.getAll()
+      const response = await ProductsAPI.getAll({ limit: 1000 }) // Fetch up to 1000 products
       if (response.success) {
-        const products = response.data || []
+        let products = response.data || []
+        
+        // Filter products based on productTypeFilter
+        if (productTypeFilter !== "all" && productTypeFilter !== "both") {
+          // Filter by specific type (retail or service)
+          products = products.filter((product: any) => {
+            const productType = product.productType || 'retail'
+            return productType === productTypeFilter
+          })
+        }
+        // "both" and "all" both show all products (no filtering needed)
         
         const totalProducts = products.length
         const lowStockCount = products.filter((product: any) => product.stock < 10).length
@@ -361,7 +375,7 @@ export function ProductStatsCards() {
 
   useEffect(() => {
     fetchProductStats()
-  }, [])
+  }, [productTypeFilter])
 
   // Listen for custom events to refresh stats
   useEffect(() => {

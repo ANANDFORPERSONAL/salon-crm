@@ -9,9 +9,10 @@ import {
   getPaginationRowModel,
   useReactTable,
 } from "@tanstack/react-table"
-import { MoreHorizontal, Pencil, Trash2, User, Phone, Mail, Calendar, TrendingUp, Eye, Receipt } from "lucide-react"
+import { MoreHorizontal, Pencil, Trash2, User, Phone, Mail, Calendar, TrendingUp, Eye, Receipt, Upload } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -34,6 +35,7 @@ import { useToast } from "@/hooks/use-toast"
 import { clientStore } from "@/lib/client-store"
 import { SalesAPI } from "@/lib/api"
 import { useAuth } from "@/lib/auth-context"
+import { ClientImportModal } from "./client-import-modal"
 
 interface Client {
   id?: string
@@ -65,58 +67,57 @@ export function ClientsTable({ clients }: ClientsTableProps) {
   const [isBillActivityOpen, setIsBillActivityOpen] = useState(false)
   const [selectedClientBills, setSelectedClientBills] = useState<any[]>([])
   const [isLoadingBills, setIsLoadingBills] = useState(false)
+  const [isImportOpen, setIsImportOpen] = useState(false)
   const [clientsWithStats, setClientsWithStats] = useState<Client[]>([])
   const [isLoadingStats, setIsLoadingStats] = useState(false)
 
-  // Fetch real-time statistics for all clients
+  // Fetch real-time statistics for only the currently visible page (avoid thousands of requests)
   const fetchClientStats = async () => {
     if (!user || clients.length === 0) return
-    
+
     setIsLoadingStats(true)
-    const clientsWithRealStats = await Promise.all(
-      clients.map(async (client) => {
-        try {
-          const response = await SalesAPI.getByClient(client.name)
-          if (response.success && response.data && response.data.length > 0) {
-            const sales = response.data
-            const totalVisits = sales.length
-            const totalSpent = sales.reduce((sum: number, sale: any) => sum + (sale.grossTotal || 0), 0)
-            const lastVisit = sales.sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime())[0]?.date
-            
-            return {
-              ...client,
-              realTotalVisits: totalVisits,
-              realTotalSpent: totalSpent,
-              realLastVisit: lastVisit
+    const source = clientsWithStats.length > 0 ? clientsWithStats : clients
+    const start = pageIndex * pageSize
+    const end = Math.min(start + pageSize, source.length)
+    const visible = source.slice(start, end)
+
+    const concurrency = 10
+    const batches: typeof visible[] = []
+    for (let i = 0; i < visible.length; i += concurrency) {
+      batches.push(visible.slice(i, i + concurrency))
+    }
+
+    const enriched: any[] = []
+    for (const batch of batches) {
+      const results = await Promise.allSettled(
+        batch.map(async (client) => {
+          try {
+            const response = await SalesAPI.getByClient(client.name)
+            if (response.success && response.data && response.data.length > 0) {
+              const sales = response.data
+              const totalVisits = sales.length
+              const totalSpent = sales.reduce((sum: number, sale: any) => sum + (sale.grossTotal || 0), 0)
+              const lastVisit = sales.sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime())[0]?.date
+              return { ...client, realTotalVisits: totalVisits, realTotalSpent: totalSpent, realLastVisit: lastVisit }
             }
-          } else {
-            return {
-              ...client,
-              realTotalVisits: 0,
-              realTotalSpent: 0,
-              realLastVisit: undefined
-            }
+            return { ...client, realTotalVisits: undefined, realTotalSpent: undefined, realLastVisit: undefined }
+          } catch (error) {
+            return { ...client, realTotalVisits: undefined, realTotalSpent: undefined, realLastVisit: undefined }
           }
-        } catch (error) {
-          console.error(`Error fetching stats for ${client.name}:`, error)
-          return {
-            ...client,
-            realTotalVisits: 0,
-            realTotalSpent: 0,
-            realLastVisit: undefined
-          }
-        }
+        })
+      )
+      results.forEach((r, idx) => {
+        enriched.push(r.status === 'fulfilled' ? r.value : batch[idx])
       })
-    )
-    
-    setClientsWithStats(clientsWithRealStats)
+    }
+
+    // Merge back into full list for the current window
+    const merged = source.map((c, idx) => (idx >= start && idx < end ? enriched[idx - start] : c))
+    setClientsWithStats(merged)
     setIsLoadingStats(false)
   }
 
-  // Fetch stats when component mounts or clients change
-  useEffect(() => {
-    fetchClientStats()
-  }, [clients, user])
+  // NOTE: This effect is declared later in the file after pageIndex/pageSize are defined
 
   const handleEditClient = (client: Client) => {
     const clientId = client._id || client.id
@@ -288,7 +289,7 @@ export function ClientsTable({ clients }: ClientsTableProps) {
       accessorKey: "realTotalVisits",
       header: "Visits",
       cell: ({ row }) => {
-        const visits = row.original.realTotalVisits || 0
+        const visits = (row.original.realTotalVisits ?? row.original.totalVisits ?? 0)
         return (
           <div className="text-center">
             {isLoadingStats ? (
@@ -307,7 +308,7 @@ export function ClientsTable({ clients }: ClientsTableProps) {
       accessorKey: "realTotalSpent",
       header: "Revenue",
       cell: ({ row }) => {
-        const spent = row.original.realTotalSpent || 0
+        const spent = (row.original.realTotalSpent ?? row.original.totalSpent ?? 0)
         return (
           <div className="text-center">
             {isLoadingStats ? (
@@ -326,7 +327,7 @@ export function ClientsTable({ clients }: ClientsTableProps) {
       accessorKey: "realLastVisit",
       header: "Last Visit",
       cell: ({ row }) => {
-        const lastVisit = row.original.realLastVisit
+        const lastVisit = row.original.realLastVisit ?? row.original.lastVisit
         return (
           <div className="flex items-center space-x-2">
             <Calendar className="h-4 w-4 text-gray-400" />
@@ -432,6 +433,18 @@ export function ClientsTable({ clients }: ClientsTableProps) {
     },
   })
 
+  const pageSize = table.getState().pagination.pageSize
+  const pageIndex = table.getState().pagination.pageIndex
+  const totalRows = (clientsWithStats.length > 0 ? clientsWithStats : clients).length
+  const startRow = totalRows === 0 ? 0 : pageIndex * pageSize + 1
+  const endRow = Math.min(startRow + pageSize - 1, totalRows)
+
+  // Fetch stats when data or pagination changes (now that pageIndex/pageSize exist)
+  useEffect(() => {
+    fetchClientStats()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [clients, user, pageIndex, pageSize])
+
   return (
     <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
       {/* Table Header */}
@@ -440,8 +453,30 @@ export function ClientsTable({ clients }: ClientsTableProps) {
           <h3 className="text-lg font-semibold text-gray-800">Client Directory</h3>
           <div className="flex items-center gap-4">
             <div className="text-sm text-gray-600">
-              Showing {table.getFilteredRowModel().rows.length} of {clients.length} clients
+              Showing {startRow}-{endRow} of {totalRows} clients
             </div>
+            <div className="flex items-center gap-2 text-sm text-gray-600">
+              <span>Rows per page:</span>
+              <Select value={String(pageSize)} onValueChange={(v)=>table.setPageSize(parseInt(v))}>
+                <SelectTrigger className="h-8 w-[90px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="10">10</SelectItem>
+                  <SelectItem value="25">25</SelectItem>
+                  <SelectItem value="50">50</SelectItem>
+                  <SelectItem value="100">100</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsImportOpen(true)}
+              className="h-8 px-3 border-blue-300 text-blue-700 hover:bg-blue-50 hover:border-blue-400"
+            >
+              <Upload className="h-4 w-4 mr-2" /> Import Clients
+            </Button>
             <Button
               variant="outline"
               size="sm"
@@ -706,6 +741,17 @@ export function ClientsTable({ clients }: ClientsTableProps) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Client Import Modal */}
+      <ClientImportModal
+        isOpen={isImportOpen}
+        onClose={() => setIsImportOpen(false)}
+        onImportComplete={() => {
+          setIsImportOpen(false)
+          // Page likely receives clients via props; trigger a soft refresh by dispatching event
+          window.dispatchEvent(new Event('client-added'))
+        }}
+      />
     </div>
   )
 }

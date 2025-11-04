@@ -9,11 +9,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Plus, Search, MoreHorizontal, Edit, Trash2, Package, Download, FileText, FileSpreadsheet, ChevronDown, Filter, Minus } from "lucide-react"
+import { Plus, Search, MoreHorizontal, Edit, Trash2, Package, Download, FileText, FileSpreadsheet, ChevronDown, Filter, Minus, Upload } from "lucide-react"
 import { ProductsAPI } from "@/lib/api"
 import { ProductForm } from "@/components/products/product-form"
 import { ProductOutForm } from "@/components/products/product-out-form"
 import { InventoryLogs } from "@/components/products/inventory-logs"
+import { ProductImportModal } from "@/components/products/product-import-modal"
 import { useAuth } from "@/lib/auth-context"
 import { useCurrency } from "@/hooks/use-currency"
 import { useToast } from "@/hooks/use-toast"
@@ -22,14 +23,30 @@ import autoTable from "jspdf-autotable"
 import * as XLSX from "xlsx"
 import { format } from "date-fns"
 
-export function ProductsTable() {
+interface ProductsTableProps {
+  productTypeFilter?: string
+  onProductTypeFilterChange?: (filter: string) => void
+}
+
+export function ProductsTable({ productTypeFilter: externalFilter, onProductTypeFilterChange }: ProductsTableProps = {}) {
   const { formatAmount } = useCurrency()
   const { toast } = useToast()
   const [searchTerm, setSearchTerm] = useState("")
-  const [productTypeFilter, setProductTypeFilter] = useState<string>("all")
+  const [internalFilter, setInternalFilter] = useState<string>("all")
+  
+  // Use external filter if provided, otherwise use internal state
+  const productTypeFilter = externalFilter !== undefined ? externalFilter : internalFilter
+  const setProductTypeFilter = (filter: string) => {
+    if (onProductTypeFilterChange) {
+      onProductTypeFilterChange(filter)
+    } else {
+      setInternalFilter(filter)
+    }
+  }
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [isProductOutDialogOpen, setIsProductOutDialogOpen] = useState(false)
+  const [isImportDialogOpen, setIsImportDialogOpen] = useState(false)
   const [selectedProduct, setSelectedProduct] = useState<any>(null)
   const [products, setProducts] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -46,7 +63,7 @@ export function ProductsTable() {
 
   const fetchProducts = async () => {
     try {
-      const response = await ProductsAPI.getAll()
+      const response = await ProductsAPI.getAll({ limit: 1000 }) // Fetch up to 1000 products
       if (response.success) {
         setProducts(response.data || [])
       }
@@ -378,6 +395,15 @@ export function ProductsTable() {
                   />
                 </DialogContent>
               </Dialog>
+              
+              <Button 
+                onClick={() => setIsImportDialogOpen(true)}
+                variant="outline"
+                className="h-10 px-4 border-blue-300 text-blue-700 hover:bg-blue-50 hover:border-blue-400 transition-all duration-300"
+              >
+                <Upload className="mr-2 h-4 w-4" />
+                Import Products
+              </Button>
             </>
           )}
         </div>
@@ -573,6 +599,16 @@ export function ProductsTable() {
           </Table>
         </div>
       </div>
+
+      {/* Product Import Modal */}
+      <ProductImportModal
+        isOpen={isImportDialogOpen}
+        onClose={() => setIsImportDialogOpen(false)}
+        onImportComplete={() => {
+          fetchProducts()
+          setIsImportDialogOpen(false)
+        }}
+      />
     </div>
   )
 }

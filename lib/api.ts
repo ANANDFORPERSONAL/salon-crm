@@ -171,6 +171,11 @@ export class ClientsAPI {
     const response = await apiClient.get('/clients/search', { params: { q: query } })
     return response.data
   }
+
+  static async getStats(): Promise<ApiResponse<{ totalCustomers: number; activeCustomers: number; inactiveCustomers: number }>> {
+    const response = await apiClient.get('/clients/stats')
+    return response.data
+  }
 }
 
 export class ServicesAPI {
@@ -298,6 +303,11 @@ export class InventoryAPI {
 
   static async getTransactions(params?: { page?: number; limit?: number; productId?: string; transactionType?: string; dateFrom?: string; dateTo?: string }): Promise<PaginatedResponse<any>> {
     const response = await apiClient.get('/inventory/transactions', { params })
+    return response.data
+  }
+
+  static async deleteAllTransactions(): Promise<ApiResponse<any>> {
+    const response = await apiClient.delete('/inventory/transactions')
     return response.data
   }
 }

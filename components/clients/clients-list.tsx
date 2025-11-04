@@ -19,8 +19,8 @@ import { format } from "date-fns"
 export function ClientsListPage() {
   const { toast } = useToast()
   const [searchQuery, setSearchQuery] = useState("")
-  const [clients, setClients] = useState<Client[]>(clientStore.getClients())
-  const [filteredClients, setFilteredClients] = useState<Client[]>(clients)
+  const [clients, setClients] = useState<Client[]>([])
+  const [filteredClients, setFilteredClients] = useState<Client[]>([])
   const [stats, setStats] = useState({
     totalCustomers: 0,
     activeCustomers: 0,
@@ -28,12 +28,16 @@ export function ClientsListPage() {
   })
   const [isLoadingStats, setIsLoadingStats] = useState(true)
 
-  // Subscribe to client store changes
+  // Subscribe to client store changes and force reload on mount
   useEffect(() => {
+    // Force reload clients from API
+    clientStore.loadClients()
+    
     const unsubscribe = clientStore.subscribe(() => {
       const updatedClients = clientStore.getClients()
       console.log('ClientsListPage: Store updated, new client count:', updatedClients.length)
       setClients(updatedClients)
+      setFilteredClients(updatedClients)
     })
     return unsubscribe
   }, [])
@@ -128,6 +132,16 @@ export function ClientsListPage() {
 
     updateFilteredClients()
   }, [searchQuery, clients])
+
+  // Listen for client-added event (from import)
+  useEffect(() => {
+    const handleClientAdded = () => {
+      console.log('ClientsListPage: client-added event received, reloading clients...')
+      clientStore.loadClients()
+    }
+    window.addEventListener('client-added', handleClientAdded)
+    return () => window.removeEventListener('client-added', handleClientAdded)
+  }, [])
 
   const handleExportPDF = () => {
     try {

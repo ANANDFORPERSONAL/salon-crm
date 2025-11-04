@@ -288,7 +288,7 @@ export function QuickSale() {
     const fetchServices = async () => {
       try {
         console.log('Fetching services from API...')
-        const response = await ServicesAPI.getAll()
+        const response = await ServicesAPI.getAll({ limit: 1000 }) // Fetch up to 1000 services
         console.log('Services API response:', response)
         if (response.success) {
           setServices(response.data || [])
@@ -304,7 +304,7 @@ export function QuickSale() {
     const fetchProducts = async () => {
       try {
         console.log('Fetching products from API...')
-        const response = await ProductsAPI.getAll()
+        const response = await ProductsAPI.getAll({ limit: 1000 }) // Fetch up to 1000 products
         console.log('Products API response:', response)
         if (response.success) {
           // Filter out service-only products (only show retail and both)
@@ -557,12 +557,12 @@ export function QuickSale() {
     }
   }, [services])
 
-  // Filter customers based on search
+  // Filter customers based on search (matches from start)
   const filteredCustomers = clients.filter(
     (client) =>
-      client.name.toLowerCase().includes(customerSearch.toLowerCase()) ||
-      client.phone.includes(customerSearch) ||
-      (client.email && client.email.toLowerCase().includes(customerSearch.toLowerCase())),
+      client.name.toLowerCase().startsWith(customerSearch.toLowerCase()) ||
+      client.phone.startsWith(customerSearch) ||
+      (client.email && client.email.toLowerCase().startsWith(customerSearch.toLowerCase())),
   )
 
   // Get the correct customer ID (handles both id and _id properties)
@@ -1250,14 +1250,23 @@ export function QuickSale() {
             }
           }
 
-          // Calculate total with GST for services (without discount - discount will be applied by useEffect)
+          // Calculate total with GST for services
           const baseAmount = updatedItem.price * updatedItem.quantity
           const serviceTaxRate = taxSettings?.serviceTaxRate || 5
-          const gstAmount = (taxSettings?.enableTax !== false) ? (baseAmount * serviceTaxRate) / 100 : 0
-          
-          // Only update total if no discount is active, otherwise let discount logic handle it
-          if (discountValue === 0 && discountPercentage === 0) {
-            updatedItem.total = baseAmount + gstAmount
+          // If item-level discount edited, apply it immediately to this row
+          if (field === 'discount') {
+            const itemDiscountPct = Number(value) || 0
+            const discountedAmount = baseAmount - (baseAmount * itemDiscountPct) / 100
+            const gstAmount = (taxSettings?.enableTax !== false) ? (discountedAmount * serviceTaxRate) / 100 : 0
+            updatedItem.total = discountedAmount + gstAmount
+          } else {
+            const gstAmount = (taxSettings?.enableTax !== false) ? (baseAmount * serviceTaxRate) / 100 : 0
+            // Only update total if no GLOBAL discount is active, otherwise let global discount logic handle it
+            if (discountValue === 0 && discountPercentage === 0) {
+              // Respect item discount even when global is off
+              const discountedAmount = baseAmount - (baseAmount * (updatedItem.discount || 0)) / 100
+              updatedItem.total = discountedAmount + ((taxSettings?.enableTax !== false) ? (discountedAmount * serviceTaxRate) / 100 : 0)
+            }
           }
 
           return updatedItem
@@ -1304,11 +1313,19 @@ export function QuickSale() {
             }
           }
           
-          const gstAmount = (taxSettings?.enableTax !== false) ? (baseAmount * productTaxRate) / 100 : 0
-          
-          // Only update total if no discount is active, otherwise let discount logic handle it
-          if (discountValue === 0 && discountPercentage === 0) {
-            updatedItem.total = baseAmount + gstAmount
+          // If item-level discount edited, apply it immediately to this row
+          if (field === 'discount') {
+            const itemDiscountPct = Number(value) || 0
+            const discountedAmount = baseAmount - (baseAmount * itemDiscountPct) / 100
+            const gstAmount = (taxSettings?.enableTax !== false) ? (discountedAmount * productTaxRate) / 100 : 0
+            updatedItem.total = discountedAmount + gstAmount
+          } else {
+            const gstAmount = (taxSettings?.enableTax !== false) ? (baseAmount * productTaxRate) / 100 : 0
+            // Only update total if no GLOBAL discount is active, otherwise let global discount logic handle it
+            if (discountValue === 0 && discountPercentage === 0) {
+              const discountedAmount = baseAmount - (baseAmount * (updatedItem.discount || 0)) / 100
+              updatedItem.total = discountedAmount + ((taxSettings?.enableTax !== false) ? (discountedAmount * productTaxRate) / 100 : 0)
+            }
           }
 
           console.log('Updated Product Item:', updatedItem)
@@ -1376,12 +1393,21 @@ export function QuickSale() {
     
     return baseAmount - discountOnBaseAmount
   }
+
+  // Helper to compute discounted base considering item-level discount when no global discount
+  const getDiscountedBase = (baseAmount: number, itemDiscountPct: number | undefined, taxRate: number) => {
+    if (discountValue === 0 && discountPercentage === 0) {
+      const pct = itemDiscountPct || 0
+      return baseAmount - (baseAmount * pct) / 100
+    }
+    return calculateDiscountedAmount(baseAmount, taxRate)
+  }
   
   // Calculate service tax on discounted amounts (only if tax is enabled)
   const serviceTax = (taxSettings?.enableTax !== false) ? serviceItems.reduce((sum, item) => {
     const baseAmount = item.price * item.quantity
     const serviceTaxRate = taxSettings?.serviceTaxRate || 5
-    const discountedAmount = calculateDiscountedAmount(baseAmount, serviceTaxRate)
+    const discountedAmount = getDiscountedBase(baseAmount, item.discount, serviceTaxRate)
     const gstAmount = (discountedAmount * serviceTaxRate) / 100
     return sum + gstAmount
   }, 0) : 0
@@ -1400,7 +1426,7 @@ export function QuickSale() {
         case 'exempt': productTaxRate = taxSettings.exemptProductRate || 0; break
       }
     }
-    const discountedAmount = calculateDiscountedAmount(baseAmount, productTaxRate)
+    const discountedAmount = getDiscountedBase(baseAmount, item.discount, productTaxRate)
     const gstAmount = (discountedAmount * productTaxRate) / 100
     return sum + gstAmount
   }, 0) : 0
@@ -1411,7 +1437,7 @@ export function QuickSale() {
   const subtotalExcludingTax = serviceItems.reduce((sum, item) => {
     const baseAmount = item.price * item.quantity
     const serviceTaxRate = taxSettings?.serviceTaxRate || 5
-    const discountedAmount = calculateDiscountedAmount(baseAmount, serviceTaxRate)
+    const discountedAmount = getDiscountedBase(baseAmount, item.discount, serviceTaxRate)
     return sum + discountedAmount
   }, 0) + productItems.reduce((sum, item) => {
     const baseAmount = item.price * item.quantity
@@ -1426,7 +1452,7 @@ export function QuickSale() {
         case 'exempt': productTaxRate = taxSettings.exemptProductRate || 0; break
       }
     }
-    const discountedAmount = calculateDiscountedAmount(baseAmount, productTaxRate)
+    const discountedAmount = getDiscountedBase(baseAmount, item.discount, productTaxRate)
     return sum + discountedAmount
   }, 0)
   
@@ -1434,6 +1460,107 @@ export function QuickSale() {
   const serviceSGST = serviceTax / 2
   const productCGST = productTax / 2
   const productSGST = productTax / 2
+
+  // Calculate tax percentages for display
+  const serviceTaxRate = taxSettings?.serviceTaxRate || 5
+  const serviceCGSTRate = serviceTaxRate / 2
+  const serviceSGSTRate = serviceTaxRate / 2
+
+  // Calculate product tax per category (group by tax category)
+  const productTaxByCategory: Array<{
+    category: string
+    categoryLabel: string
+    taxRate: number
+    cgstRate: number
+    sgstRate: number
+    totalTax: number
+    cgst: number
+    sgst: number
+  }> = []
+
+  if (productItems.length > 0 && taxSettings?.enableTax !== false) {
+    const categoryMap = new Map<string, number>()
+    
+    productItems.forEach(item => {
+      const product = products.find((p) => p._id === item.productId || p.id === item.productId)
+      let productTaxRate = 18
+      let categoryKey = 'standard'
+      
+      if (product?.taxCategory && taxSettings) {
+        switch (product.taxCategory) {
+          case 'essential': 
+            productTaxRate = taxSettings.essentialProductRate || 5
+            categoryKey = 'essential'
+            break
+          case 'intermediate': 
+            productTaxRate = taxSettings.intermediateProductRate || 12
+            categoryKey = 'intermediate'
+            break
+          case 'standard': 
+            productTaxRate = taxSettings.standardProductRate || 18
+            categoryKey = 'standard'
+            break
+          case 'luxury': 
+            productTaxRate = taxSettings.luxuryProductRate || 28
+            categoryKey = 'luxury'
+            break
+          case 'exempt': 
+            productTaxRate = taxSettings.exemptProductRate || 0
+            categoryKey = 'exempt'
+            break
+        }
+      }
+      
+      const baseAmount = item.price * item.quantity
+      const discountedAmount = getDiscountedBase(baseAmount, item.discount, productTaxRate)
+      const gstAmount = (discountedAmount * productTaxRate) / 100
+      
+      const existing = categoryMap.get(categoryKey) || 0
+      categoryMap.set(categoryKey, existing + gstAmount)
+    })
+
+    // Convert to array with labels and rates
+    categoryMap.forEach((totalTax, categoryKey) => {
+      let taxRate = 18
+      let categoryLabel = 'Standard'
+      
+      switch (categoryKey) {
+        case 'essential':
+          taxRate = taxSettings?.essentialProductRate || 5
+          categoryLabel = 'Essential'
+          break
+        case 'intermediate':
+          taxRate = taxSettings?.intermediateProductRate || 12
+          categoryLabel = 'Intermediate'
+          break
+        case 'standard':
+          taxRate = taxSettings?.standardProductRate || 18
+          categoryLabel = 'Standard'
+          break
+        case 'luxury':
+          taxRate = taxSettings?.luxuryProductRate || 28
+          categoryLabel = 'Luxury'
+          break
+        case 'exempt':
+          taxRate = taxSettings?.exemptProductRate || 0
+          categoryLabel = 'Exempt'
+          break
+      }
+      
+      if (totalTax > 0) {
+        productTaxByCategory.push({
+          category: categoryKey,
+          categoryLabel,
+          taxRate,
+          cgstRate: taxRate / 2,
+          sgstRate: taxRate / 2,
+          totalTax,
+          cgst: totalTax / 2,
+          sgst: totalTax / 2
+        })
+      }
+    })
+  }
 
   // Grand total = subtotal + tip (GST already included in subtotal)
   const grandTotal = subtotal + tip
@@ -1600,6 +1727,11 @@ export function QuickSale() {
     setIsProcessing(true)
 
     try {
+      // Calculate rounded total for customer stats (before receipt generation)
+      // Grand total = subtotal - discount + tip (tax already included in subtotal)
+      const grandTotalForStats = subtotal - totalDiscount + tip
+      const roundedTotalForStats = Math.round(grandTotalForStats)
+      
       // Create or use existing customer
       let customer = selectedCustomer
       if (!customer && customerSearch) {
@@ -1610,7 +1742,7 @@ export function QuickSale() {
           phone: customerSearch.match(/^\d+$/) ? customerSearch : "",
           email: customerSearch.includes("@") ? customerSearch : "",
           totalVisits: 1,
-          totalSpent: roundedTotal,
+          totalSpent: roundedTotalForStats,
           createdAt: new Date().toISOString(),
           status: "active",
         }
@@ -1619,7 +1751,7 @@ export function QuickSale() {
       } else if (customer) {
         // Update existing customer stats
         customer.totalVisits = (customer.totalVisits || 0) + 1
-        customer.totalSpent = (customer.totalSpent || 0) + roundedTotal
+        customer.totalSpent = (customer.totalSpent || 0) + roundedTotalForStats
         customer.lastVisit = format(new Date(), "yyyy-MM-dd")
       }
 
@@ -1721,8 +1853,13 @@ export function QuickSale() {
       } : 'No items')
       
       // Calculate tax breakdown from individual items (GST already included in totals)
+      // Note: subtotal already includes tax (item.total includes tax)
       let calculatedTax = 0
-      let calculatedTotal = subtotal + tip
+      // Grand total = subtotal - discount + tip (tax already included in subtotal)
+      const grandTotal = subtotal - totalDiscount + tip
+      const roundedTotal = Math.round(grandTotal)
+      const roundOff = roundedTotal - grandTotal
+      let calculatedTotal = roundedTotal
       let taxBreakdown = { cgst: 0, sgst: 0, igst: 0 }
 
       // Calculate tax breakdown from individual items (only if tax is enabled)
@@ -1734,6 +1871,9 @@ export function QuickSale() {
         const gstAmount = (discountedAmount * serviceTaxRate) / 100
         return sum + gstAmount
       }, 0) : 0
+
+      // Build product tax by rate map for receipt bifurcation
+      const productTaxByRate: Record<string, number> = {}
 
       const productTax = (taxSettings?.enableTax !== false) ? productItems.reduce((sum, item) => {
         const baseAmount = item.price * item.quantity
@@ -1751,6 +1891,8 @@ export function QuickSale() {
           }
         }
         const gstAmount = (discountedAmount * productTaxRate) / 100
+        const key = String(productTaxRate)
+        productTaxByRate[key] = (productTaxByRate[key] || 0) + gstAmount
         return sum + gstAmount
       }, 0) : 0
 
@@ -1758,8 +1900,11 @@ export function QuickSale() {
         taxBreakdown = {
           cgst: calculatedTax / 2,
           sgst: calculatedTax / 2,
-          igst: 0
-        }
+          igst: 0,
+          serviceTax: serviceTax,
+          serviceRate: taxSettings?.serviceTaxRate || 5,
+          productTaxByRate
+        } as any
 
       // Update receipt items with tax information (only if tax is enabled)
       receiptItems.forEach((item) => {
@@ -1931,7 +2076,7 @@ export function QuickSale() {
         tip: tip,
         discount: totalDiscount,
         tax: calculatedTax,
-        roundOff: calculatedTotal - (subtotal - totalDiscount + calculatedTax + tip),
+        roundOff: roundOff,
         total: calculatedTotal,
         taxBreakdown: taxBreakdown,
         payments: payments,
@@ -1949,7 +2094,7 @@ export function QuickSale() {
             if (validProductItems.length > 0) {
               console.log('🔄 Refreshing product list to get updated stock levels...')
               try {
-                const refreshResponse = await ProductsAPI.getAll()
+                const refreshResponse = await ProductsAPI.getAll({ limit: 1000 }) // Fetch up to 1000 products
                 if (refreshResponse.success) {
                   const sellableProducts = (refreshResponse.data || []).filter((product: any) => {
                     const productType = product.productType || 'retail'
@@ -2162,9 +2307,9 @@ export function QuickSale() {
                   {showCustomerDropdown && customerSearch && (
                     <div className="absolute top-full left-0 right-0 z-10 mt-1 bg-background border rounded-md shadow-lg max-h-60 overflow-auto">
                       {filteredCustomers.length > 0 ? (
-                        filteredCustomers.map((customer) => (
+                        filteredCustomers.map((customer, index) => (
                           <div
-                            key={customer._id || customer.id}
+                            key={`${customer._id || customer.id}-${customer.phone}-${index}`}
                             className="p-3 hover:bg-muted cursor-pointer border-b last:border-b-0"
                             onClick={() => handleCustomerSelect(customer)}
                           >
@@ -2633,9 +2778,9 @@ export function QuickSale() {
               {showCustomerDropdown && customerSearch && (
                 <div className="absolute top-full left-0 right-0 z-50 mt-2 bg-white border border-gray-200 rounded-xl shadow-xl max-h-60 overflow-auto backdrop-blur-sm">
                   {filteredCustomers.length > 0 ? (
-                    filteredCustomers.map((customer) => (
+                    filteredCustomers.map((customer, index) => (
                       <div
-                        key={customer._id || customer.id}
+                        key={`${customer._id || customer.id}-${customer.phone}-${index}`}
                         className="p-4 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 cursor-pointer border-b last:border-b-0 transition-all duration-200 group"
                         onClick={() => handleCustomerSelect(customer)}
                       >
@@ -2937,6 +3082,7 @@ export function QuickSale() {
                       type="number"
                       value={isGlobalDiscountActive ? discountPercentage : item.discount}
                       onChange={(e) => updateServiceItem(item.id, "discount", Number(e.target.value))}
+                      onFocus={(e) => e.target.select()}
                       className={`h-8 ${(isGlobalDiscountActive || isValueDiscountActive) ? 'bg-amber-50 border-amber-200' : ''}`}
                       disabled={isGlobalDiscountActive || isValueDiscountActive}
                       placeholder={(isGlobalDiscountActive || isValueDiscountActive) ? "Global discount" : "0"}
@@ -3149,6 +3295,7 @@ export function QuickSale() {
                         type="number"
                         value={isGlobalDiscountActive ? discountPercentage : item.discount}
                         onChange={(e) => updateProductItem(item.id, "discount", Number(e.target.value))}
+                        onFocus={(e) => e.target.select()}
                         className={`h-8 ${(isGlobalDiscountActive || isValueDiscountActive) ? 'bg-amber-50 border-amber-200' : ''}`}
                         disabled={isGlobalDiscountActive || isValueDiscountActive}
                         placeholder={(isGlobalDiscountActive || isValueDiscountActive) ? "Global discount" : "0"}
@@ -3292,29 +3439,29 @@ export function QuickSale() {
               {serviceTax > 0 && (
                 <>
                 <div className="flex justify-between items-center py-1">
-                    <span className="text-sm text-gray-600">CGST</span>
+                    <span className="text-sm text-gray-600">CGST @ {serviceCGSTRate.toFixed(1)}%</span>
                     <span className="text-sm font-medium text-gray-900">{formatCurrency(serviceCGST)}</span>
                 </div>
                   <div className="flex justify-between items-center py-1">
-                    <span className="text-sm text-gray-600">SGST</span>
+                    <span className="text-sm text-gray-600">SGST @ {serviceSGSTRate.toFixed(1)}%</span>
                     <span className="text-sm font-medium text-gray-900">{formatCurrency(serviceSGST)}</span>
                   </div>
                 </>
               )}
               
-              {/* Product Tax Breakdown */}
-              {productTax > 0 && (
-                <>
+              {/* Product Tax Breakdown - Per Category */}
+              {productTaxByCategory.map((categoryTax) => (
+                <div key={categoryTax.category}>
                   <div className="flex justify-between items-center py-1">
-                    <span className="text-sm text-gray-600">CGST</span>
-                    <span className="text-sm font-medium text-gray-900">{formatCurrency(productCGST)}</span>
+                    <span className="text-sm text-gray-600">CGST @ {categoryTax.cgstRate.toFixed(1)}% ({categoryTax.categoryLabel})</span>
+                    <span className="text-sm font-medium text-gray-900">{formatCurrency(categoryTax.cgst)}</span>
                   </div>
                   <div className="flex justify-between items-center py-1">
-                    <span className="text-sm text-gray-600">SGST</span>
-                    <span className="text-sm font-medium text-gray-900">{formatCurrency(productSGST)}</span>
-                          </div>
-                </>
-              )}
+                    <span className="text-sm text-gray-600">SGST @ {categoryTax.sgstRate.toFixed(1)}% ({categoryTax.categoryLabel})</span>
+                    <span className="text-sm font-medium text-gray-900">{formatCurrency(categoryTax.sgst)}</span>
+                  </div>
+                </div>
+              ))}
               
               {(discountValue > 0 || discountPercentage > 0) && (
                 <div className="flex justify-between items-center py-1">

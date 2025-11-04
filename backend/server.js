@@ -1414,6 +1414,422 @@ app.delete('/api/clients/:id', authenticateToken, setupBusinessDatabase, require
   }
 });
 
+// Get client statistics (O(1) database queries)
+app.get('/api/clients/stats', authenticateToken, requireStaff, setupBusinessDatabase, async (req, res) => {
+  try {
+    console.log('📊 /api/clients/stats endpoint called');
+    console.log('📊 User:', req.user?.email, 'BranchId:', req.user?.branchId);
+    
+    if (!req.businessModels) {
+      console.error('❌ req.businessModels not found');
+      return res.status(500).json({
+        success: false,
+        error: 'Business models not initialized'
+      });
+    }
+    
+    const { Client } = req.businessModels;
+    
+    if (!Client) {
+      console.error('❌ Client model not found in req.businessModels');
+      console.error('Available models:', Object.keys(req.businessModels || {}));
+      return res.status(500).json({
+        success: false,
+        error: 'Client model not available'
+      });
+    }
+    
+    console.log('✅ Client model found');
+    
+    // Calculate date 3 months ago from current date
+    const now = new Date();
+    const threeMonthsAgo = new Date(now);
+    threeMonthsAgo.setMonth(now.getMonth() - 3);
+    
+    console.log(`📅 Date threshold (3 months ago): ${threeMonthsAgo.toISOString()}`);
+    
+    // Total Customers: Count all clients (simple O(1) query)
+    console.log('📊 Counting total customers...');
+    let totalCustomers = 0;
+    try {
+      totalCustomers = await Client.countDocuments({}) || 0;
+      console.log(`✅ Total customers: ${totalCustomers}`);
+    } catch (countError) {
+      console.error('❌ Error counting customers:', countError);
+      throw countError;
+    }
+    
+    // Fetch all clients with just lastVisit field for accurate calculation
+    console.log('📊 Fetching all clients with lastVisit field...');
+    let allClients = [];
+    try {
+      // Use lean() for performance but handle dates carefully
+      allClients = await Client.find({}).select('lastVisit').lean();
+      console.log(`✅ Fetched ${allClients.length} clients`);
+      
+      // Convert dates from MongoDB format to JavaScript Date objects
+      // When using lean(), dates come as strings or ISODate objects
+      allClients = allClients.map(client => {
+        if (client.lastVisit) {
+          // Handle MongoDB ISODate or string dates
+          if (client.lastVisit instanceof Date) {
+            return client;
+          } else if (typeof client.lastVisit === 'string') {
+            const date = new Date(client.lastVisit);
+            if (!isNaN(date.getTime())) {
+              return { ...client, lastVisit: date };
+            }
+          } else if (client.lastVisit.$date) {
+            // Handle MongoDB extended JSON format
+            return { ...client, lastVisit: new Date(client.lastVisit.$date) };
+          }
+        }
+        return client;
+      });
+    } catch (fetchError) {
+      console.error('❌ Error fetching clients:', fetchError);
+      console.error('❌ Fetch error details:', {
+        message: fetchError.message,
+        stack: fetchError.stack,
+        name: fetchError.name
+      });
+      throw fetchError;
+    }
+    
+    if (allClients.length === 0) {
+      console.log('📊 No clients found, returning zero stats');
+      return res.json({
+        success: true,
+        data: {
+          totalCustomers: 0,
+          activeCustomers: 0,
+          inactiveCustomers: 0
+        }
+      });
+    }
+    
+    // Sample first 3 clients for debugging
+    try {
+      console.log('📊 Sample clients:', JSON.stringify(allClients.slice(0, 3).map(c => ({
+        hasLastVisit: !!c.lastVisit,
+        lastVisitType: c.lastVisit ? typeof c.lastVisit : 'null',
+        lastVisitValue: c.lastVisit ? c.lastVisit.toString() : null,
+        isDate: c.lastVisit instanceof Date
+      })), null, 2));
+    } catch (logError) {
+      console.warn('⚠️ Error logging sample clients:', logError);
+    }
+    
+    // Count active: lastVisit exists, is a Date, AND >= threeMonthsAgo
+    let activeCount = 0;
+    let inactiveCount = 0;
+    let nullCount = 0;
+    let oldVisitCount = 0;
+    let invalidDateCount = 0;
+    
+    for (const client of allClients) {
+      try {
+        if (!client.lastVisit || client.lastVisit === null || client.lastVisit === undefined) {
+          // No lastVisit = inactive
+          inactiveCount++;
+          nullCount++;
+        } else {
+          // Convert to Date if it's not already
+          let lastVisitDate = client.lastVisit;
+          if (!(lastVisitDate instanceof Date)) {
+            // Try to convert string or other format to Date
+            lastVisitDate = new Date(lastVisitDate);
+            // Check if conversion was successful
+            if (isNaN(lastVisitDate.getTime())) {
+              // Invalid date = inactive
+              inactiveCount++;
+              invalidDateCount++;
+              continue;
+            }
+          }
+          
+          // Has a valid Date - compare
+          if (lastVisitDate >= threeMonthsAgo) {
+            activeCount++;
+          } else {
+            inactiveCount++;
+            oldVisitCount++;
+          }
+        }
+      } catch (clientError) {
+        console.warn('⚠️ Error processing client:', clientError);
+        inactiveCount++; // Default to inactive on error
+      }
+    }
+    
+    console.log(`📊 Breakdown - Active: ${activeCount}, Inactive: ${inactiveCount}`);
+    console.log(`📊 Details - null: ${nullCount}, invalid dates: ${invalidDateCount}, old visits: ${oldVisitCount}`);
+    console.log(`📊 Verification - Calculated total: ${activeCount + inactiveCount}, DB total: ${totalCustomers}`);
+    
+    let activeCustomers = activeCount;
+    let inactiveCustomers = inactiveCount;
+    
+    // Ensure they add up correctly (safety check)
+    if (activeCustomers + inactiveCustomers !== totalCustomers) {
+      console.warn(`⚠️ Count mismatch! Adjusting inactive: ${activeCustomers + inactiveCustomers} vs ${totalCustomers}`);
+      inactiveCustomers = Math.max(0, totalCustomers - activeCustomers);
+    }
+    
+    const result = {
+      totalCustomers: Number(totalCustomers) || 0,
+      activeCustomers: Number(activeCustomers) || 0,
+      inactiveCustomers: Number(inactiveCustomers) || 0
+    };
+    
+    console.log(`✅ Final stats:`, result);
+    
+    res.json({
+      success: true,
+      data: result
+    });
+  } catch (error) {
+    console.error('❌ Error fetching client stats:', error);
+    console.error('❌ Error message:', error.message);
+    console.error('❌ Error stack:', error.stack);
+    console.error('❌ Error name:', error.name);
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error',
+      details: error.message || 'Unknown error'
+    });
+  }
+});
+
+// Import clients from Excel/CSV
+app.post('/api/clients/import', authenticateToken, setupBusinessDatabase, requireManager, async (req, res) => {
+  try {
+    console.log('🔍 Client import request received');
+    const { Client } = req.businessModels;
+    const { clients, mapping, updateExisting } = req.body;
+
+    if (!clients || !Array.isArray(clients) || clients.length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'No clients data provided'
+      });
+    }
+
+    if (!mapping || typeof mapping !== 'object') {
+      return res.status(400).json({
+        success: false,
+        error: 'Column mapping is required'
+      });
+    }
+
+    console.log(`📊 Processing ${clients.length} clients for import`);
+
+    // Robust Excel date parser: supports numbers (Excel serial), and common string formats
+    const parseExcelDate = (input) => {
+      if (!input && input !== 0) return undefined
+      // If number: treat as Excel serial date (days since 1899-12-30)
+      if (typeof input === 'number') {
+        const excelEpoch = new Date(Date.UTC(1899, 11, 30))
+        const ms = input * 24 * 60 * 60 * 1000
+        const d = new Date(excelEpoch.getTime() + ms)
+        return isNaN(d.getTime()) ? undefined : d
+      }
+      // Trim string
+      const str = String(input).trim()
+      if (!str) return undefined
+      // Handle dd/mm/yyyy or dd-mm-yyyy
+      const dmY = str.match(/^([0-3]?\d)[\/-]([0-1]?\d)[\/-](\d{2,4})$/)
+      if (dmY) {
+        let [ , dd, mm, yyyy ] = dmY
+        if (yyyy.length === 2) yyyy = String(2000 + parseInt(yyyy, 10))
+        const iso = `${yyyy.padStart(4,'0')}-${mm.padStart(2,'0')}-${dd.padStart(2,'0')}`
+        const d = new Date(iso)
+        return isNaN(d.getTime()) ? undefined : d
+      }
+      // Handle yyyy-mm-dd or yyyy/mm/dd
+      const yMd = str.match(/^(\d{4})[\/-]([0-1]?\d)[\/-]([0-3]?\d)$/)
+      if (yMd) {
+        const iso = `${yMd[1]}-${String(yMd[2]).padStart(2,'0')}-${String(yMd[3]).padStart(2,'0')}`
+        const d = new Date(iso)
+        return isNaN(d.getTime()) ? undefined : d
+      }
+      // Fallback to Date.parse
+      const parsed = new Date(str)
+      return isNaN(parsed.getTime()) ? undefined : parsed
+    }
+
+    const results = {
+      success: [],
+      errors: [],
+      skipped: []
+    };
+
+    // Process each client
+    for (let i = 0; i < clients.length; i++) {
+      const clientData = clients[i];
+      const rowNumber = (clientData._rowIndex || i + 1) + 1; // Excel row number (accounting for header)
+
+      try {
+        // Map the data according to the mapping
+        const mappedData = {};
+        Object.keys(mapping).forEach(excelColumn => {
+          const clientField = mapping[excelColumn];
+          if (clientField && clientField !== 'none') {
+            mappedData[clientField] = clientData[excelColumn];
+          }
+        });
+
+        // Validate required fields (if updating existing, only phone is mandatory)
+        if ((!mappedData.name && !updateExisting) || !mappedData.phone) {
+          results.errors.push({
+            row: rowNumber,
+            error: 'Name and phone are required',
+            data: mappedData
+          });
+          continue;
+        }
+
+        // Normalize name and phone for duplicate check
+        const normalizedName = String(mappedData.name).trim();
+        const normalizedPhone = String(mappedData.phone).trim().replace(/\D/g, ''); // Remove non-digits
+
+        if (!normalizedPhone || normalizedPhone.length < 10) {
+          results.errors.push({
+            row: rowNumber,
+            error: 'Phone number must be at least 10 digits',
+            data: mappedData
+          });
+          continue;
+        }
+
+        // Check if client already exists (by phone number). Try exact and last 10 digits match
+        const last10 = normalizedPhone.slice(-10)
+        let existingClient = await Client.findOne({ phone: normalizedPhone })
+        if (!existingClient && last10) {
+          existingClient = await Client.findOne({ phone: { $regex: new RegExp(`${last10}$`) } })
+        }
+
+        if (existingClient) {
+          if (updateExisting) {
+            // Prepare fields to update: only those provided and mapped
+            const updateDoc = {};
+            if (mappedData.lastVisit) {
+            const lv = parseExcelDate(mappedData.lastVisit);
+              if (lv) updateDoc.lastVisit = lv;
+            }
+            if (mappedData.totalSpent !== undefined && mappedData.totalSpent !== null && mappedData.totalSpent !== '') {
+              const ts = parseFloat(mappedData.totalSpent);
+              if (!isNaN(ts)) updateDoc.totalSpent = ts;
+            }
+            if (mappedData.visits !== undefined && mappedData.visits !== null && mappedData.visits !== '') {
+              const vs = parseInt(mappedData.visits);
+              if (!isNaN(vs)) updateDoc.totalVisits = vs;
+            }
+            if (mappedData.dob) {
+            const d = parseExcelDate(mappedData.dob);
+              if (d) updateDoc.dob = d;
+            }
+            if (mappedData.gender) {
+              const g = String(mappedData.gender).toLowerCase().trim();
+              if (['male','female','other'].includes(g)) updateDoc.gender = g;
+            }
+            if (mappedData.email) updateDoc.email = String(mappedData.email).trim().toLowerCase();
+
+            if (Object.keys(updateDoc).length === 0) {
+              results.skipped.push({ row: rowNumber, reason: 'No updatable fields provided', data: mappedData });
+              continue;
+            }
+
+            const updated = await Client.findByIdAndUpdate(existingClient._id, updateDoc, { new: true });
+            results.success.push({ row: rowNumber, data: { id: updated._id, name: updated.name, phone: updated.phone }, updated: true });
+            continue;
+          } else {
+            results.skipped.push({
+              row: rowNumber,
+              reason: 'Client with this phone number already exists',
+              data: mappedData
+            });
+            continue;
+          }
+        }
+
+        // Prepare client data
+        const clientToCreate = {
+          name: normalizedName,
+          phone: normalizedPhone,
+          email: mappedData.email ? String(mappedData.email).trim().toLowerCase() : undefined,
+          gender: mappedData.gender ? String(mappedData.gender).toLowerCase().trim() : undefined,
+          totalVisits: mappedData.visits ? parseInt(mappedData.visits) || 0 : 0,
+          totalSpent: mappedData.totalSpent ? parseFloat(mappedData.totalSpent) || 0 : 0,
+          status: 'active',
+          branchId: req.user.branchId
+        };
+
+        // Parse date of birth
+        if (mappedData.dob) {
+          const dobDate = parseExcelDate(mappedData.dob);
+          if (dobDate) clientToCreate.dob = dobDate;
+        }
+
+        // Parse last visit date
+        if (mappedData.lastVisit) {
+          const lastVisitDate = parseExcelDate(mappedData.lastVisit);
+          if (lastVisitDate) clientToCreate.lastVisit = lastVisitDate;
+        }
+
+        // Validate gender if provided
+        if (clientToCreate.gender && !['male', 'female', 'other'].includes(clientToCreate.gender)) {
+          clientToCreate.gender = undefined; // Invalid gender, skip it
+        }
+
+        // Create new client
+        const newClient = new Client(clientToCreate);
+        const savedClient = await newClient.save();
+
+        results.success.push({
+          row: rowNumber,
+          data: {
+            id: savedClient._id,
+            name: savedClient.name,
+            phone: savedClient.phone
+          }
+        });
+
+      } catch (error) {
+        console.error(`Error processing client row ${rowNumber}:`, error);
+        results.errors.push({
+          row: rowNumber,
+          error: error.message || 'Failed to create client',
+          data: clientData
+        });
+      }
+    }
+
+    console.log(`📊 Import completed: ${results.success.length} success, ${results.errors.length} errors, ${results.skipped.length} skipped`);
+
+    res.json({
+      success: true,
+      data: {
+        totalProcessed: clients.length,
+        successful: results.success.length,
+        errors: results.errors.length,
+        skipped: results.skipped.length,
+        results: {
+          success: results.success,
+          errors: results.errors,
+          skipped: results.skipped
+        }
+      }
+    });
+
+  } catch (error) {
+    console.error('Error importing clients:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error during import'
+    });
+  }
+});
+
 // Services routes
 app.get('/api/services', authenticateToken, setupBusinessDatabase, requireStaff, async (req, res) => {
   try {
@@ -1438,7 +1854,7 @@ app.get('/api/services', authenticateToken, setupBusinessDatabase, requireStaff,
     const services = await Service.find(query)
       .skip((pageNum - 1) * limitNum)
       .limit(limitNum)
-      .sort({ createdAt: -1 });
+      .sort({ category: 1, name: 1 }); // Sort by category alphabetically, then by name
 
     console.log('✅ Services found:', services.length);
     res.json({
@@ -1567,6 +1983,186 @@ app.delete('/api/services/:id', authenticateToken, setupBusinessDatabase, requir
   }
 });
 
+// Bulk delete services
+app.delete('/api/services', authenticateToken, setupBusinessDatabase, requireAdmin, async (req, res) => {
+  try {
+    const { Service } = req.businessModels;
+    
+    // Delete all services for this branch
+    const result = await Service.deleteMany({ branchId: req.user.branchId });
+    
+    console.log(`✅ Deleted ${result.deletedCount} services for branch ${req.user.branchId}`);
+    
+    res.json({
+      success: true,
+      message: `Successfully deleted ${result.deletedCount} services`,
+      deletedCount: result.deletedCount
+    });
+  } catch (error) {
+    console.error('Error deleting all services:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error'
+    });
+  }
+});
+
+// Import services from Excel/CSV
+app.post('/api/services/import', authenticateToken, setupBusinessDatabase, requireManager, async (req, res) => {
+  try {
+    console.log('🔍 Service import request received');
+    const { Service } = req.businessModels;
+    const { services, mapping } = req.body;
+
+    if (!services || !Array.isArray(services) || services.length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'No services data provided'
+      });
+    }
+
+    if (!mapping || typeof mapping !== 'object') {
+      return res.status(400).json({
+        success: false,
+        error: 'Column mapping is required'
+      });
+    }
+
+    console.log(`📊 Processing ${services.length} services for import`);
+
+    const results = {
+      success: [],
+      errors: [],
+      skipped: []
+    };
+
+    // Process each service
+    for (let i = 0; i < services.length; i++) {
+      const serviceData = services[i];
+      const rowNumber = i + 1;
+
+      try {
+        // Map the data according to the mapping
+        const mappedData = {};
+        Object.keys(mapping).forEach(excelColumn => {
+          const serviceField = mapping[excelColumn];
+          if (serviceField && serviceField !== 'none') {
+            mappedData[serviceField] = serviceData[excelColumn];
+          }
+        });
+
+        // Validate required fields (price can be 0, so check for undefined/null/empty string)
+        if (!mappedData.name || !mappedData.category || !mappedData.duration || 
+            mappedData.price === undefined || mappedData.price === null || mappedData.price === '') {
+          results.errors.push({
+            row: rowNumber,
+            error: 'Name, category, duration, and price are required',
+            data: mappedData
+          });
+          continue;
+        }
+
+        // Convert to string and normalize name and category for duplicate check
+        const normalizedName = String(mappedData.name).trim().toLowerCase();
+        const normalizedCategory = String(mappedData.category).trim().toLowerCase();
+
+        // Check if service already exists (by normalized name and category)
+        const existingService = await Service.findOne({
+          name: { $regex: new RegExp(`^${normalizedName}$`, 'i') },
+          category: { $regex: new RegExp(`^${normalizedCategory}$`, 'i') },
+          branchId: req.user.branchId
+        });
+
+        if (existingService) {
+          results.skipped.push({
+            row: rowNumber,
+            reason: 'Service already exists',
+            data: mappedData
+          });
+          continue;
+        }
+
+        // Validate duration and price are numbers
+        const duration = parseInt(mappedData.duration);
+        const price = parseFloat(mappedData.price);
+
+        if (isNaN(duration) || duration < 1) {
+          results.errors.push({
+            row: rowNumber,
+            error: 'Duration must be a positive number (in minutes)',
+            data: mappedData
+          });
+          continue;
+        }
+
+        // Price can be 0 or greater (will be adjusted at billing time)
+        if (isNaN(price) || price < 0) {
+          results.errors.push({
+            row: rowNumber,
+            error: 'Price must be a valid number (0 or greater)',
+            data: mappedData
+          });
+          continue;
+        }
+
+        // Prepare service data
+        const serviceToCreate = {
+          name: String(mappedData.name).trim(),
+          category: String(mappedData.category).trim(),
+          duration: duration,
+          price: price,
+          description: mappedData.description ? String(mappedData.description).trim() : '',
+          branchId: req.user.branchId,
+          isActive: true
+        };
+
+        // Create the service
+        const newService = new Service(serviceToCreate);
+        const savedService = await newService.save();
+
+        results.success.push({
+          row: rowNumber,
+          service: savedService
+        });
+
+        console.log(`✅ Service imported successfully: ${savedService.name}`);
+
+      } catch (error) {
+        console.error(`❌ Error importing service at row ${rowNumber}:`, error);
+        results.errors.push({
+          row: rowNumber,
+          error: error.message || 'Unknown error occurred',
+          data: serviceData
+        });
+      }
+    }
+
+    console.log(`📊 Import completed: ${results.success.length} success, ${results.errors.length} errors, ${results.skipped.length} skipped`);
+
+    res.json({
+      success: true,
+      data: {
+        totalProcessed: services.length,
+        successful: results.success.length,
+        errors: results.errors.length,
+        skipped: results.skipped.length,
+        results: {
+          success: results.success,
+          errors: results.errors,
+          skipped: results.skipped
+        }
+      }
+    });
+
+  } catch (error) {
+    console.error('Error importing services:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error during import'
+    });
+  }
+});
+
 // Products routes
 app.get('/api/products', authenticateToken, setupBusinessDatabase, requireStaff, async (req, res) => {
   try {
@@ -1591,7 +2187,7 @@ app.get('/api/products', authenticateToken, setupBusinessDatabase, requireStaff,
     const products = await Product.find(query)
       .skip((pageNum - 1) * limitNum)
       .limit(limitNum)
-      .sort({ createdAt: -1 });
+      .sort({ category: 1, name: 1 }); // Sort by category alphabetically, then by name
 
     console.log('✅ Products found:', products.length);
     res.json({
@@ -1801,6 +2397,30 @@ app.put('/api/products/:id', authenticateToken, setupBusinessDatabase, requireMa
   }
 });
 
+// Bulk delete all products
+app.delete('/api/products', authenticateToken, setupBusinessDatabase, requireAdmin, async (req, res) => {
+  try {
+    const { Product } = req.businessModels;
+    
+    // Delete all products for this branch
+    const result = await Product.deleteMany({ branchId: req.user.branchId });
+    
+    console.log(`✅ Deleted ${result.deletedCount} products for branch ${req.user.branchId}`);
+    
+    res.json({
+      success: true,
+      message: `Successfully deleted ${result.deletedCount} products`,
+      deletedCount: result.deletedCount
+    });
+  } catch (error) {
+    console.error('Error deleting all products:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error'
+    });
+  }
+});
+
 app.delete('/api/products/:id', authenticateToken, setupBusinessDatabase, requireAdmin, async (req, res) => {
   try {
     const { Product } = req.businessModels;
@@ -1822,6 +2442,199 @@ app.delete('/api/products/:id', authenticateToken, setupBusinessDatabase, requir
     res.status(500).json({
       success: false,
       error: 'Internal server error'
+    });
+  }
+});
+
+// Import products from Excel/CSV data
+app.post('/api/products/import', authenticateToken, setupBusinessDatabase, requireManager, async (req, res) => {
+  try {
+    console.log('🔍 Product import request received');
+    const { Product, InventoryTransaction } = req.businessModels;
+    const { products, mapping } = req.body;
+
+    if (!products || !Array.isArray(products) || products.length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'No products data provided'
+      });
+    }
+
+    if (!mapping || typeof mapping !== 'object') {
+      return res.status(400).json({
+        success: false,
+        error: 'Column mapping is required'
+      });
+    }
+
+    console.log(`📊 Processing ${products.length} products for import`);
+
+    const results = {
+      success: [],
+      errors: [],
+      skipped: []
+    };
+
+    // Process each product
+    for (let i = 0; i < products.length; i++) {
+      const productData = products[i];
+      const rowNumber = i + 1;
+
+      try {
+        // Map the data according to the mapping
+        const mappedData = {};
+        Object.keys(mapping).forEach(excelColumn => {
+          const productField = mapping[excelColumn];
+          if (productField && productField !== 'none') {
+            mappedData[productField] = productData[excelColumn];
+          }
+        });
+
+        // Validate required fields
+        if (!mappedData.name || !mappedData.category) {
+          results.errors.push({
+            row: rowNumber,
+            error: 'Name and category are required',
+            data: mappedData
+          });
+          continue;
+        }
+
+        // Convert to string and normalize name and category for duplicate check
+        const normalizedName = String(mappedData.name).trim().toLowerCase();
+        const normalizedCategory = String(mappedData.category).trim().toLowerCase();
+        
+        // Normalize productType (handle case variations: Retail, RETAIL, retail, etc.)
+        let normalizedProductType = 'retail'; // default
+        if (mappedData.productType) {
+          const productTypeStr = String(mappedData.productType).trim().toLowerCase();
+          if (['retail', 'service', 'both'].includes(productTypeStr)) {
+            normalizedProductType = productTypeStr;
+          } else {
+            // Handle variations like "Retail", "RETAIL", "Retail Product", etc.
+            if (productTypeStr.includes('retail') && !productTypeStr.includes('service') && !productTypeStr.includes('both')) {
+              normalizedProductType = 'retail';
+            } else if (productTypeStr.includes('service') && !productTypeStr.includes('retail') && !productTypeStr.includes('both')) {
+              normalizedProductType = 'service';
+            } else if (productTypeStr.includes('both')) {
+              normalizedProductType = 'both';
+            }
+          }
+          console.log(`📦 Product "${mappedData.name}": productType "${mappedData.productType}" normalized to "${normalizedProductType}"`);
+        } else {
+          console.log(`📦 Product "${mappedData.name}": No productType specified, defaulting to "retail"`);
+        }
+
+        // Check if product already exists (by normalized name, category, AND productType)
+        // Products with same name/category but different type are NOT duplicates
+        const existingProduct = await Product.findOne({
+          name: { $regex: new RegExp(`^${normalizedName}$`, 'i') },
+          category: { $regex: new RegExp(`^${normalizedCategory}$`, 'i') },
+          productType: normalizedProductType,
+          branchId: req.user.branchId
+        });
+
+        if (existingProduct) {
+          results.skipped.push({
+            row: rowNumber,
+            reason: 'Product already exists',
+            data: mappedData
+          });
+          continue;
+        }
+
+        // Prepare product data
+        const productToCreate = {
+          name: mappedData.name,
+          category: mappedData.category,
+          price: mappedData.price ? parseFloat(mappedData.price) : (normalizedProductType === 'service' ? 0 : 0),
+          stock: mappedData.stock ? parseInt(mappedData.stock) : 0,
+          sku: mappedData.sku && mappedData.sku.trim() !== '' ? mappedData.sku.trim() : undefined,
+          supplier: mappedData.supplier || '',
+          description: mappedData.description || '',
+          taxCategory: mappedData.taxCategory || 'standard',
+          productType: normalizedProductType, // Use normalized productType from above
+          branchId: req.user.branchId,
+          isActive: true
+        };
+
+        // Validate product type (already normalized above, but double-check)
+        if (!['retail', 'service', 'both'].includes(productToCreate.productType)) {
+          console.warn(`⚠️ Invalid productType "${mappedData.productType}", defaulting to "retail"`);
+          productToCreate.productType = 'retail';
+        }
+
+        // Validate tax category
+        if (!['essential', 'intermediate', 'standard', 'luxury', 'exempt'].includes(productToCreate.taxCategory)) {
+          productToCreate.taxCategory = 'standard';
+        }
+
+        // Create the product
+        const newProduct = new Product(productToCreate);
+        const savedProduct = await newProduct.save();
+
+        // Create inventory transaction if stock > 0
+        if (savedProduct.stock > 0) {
+          const inventoryTransaction = new InventoryTransaction({
+            productId: savedProduct._id,
+            productName: savedProduct.name,
+            transactionType: 'restock', // Changed from 'in' to 'restock'
+            quantity: savedProduct.stock,
+            previousStock: 0,
+            newStock: savedProduct.stock,
+            unitCost: savedProduct.price || 0,
+            totalValue: (savedProduct.price || 0) * savedProduct.stock,
+            referenceType: 'product_edit', // Changed from 'product_import' to 'product_edit'
+            referenceId: savedProduct._id.toString(),
+            referenceNumber: `IMPORT-${savedProduct._id.toString().slice(-6)}`,
+            reason: 'Product imported via Excel/CSV',
+            processedBy: req.user.name || req.user.email || 'System',
+            branchId: req.user.branchId
+          });
+
+          await inventoryTransaction.save();
+          console.log(`✅ Inventory transaction created for imported product ${savedProduct.name}: +${savedProduct.stock} units`);
+        }
+
+        results.success.push({
+          row: rowNumber,
+          product: savedProduct
+        });
+
+        console.log(`✅ Product imported successfully: ${savedProduct.name}`);
+
+      } catch (error) {
+        console.error(`❌ Error importing product at row ${rowNumber}:`, error);
+        results.errors.push({
+          row: rowNumber,
+          error: error.message || 'Unknown error occurred',
+          data: productData
+        });
+      }
+    }
+
+    console.log(`📊 Import completed: ${results.success.length} success, ${results.errors.length} errors, ${results.skipped.length} skipped`);
+
+    res.json({
+      success: true,
+      data: {
+        totalProcessed: products.length,
+        successful: results.success.length,
+        errors: results.errors.length,
+        skipped: results.skipped.length,
+        results: {
+          success: results.success,
+          errors: results.errors,
+          skipped: results.skipped
+        }
+      }
+    });
+
+  } catch (error) {
+    console.error('Error importing products:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error during import'
     });
   }
 });
@@ -2159,6 +2972,30 @@ app.get('/api/inventory/transactions', authenticateToken, setupBusinessDatabase,
     });
   } catch (error) {
     console.error('Error fetching inventory transactions:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error'
+    });
+  }
+});
+
+// Delete all inventory transactions (Reset transaction log)
+app.delete('/api/inventory/transactions', authenticateToken, setupBusinessDatabase, requireAdmin, async (req, res) => {
+  try {
+    const { InventoryTransaction } = req.businessModels;
+    
+    // Delete all inventory transactions for this business
+    const result = await InventoryTransaction.deleteMany({});
+    
+    console.log(`✅ Deleted ${result.deletedCount} inventory transactions for branch ${req.user.branchId}`);
+    
+    res.json({
+      success: true,
+      message: `Successfully deleted ${result.deletedCount} inventory transactions`,
+      deletedCount: result.deletedCount
+    });
+  } catch (error) {
+    console.error('Error deleting inventory transactions:', error);
     res.status(500).json({
       success: false,
       error: 'Internal server error'
