@@ -1,14 +1,13 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import Link from "next/link"
-import { PlusCircle, Search, Users, UserCheck, UserX, TrendingUp, Download, FileText, FileSpreadsheet, ChevronDown } from "lucide-react"
+import { PlusCircle, Search, Download, FileText, FileSpreadsheet, ChevronDown, Users } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ClientsTable } from "@/components/clients/clients-table"
+import { ClientStatsCards } from "@/components/clients/client-stats-cards"
 import { clientStore, type Client } from "@/lib/client-store"
-import { SalesAPI } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import jsPDF from "jspdf"
@@ -21,12 +20,7 @@ export function ClientsListPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [clients, setClients] = useState<Client[]>([])
   const [filteredClients, setFilteredClients] = useState<Client[]>([])
-  const [stats, setStats] = useState({
-    totalCustomers: 0,
-    activeCustomers: 0,
-    inactiveCustomers: 0
-  })
-  const [isLoadingStats, setIsLoadingStats] = useState(true)
+  const [statsFilter, setStatsFilter] = useState<"all" | "active" | "inactive">("all")
 
   // Subscribe to client store changes and force reload on mount
   useEffect(() => {
@@ -42,96 +36,85 @@ export function ClientsListPage() {
     return unsubscribe
   }, [])
 
-  // Calculate stats whenever clients change
-  useEffect(() => {
-    const calculateStats = async () => {
-      if (clients.length === 0) {
-        setStats({ totalCustomers: 0, activeCustomers: 0, inactiveCustomers: 0 })
-        setIsLoadingStats(false)
-        return
-      }
+  // Stats are calculated by ClientStatsCards component from the clients array
 
-      setIsLoadingStats(true)
-      
-      try {
-        const now = new Date()
-        const fourMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 4, now.getDate())
-        
-        const totalCustomers = clients.length
-        const activeCustomers = clients.filter(client => client.status === 'active').length
-        
-        // Check recent bill activity for each customer
-        let inactiveCustomers = 0
-        
-        for (const client of clients) {
-          try {
-            // Get recent sales for this customer
-            const salesResponse = await SalesAPI.getByClient(client.name)
-            
-            if (salesResponse.success && salesResponse.data && salesResponse.data.length > 0) {
-              // Find the most recent sale
-              const recentSales = salesResponse.data
-                .filter((sale: any) => sale.date) // Filter out sales without dates
-                .sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime())
-              
-              if (recentSales.length > 0) {
-                const mostRecentSale = recentSales[0]
-                const lastSaleDate = new Date(mostRecentSale.date)
-                
-                // If the most recent sale is older than 4 months, customer is inactive
-                if (lastSaleDate < fourMonthsAgo) {
-                  inactiveCustomers++
-                }
-              } else {
-                // No sales with dates, consider inactive
-                inactiveCustomers++
-              }
-            } else {
-              // No sales found, consider inactive
-              inactiveCustomers++
-            }
-          } catch (error) {
-            console.error(`Error checking sales for client ${client.name}:`, error)
-            // If we can't check sales, consider inactive
-            inactiveCustomers++
-          }
+  // Calculate three months ago for filtering (normalize to start of day for accurate comparison)
+  const threeMonthsAgo = useMemo(() => {
+    const date = new Date()
+    date.setMonth(date.getMonth() - 3)
+    date.setHours(0, 0, 0, 0) // Normalize to start of day
+    return date
+  }, [])
+
+  // Filter clients based on stats filter and search query
+  const displayClients = useMemo(() => {
+    let filtered = clients
+
+    // Apply stats filter (all/active/inactive)
+    // Use only lastVisit (database value) for filtering, not realLastVisit (async populated)
+    // This ensures consistent filtering regardless of when realLastVisit is populated
+    if (statsFilter === "active") {
+      filtered = clients.filter((client) => {
+        const lastVisit = client.lastVisit // Use only database lastVisit for filtering
+        if (!lastVisit) return false
+        const lastVisitDate = new Date(lastVisit)
+        if (isNaN(lastVisitDate.getTime())) return false
+        // Normalize to start of day for comparison
+        lastVisitDate.setHours(0, 0, 0, 0)
+        const isActive = lastVisitDate >= threeMonthsAgo
+        return isActive
+      })
+    } else if (statsFilter === "inactive") {
+      filtered = clients.filter((client) => {
+        const lastVisit = client.lastVisit // Use only database lastVisit for filtering
+        if (!lastVisit) {
+          return true // No last visit = inactive
         }
-
-        setStats({
-          totalCustomers,
-          activeCustomers,
-          inactiveCustomers
-        })
-      } catch (error) {
-        console.error('Error calculating stats:', error)
-        // Fallback to basic stats
-        setStats({
-          totalCustomers: clients.length,
-          activeCustomers: clients.filter(client => client.status === 'active').length,
-          inactiveCustomers: 0
-        })
-      } finally {
-        setIsLoadingStats(false)
-      }
+        const lastVisitDate = new Date(lastVisit)
+        if (isNaN(lastVisitDate.getTime())) {
+          return true // Invalid date = inactive
+        }
+        // Normalize to start of day for comparison
+        lastVisitDate.setHours(0, 0, 0, 0)
+        const isInactive = lastVisitDate < threeMonthsAgo
+        return isInactive
+      })
     }
 
-    calculateStats()
-  }, [clients])
+    // Apply search query
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase()
+      filtered = filtered.filter((client) => {
+        const name = client.name?.toLowerCase() || ""
+        const phone = client.phone?.toLowerCase() || ""
+        const email = client.email?.toLowerCase() || ""
+        return name.includes(query) || phone.includes(query) || email.includes(query)
+      })
+    }
 
-  // Update filtered clients when search query or clients change
+    return filtered
+  }, [clients, statsFilter, searchQuery, threeMonthsAgo])
+
+  // Update filtered clients when displayClients changes
   useEffect(() => {
-    const updateFilteredClients = async () => {
-      if (!searchQuery.trim()) {
-        setFilteredClients(clients)
-        return
-      }
+    setFilteredClients(displayClients)
+    console.log('📊 Filter updated:', { 
+      statsFilter, 
+      totalClients: clients.length, 
+      filteredClients: displayClients.length,
+      sampleFiltered: displayClients.slice(0, 3).map(c => ({
+        name: c.name,
+        lastVisit: (c as any).realLastVisit || c.lastVisit,
+        hasRealLastVisit: !!(c as any).realLastVisit
+      }))
+    })
+  }, [displayClients, statsFilter, clients.length])
 
-      const searchResults = await clientStore.searchClients(searchQuery)
-      setFilteredClients(searchResults)
-    }
-
-    updateFilteredClients()
-  }, [searchQuery, clients])
+  // Handle filter change from stats cards
+  const handleFilterChange = (filter: "all" | "active" | "inactive") => {
+    console.log('🔄 Stats card clicked, changing filter to:', filter)
+    setStatsFilter(filter)
+  }
 
   // Listen for client-added event (from import)
   useEffect(() => {
@@ -159,10 +142,9 @@ export function ClientsListPage() {
       doc.setFontSize(14)
       doc.text("Summary", 14, 50)
       doc.setFontSize(10)
-      doc.text(`Total Customers: ${stats.totalCustomers}`, 14, 60)
-      doc.text(`Active Customers: ${stats.activeCustomers}`, 14, 70)
-      doc.text(`Inactive Customers: ${stats.inactiveCustomers}`, 14, 80)
-      doc.text(`Search Query: ${searchQuery || "All clients"}`, 14, 90)
+      doc.text(`Total Customers: ${clients.length}`, 14, 60)
+      doc.text(`Filter: ${statsFilter === "all" ? "All" : statsFilter === "active" ? "Active" : "Inactive"}`, 14, 70)
+      doc.text(`Search Query: ${searchQuery || "All clients"}`, 14, 80)
       
       let yPosition = 110
       
@@ -240,9 +222,8 @@ export function ClientsListPage() {
       
       // Add summary sheet
       const summaryData = [
-        { Metric: "Total Customers", Value: stats.totalCustomers },
-        { Metric: "Active Customers", Value: stats.activeCustomers },
-        { Metric: "Inactive Customers", Value: stats.inactiveCustomers },
+        { Metric: "Total Customers", Value: clients.length },
+        { Metric: "Filter", Value: statsFilter === "all" ? "All" : statsFilter === "active" ? "Active" : "Inactive" },
         { Metric: "Search Query", Value: searchQuery || "All clients" },
         { Metric: "Generated Date", Value: format(new Date(), "MMM dd, yyyy 'at' h:mm a") }
       ]
@@ -344,86 +325,12 @@ export function ClientsListPage() {
               </div>
             </div>
 
-            {/* Stats Cards */}
-            <div className="grid gap-4 md:grid-cols-3">
-              <Card className="group transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl border-0 bg-gradient-to-br from-blue-50 to-indigo-100 overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-indigo-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
-                  <CardTitle className="text-sm font-medium text-blue-800">Total Customers</CardTitle>
-                  <div className="p-2 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-colors duration-300">
-                    <Users className="h-4 w-4 text-blue-600" />
-                  </div>
-                </CardHeader>
-                <CardContent className="relative z-10">
-                  <div className="text-3xl font-bold text-blue-900 mb-1">
-                    {isLoadingStats ? (
-                      <div className="w-8 h-8 bg-blue-200 rounded animate-pulse" />
-                    ) : (
-                      stats.totalCustomers
-                    )}
-                  </div>
-                  <p className="text-xs text-blue-600 font-medium">All registered clients</p>
-                  <div className="w-full bg-blue-200 rounded-full h-1 mt-3 overflow-hidden">
-                    <div className="bg-gradient-to-r from-blue-500 to-indigo-500 h-1 rounded-full transition-all duration-1000 ease-out animate-pulse" style={{ width: `${Math.min((stats.totalCustomers / 100) * 100, 100)}%` }} />
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="group transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl border-0 bg-gradient-to-br from-emerald-50 to-green-100 overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-r from-emerald-600/10 to-green-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
-                  <CardTitle className="text-sm font-medium text-emerald-800">Active Customers</CardTitle>
-                  <div className="p-2 bg-emerald-100 rounded-lg group-hover:bg-emerald-200 transition-colors duration-300">
-                    <UserCheck className="h-4 w-4 text-emerald-600" />
-                  </div>
-                </CardHeader>
-                <CardContent className="relative z-10">
-                  <div className="text-3xl font-bold text-emerald-900 mb-1">
-                    {isLoadingStats ? (
-                      <div className="w-8 h-8 bg-emerald-200 rounded animate-pulse" />
-                    ) : (
-                      stats.activeCustomers
-                    )}
-                  </div>
-                  <p className="text-xs text-emerald-600 font-medium">Currently active</p>
-                  <div className="w-full bg-emerald-200 rounded-full h-1 mt-3 overflow-hidden">
-                    <div className="bg-gradient-to-r from-emerald-500 to-green-500 h-1 rounded-full transition-all duration-1000 ease-out animate-pulse" style={{ width: `${stats.totalCustomers > 0 ? (stats.activeCustomers / stats.totalCustomers) * 100 : 0}%` }} />
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="group transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl border-0 bg-gradient-to-br from-amber-50 to-orange-100 overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-r from-amber-600/10 to-orange-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
-                  <CardTitle className="text-sm font-medium text-amber-800">Inactive Customers</CardTitle>
-                  <div className="p-2 bg-amber-100 rounded-lg group-hover:bg-amber-200 transition-colors duration-300">
-                    <UserX className="h-4 w-4 text-amber-600" />
-                  </div>
-                </CardHeader>
-                <CardContent className="relative z-10">
-                  <div className="text-3xl font-bold text-amber-900 mb-1">
-                    {isLoadingStats ? (
-                      <div className="w-8 h-8 bg-amber-200 rounded animate-pulse" />
-                    ) : (
-                      stats.inactiveCustomers
-                    )}
-                  </div>
-                  <p className="text-xs text-amber-600 font-medium">No visits in 4+ months</p>
-                  <div className="w-full bg-amber-200 rounded-full h-1 mt-3 overflow-hidden">
-                    <div className="bg-gradient-to-r from-amber-500 to-orange-500 h-1 rounded-full transition-all duration-1000 ease-out animate-pulse" style={{ width: `${stats.totalCustomers > 0 ? (stats.inactiveCustomers / stats.totalCustomers) * 100 : 0}%` }} />
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Loading Indicator */}
-            {isLoadingStats && (
-              <div className="text-center py-2">
-                <p className="text-sm text-muted-foreground">
-                  Calculating customer statistics from recent bill activity...
-                </p>
-              </div>
-            )}
+            {/* Stats Cards with Filters */}
+            <ClientStatsCards 
+              clients={clients}
+              activeFilter={statsFilter}
+              onFilterChange={handleFilterChange}
+            />
 
             {/* Enhanced Search Section */}
             <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
@@ -456,7 +363,7 @@ export function ClientsListPage() {
                     Clear Search
                   </Button>
                   <div className="text-sm text-gray-500">
-                    {clients.length} total clients
+                    {filteredClients.length} of {clients.length} clients
                   </div>
                 </div>
               </div>

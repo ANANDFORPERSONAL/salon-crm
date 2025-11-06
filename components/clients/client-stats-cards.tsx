@@ -13,14 +13,15 @@ interface ClientStatsCardsProps {
 }
 
 export function ClientStatsCards({ clients, activeFilter, onFilterChange }: ClientStatsCardsProps) {
-  // Calculate date 3 months ago from current date
+  // Calculate date 3 months ago from current date (normalize to start of day for accurate comparison)
   const threeMonthsAgo = useMemo(() => {
     const date = new Date()
     date.setMonth(date.getMonth() - 3)
+    date.setHours(0, 0, 0, 0) // Normalize to start of day
     return date
   }, [])
 
-  // Calculate stats
+  // Calculate stats (using same logic as filter)
   const stats = useMemo(() => {
     const totalCustomers = clients.length
     
@@ -28,8 +29,9 @@ export function ClientStatsCards({ clients, activeFilter, onFilterChange }: Clie
     let inactiveCustomers = 0
 
     clients.forEach((client) => {
-      // Use realLastVisit if available (from sales data), otherwise use lastVisit
-      const lastVisit = (client as any).realLastVisit || client.lastVisit
+      // Use only lastVisit (database value) for stats calculation to match filter logic
+      // realLastVisit is populated asynchronously and may not be available consistently
+      const lastVisit = client.lastVisit
 
       if (!lastVisit) {
         // No last visit means inactive
@@ -45,6 +47,9 @@ export function ClientStatsCards({ clients, activeFilter, onFilterChange }: Clie
         inactiveCustomers++
         return
       }
+
+      // Normalize to start of day for comparison (same as filter logic)
+      lastVisitDate.setHours(0, 0, 0, 0)
 
       // Active if last visit is within 3 months
       if (lastVisitDate >= threeMonthsAgo) {

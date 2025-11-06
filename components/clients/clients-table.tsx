@@ -1,7 +1,7 @@
 "use client"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef, useMemo } from "react"
 import {
   type ColumnDef,
   flexRender,
@@ -70,16 +70,42 @@ export function ClientsTable({ clients }: ClientsTableProps) {
   const [isImportOpen, setIsImportOpen] = useState(false)
   const [clientsWithStats, setClientsWithStats] = useState<Client[]>([])
   const [isLoadingStats, setIsLoadingStats] = useState(false)
+  const [pagination, setPagination] = useState({
+    pageIndex: 0,
+    pageSize: 10,
+  })
+  const prevClientsLengthRef = useRef<number>(0)
+  const prevClientsIdsRef = useRef<string>('')
+
+  // Reset clientsWithStats when clients prop actually changes (filter changed)
+  // Use a stable reference to avoid resetting on every render
+  useEffect(() => {
+    // Create a stable key from clients (length + IDs of first and last clients)
+    const clientsLength = clients.length
+    const clientsIds = clientsLength > 0 
+      ? `${clients[0]?._id || clients[0]?.id || ''}-${clients[clientsLength - 1]?._id || clients[clientsLength - 1]?.id || ''}`
+      : ''
+    
+    // Only reset if clients actually changed (different length or different first/last client)
+    if (prevClientsLengthRef.current !== clientsLength || prevClientsIdsRef.current !== clientsIds) {
+      prevClientsLengthRef.current = clientsLength
+      prevClientsIdsRef.current = clientsIds
+      setClientsWithStats([])
+      // Reset pagination to first page when filter changes
+      setPagination(prev => ({ ...prev, pageIndex: 0 }))
+    }
+  }, [clients])
 
   // Fetch real-time statistics for only the currently visible page (avoid thousands of requests)
-  const fetchClientStats = async () => {
+  // This function will be called from useEffect after table is created, so pageIndex/pageSize will be available
+  const fetchClientStats = async (currentPageIndex: number, currentPageSize: number) => {
     if (!user || clients.length === 0) return
 
     setIsLoadingStats(true)
-    const source = clientsWithStats.length > 0 ? clientsWithStats : clients
-    const start = pageIndex * pageSize
-    const end = Math.min(start + pageSize, source.length)
-    const visible = source.slice(start, end)
+    // Always use the clients prop (filtered clients from parent)
+    const start = currentPageIndex * currentPageSize
+    const end = Math.min(start + currentPageSize, clients.length)
+    const visible = clients.slice(start, end)
 
     const concurrency = 10
     const batches: typeof visible[] = []
@@ -111,8 +137,14 @@ export function ClientsTable({ clients }: ClientsTableProps) {
       })
     }
 
-    // Merge back into full list for the current window
-    const merged = source.map((c, idx) => (idx >= start && idx < end ? enriched[idx - start] : c))
+    // Merge enriched stats back into the full clients list
+    const merged = clients.map((c, idx) => {
+      if (idx >= start && idx < end) {
+        const enrichedIdx = idx - start
+        return enriched[enrichedIdx] || c
+      }
+      return c
+    })
     setClientsWithStats(merged)
     setIsLoadingStats(false)
   }
@@ -344,8 +376,50 @@ export function ClientsTable({ clients }: ClientsTableProps) {
       accessorKey: "status",
       header: "Status",
       cell: ({ row }) => {
-        const status = (row.getValue("status") as string) || "active"
-        const isActive = status === "active"
+        const client = row.original
+        // Calculate status based on lastVisit date (same logic as filter)
+        // Use only lastVisit (database value) to match filter logic, not realLastVisit
+        const now = new Date()
+        const threeMonthsAgo = new Date(now)
+        threeMonthsAgo.setMonth(now.getMonth() - 3)
+        threeMonthsAgo.setHours(0, 0, 0, 0) // Normalize to start of day
+        
+        // Use realLastVisit if available (from sales data), otherwise use lastVisit
+        // This matches what's displayed in the "Last Visit" column
+        const lastVisit = client.realLastVisit ?? client.lastVisit
+        let isActive = false
+        
+        if (lastVisit) {
+          const lastVisitDate = new Date(lastVisit)
+          if (!isNaN(lastVisitDate.getTime())) {
+            lastVisitDate.setHours(0, 0, 0, 0) // Normalize to start of day
+            
+            // Debug log for specific client (remove after debugging)
+            if (client.name === "Shivam") {
+              console.log('🔍 Status calculation for Shivam:', {
+                realLastVisit: client.realLastVisit,
+                lastVisit: client.lastVisit,
+                using: lastVisit,
+                lastVisitDate: lastVisitDate.toISOString(),
+                threeMonthsAgo: threeMonthsAgo.toISOString(),
+                now: now.toISOString(),
+                comparison: lastVisitDate >= threeMonthsAgo,
+                daysDiff: Math.floor((lastVisitDate.getTime() - threeMonthsAgo.getTime()) / (1000 * 60 * 60 * 24))
+              })
+            }
+            
+            if (lastVisitDate >= threeMonthsAgo) {
+              isActive = true
+            }
+          } else {
+            // Debug invalid date
+            if (client.name === "Shivam") {
+              console.warn('⚠️ Invalid date for Shivam:', lastVisit)
+            }
+          }
+        }
+        // If no lastVisit, client is inactive
+        
         return (
           <Badge 
             variant={isActive ? "default" : "secondary"}
@@ -421,27 +495,63 @@ export function ClientsTable({ clients }: ClientsTableProps) {
     },
   ]
 
+  // Use clientsWithStats if available (enriched with stats), otherwise use clients prop (filtered)
+  // Always use clients as base to maintain stable reference, and merge in stats when available
+  const tableData = useMemo(() => {
+    if (clientsWithStats.length > 0 && clientsWithStats.length === clients.length) {
+      // Merge stats into clients array to maintain stable reference
+      // Only merge if the enriched client has stats, otherwise use original
+      return clients.map((client, idx) => {
+        const enriched = clientsWithStats[idx]
+        // Only use enriched if it has real stats data
+        if (enriched && (enriched.realTotalVisits !== undefined || enriched.realTotalSpent !== undefined || enriched.realLastVisit !== undefined)) {
+          return enriched
+        }
+        return client
+      })
+    }
+    return clients
+  }, [clients, clientsWithStats])
+
   const table = useReactTable({
-    data: clientsWithStats.length > 0 ? clientsWithStats : clients,
+    data: tableData,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    state: {
+      pagination,
+    },
+    onPaginationChange: (updater) => {
+      // Ensure pagination updates are applied correctly
+      if (typeof updater === 'function') {
+        setPagination(prev => {
+          const newPagination = updater(prev)
+          console.log('📄 Pagination update:', { from: prev, to: newPagination })
+          return newPagination
+        })
+      } else {
+        console.log('📄 Pagination set:', updater)
+        setPagination(updater)
+      }
+    },
     initialState: {
       pagination: {
         pageSize: 10,
       },
     },
+    // Prevent automatic pagination reset when data changes
+    autoResetPageIndex: false,
   })
 
-  const pageSize = table.getState().pagination.pageSize
-  const pageIndex = table.getState().pagination.pageIndex
-  const totalRows = (clientsWithStats.length > 0 ? clientsWithStats : clients).length
+  const pageSize = pagination.pageSize
+  const pageIndex = pagination.pageIndex
+  const totalRows = clients.length // Always use the filtered clients count
   const startRow = totalRows === 0 ? 0 : pageIndex * pageSize + 1
   const endRow = Math.min(startRow + pageSize - 1, totalRows)
 
   // Fetch stats when data or pagination changes (now that pageIndex/pageSize exist)
   useEffect(() => {
-    fetchClientStats()
+    fetchClientStats(pageIndex, pageSize)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clients, user, pageIndex, pageSize])
 
@@ -555,7 +665,7 @@ export function ClientsTable({ clients }: ClientsTableProps) {
         <div className="px-6 py-4 bg-gray-50/50 border-t border-gray-200">
           <div className="flex items-center justify-between">
             <div className="text-sm text-gray-600">
-              Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
+              Page {pagination.pageIndex + 1} of {table.getPageCount()}
             </div>
             <div className="flex items-center space-x-2">
               <Button 
