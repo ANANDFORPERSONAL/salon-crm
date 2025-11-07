@@ -817,6 +817,28 @@ export class CommissionProfileAPI {
   }
 }
 
+export class GDPRAPI {
+  static async exportUserData(userId: string): Promise<ApiResponse<any>> {
+    const response = await apiClient.get(`/gdpr/export/${userId}`)
+    return response.data
+  }
+
+  static async deleteUserData(userId: string): Promise<ApiResponse<any>> {
+    const response = await apiClient.delete(`/gdpr/delete/${userId}`)
+    return response.data
+  }
+
+  static async getConsentStatus(userId: string): Promise<ApiResponse<any>> {
+    const response = await apiClient.get(`/gdpr/consent/${userId}`)
+    return response.data
+  }
+
+  static async updateConsent(userId: string, consent: any): Promise<ApiResponse<any>> {
+    const response = await apiClient.post(`/gdpr/consent/${userId}`, consent)
+    return response.data
+  }
+}
+
 // Export the main API client for direct use if needed
 export { apiClient }
 export default apiClient 

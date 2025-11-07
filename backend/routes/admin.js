@@ -446,7 +446,16 @@ router.put('/businesses/:id', setupMainDatabase, authenticateAdmin, async (req, 
       if (ownerInfo.lastName) ownerUpdate.lastName = ownerInfo.lastName;
       if (ownerInfo.email) ownerUpdate.email = ownerInfo.email;
       if (ownerInfo.phone) ownerUpdate.mobile = ownerInfo.phone;
-      
+      if (typeof ownerInfo.hasLoginAccess === 'boolean') ownerUpdate.hasLoginAccess = ownerInfo.hasLoginAccess;
+
+      if (ownerInfo.password && ownerInfo.password.trim()) {
+        ownerUpdate.password = await bcrypt.hash(ownerInfo.password, 10);
+        ownerUpdate.passwordUpdatedAt = new Date();
+        ownerUpdate.updatedAt = new Date();
+        // Ensure owner retains login access when password is changed
+        ownerUpdate.hasLoginAccess = true;
+      }
+
       if (Object.keys(ownerUpdate).length > 0) {
         // Update owner document in the main database (where owners are stored)
         const business = await Business.findById(req.params.id);
@@ -454,7 +463,11 @@ router.put('/businesses/:id', setupMainDatabase, authenticateAdmin, async (req, 
         if (business && business.owner) {
           // Update owner in the main database
           const { User } = req.mainModels;
-          await User.findByIdAndUpdate(business.owner, ownerUpdate, { new: true });
+          await User.findByIdAndUpdate(
+            business.owner,
+            { $set: ownerUpdate },
+            { new: true }
+          );
         }
       }
     }

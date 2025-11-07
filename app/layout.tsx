@@ -5,6 +5,7 @@ import "./globals.css"
 import { Toaster } from "@/components/ui/toaster"
 import { AuthProvider } from "@/lib/auth-context"
 import { AdminAuthProvider } from "@/lib/admin-auth-context"
+import { CookieConsentBanner } from "@/components/gdpr/cookie-consent-banner"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -26,6 +27,7 @@ export default function RootLayout({
           <AdminAuthProvider>
             {children}
             <Toaster />
+            <CookieConsentBanner />
           </AdminAuthProvider>
         </AuthProvider>
       </body>

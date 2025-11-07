@@ -4,7 +4,8 @@ import { useState, useRef, useEffect } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
-import { Camera, Save, Edit, X, Upload } from "lucide-react"
+import { Camera, Save, Edit, X, Upload, Download, Trash2, Shield, AlertTriangle } from "lucide-react"
+import { useSearchParams } from "next/navigation"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -14,7 +15,20 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "@/components/ui/use-toast"
 import { useAuth } from "@/lib/auth-context"
-import { UsersAPI } from "@/lib/api"
+import { UsersAPI, GDPRAPI } from "@/lib/api"
+import { ConsentManagement } from "@/components/gdpr/consent-management"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 
 const profileSchema = z.object({
   firstName: z.string().min(2, "First name must be at least 2 characters"),
@@ -24,13 +38,66 @@ const profileSchema = z.object({
 })
 
 export function ProfilePage() {
-  const { user, updateUser } = useAuth()
+  const { user, updateUser, logout } = useAuth()
+  const searchParams = useSearchParams()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isEditMode, setIsEditMode] = useState(false)
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [staffData, setStaffData] = useState<any>(null)
+  const [isExporting, setIsExporting] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const handleExportData = async () => {
+    if (!user?._id) return
+
+    setIsExporting(true)
+    try {
+      const response = await GDPRAPI.exportUserData(user._id)
+      if (response.success && response.data) {
+        // Create downloadable JSON file
+        const dataStr = JSON.stringify(response.data, null, 2)
+        const dataBlob = new Blob([dataStr], { type: 'application/json' })
+        const url = URL.createObjectURL(dataBlob)
+        const link = document.createElement('a')
+        link.href = url
+        link.download = `my-data-export-${new Date().toISOString().split('T')[0]}.json`
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        URL.revokeObjectURL(url)
+
+        toast({
+          title: "Data Export Successful",
+          description: "Your data has been downloaded successfully.",
+        })
+      } else {
+        throw new Error(response.error || "Failed to export data")
+      }
+    } catch (error) {
+      console.error("Data export error:", error)
+      toast({
+        title: "Export Failed",
+        description: "Failed to export your data. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsExporting(false)
+    }
+  }
+
+  // Check URL params for GDPR actions
+  useEffect(() => {
+    const action = searchParams.get('action')
+    if (action === 'export-data') {
+      handleExportData()
+    } else if (action === 'delete-account') {
+      setShowDeleteDialog(true)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams])
 
   const form = useForm<z.infer<typeof profileSchema>>({
     resolver: zodResolver(profileSchema),
@@ -176,6 +243,39 @@ export function ProfilePage() {
       })
     } finally {
       setIsSubmitting(false)
+    }
+  }
+
+  const handleDeleteAccount = async () => {
+    if (!user?._id) return
+
+    setIsDeleting(true)
+    try {
+      const response = await GDPRAPI.deleteUserData(user._id)
+      if (response.success) {
+        toast({
+          title: "Account Deletion Requested",
+          description: "Your account and data will be permanently deleted within 30 days.",
+        })
+        
+        // Logout user after deletion request
+        setTimeout(() => {
+          logout()
+          window.location.href = '/login'
+        }, 2000)
+      } else {
+        throw new Error(response.error || "Failed to delete account")
+      }
+    } catch (error) {
+      console.error("Account deletion error:", error)
+      toast({
+        title: "Deletion Failed",
+        description: "Failed to delete your account. Please contact support.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsDeleting(false)
+      setShowDeleteDialog(false)
     }
   }
 
@@ -378,6 +478,146 @@ export function ProfilePage() {
                 </Form>
               </CardContent>
             </Card>
+
+            {/* GDPR Data Rights Section */}
+            <Card className="border-blue-200 bg-blue-50/50">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Shield className="h-5 w-5 text-blue-600" />
+                  Your Data Rights (GDPR)
+                </CardTitle>
+                <CardDescription>
+                  Manage your personal data in accordance with GDPR regulations
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <Alert>
+                  <Shield className="h-4 w-4" />
+                  <AlertTitle>Your Privacy Rights</AlertTitle>
+                  <AlertDescription>
+                    Under GDPR, you have the right to access, export, and delete your personal data. 
+                    Learn more in our <a href="/privacy-policy" className="text-blue-600 hover:underline font-medium">Privacy Policy</a>.
+                  </AlertDescription>
+                </Alert>
+
+                <div className="grid gap-4 md:grid-cols-2">
+                  {/* Data Export */}
+                  <div className="p-4 border rounded-lg bg-white">
+                    <div className="flex items-start justify-between mb-3">
+                      <div>
+                        <h3 className="font-semibold flex items-center gap-2">
+                          <Download className="h-4 w-4 text-blue-600" />
+                          Export My Data
+                        </h3>
+                        <p className="text-sm text-gray-600 mt-1">
+                          Download all your personal data in JSON format (Right to Data Portability)
+                        </p>
+                      </div>
+                    </div>
+                    <Button
+                      onClick={handleExportData}
+                      disabled={isExporting}
+                      variant="outline"
+                      className="w-full"
+                    >
+                      {isExporting ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2" />
+                          Exporting...
+                        </>
+                      ) : (
+                        <>
+                          <Download className="mr-2 h-4 w-4" />
+                          Export Data
+                        </>
+                      )}
+                    </Button>
+                  </div>
+
+                  {/* Account Deletion */}
+                  <div className="p-4 border rounded-lg bg-white">
+                    <div className="flex items-start justify-between mb-3">
+                      <div>
+                        <h3 className="font-semibold flex items-center gap-2">
+                          <Trash2 className="h-4 w-4 text-red-600" />
+                          Delete My Account
+                        </h3>
+                        <p className="text-sm text-gray-600 mt-1">
+                          Permanently delete your account and all associated data (Right to Erasure)
+                        </p>
+                      </div>
+                    </div>
+                    <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className="w-full border-red-300 text-red-600 hover:bg-red-50"
+                        >
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          Delete Account
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle className="flex items-center gap-2">
+                            <AlertTriangle className="h-5 w-5 text-red-600" />
+                            Delete Account Permanently?
+                          </AlertDialogTitle>
+                          <AlertDialogDescription className="space-y-2">
+                            <p>
+                              This action cannot be undone. This will permanently delete your account and remove all 
+                              your data from our servers.
+                            </p>
+                            <p className="font-semibold text-red-600">
+                              All of the following will be deleted:
+                            </p>
+                            <ul className="list-disc list-inside space-y-1 ml-2 text-sm">
+                              <li>Your profile and personal information</li>
+                              <li>All associated client data (if you're the owner)</li>
+                              <li>Sales and transaction history</li>
+                              <li>Appointments and schedules</li>
+                              <li>All other account-related data</li>
+                            </ul>
+                            <p className="text-sm text-gray-600 mt-3">
+                              Data deletion will be completed within 30 days as per GDPR requirements.
+                            </p>
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={handleDeleteAccount}
+                            disabled={isDeleting}
+                            className="bg-red-600 hover:bg-red-700"
+                          >
+                            {isDeleting ? (
+                              <>
+                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                                Deleting...
+                              </>
+                            ) : (
+                              "Yes, Delete My Account"
+                            )}
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
+                </div>
+
+                <div className="pt-4 border-t">
+                  <p className="text-xs text-gray-500">
+                    Need help? Contact our Data Protection Officer at{" "}
+                    <a href="mailto:privacy@saloncrm.com" className="text-blue-600 hover:underline">
+                      privacy@saloncrm.com
+                    </a>
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Consent Management Section */}
+            <ConsentManagement />
           </div>
   )
 }

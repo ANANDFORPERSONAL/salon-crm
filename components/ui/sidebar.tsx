@@ -84,7 +84,22 @@ const SidebarProvider = React.forwardRef<
         }
 
         // This sets the cookie to keep the sidebar state.
-        document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`
+        // Check if user has consented to functional cookies
+        const consent = localStorage.getItem('gdpr-cookie-consent')
+        if (consent) {
+          try {
+            const consentData = JSON.parse(consent)
+            if (consentData.preferences?.functional !== false) {
+              document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`
+            }
+          } catch (e) {
+            // If consent parsing fails, set cookie anyway (necessary for functionality)
+            document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`
+          }
+        } else {
+          // No consent yet, set cookie anyway (necessary for functionality)
+          document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`
+        }
       },
       [setOpenProp, open]
     )

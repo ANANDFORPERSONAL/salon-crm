@@ -5409,6 +5409,266 @@ app.get('/api/inventory-transactions', authenticateToken, setupBusinessDatabase,
   }
 });
 
+// ==================== GDPR Compliance Endpoints ====================
+
+// Export user data (GDPR Right to Data Portability)
+app.get('/api/gdpr/export/:userId', authenticateToken, setupBusinessDatabase, async (req, res) => {
+  try {
+    const { userId } = req.params
+    const { User, Client, Sale, Appointment, Product, Service, Expense, Receipt, CashRegistry } = req.businessModels
+
+    // Verify user can only export their own data (unless admin)
+    if (req.user.role !== 'admin' && req.user._id?.toString() !== userId && req.user.id !== userId) {
+      return res.status(403).json({
+        success: false,
+        error: 'You can only export your own data'
+      })
+    }
+
+    // Find user
+    const user = await User.findById(userId)
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: 'User not found'
+      })
+    }
+
+    // Collect all user-related data
+    const exportData = {
+      exportDate: new Date().toISOString(),
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt
+      },
+      // If user is business owner/admin, include business data
+      businessData: null,
+      personalData: {
+        profile: {
+          firstName: user.firstName,
+          lastName: user.lastName,
+          mobile: user.mobile,
+          avatar: user.avatar
+        }
+      },
+      // Sales created by this user
+      salesCreated: [],
+      // Appointments assigned to this user
+      appointments: [],
+      // Clients (if user has access)
+      clients: [],
+      metadata: {
+        exportVersion: '1.0',
+        gdprCompliant: true
+      }
+    }
+
+    // Get sales created by this user
+    try {
+      const sales = await Sale.find({ createdBy: userId }).lean()
+      exportData.salesCreated = sales.map(sale => ({
+        id: sale._id,
+        date: sale.date,
+        clientName: sale.clientName,
+        total: sale.grossTotal,
+        items: sale.items,
+        paymentMode: sale.paymentMode
+      }))
+    } catch (err) {
+      console.error('Error fetching sales:', err)
+    }
+
+    // Get appointments assigned to this user
+    try {
+      const appointments = await Appointment.find({ 
+        $or: [
+          { assignedStaff: userId },
+          { createdBy: userId }
+        ]
+      }).lean()
+      exportData.appointments = appointments.map(apt => ({
+        id: apt._id,
+        clientName: apt.clientName,
+        serviceName: apt.serviceName,
+        date: apt.date,
+        time: apt.time,
+        status: apt.status
+      }))
+    } catch (err) {
+      console.error('Error fetching appointments:', err)
+    }
+
+    // If admin/owner, include business-wide data
+    if (req.user.role === 'admin' || req.user.role === 'manager') {
+      try {
+        const Business = req.businessModels.Business
+        const business = await Business.findOne({ _id: req.user.businessId })
+        if (business) {
+          exportData.businessData = {
+            businessName: business.name,
+            businessCode: business.code,
+            address: business.address,
+            phone: business.phone,
+            email: business.email
+          }
+        }
+      } catch (err) {
+        console.error('Error fetching business data:', err)
+      }
+    }
+
+    res.json({
+      success: true,
+      data: exportData
+    })
+  } catch (error) {
+    console.error('Error exporting user data:', error)
+    res.status(500).json({
+      success: false,
+      error: 'Failed to export user data'
+    })
+  }
+})
+
+// Delete user data (GDPR Right to Erasure / Right to be Forgotten)
+app.delete('/api/gdpr/delete/:userId', authenticateToken, setupBusinessDatabase, async (req, res) => {
+  try {
+    const { userId } = req.params
+    const { User, Client, Sale, Appointment } = req.businessModels
+
+    // Verify user can only delete their own data (unless admin)
+    if (req.user.role !== 'admin' && req.user._id?.toString() !== userId && req.user.id !== userId) {
+      return res.status(403).json({
+        success: false,
+        error: 'You can only delete your own account'
+      })
+    }
+
+    // Prevent deletion of last admin
+    const user = await User.findById(userId)
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: 'User not found'
+      })
+    }
+
+    if (user.role === 'admin') {
+      const adminCount = await User.countDocuments({ role: 'admin', businessId: user.businessId })
+      if (adminCount <= 1) {
+        return res.status(400).json({
+          success: false,
+          error: 'Cannot delete the last admin user. Please assign another admin first.'
+        })
+      }
+    }
+
+    // Mark user for deletion (soft delete with 30-day retention as per GDPR)
+    const deletionDate = new Date()
+    deletionDate.setDate(deletionDate.getDate() + 30) // 30 days retention
+
+    await User.findByIdAndUpdate(userId, {
+      deletedAt: new Date(),
+      deletionScheduledFor: deletionDate,
+      email: `deleted_${Date.now()}_${user.email}`, // Anonymize email
+      name: 'Deleted User',
+      isDeleted: true
+    })
+
+    // Anonymize sales created by this user (keep for business records but remove personal identifiers)
+    await Sale.updateMany(
+      { createdBy: userId },
+      { 
+        $set: { 
+          createdBy: null,
+          staffName: 'Deleted User'
+        }
+      }
+    )
+
+    // Remove appointments assigned to this user
+    await Appointment.deleteMany({ assignedStaff: userId })
+
+    res.json({
+      success: true,
+      message: 'Account marked for deletion. Data will be permanently deleted within 30 days.',
+      deletionDate: deletionDate.toISOString()
+    })
+  } catch (error) {
+    console.error('Error deleting user data:', error)
+    res.status(500).json({
+      success: false,
+      error: 'Failed to delete user data'
+    })
+  }
+})
+
+// Get consent status
+app.get('/api/gdpr/consent/:userId', authenticateToken, setupBusinessDatabase, async (req, res) => {
+  try {
+    const { userId } = req.params
+    const { User } = req.businessModels
+
+    if (req.user.role !== 'admin' && req.user._id?.toString() !== userId && req.user.id !== userId) {
+      return res.status(403).json({
+        success: false,
+        error: 'Unauthorized'
+      })
+    }
+
+    const user = await User.findById(userId).select('consentPreferences')
+    res.json({
+      success: true,
+      data: {
+        consent: user?.consentPreferences || null,
+        lastUpdated: user?.consentUpdatedAt || null
+      }
+    })
+  } catch (error) {
+    console.error('Error fetching consent status:', error)
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch consent status'
+    })
+  }
+})
+
+// Update consent
+app.post('/api/gdpr/consent/:userId', authenticateToken, setupBusinessDatabase, async (req, res) => {
+  try {
+    const { userId } = req.params
+    const { consent } = req.body
+    const { User } = req.businessModels
+
+    if (req.user.role !== 'admin' && req.user._id?.toString() !== userId && req.user.id !== userId) {
+      return res.status(403).json({
+        success: false,
+        error: 'Unauthorized'
+      })
+    }
+
+    await User.findByIdAndUpdate(userId, {
+      consentPreferences: consent,
+      consentUpdatedAt: new Date()
+    })
+
+    res.json({
+      success: true,
+      message: 'Consent preferences updated'
+    })
+  } catch (error) {
+    console.error('Error updating consent:', error)
+    res.status(500).json({
+      success: false,
+      error: 'Failed to update consent'
+    })
+  }
+})
+
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({
