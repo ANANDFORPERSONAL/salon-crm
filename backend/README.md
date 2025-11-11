@@ -1,6 +1,6 @@
-# Salon CRM Backend API
+# Ease My Salon Backend API
 
-A Node.js/Express.js backend API for the Salon CRM system.
+A Node.js/Express.js backend API for the Ease My Salon system.
 
 ## 🚀 Quick Start
 

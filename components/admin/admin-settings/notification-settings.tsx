@@ -35,9 +35,9 @@ export function NotificationSettings({ settings: propSettings, onSettingsChange 
       smtpSecure: false,
       smtpUser: "",
       smtpPassword: "",
-      fromEmail: "noreply@salon-crm.com",
-      fromName: "Salon CRM",
-      replyTo: "support@salon-crm.com",
+      fromEmail: "noreply@easemysalon.com",
+      fromName: "Ease My Salon",
+      replyTo: "support@easemysalon.com",
       maxRetries: 3,
       retryDelay: 5000
     },
@@ -59,7 +59,7 @@ export function NotificationSettings({ settings: propSettings, onSettingsChange 
     // Notification Templates
     templates: {
       businessCreated: {
-        subject: "Welcome to Salon CRM - Business Account Created",
+        subject: "Welcome to Ease My Salon - Business Account Created",
         body: "Your business account has been successfully created. Business Code: {businessCode}",
         enabled: true
       },
@@ -74,7 +74,7 @@ export function NotificationSettings({ settings: propSettings, onSettingsChange 
         enabled: true
       },
       userCreated: {
-        subject: "Welcome to Salon CRM - User Account Created",
+        subject: "Welcome to Ease My Salon - User Account Created",
         body: "Your user account has been created. Please log in to access the system.",
         enabled: true
       }
@@ -266,7 +266,7 @@ export function NotificationSettings({ settings: propSettings, onSettingsChange 
                     value={settings.email.fromEmail}
                     onChange={(e) => handleSettingChange('email.fromEmail', e.target.value)}
                     className="w-full"
-                    placeholder="noreply@salon-crm.com"
+                    placeholder="noreply@easemysalon.com"
                   />
                 </div>
 
@@ -277,7 +277,7 @@ export function NotificationSettings({ settings: propSettings, onSettingsChange 
                     value={settings.email.fromName}
                     onChange={(e) => handleSettingChange('email.fromName', e.target.value)}
                     className="w-full"
-                    placeholder="Salon CRM"
+                    placeholder="Ease My Salon"
                   />
                 </div>
 
@@ -289,7 +289,7 @@ export function NotificationSettings({ settings: propSettings, onSettingsChange 
                     value={settings.email.replyTo}
                     onChange={(e) => handleSettingChange('email.replyTo', e.target.value)}
                     className="w-full"
-                    placeholder="support@salon-crm.com"
+                    placeholder="support@easemysalon.com"
                   />
                 </div>
               </div>

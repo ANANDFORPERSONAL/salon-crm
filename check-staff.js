@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 // Connect to MongoDB
-mongoose.connect('mongodb://localhost:27017/salon_crm_main', {
+mongoose.connect('mongodb://localhost:27017/ease_my_salon_main', {
   useNewUrlParser: true,
   useUnifiedTopology: true
 });
@@ -25,7 +25,7 @@ async function checkStaff() {
       console.log(`\nChecking staff in ${business.name} (${business.code}):`);
       
       try {
-        const businessDb = mongoose.connection.useDb(`salon_crm_${business.code}`);
+        const businessDb = mongoose.connection.useDb(`ease_my_salon_${business.code}`);
         const Staff = businessDb.model('Staff', new mongoose.Schema({
           name: String,
           email: String,

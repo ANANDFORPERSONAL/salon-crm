@@ -35,7 +35,7 @@ const checkBusinessDatabase = async (businessId, businessName, businessCode) => 
     const collections = await businessConnection.db.listCollections().toArray();
     const collectionNames = collections.map(col => col.name);
     
-    console.log(`\n📊 Database: salon_crm_${businessId}`);
+    console.log(`\n📊 Database: ease_my_salon_${businessId}`);
     console.log(`   Business: ${businessName} (${businessCode})`);
     console.log(`   Collections: ${collectionNames.length}`);
     

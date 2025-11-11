@@ -5,7 +5,7 @@ require('dotenv').config();
 // Connect to MongoDB
 const connectDB = async () => {
   try {
-    await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/salon-crm');
+    await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/ease-my-salon');
     console.log('MongoDB connected');
   } catch (error) {
     console.error('MongoDB connection error:', error);

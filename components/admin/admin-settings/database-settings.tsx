@@ -28,7 +28,7 @@ export function DatabaseSettings({ settings: propSettings, onSettingsChange }: D
   const [settings, setSettings] = useState(propSettings || {
     // Database Configuration
     database: {
-      connectionString: "mongodb://localhost:27017/salon_crm_main",
+      connectionString: "mongodb://localhost:27017/ease_my_salon_main",
       maxConnections: 10,
       connectionTimeout: 30000,
       socketTimeout: 30000,
@@ -139,7 +139,7 @@ export function DatabaseSettings({ settings: propSettings, onSettingsChange }: D
               value={settings.database.connectionString}
               onChange={(e) => handleSettingChange('database.connectionString', e.target.value)}
               className="w-full"
-              placeholder="mongodb://localhost:27017/salon_crm_main"
+              placeholder="mongodb://localhost:27017/ease_my_salon_main"
             />
             <p className="text-xs text-gray-500">
               MongoDB connection string

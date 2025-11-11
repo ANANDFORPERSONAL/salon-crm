@@ -37,7 +37,7 @@ export function TopNav({ showQuickAdd = true, rightSlot }: TopNavProps) {
   const router = useRouter()
   const [showExpenseDialog, setShowExpenseDialog] = useState(false)
   const [showCashRegistryModal, setShowCashRegistryModal] = useState(false)
-  const [businessName, setBusinessName] = useState<string>("Salon CRM")
+  const [businessName, setBusinessName] = useState<string>("Ease My Salon")
   const [isLoadingBusinessName, setIsLoadingBusinessName] = useState(true)
 
   // Fetch business settings to get the business name

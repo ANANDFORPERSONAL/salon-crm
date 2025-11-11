@@ -69,7 +69,7 @@ export function LoginForm() {
         if (result) {
           toast({
             title: "Login successful",
-            description: "Welcome back to Salon CRM!",
+            description: "Welcome back to Ease My Salon!",
           })
           router.push("/")
         } else {
@@ -84,7 +84,7 @@ export function LoginForm() {
         if (result.success) {
           toast({
             title: "Login successful",
-            description: "Welcome back to Salon CRM!",
+            description: "Welcome back to Ease My Salon!",
           })
           router.push("/")
         } else if (result.error === 'ACCOUNT_SUSPENDED') {
@@ -130,7 +130,7 @@ export function LoginForm() {
           <div className="flex justify-center">
             <div className="flex items-center gap-2">
               <Scissors className="h-8 w-8 text-primary" />
-              <span className="text-2xl font-bold">Salon CRM</span>
+              <span className="text-2xl font-bold">Ease My Salon</span>
             </div>
           </div>
           <h2 className="mt-6 text-3xl font-extrabold text-gray-900">Sign in to your account</h2>

@@ -247,7 +247,7 @@ let adminSettings = {
   // Database & System
   database: {
     database: {
-      connectionString: "mongodb://localhost:27017/salon_crm_main",
+      connectionString: "mongodb://localhost:27017/ease_my_salon_main",
       maxConnections: 10,
       connectionTimeout: 30000,
       socketTimeout: 30000,
@@ -301,9 +301,9 @@ let adminSettings = {
       smtpSecure: false,
       smtpUser: "",
       smtpPassword: "",
-      fromEmail: "noreply@salon-crm.com",
-      fromName: "Salon CRM",
-      replyTo: "support@salon-crm.com",
+      fromEmail: "noreply@easemysalon.com",
+      fromName: "Ease My Salon",
+      replyTo: "support@easemysalon.com",
       maxRetries: 3,
       retryDelay: 5000
     },
@@ -321,7 +321,7 @@ let adminSettings = {
     },
     templates: {
       businessCreated: {
-        subject: "Welcome to Salon CRM - Business Account Created",
+        subject: "Welcome to Ease My Salon - Business Account Created",
         body: "Your business account has been successfully created. Business Code: {businessCode}",
         enabled: true
       },
@@ -336,7 +336,7 @@ let adminSettings = {
         enabled: true
       },
       userCreated: {
-        subject: "Welcome to Salon CRM - User Account Created",
+        subject: "Welcome to Ease My Salon - User Account Created",
         body: "Your user account has been created. Please log in to access the system.",
         enabled: true
       }
@@ -386,11 +386,11 @@ let adminSettings = {
   api: {
     api: {
       version: "v1",
-      baseUrl: "https://api.salon-crm.com",
+      baseUrl: "https://api.ease-my-salon.com",
       timeout: 30000,
       maxRequestsPerMinute: 100,
       enableCORS: true,
-      allowedOrigins: ["https://salon-crm.com", "https://admin.salon-crm.com"],
+      allowedOrigins: ["https://ease-my-salon.com", "https://admin.ease-my-salon.com"],
       enableRateLimiting: true,
       enableLogging: true,
       enableMetrics: true

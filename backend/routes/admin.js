@@ -533,7 +533,9 @@ router.get('/businesses/:id/stats', authenticateAdmin, async (req, res) => {
     const businessId = req.params.id;
     
     // Connect to business-specific database
-    const businessDb = mongoose.connection.useDb(`salon_crm_${businessId}`);
+    const databaseManager = require('../config/database-manager');
+    const dbName = databaseManager.getDatabaseName(businessId);
+    const businessDb = mongoose.connection.useDb(dbName);
     
     // Get models for business database
     const Client = businessDb.model('Client', require('../models/Client').schema);
@@ -654,8 +656,10 @@ router.get('/users', setupMainDatabase, authenticateAdmin, async (req, res) => {
       try {
         console.log(`🔍 Processing business: ${business.name} (${business.code})`);
         // Connect to business database
-        const businessDb = mongoose.connection.useDb(`salon_crm_${business.code}`);
-        console.log(`📡 Connected to database: salon_crm_${business.code}`);
+        const databaseManager = require('../config/database-manager');
+        const dbName = databaseManager.getDatabaseName(business._id.toString());
+        const businessDb = mongoose.connection.useDb(dbName);
+        console.log(`📡 Connected to database: ${dbName}`);
         
         const Staff = businessDb.model('Staff', require('../models/Staff').schema);
         console.log(`📋 Staff model created for ${business.name}`);

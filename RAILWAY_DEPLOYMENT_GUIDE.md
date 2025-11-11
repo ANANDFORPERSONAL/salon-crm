@@ -6,7 +6,7 @@
 1. Go to [Railway.app](https://railway.app)
 2. Click "New Project"
 3. Select "Deploy from GitHub repo"
-4. Choose your `salon-crm` repository
+4. Choose your `ease-my-salon` repository
 5. **Important**: Set the root directory to `backend`
 
 ### Step 2: Configure Environment Variables
@@ -21,7 +21,7 @@ NODE_ENV=production
 JWT_SECRET=your-super-secret-jwt-key-for-production
 
 # MongoDB Atlas (recommended for production)
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/salon-crm?retryWrites=true&w=majority
+MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/ease-my-salon?retryWrites=true&w=majority
 
 # Frontend URL (update with your actual frontend URL)
 FRONTEND_URL=https://your-frontend-app.railway.app

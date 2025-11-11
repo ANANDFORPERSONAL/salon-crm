@@ -31,11 +31,11 @@ export function APISettings({ settings: propSettings, onSettingsChange }: APISet
     // API Configuration
     api: {
       version: "v1",
-      baseUrl: "https://api.salon-crm.com",
+      baseUrl: "https://api.easemysalon.com",
       timeout: 30000,
       maxRequestsPerMinute: 100,
       enableCORS: true,
-      allowedOrigins: ["https://salon-crm.com", "https://admin.salon-crm.com"],
+      allowedOrigins: ["https://easemysalon.com", "https://admin.easemysalon.com"],
       enableRateLimiting: true,
       enableLogging: true,
       enableMetrics: true
@@ -244,7 +244,7 @@ export function APISettings({ settings: propSettings, onSettingsChange }: APISet
                 value={settings.api.baseUrl}
                 onChange={(e) => handleSettingChange('api.baseUrl', e.target.value)}
                 className="w-full"
-                placeholder="https://api.salon-crm.com"
+                placeholder="https://api.easemysalon.com"
               />
             </div>
 
@@ -283,7 +283,7 @@ export function APISettings({ settings: propSettings, onSettingsChange }: APISet
               onChange={(e) => handleSettingChange('api.allowedOrigins', e.target.value.split('\n').filter(origin => origin.trim()))}
               className="w-full"
               rows={3}
-              placeholder="https://salon-crm.com&#10;https://admin.salon-crm.com"
+              placeholder="https://easemysalon.com&#10;https://admin.easemysalon.com"
             />
             <p className="text-xs text-gray-500">
               One origin per line

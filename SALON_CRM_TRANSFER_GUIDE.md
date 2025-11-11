@@ -1,7 +1,7 @@
-# Salon CRM Transfer Guide
+# Ease My Salon Transfer Guide
 
 ## Overview
-This guide will help you transfer your Salon CRM from your current MacBook to a new MacBook with all data and settings intact.
+This guide will help you transfer your Ease My Salon from your current MacBook to a new MacBook with all data and settings intact.
 
 ## What's Included in the Transfer
 - **Frontend**: Next.js application with all components and UI
@@ -52,14 +52,14 @@ brew services list | grep mongodb
 You have several options:
 
 **Option A: Using External Drive/USB**
-1. Copy the entire `/Users/shubhamanand/salon-crm` folder to an external drive
+1. Copy the entire `/Users/shubhamanand/ease-my-salon` folder to an external drive
 2. Transfer to new MacBook and place in the same location
 
 **Option B: Using Cloud Storage (Recommended)**
 1. Compress the project folder:
 ```bash
-cd /Users/shubhamanand/salon-crm
-tar -czf salon-crm-backup.tar.gz --exclude=node_modules --exclude=.next --exclude=backend/node_modules .
+cd /Users/shubhamanand/ease-my-salon
+tar -czf ease-my-salon-backup.tar.gz --exclude=node_modules --exclude=.next --exclude=backend/node_modules .
 ```
 
 2. Upload to iCloud, Google Drive, or Dropbox
@@ -75,13 +75,13 @@ tar -czf salon-crm-backup.tar.gz --exclude=node_modules --exclude=.next --exclud
 cd ~
 
 # Extract the backup (if using compressed file)
-tar -xzf salon-crm-backup.tar.gz
+tar -xzf ease-my-salon-backup.tar.gz
 
-# Rename to salon-crm
-mv salon-crm-backup salon-crm
+# Rename to ease-my-salon
+mv ease-my-salon-backup ease-my-salon
 
 # Navigate to project directory
-cd salon-crm
+cd ease-my-salon
 ```
 
 ### Phase 3: Restore Database
@@ -89,19 +89,19 @@ cd salon-crm
 #### 1. Restore MongoDB Data
 ```bash
 # Navigate to project directory
-cd /Users/shubhamanand/salon-crm
+cd /Users/shubhamanand/ease-my-salon
 
 # Restore the database
-mongorestore --db salon-crm backup/salon-crm/
+mongorestore --db ease-my-salon backup/ease-my-salon/
 
 # Verify data restoration
-mongosh salon-crm --eval "db.stats()"
+mongosh ease-my-salon --eval "db.stats()"
 ```
 
 #### 2. Verify Data Integrity
 ```bash
 # Check collections and document counts
-mongosh salon-crm --eval "
+mongosh ease-my-salon --eval "
   print('Collections:');
   db.getCollectionNames().forEach(name => {
     print(name + ': ' + db[name].countDocuments() + ' documents');
@@ -114,7 +114,7 @@ mongosh salon-crm --eval "
 #### 1. Install Frontend Dependencies
 ```bash
 # Navigate to project root
-cd /Users/shubhamanand/salon-crm
+cd /Users/shubhamanand/ease-my-salon
 
 # Install frontend dependencies
 npm install
@@ -159,7 +159,7 @@ NEXT_PUBLIC_ENVIRONMENT=development
 PORT=3001
 NODE_ENV=development
 JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
-MONGODB_URI=mongodb://localhost:27017/salon-crm
+MONGODB_URI=mongodb://localhost:27017/ease-my-salon
 ```
 
 ### Phase 6: Start the Application
@@ -178,7 +178,7 @@ npm start
 #### 2. Start Frontend (in a new terminal)
 ```bash
 # Navigate to project root
-cd /Users/shubhamanand/salon-crm
+cd /Users/shubhamanand/ease-my-salon
 
 # Start the frontend development server
 npm run dev
@@ -242,14 +242,14 @@ cd backend && npm install
 #### 4. Database Permission Issues
 ```bash
 # Check MongoDB permissions
-mongosh salon-crm --eval "db.runCommand({connectionStatus: 1})"
+mongosh ease-my-salon --eval "db.runCommand({connectionStatus: 1})"
 ```
 
 ## Data Backup Locations
 
 Your data is backed up in:
-- **MongoDB Dump**: `/Users/shubhamanand/salon-crm/backup/salon-crm/`
-- **Full Project Backup**: `/Users/shubhamanand/salon-crm-backup-[timestamp]/`
+- **MongoDB Dump**: `/Users/shubhamanand/ease-my-salon/backup/ease-my-salon/`
+- **Full Project Backup**: `/Users/shubhamanand/ease-my-salon-backup-[timestamp]/`
 
 ## Security Notes
 
@@ -291,4 +291,4 @@ After successful transfer:
 
 **Transfer completed successfully!** 🎉
 
-Your Salon CRM should now be running on your new MacBook with all data and settings intact.
+Your Ease My Salon should now be running on your new MacBook with all data and settings intact.

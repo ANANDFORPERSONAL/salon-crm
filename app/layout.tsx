@@ -10,7 +10,7 @@ import { CookieConsentBanner } from "@/components/gdpr/cookie-consent-banner"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Salon CRM",
+  title: "Ease My Salon",
   description: "Manage your salon with ease.",
     generator: 'v0.dev'
 }

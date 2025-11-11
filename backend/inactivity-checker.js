@@ -4,10 +4,19 @@ const databaseManager = require('./config/database-manager');
 // Connect to main database
 const connectToMainDatabase = async () => {
   try {
-    await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/salon_crm_main', {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017';
+    const newDbName = 'ease_my_salon_main';
+    const oldDbName = 'salon_crm_main';
+    
+    // Try old database first for backward compatibility
+    try {
+      await mongoose.connect(`${uri}/${oldDbName}`);
+      console.log(`✅ Connected to main database: ${oldDbName} (legacy - backward compatible)`);
+    } catch (error) {
+      // Old database doesn't exist, use new one
+      await mongoose.connect(`${uri}/${newDbName}`);
+      console.log(`✅ Connected to main database: ${newDbName}`);
+    }
     console.log('✅ Connected to main database for inactivity checker');
   } catch (error) {
     console.error('❌ Failed to connect to main database:', error);

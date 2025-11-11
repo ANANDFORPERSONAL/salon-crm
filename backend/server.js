@@ -1,4 +1,4 @@
-console.log('🚀 Starting Salon CRM Backend Server...');
+console.log('🚀 Starting Ease My Salon Backend Server...');
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -4878,11 +4878,65 @@ app.get("/api/settings/payment", authenticateToken, setupBusinessDatabase, async
     const { BusinessSettings } = req.businessModels;
     let settings = await BusinessSettings.findOne();
     
+    // If no settings exist, create default settings
     if (!settings) {
-      return res.status(404).json({
-        success: false,
-        error: "Business settings not found"
+      console.log("📝 No business settings found, creating default settings...");
+      const branchId = req.user?.branchId;
+      
+      if (!branchId) {
+        return res.status(400).json({
+          success: false,
+          error: "Business ID not found in user data"
+        });
+      }
+      
+      settings = new BusinessSettings({
+        name: "Ease My Salon",
+        email: req.user?.email || "info@easemysalon.com",
+        phone: "",
+        website: "",
+        description: "",
+        address: "",
+        city: "",
+        state: "",
+        zipCode: "",
+        receiptPrefix: "INV",
+        invoicePrefix: "INV",
+        receiptNumber: 1,
+        autoIncrementReceipt: true,
+        currency: "INR",
+        taxRate: 8.25,
+        processingFee: 2.9,
+        enableCurrency: true,
+        enableTax: true,
+        enableProcessingFees: true,
+        taxType: "gst",
+        cgstRate: 9,
+        sgstRate: 9,
+        igstRate: 18,
+        serviceTaxRate: 5,
+        productTaxRate: 18,
+        essentialProductRate: 5,
+        intermediateProductRate: 12,
+        standardProductRate: 18,
+        luxuryProductRate: 28,
+        exemptProductRate: 0,
+        taxCategories: [
+          { id: "essential", name: "Essential Products", rate: 5 },
+          { id: "intermediate", name: "Intermediate Products", rate: 12 },
+          { id: "standard", name: "Standard Products", rate: 18 },
+          { id: "luxury", name: "Luxury Products", rate: 28 },
+          { id: "exempt", name: "Exempt Products", rate: 0 }
+        ],
+        socialMedia: "",
+        logo: "",
+        gstNumber: "",
+        autoResetReceipt: false,
+        resetFrequency: "monthly",
+        branchId: branchId
       });
+      await settings.save();
+      console.log("✅ Default business settings created");
     }
 
     // Build tax categories array from settings
@@ -5811,7 +5865,7 @@ app.post('/api/gdpr/consent/:userId', authenticateToken, setupBusinessDatabase, 
 app.get('/api/health', (req, res) => {
   res.json({
     success: true,
-    message: 'Salon CRM API is running',
+    message: 'Ease My Salon API is running',
     timestamp: new Date().toISOString()
   });
 });
@@ -5836,7 +5890,7 @@ app.use('*', (req, res) => {
 // Start server
 
 app.listen(PORT, '0.0.0.0', async () => {
-  console.log(`🚀 Salon CRM Backend running on port ${PORT}`);
+  console.log(`🚀 Ease My Salon Backend running on port ${PORT}`);
   console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
   console.log(`🔐 API Base: http://localhost:${PORT}/api`);
   // Old initialization functions disabled for multi-tenant architecture

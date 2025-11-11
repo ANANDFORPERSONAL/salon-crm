@@ -1,6 +1,6 @@
-# 🚀 Salon CRM Backend Integration Guide
+# 🚀 Ease My Salon Backend Integration Guide
 
-This guide will help you integrate the Salon CRM frontend with the backend API.
+This guide will help you integrate the Ease My Salon frontend with the backend API.
 
 ## 📋 Overview
 
@@ -125,7 +125,7 @@ Expected response:
 ```json
 {
   "success": true,
-  "message": "Salon CRM API is running",
+  "message": "Ease My Salon API is running",
   "timestamp": "2024-01-01T00:00:00.000Z"
 }
 ```
@@ -334,7 +334,7 @@ For issues or questions:
 
 ## 🎉 Success!
 
-You now have a fully integrated Salon CRM system with:
+You now have a fully integrated Ease My Salon system with:
 - ✅ Frontend with API integration
 - ✅ Backend with all endpoints
 - ✅ Authentication system

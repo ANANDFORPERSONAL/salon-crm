@@ -4,380 +4,455 @@
 
    ▲ Next.js 15.2.4
    - Local:        http://localhost:3000
-   - Network:      http://192.168.29.207:3000
+   - Network:      http://192.168.29.79:3000
    - Environments: .env.local
 
  ✓ Starting...
- ✓ Ready in 1337ms
- ○ Compiling / ...
- ✓ Compiled / in 2.5s (3288 modules)
- GET / 200 in 2762ms
- ✓ Compiled in 315ms (1551 modules)
- GET / 200 in 134ms
- ○ Compiling /quick-sale ...
- ✓ Compiled /quick-sale in 1426ms (3347 modules)
- GET /quick-sale 200 in 1516ms
- ○ Compiling /clients ...
- ✓ Compiled /clients in 1073ms (3121 modules)
- GET /clients 200 in 1164ms
- ✓ Compiled /services in 476ms (3164 modules)
- GET /services 200 in 537ms
- ○ Compiling /products ...
- ✓ Compiled /products in 863ms (3171 modules)
- GET /products 200 in 924ms
- ○ Compiling /settings ...
- ✓ Compiled /settings in 1203ms (3175 modules)
- GET /settings 200 in 1274ms
- ○ Compiling / ...
- ✓ Compiled / in 766ms (1737 modules)
- GET / 200 in 873ms
- GET / 200 in 169ms
+ ✓ Ready in 2.1s
  ○ Compiling /login ...
- ✓ Compiled /login in 581ms (3754 modules)
- GET /login 200 in 633ms
- GET / 200 in 109ms
- GET / 200 in 25ms
- ○ Compiling /quick-sale ...
- ✓ Compiled /quick-sale in 1381ms (1852 modules)
- GET /quick-sale 200 in 1606ms
- ✓ Compiled in 2.8s (3803 modules)
- GET /quick-sale 200 in 157ms
- ✓ Compiled in 1358ms (3803 modules)
- GET /quick-sale 200 in 112ms
- ✓ Compiled in 3.1s (3803 modules)
- GET /quick-sale 200 in 441ms
- ✓ Compiled in 1756ms (3803 modules)
- GET /quick-sale 200 in 175ms
- ✓ Compiled in 1447ms (3803 modules)
- GET /quick-sale 200 in 249ms
- GET /login 200 in 167ms
- GET /login 200 in 47ms
- ○ Compiling /appointments ...
- ✓ Compiled /appointments in 1711ms (3807 modules)
- GET /appointments 200 in 2056ms
- GET /login 200 in 386ms
- GET / 200 in 65ms
- GET / 200 in 20ms
- GET /appointments 200 in 17ms
- ○ Compiling /appointments/new ...
- ✓ Compiled /appointments/new in 1517ms (3821 modules)
- GET /appointments/new 200 in 1743ms
- GET /appointments 200 in 24ms
- GET /appointments/new 200 in 14ms
- GET /appointments 200 in 9ms
- GET /quick-sale 200 in 34ms
- GET /appointments 200 in 11ms
- GET /quick-sale 200 in 9ms
- GET /appointments 200 in 12ms
- GET /appointments/new 200 in 16ms
- GET /appointments 200 in 31ms
- GET /appointments/new 200 in 28ms
- GET /appointments 200 in 9ms
+ ✓ Compiled /login in 2.2s (1179 modules)
+ GET /login 200 in 1492ms
+ ✓ Compiled in 308ms (507 modules)
+ ✓ Compiled in 67ms (507 modules)
+ ○ Compiling /cash-registry ...
+ ✓ Compiled /cash-registry in 2.7s (2564 modules)
+ GET /cash-registry 200 in 3060ms
+ ✓ Compiled /_not-found in 281ms (2568 modules)
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 421ms
+ ✓ Compiled /login in 191ms (1418 modules)
+ GET /login 200 in 259ms
+ ○ Compiling / ...
+ ✓ Compiled / in 1752ms (3900 modules)
+ GET / 200 in 1892ms
+ GET / 200 in 18ms
+ GET /cash-registry 200 in 28ms
+ ✓ Compiled in 887ms (3911 modules)
+ GET /cash-registry 200 in 103ms
+ GET /login 200 in 174ms
+ GET / 200 in 36ms
+ ✓ Compiled in 734ms (3911 modules)
+ GET /cash-registry 200 in 48ms
+ GET / 200 in 73ms
+ ✓ Compiled in 701ms (3911 modules)
+ GET /cash-registry 200 in 47ms
+ GET / 200 in 44ms
+ GET /cash-registry 200 in 331ms
+ ✓ Compiled /_not-found in 392ms (2054 modules)
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 521ms
+ ✓ Compiled in 415ms (1860 modules)
+ GET /cash-registry 200 in 41ms
+ GET / 200 in 115ms
+ ✓ Compiled in 421ms (1860 modules)
+ GET /cash-registry 200 in 18ms
+ GET / 200 in 38ms
+ ✓ Compiled in 681ms (1860 modules)
+ ✓ Compiled in 317ms (1860 modules)
+ ✓ Compiled in 681ms (1860 modules)
+ ✓ Compiled in 589ms (1860 modules)
+ ✓ Compiled in 392ms (1860 modules)
+ GET /cash-registry 200 in 256ms
+ GET /.well-known/appspecific/com.chrome.devtools.json 404 in 39ms
  ○ Compiling /settings ...
- ✓ Compiled /settings in 1083ms (1932 modules)
- GET /settings 200 in 1224ms
- GET /quick-sale 200 in 23ms
- GET /appointments 200 in 18ms
- GET /quick-sale 200 in 6ms
- GET /appointments 200 in 8ms
- GET /quick-sale 200 in 6ms
- GET /appointments 200 in 13ms
- ✓ Compiled in 1573ms (3272 modules)
- GET /appointments 200 in 167ms
- GET /login 200 in 168ms
- ✓ Compiled in 1424ms (3272 modules)
- GET /appointments 200 in 119ms
- GET /login 200 in 123ms
- ✓ Compiled in 897ms (3272 modules)
- GET /appointments 200 in 206ms
- GET /login 200 in 200ms
- ✓ Compiled in 1343ms (3272 modules)
- GET /appointments 200 in 80ms
- GET /login 200 in 80ms
- ✓ Compiled in 1332ms (3272 modules)
- GET /appointments 200 in 119ms
- GET /login 200 in 125ms
- ✓ Compiled in 1203ms (3272 modules)
- GET /login 200 in 203ms
- GET /appointments 200 in 203ms
- GET /quick-sale?appointment=eyJhcHBvaW50bWVudElkIjoiNjhmMWY2MjkwNGI5MjFiZDJlMGRmYzA5IiwiY2xpZW50SWQiOiI2OGRjNjJlMjZiMjRiN2I0Mjc2NzcwZjYiLCJjbGllbnROYW1lIjoiVGVzdCBDbGllbnQiLCJzZXJ2aWNlSWQiOiI2OGU2MTk1OTg2MjMyOWJhZTdlN2I0OGMiLCJzZXJ2aWNlTmFtZSI6Ikh5ZHJhIEZhY2lhbCIsInNlcnZpY2VQcmljZSI6MjAwMCwic2VydmljZUR1cmF0aW9uIjo2MCwic3RhZmZJZCI6IjY4ZGI1MDQ0ODUzNDNlZGRkNDRlM2E1NiIsInN0YWZmTmFtZSI6IkpvaG4gTWFuYWdlciJ9 200 in 71ms
- GET /appointments 200 in 8ms
- GET /quick-sale?appointment=eyJhcHBvaW50bWVudElkIjoiNjhmMWY1YWYwNGI5MjFiZDJlMGRmYjU4IiwiY2xpZW50SWQiOiI2OGU3MTdiYWVjYzFhZmVjNmE4OTQ2ZDYiLCJjbGllbnROYW1lIjoiU2h1YmhhbSIsInNlcnZpY2VJZCI6IjY4ZTYxOTU5ODYyMzI5YmFlN2U3YjQ4YyIsInNlcnZpY2VOYW1lIjoiSHlkcmEgRmFjaWFsIiwic2VydmljZVByaWNlIjoyMDAwLCJzZXJ2aWNlRHVyYXRpb24iOjYwLCJzdGFmZklkIjpudWxsLCJzdGFmZk5hbWUiOiIifQ%3D%3D 200 in 8ms
- GET /quick-sale 200 in 9ms
-🔍 ClientStore: Loading clients from API...
-(node:61517) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
-(Use `node --trace-deprecation ...` to show where the warning was created)
-❌ API Response Interceptor: Error response: {
-  url: '/clients',
-  status: 401,
-  method: 'get',
-  data: { success: false, error: 'Access token required' },
-  message: 'Request failed with status code 401'
-}
-🔐 API Response Interceptor: Unauthorized, clearing auth data
-❌ ClientStore: Error loading clients: Error [AxiosError]: Request failed with status code 401
-    at async ClientsAPI.getAll (lib/api.ts:146:21)
-    at async ClientStore.loadClients (lib/client-store.ts:40:23)
-  144 | export class ClientsAPI {
-  145 |   static async getAll(params?: { page?: number; limit?: number; search?: string }): Promise<PaginatedResponse<any>> {
-> 146 |     const response = await apiClient.get('/clients', { params })
-      |                     ^
-  147 |     return response.data
-  148 |   }
-  149 | {
-  code: 'ERR_BAD_REQUEST',
-  config: [Object],
-  request: [ClientRequest],
-  response: [Object],
-  status: 401,
-  constructor: [Function],
-  toJSON: [Function: toJSON]
-}
-API not available, no fallback in production
- GET /quick-sale 200 in 228ms
- GET /appointments 200 in 8ms
- GET /quick-sale?appointment=eyJhcHBvaW50bWVudElkIjoiNjhmMWY1YWYwNGI5MjFiZDJlMGRmYjU4IiwiY2xpZW50SWQiOiI2OGU3MTdiYWVjYzFhZmVjNmE4OTQ2ZDYiLCJjbGllbnROYW1lIjoiU2h1YmhhbSIsInNlcnZpY2VJZCI6IjY4ZTYxOTU5ODYyMzI5YmFlN2U3YjQ4YyIsInNlcnZpY2VOYW1lIjoiSHlkcmEgRmFjaWFsIiwic2VydmljZVByaWNlIjoyMDAwLCJzZXJ2aWNlRHVyYXRpb24iOjYwLCJzdGFmZklkIjpudWxsLCJzdGFmZk5hbWUiOiIifQ%3D%3D 200 in 11ms
- ✓ Compiled in 1401ms (3272 modules)
- GET /login 200 in 142ms
- GET /quick-sale 200 in 145ms
- ⨯ ./components/appointments/quick-sale.tsx
-Error:   [31mx[0m 'const' declarations must be initialized
-     ,-[[36;1;4m/Users/shubhamanand/salon-crm/components/appointments/quick-sale.tsx[0m:539:1]
- [2m536[0m |     } catch (error) {
- [2m537[0m |       console.error('Failed to parse appointment data:', error)
- [2m538[0m |     }
- [2m539[0m |   }, [searchParams, services, clients, staff])
-     : [35;1m     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
- [2m540[0m | 
- [2m541[0m |   // In production, prefill data should come from URL params or API
- [2m542[0m |   // No localStorage dependency for critical business functionality
+ ✓ Compiled /settings in 1464ms (4018 modules)
+ GET /settings 200 in 1553ms
+ GET / 200 in 188ms
+ ○ Compiling /reports ...
+ ✓ Compiled /reports in 1792ms (4052 modules)
+ GET /settings 200 in 752ms
+ GET /reports 200 in 1946ms
+ ✓ Compiled in 631ms (1931 modules)
+ ✓ Compiled in 827ms (4045 modules)
+ ✓ Compiled in 317ms (4045 modules)
+ ✓ Compiled in 519ms (4045 modules)
+ ✓ Compiled in 509ms (4045 modules)
+ ✓ Compiled in 319ms (4045 modules)
+ ✓ Compiled in 282ms (4045 modules)
+ GET /settings 200 in 239ms
+ GET /settings 200 in 81ms
+ ✓ Compiled in 881ms (4045 modules)
+ GET /settings 200 in 63ms
+ ✓ Compiled in 830ms (4045 modules)
+ GET /settings 200 in 50ms
+ ✓ Compiled in 326ms (4045 modules)
+ GET /settings 200 in 52ms
+ ✓ Compiled in 490ms (4045 modules)
+ GET /settings 200 in 38ms
+ ✓ Compiled in 500ms (4045 modules)
+ GET /settings 200 in 47ms
+ ✓ Compiled in 749ms (4046 modules)
+ GET /settings 200 in 45ms
+ ✓ Compiled in 348ms (4046 modules)
+ GET /settings 200 in 48ms
+ ✓ Compiled in 516ms (4046 modules)
+ ✓ Compiled in 435ms (4046 modules)
+ ✓ Compiled in 580ms (4046 modules)
+ ✓ Compiled in 760ms (4050 modules)
+ ✓ Compiled in 479ms (4050 modules)
+ GET /settings 200 in 143ms
+ GET /settings 200 in 9ms
+ GET /settings 200 in 7ms
+ GET /settings 200 in 10ms
+ GET /settings 200 in 7ms
+ GET /login 200 in 206ms
+ ○ Compiling /products ...
+ ✓ Compiled /products in 1491ms (4102 modules)
+ GET /products 200 in 1570ms
+ GET /login 200 in 160ms
+ GET /login 200 in 22ms
+ GET / 200 in 46ms
+ GET / 200 in 13ms
+ GET /products 200 in 15ms
+ ✓ Compiled in 948ms (4116 modules)
+ GET /login 200 in 60ms
+ GET /products 200 in 24ms
+ ✓ Compiled in 846ms (4116 modules)
+ GET /login 200 in 149ms
+ GET /products 200 in 147ms
+ ✓ Compiled in 689ms (4116 modules)
+ GET /login 200 in 36ms
+ GET /products 200 in 27ms
+ ✓ Compiled in 557ms (4116 modules)
+ GET /login 200 in 51ms
+ GET /products 200 in 27ms
+ ✓ Compiled in 490ms (1964 modules)
+ GET /login 200 in 43ms
+ GET /products 200 in 43ms
+ ✓ Compiled in 484ms (1964 modules)
+ GET /login 200 in 27ms
+ GET /products 200 in 27ms
+ ✓ Compiled in 498ms (1964 modules)
+ GET /login 200 in 21ms
+ GET /products 200 in 22ms
+ ✓ Compiled in 578ms (4116 modules)
+ GET /login 200 in 46ms
+ GET /products 200 in 25ms
+ GET /products 200 in 353ms
+ GET /settings 200 in 58ms
+ GET /settings 200 in 24ms
+ GET /products 200 in 11ms
+ ✓ Compiled in 784ms (1964 modules)
+ GET /login 200 in 9ms
+ GET /products 200 in 20ms
+ ✓ Compiled in 1037ms (1964 modules)
+ GET /login 200 in 8ms
+ GET /products 200 in 8ms
+ ✓ Compiled in 662ms (4116 modules)
+ GET /login 200 in 82ms
+ GET /products 200 in 46ms
+ ✓ Compiled in 403ms (4116 modules)
+ GET /login 200 in 54ms
+ GET /products 200 in 28ms
+ ✓ Compiled in 700ms (4116 modules)
+ GET /login 200 in 59ms
+ GET /products 200 in 59ms
+ ✓ Compiled in 903ms (4116 modules)
+ GET /login 200 in 34ms
+ GET /products 200 in 25ms
+ ✓ Compiled in 779ms (4116 modules)
+ GET /login 200 in 37ms
+ GET /products 200 in 22ms
+ ✓ Compiled in 1039ms (4116 modules)
+ GET /login 200 in 34ms
+ GET /products 200 in 24ms
+ GET /products 200 in 401ms
+ ✓ Compiled in 783ms (4116 modules)
+ GET /login 200 in 35ms
+ GET /products 200 in 23ms
+ ✓ Compiled in 606ms (4116 modules)
+ GET /login 200 in 50ms
+ GET /products 200 in 30ms
+ ✓ Compiled in 508ms (4116 modules)
+ GET /login 200 in 31ms
+ GET /products 200 in 23ms
+ ✓ Compiled in 592ms (4116 modules)
+ GET /login 200 in 37ms
+ GET /products 200 in 21ms
+ ✓ Compiled in 1212ms (4116 modules)
+ GET /login 200 in 31ms
+ GET /products 200 in 22ms
+ ✓ Compiled in 665ms (4116 modules)
+ GET /login 200 in 40ms
+ GET /products 200 in 32ms
+ ✓ Compiled in 933ms (4116 modules)
+ GET /login 200 in 36ms
+ GET /products 200 in 29ms
+ ✓ Compiled in 910ms (4116 modules)
+ GET /login 200 in 44ms
+ GET /products 200 in 21ms
+ GET /products 200 in 1633ms
+ ✓ Compiled in 2.8s (4116 modules)
+ GET /products 200 in 61ms
+ ✓ Compiled in 575ms (4116 modules)
+ GET /products 200 in 40ms
+ GET /products 200 in 477ms
+ ✓ Compiled in 670ms (4116 modules)
+ GET /products 200 in 44ms
+ ⨯ ./components/products/category-combobox.tsx
+Error:   [31mx[0m Expression expected
+     ,-[[36;1;4m/Users/shubhamanand/ease-my-salon/components/products/category-combobox.tsx[0m:178:1]
+ [2m175[0m |   )
+ [2m176[0m | 
+ [2m177[0m |   return (
+ [2m178[0m |     <>
+     : [35;1m     ^[0m
+ [2m179[0m |       <Popover open={open} onOpenChange={setOpen}>
+ [2m180[0m |         <PopoverTrigger asChild>
+ [2m181[0m |           <Button
      `----
-  [31mx[0m Expected a semicolon
-     ,-[[36;1;4m/Users/shubhamanand/salon-crm/components/appointments/quick-sale.tsx[0m:539:1]
- [2m536[0m |     } catch (error) {
- [2m537[0m |       console.error('Failed to parse appointment data:', error)
- [2m538[0m |     }
- [2m539[0m |   }, [searchParams, services, clients, staff])
-     : [35;1m                                             ^[0m
- [2m540[0m | 
- [2m541[0m |   // In production, prefill data should come from URL params or API
- [2m542[0m |   // No localStorage dependency for critical business functionality
+  [31mx[0m Expected corresponding JSX closing tag for <div>
+     ,-[[36;1;4m/Users/shubhamanand/ease-my-salon/components/products/category-combobox.tsx[0m:271:1]
+ [2m268[0m |                 </CommandGroup>
+ [2m269[0m |               )}
+ [2m270[0m |             </CommandList>
+ [2m271[0m |           </Command>
+     : [35;1m          ^^^^^^^^^^[0m
+ [2m272[0m |         </PopoverContent>
+ [2m273[0m |       </Popover>
      `----
-  [31mx[0m Unexpected eof
-      ,-[[36;1;4m/Users/shubhamanand/salon-crm/components/appointments/quick-sale.tsx[0m:4146:3]
- [2m4144[0m |     </div>
- [2m4145[0m |   )
- [2m4146[0m | }
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./components/products/category-combobox.tsx
+./components/products/product-form.tsx
+./components/products/products-table.tsx
+./app/products/page.tsx
+ ✓ Compiled in 1126ms (4116 modules)
+ GET /products 200 in 50ms
+ ✓ Compiled in 880ms (4116 modules)
+ GET /products 200 in 46ms
+ ✓ Compiled in 1139ms (4116 modules)
+ GET /products 200 in 52ms
+ ✓ Compiled in 1629ms (4116 modules)
+ GET /products 200 in 41ms
+ GET /products 200 in 299ms
+ ✓ Compiled in 2.1s (4116 modules)
+ GET /products 200 in 71ms
+ ⨯ ./components/products/category-combobox.tsx
+Error:   [31mx[0m Expression expected
+     ,-[[36;1;4m/Users/shubhamanand/ease-my-salon/components/products/category-combobox.tsx[0m:178:1]
+ [2m175[0m |   )
+ [2m176[0m | 
+ [2m177[0m |   return (
+ [2m178[0m |     <>
+     : [35;1m     ^[0m
+ [2m179[0m |       <Popover open={open} onOpenChange={setOpen}>
+ [2m180[0m |         <PopoverTrigger asChild>
+ [2m181[0m |           <Button
+     `----
+  [31mx[0m Expected corresponding JSX closing tag for <Command>
+     ,-[[36;1;4m/Users/shubhamanand/ease-my-salon/components/products/category-combobox.tsx[0m:254:1]
+ [2m251[0m |                 </CommandGroup>
+ [2m252[0m |               )}
+ [2m253[0m |               </CommandList>
+ [2m254[0m |             </div>
+     : [35;1m            ^^^^^^[0m
+ [2m255[0m |           </Command>
+ [2m256[0m |         </PopoverContent>
+ [2m257[0m |       </Popover>
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./components/products/category-combobox.tsx
+./components/products/product-form.tsx
+./components/products/products-table.tsx
+./app/products/page.tsx
+ ✓ Compiled in 463ms (4116 modules)
+ GET /products 200 in 104ms
+ ✓ Compiled in 980ms (4116 modules)
+ GET /products 200 in 44ms
+ ✓ Compiled in 442ms (4116 modules)
+ GET /products 200 in 40ms
+ ✓ Compiled in 364ms (4116 modules)
+ GET /products 200 in 40ms
+ ✓ Compiled in 382ms (4116 modules)
+ GET /products 200 in 77ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ GET /products 200 in 316ms
+ ✓ Compiled in 340ms (4116 modules)
+ GET /products 200 in 45ms
+ ✓ Compiled in 939ms (4116 modules)
+ GET /products 200 in 46ms
+ GET /cash-registry 200 in 47ms
+ ✓ Compiled in 1149ms (4116 modules)
+ ✓ Compiled in 613ms (4116 modules)
+ ⨯ ./components/cash-registry/cash-registry-report.tsx
+Error:   [31mx[0m Unexpected token `div`. Expected jsx identifier
+      ,-[[36;1;4m/Users/shubhamanand/ease-my-salon/components/cash-registry/cash-registry-report.tsx[0m:1411:1]
+ [2m1408[0m |   }
+ [2m1409[0m | 
+ [2m1410[0m |   return (
+ [2m1411[0m |     <div className="space-y-8 w-full">
+      : [35;1m     ^^^[0m
+ [2m1412[0m |       {/* Stats Cards Container with Toggle Button */}
+ [2m1413[0m |       <div className="relative bg-white border border-gray-200 rounded-lg shadow-sm p-6">
+ [2m1414[0m |         {/* Toggle Button - Top Right Corner */}
       `----
 
 Caused by:
     Syntax Error
 
 Import trace for requested module:
-./components/appointments/quick-sale.tsx
-./app/quick-sale/page.tsx
- ✓ Compiled in 1182ms (3272 modules)
- GET /login 200 in 161ms
- GET /quick-sale 200 in 166ms
- ✓ Compiled in 665ms (3272 modules)
- GET /quick-sale 200 in 62ms
- GET /login 200 in 62ms
- GET /appointments 200 in 27ms
- GET /quick-sale?appointment=eyJhcHBvaW50bWVudElkIjoiNjhmMWY2MjkwNGI5MjFiZDJlMGRmYzA5IiwiY2xpZW50SWQiOiI2OGRjNjJlMjZiMjRiN2I0Mjc2NzcwZjYiLCJjbGllbnROYW1lIjoiVGVzdCBDbGllbnQiLCJzZXJ2aWNlSWQiOiI2OGU2MTk1OTg2MjMyOWJhZTdlN2I0OGMiLCJzZXJ2aWNlTmFtZSI6Ikh5ZHJhIEZhY2lhbCIsInNlcnZpY2VQcmljZSI6MjAwMCwic2VydmljZUR1cmF0aW9uIjo2MCwic3RhZmZJZCI6IjY4ZGI1MDQ0ODUzNDNlZGRkNDRlM2E1NiIsInN0YWZmTmFtZSI6IkpvaG4gTWFuYWdlciJ9 200 in 10ms
- GET /settings 200 in 31ms
- GET /quick-sale 200 in 7ms
- GET /appointments 200 in 7ms
- GET /quick-sale?appointment=eyJhcHBvaW50bWVudElkIjoiNjhmMWY2MjkwNGI5MjFiZDJlMGRmYzA5IiwiY2xpZW50SWQiOiI2OGRjNjJlMjZiMjRiN2I0Mjc2NzcwZjYiLCJjbGllbnROYW1lIjoiVGVzdCBDbGllbnQiLCJzZXJ2aWNlSWQiOiI2OGU2MTk1OTg2MjMyOWJhZTdlN2I0OGMiLCJzZXJ2aWNlTmFtZSI6Ikh5ZHJhIEZhY2lhbCIsInNlcnZpY2VQcmljZSI6MjAwMCwic2VydmljZUR1cmF0aW9uIjo2MCwic3RhZmZJZCI6IjY4ZGI1MDQ0ODUzNDNlZGRkNDRlM2E1NiIsInN0YWZmTmFtZSI6IkpvaG4gTWFuYWdlciJ9 200 in 9ms
- GET /settings 200 in 10ms
- GET /appointments 200 in 10ms
- GET /quick-sale?appointment=eyJhcHBvaW50bWVudElkIjoiNjhmMWY2MjkwNGI5MjFiZDJlMGRmYzA5IiwiY2xpZW50SWQiOiI2OGRjNjJlMjZiMjRiN2I0Mjc2NzcwZjYiLCJjbGllbnROYW1lIjoiVGVzdCBDbGllbnQiLCJzZXJ2aWNlSWQiOiI2OGU2MTk1OTg2MjMyOWJhZTdlN2I0OGMiLCJzZXJ2aWNlTmFtZSI6Ikh5ZHJhIEZhY2lhbCIsInNlcnZpY2VQcmljZSI6MjAwMCwic2VydmljZUR1cmF0aW9uIjo2MCwic3RhZmZJZCI6IjY4ZGI1MDQ0ODUzNDNlZGRkNDRlM2E1NiIsInN0YWZmTmFtZSI6IkpvaG4gTWFuYWdlciJ9 200 in 11ms
- GET /settings 200 in 9ms
- GET /appointments 200 in 47ms
- GET /quick-sale?appointment=eyJhcHBvaW50bWVudElkIjoiNjhmMWY2MjkwNGI5MjFiZDJlMGRmYzA5IiwiY2xpZW50SWQiOiI2OGRjNjJlMjZiMjRiN2I0Mjc2NzcwZjYiLCJjbGllbnROYW1lIjoiVGVzdCBDbGllbnQiLCJzZXJ2aWNlSWQiOiI2OGU2MTk1OTg2MjMyOWJhZTdlN2I0OGMiLCJzZXJ2aWNlTmFtZSI6Ikh5ZHJhIEZhY2lhbCIsInNlcnZpY2VQcmljZSI6MjAwMCwic2VydmljZUR1cmF0aW9uIjo2MCwic3RhZmZJZCI6IjY4ZGI1MDQ0ODUzNDNlZGRkNDRlM2E1NiIsInN0YWZmTmFtZSI6IkpvaG4gTWFuYWdlciJ9 200 in 11ms
- ✓ Compiled in 2.3s (3272 modules)
- GET /quick-sale 200 in 157ms
- GET /login 200 in 157ms
- ✓ Compiled in 1354ms (3272 modules)
- GET /login 200 in 139ms
- GET /quick-sale 200 in 140ms
- ✓ Compiled in 1422ms (3272 modules)
- GET /quick-sale 200 in 123ms
- GET /login 200 in 124ms
- ✓ Compiled in 1254ms (3272 modules)
- GET /quick-sale 200 in 146ms
- GET /login 200 in 149ms
- ✓ Compiled in 968ms (3272 modules)
- GET /quick-sale 200 in 161ms
- GET /login 200 in 171ms
- ✓ Compiled in 1538ms (3272 modules)
- GET /login 200 in 115ms
- GET /quick-sale 200 in 117ms
- ✓ Compiled in 1017ms (3272 modules)
- GET /quick-sale 200 in 121ms
- GET /login 200 in 141ms
- ✓ Compiled in 1309ms (3272 modules)
- GET /login 200 in 108ms
- GET /quick-sale 200 in 111ms
- ✓ Compiled in 1644ms (3272 modules)
- GET /quick-sale 200 in 121ms
- GET /login 200 in 123ms
- ✓ Compiled in 1171ms (3272 modules)
- GET /quick-sale 200 in 140ms
- GET /login 200 in 142ms
- ✓ Compiled in 1330ms (3272 modules)
- GET /quick-sale 200 in 130ms
- GET /login 200 in 130ms
- ✓ Compiled in 1182ms (3272 modules)
- GET /quick-sale 200 in 118ms
- GET /login 200 in 118ms
+./components/cash-registry/cash-registry-report.tsx
+./app/cash-registry/page.tsx
+ ⨯ ./components/cash-registry/cash-registry-report.tsx
+Error:   [31mx[0m Unexpected token `div`. Expected jsx identifier
+      ,-[[36;1;4m/Users/shubhamanand/ease-my-salon/components/cash-registry/cash-registry-report.tsx[0m:1411:1]
+ [2m1408[0m |   }
+ [2m1409[0m | 
+ [2m1410[0m |   return (
+ [2m1411[0m |     <div className="space-y-8 w-full">
+      : [35;1m     ^^^[0m
+ [2m1412[0m |       {/* Stats Cards Container with Toggle Button */}
+ [2m1413[0m |       <div className="relative bg-white border border-gray-200 rounded-lg shadow-sm p-6">
+ [2m1414[0m |         {/* Toggle Button - Top Right Corner */}
+      `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./components/cash-registry/cash-registry-report.tsx
+./app/cash-registry/page.tsx
+ ✓ Compiled in 1219ms (4116 modules)
+ ✓ Compiled in 687ms (4116 modules)
+ ✓ Compiled in 808ms (4116 modules)
+ GET /products 200 in 135ms
+ GET /cash-registry 200 in 22ms
+ GET /cash-registry 200 in 293ms
+ ✓ Compiled in 1467ms (4116 modules)
+ GET /cash-registry 200 in 89ms
+ GET /settings 200 in 33ms
+ ✓ Compiled in 1060ms (4116 modules)
+ GET /settings 200 in 62ms
+ ✓ Compiled in 552ms (4116 modules)
+ GET /settings 200 in 42ms
+ ✓ Compiled in 300ms (4116 modules)
+ GET /settings 200 in 315ms
+ ✓ Compiled in 1049ms (4116 modules)
+ GET /settings 200 in 47ms
+ ✓ Compiled in 348ms (4116 modules)
+ GET /settings 200 in 46ms
+ ✓ Compiled in 529ms (4116 modules)
+ GET /settings 200 in 86ms
+ ✓ Compiled in 584ms (4116 modules)
+ GET /settings 200 in 63ms
+ ✓ Compiled in 503ms (4116 modules)
+ GET /settings 200 in 54ms
+ ✓ Compiled in 442ms (4116 modules)
+ GET /settings 200 in 42ms
+ ✓ Compiled in 446ms (4116 modules)
+ GET /settings 200 in 91ms
+ ✓ Compiled in 633ms (4116 modules)
+ GET /settings 200 in 49ms
+ ✓ Compiled in 961ms (4116 modules)
+ GET /settings 200 in 44ms
+ ✓ Compiled in 1024ms (4116 modules)
+ GET /settings 200 in 32ms
+ ✓ Compiled in 534ms (4116 modules)
  GET /settings 200 in 38ms
- GET /appointments 200 in 29ms
- GET /quick-sale?appointment=eyJhcHBvaW50bWVudElkIjoiNjhmMWY2MjkwNGI5MjFiZDJlMGRmYzA5IiwiY2xpZW50SWQiOiI2OGRjNjJlMjZiMjRiN2I0Mjc2NzcwZjYiLCJjbGllbnROYW1lIjoiVGVzdCBDbGllbnQiLCJzZXJ2aWNlSWQiOiI2OGU2MTk1OTg2MjMyOWJhZTdlN2I0OGMiLCJzZXJ2aWNlTmFtZSI6Ikh5ZHJhIEZhY2lhbCIsInNlcnZpY2VQcmljZSI6MjAwMCwic2VydmljZUR1cmF0aW9uIjo2MCwic3RhZmZJZCI6IjY4ZGI1MDQ0ODUzNDNlZGRkNDRlM2E1NiIsInN0YWZmTmFtZSI6IkpvaG4gTWFuYWdlciJ9 200 in 13ms
- ○ Compiling /receipt/[billNo] ...
- ✓ Compiled /receipt/[billNo] in 1654ms (3275 modules)
- GET /receipt/ELEGANT-000027?data=%7B%22id%22%3A%221760692435043%22%2C%22receiptNumber%22%3A%22ELEGANT-000027%22%2C%22clientId%22%3A%2268dc62e26b24b7b4276770f6%22%2C%22clientName%22%3A%22Test%20Client%22%2C%22clientPhone%22%3A%221234567890%22%2C%22date%22%3A%222025-10-16T18%3A30%3A00.000Z%22%2C%22time%22%3A%2214%3A43%22%2C%22items%22%3A%5B%7B%22id%22%3A%221760692343520%22%2C%22name%22%3A%22Hydra%20Facial%22%2C%22type%22%3A%22service%22%2C%22quantity%22%3A1%2C%22price%22%3A2000%2C%22discount%22%3A0%2C%22discountType%22%3A%22percentage%22%2C%22staffId%22%3A%2268db504485343eddd44e3a56%22%2C%22staffName%22%3A%22John%20Manager%22%2C%22total%22%3A2100%2C%22staffContributions%22%3A%5B%7B%22staffId%22%3A%2268db504485343eddd44e3a56%22%2C%22staffName%22%3A%22John%20Manager%22%2C%22percentage%22%3A100%2C%22amount%22%3A2100%7D%5D%2C%22taxAmount%22%3A100%2C%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22totalWithTax%22%3A2100%7D%5D%2C%22subtotal%22%3A2100%2C%22tip%22%3A0%2C%22discount%22%3A0%2C%22tax%22%3A100%2C%22roundOff%22%3A-100%2C%22total%22%3A2100%2C%22taxBreakdown%22%3A%7B%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22igst%22%3A0%7D%2C%22payments%22%3A%5B%7B%22type%22%3A%22cash%22%2C%22amount%22%3A1000%7D%5D%2C%22staffId%22%3A%2268db504485343eddd44e3a56%22%2C%22staffName%22%3A%22John%20Manager%22%2C%22notes%22%3A%22%22%7D&t=1760692435044 200 in 3998ms
- GET /appointments 200 in 27ms
- GET /quick-sale?appointment=eyJhcHBvaW50bWVudElkIjoiNjhmMWY2MjkwNGI5MjFiZDJlMGRmYzA5IiwiY2xpZW50SWQiOiI2OGRjNjJlMjZiMjRiN2I0Mjc2NzcwZjYiLCJjbGllbnROYW1lIjoiVGVzdCBDbGllbnQiLCJzZXJ2aWNlSWQiOiI2OGU2MTk1OTg2MjMyOWJhZTdlN2I0OGMiLCJzZXJ2aWNlTmFtZSI6Ikh5ZHJhIEZhY2lhbCIsInNlcnZpY2VQcmljZSI6MjAwMCwic2VydmljZUR1cmF0aW9uIjo2MCwic3RhZmZJZCI6IjY4ZGI1MDQ0ODUzNDNlZGRkNDRlM2E1NiIsInN0YWZmTmFtZSI6IkpvaG4gTWFuYWdlciJ9 200 in 30ms
- GET /appointments 200 in 13ms
- ○ Compiling / ...
- ✓ Compiled / in 1148ms (1933 modules)
- GET / 200 in 1323ms
- ○ Compiling /reports ...
- ✓ Compiled /reports in 1146ms (4120 modules)
- GET /reports 200 in 1369ms
- GET /receipt/ELEGANT-000027 200 in 17ms
- GET /reports 200 in 16ms
- GET /receipt/ELEGANT-000027 200 in 12ms
- ✓ Compiled in 1975ms (4058 modules)
- GET /login 200 in 145ms
- GET /receipt/ELEGANT-000027 200 in 148ms
- GET /receipt/ELEGANT-000027?data=%7B%22id%22%3A%221760692435043%22%2C%22receiptNumber%22%3A%22ELEGANT-000027%22%2C%22clientId%22%3A%2268dc62e26b24b7b4276770f6%22%2C%22clientName%22%3A%22Test+Client%22%2C%22clientPhone%22%3A%221234567890%22%2C%22date%22%3A%222025-10-16T18%3A30%3A00.000Z%22%2C%22time%22%3A%2214%3A43%22%2C%22items%22%3A%5B%7B%22id%22%3A%221760692343520%22%2C%22name%22%3A%22Hydra+Facial%22%2C%22type%22%3A%22service%22%2C%22quantity%22%3A1%2C%22price%22%3A2000%2C%22discount%22%3A0%2C%22discountType%22%3A%22percentage%22%2C%22staffId%22%3A%2268db504485343eddd44e3a56%22%2C%22staffName%22%3A%22John+Manager%22%2C%22total%22%3A2100%2C%22staffContributions%22%3A%5B%7B%22staffId%22%3A%2268db504485343eddd44e3a56%22%2C%22staffName%22%3A%22John+Manager%22%2C%22percentage%22%3A100%2C%22amount%22%3A2100%7D%5D%2C%22taxAmount%22%3A100%2C%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22totalWithTax%22%3A2100%7D%5D%2C%22subtotal%22%3A2100%2C%22tip%22%3A0%2C%22discount%22%3A0%2C%22tax%22%3A100%2C%22roundOff%22%3A-100%2C%22total%22%3A2100%2C%22taxBreakdown%22%3A%7B%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22igst%22%3A0%7D%2C%22payments%22%3A%5B%7B%22type%22%3A%22cash%22%2C%22amount%22%3A1000%7D%5D%2C%22staffId%22%3A%2268db504485343eddd44e3a56%22%2C%22staffName%22%3A%22John+Manager%22%2C%22notes%22%3A%22%22%7D&t=1760692435044 200 in 150ms
- ✓ Compiled in 827ms (1978 modules)
- GET /login 200 in 78ms
- GET /receipt/ELEGANT-000027 200 in 78ms
- GET /receipt/ELEGANT-000027?data=%7B%22id%22%3A%221760692435043%22%2C%22receiptNumber%22%3A%22ELEGANT-000027%22%2C%22clientId%22%3A%2268dc62e26b24b7b4276770f6%22%2C%22clientName%22%3A%22Test+Client%22%2C%22clientPhone%22%3A%221234567890%22%2C%22date%22%3A%222025-10-16T18%3A30%3A00.000Z%22%2C%22time%22%3A%2214%3A43%22%2C%22items%22%3A%5B%7B%22id%22%3A%221760692343520%22%2C%22name%22%3A%22Hydra+Facial%22%2C%22type%22%3A%22service%22%2C%22quantity%22%3A1%2C%22price%22%3A2000%2C%22discount%22%3A0%2C%22discountType%22%3A%22percentage%22%2C%22staffId%22%3A%2268db504485343eddd44e3a56%22%2C%22staffName%22%3A%22John+Manager%22%2C%22total%22%3A2100%2C%22staffContributions%22%3A%5B%7B%22staffId%22%3A%2268db504485343eddd44e3a56%22%2C%22staffName%22%3A%22John+Manager%22%2C%22percentage%22%3A100%2C%22amount%22%3A2100%7D%5D%2C%22taxAmount%22%3A100%2C%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22totalWithTax%22%3A2100%7D%5D%2C%22subtotal%22%3A2100%2C%22tip%22%3A0%2C%22discount%22%3A0%2C%22tax%22%3A100%2C%22roundOff%22%3A-100%2C%22total%22%3A2100%2C%22taxBreakdown%22%3A%7B%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22igst%22%3A0%7D%2C%22payments%22%3A%5B%7B%22type%22%3A%22cash%22%2C%22amount%22%3A1000%7D%5D%2C%22staffId%22%3A%2268db504485343eddd44e3a56%22%2C%22staffName%22%3A%22John+Manager%22%2C%22notes%22%3A%22%22%7D&t=1760692435044 200 in 81ms
- ✓ Compiled in 303ms (1978 modules)
- GET /login 200 in 64ms
- GET /receipt/ELEGANT-000027 200 in 64ms
- GET /receipt/ELEGANT-000027?data=%7B%22id%22%3A%221760692435043%22%2C%22receiptNumber%22%3A%22ELEGANT-000027%22%2C%22clientId%22%3A%2268dc62e26b24b7b4276770f6%22%2C%22clientName%22%3A%22Test+Client%22%2C%22clientPhone%22%3A%221234567890%22%2C%22date%22%3A%222025-10-16T18%3A30%3A00.000Z%22%2C%22time%22%3A%2214%3A43%22%2C%22items%22%3A%5B%7B%22id%22%3A%221760692343520%22%2C%22name%22%3A%22Hydra+Facial%22%2C%22type%22%3A%22service%22%2C%22quantity%22%3A1%2C%22price%22%3A2000%2C%22discount%22%3A0%2C%22discountType%22%3A%22percentage%22%2C%22staffId%22%3A%2268db504485343eddd44e3a56%22%2C%22staffName%22%3A%22John+Manager%22%2C%22total%22%3A2100%2C%22staffContributions%22%3A%5B%7B%22staffId%22%3A%2268db504485343eddd44e3a56%22%2C%22staffName%22%3A%22John+Manager%22%2C%22percentage%22%3A100%2C%22amount%22%3A2100%7D%5D%2C%22taxAmount%22%3A100%2C%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22totalWithTax%22%3A2100%7D%5D%2C%22subtotal%22%3A2100%2C%22tip%22%3A0%2C%22discount%22%3A0%2C%22tax%22%3A100%2C%22roundOff%22%3A-100%2C%22total%22%3A2100%2C%22taxBreakdown%22%3A%7B%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22igst%22%3A0%7D%2C%22payments%22%3A%5B%7B%22type%22%3A%22cash%22%2C%22amount%22%3A1000%7D%5D%2C%22staffId%22%3A%2268db504485343eddd44e3a56%22%2C%22staffName%22%3A%22John+Manager%22%2C%22notes%22%3A%22%22%7D&t=1760692435044 200 in 63ms
- ✓ Compiled in 352ms (1978 modules)
- GET /login 200 in 48ms
- GET /receipt/ELEGANT-000027 200 in 49ms
- GET /receipt/ELEGANT-000027?data=%7B%22id%22%3A%221760692435043%22%2C%22receiptNumber%22%3A%22ELEGANT-000027%22%2C%22clientId%22%3A%2268dc62e26b24b7b4276770f6%22%2C%22clientName%22%3A%22Test+Client%22%2C%22clientPhone%22%3A%221234567890%22%2C%22date%22%3A%222025-10-16T18%3A30%3A00.000Z%22%2C%22time%22%3A%2214%3A43%22%2C%22items%22%3A%5B%7B%22id%22%3A%221760692343520%22%2C%22name%22%3A%22Hydra+Facial%22%2C%22type%22%3A%22service%22%2C%22quantity%22%3A1%2C%22price%22%3A2000%2C%22discount%22%3A0%2C%22discountType%22%3A%22percentage%22%2C%22staffId%22%3A%2268db504485343eddd44e3a56%22%2C%22staffName%22%3A%22John+Manager%22%2C%22total%22%3A2100%2C%22staffContributions%22%3A%5B%7B%22staffId%22%3A%2268db504485343eddd44e3a56%22%2C%22staffName%22%3A%22John+Manager%22%2C%22percentage%22%3A100%2C%22amount%22%3A2100%7D%5D%2C%22taxAmount%22%3A100%2C%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22totalWithTax%22%3A2100%7D%5D%2C%22subtotal%22%3A2100%2C%22tip%22%3A0%2C%22discount%22%3A0%2C%22tax%22%3A100%2C%22roundOff%22%3A-100%2C%22total%22%3A2100%2C%22taxBreakdown%22%3A%7B%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22igst%22%3A0%7D%2C%22payments%22%3A%5B%7B%22type%22%3A%22cash%22%2C%22amount%22%3A1000%7D%5D%2C%22staffId%22%3A%2268db504485343eddd44e3a56%22%2C%22staffName%22%3A%22John+Manager%22%2C%22notes%22%3A%22%22%7D&t=1760692435044 200 in 52ms
- ✓ Compiled in 547ms (1978 modules)
- GET /login 200 in 72ms
- GET /receipt/ELEGANT-000027 200 in 72ms
- GET /receipt/ELEGANT-000027?data=%7B%22id%22%3A%221760692435043%22%2C%22receiptNumber%22%3A%22ELEGANT-000027%22%2C%22clientId%22%3A%2268dc62e26b24b7b4276770f6%22%2C%22clientName%22%3A%22Test+Client%22%2C%22clientPhone%22%3A%221234567890%22%2C%22date%22%3A%222025-10-16T18%3A30%3A00.000Z%22%2C%22time%22%3A%2214%3A43%22%2C%22items%22%3A%5B%7B%22id%22%3A%221760692343520%22%2C%22name%22%3A%22Hydra+Facial%22%2C%22type%22%3A%22service%22%2C%22quantity%22%3A1%2C%22price%22%3A2000%2C%22discount%22%3A0%2C%22discountType%22%3A%22percentage%22%2C%22staffId%22%3A%2268db504485343eddd44e3a56%22%2C%22staffName%22%3A%22John+Manager%22%2C%22total%22%3A2100%2C%22staffContributions%22%3A%5B%7B%22staffId%22%3A%2268db504485343eddd44e3a56%22%2C%22staffName%22%3A%22John+Manager%22%2C%22percentage%22%3A100%2C%22amount%22%3A2100%7D%5D%2C%22taxAmount%22%3A100%2C%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22totalWithTax%22%3A2100%7D%5D%2C%22subtotal%22%3A2100%2C%22tip%22%3A0%2C%22discount%22%3A0%2C%22tax%22%3A100%2C%22roundOff%22%3A-100%2C%22total%22%3A2100%2C%22taxBreakdown%22%3A%7B%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22igst%22%3A0%7D%2C%22payments%22%3A%5B%7B%22type%22%3A%22cash%22%2C%22amount%22%3A1000%7D%5D%2C%22staffId%22%3A%2268db504485343eddd44e3a56%22%2C%22staffName%22%3A%22John+Manager%22%2C%22notes%22%3A%22%22%7D&t=1760692435044 200 in 68ms
- GET /reports 200 in 54ms
- GET /receipt/ELEGANT-000027 200 in 17ms
- GET /receipt/ELEGANT-000027 200 in 134ms
- GET /reports 200 in 14ms
- GET /reports 200 in 37ms
- GET /receipt/ELEGANT-000027 200 in 10ms
- GET /receipt/ELEGANT-000027?data=%7B%22id%22%3A%221760692435043%22%2C%22receiptNumber%22%3A%22ELEGANT-000027%22%2C%22clientId%22%3A%2268dc62e26b24b7b4276770f6%22%2C%22clientName%22%3A%22Test%20Client%22%2C%22clientPhone%22%3A%221234567890%22%2C%22date%22%3A%222025-10-16T18%3A30%3A00.000Z%22%2C%22time%22%3A%2214%3A43%22%2C%22items%22%3A%5B%7B%22id%22%3A%221760692343520%22%2C%22name%22%3A%22Hydra%20Facial%22%2C%22type%22%3A%22service%22%2C%22quantity%22%3A1%2C%22price%22%3A2000%2C%22discount%22%3A0%2C%22discountType%22%3A%22percentage%22%2C%22staffId%22%3A%2268db504485343eddd44e3a56%22%2C%22staffName%22%3A%22John%20Manager%22%2C%22total%22%3A2100%2C%22staffContributions%22%3A%5B%7B%22staffId%22%3A%2268db504485343eddd44e3a56%22%2C%22staffName%22%3A%22John%20Manager%22%2C%22percentage%22%3A100%2C%22amount%22%3A2100%7D%5D%2C%22taxAmount%22%3A100%2C%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22totalWithTax%22%3A2100%7D%5D%2C%22subtotal%22%3A2100%2C%22tip%22%3A0%2C%22discount%22%3A0%2C%22tax%22%3A100%2C%22roundOff%22%3A-100%2C%22total%22%3A2100%2C%22taxBreakdown%22%3A%7B%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22igst%22%3A0%7D%2C%22payments%22%3A%5B%7B%22type%22%3A%22cash%22%2C%22amount%22%3A1000%7D%5D%2C%22staffId%22%3A%2268db504485343eddd44e3a56%22%2C%22staffName%22%3A%22John%20Manager%22%2C%22notes%22%3A%22%22%7D&t=1760692435044 200 in 28ms
- GET /receipt/ELEGANT-000027 200 in 27ms
- GET /reports 200 in 23ms
+ ✓ Compiled in 304ms (4116 modules)
+ GET /settings 200 in 33ms
+ ✓ Compiled in 832ms (4116 modules)
+ GET /settings 200 in 46ms
+ ✓ Compiled in 807ms (4116 modules)
+ GET /settings 200 in 74ms
+ ✓ Compiled in 592ms (4116 modules)
+ GET /settings 200 in 41ms
+ ✓ Compiled in 507ms (4116 modules)
+ GET /settings 200 in 81ms
+ ✓ Compiled in 576ms (4116 modules)
+ GET /settings 200 in 45ms
+ ✓ Compiled in 330ms (4116 modules)
+ GET /settings 200 in 29ms
+ ✓ Compiled in 727ms (4116 modules)
+ GET /settings 200 in 33ms
+ ✓ Compiled in 624ms (4116 modules)
+ GET /settings 200 in 40ms
+ ✓ Compiled in 767ms (4116 modules)
+ GET /settings 200 in 68ms
+ ✓ Compiled in 1678ms (4116 modules)
+ GET /settings 200 in 35ms
+ GET / 200 in 272ms
+ GET /login 200 in 131ms
+ GET /settings 200 in 65ms
+ GET /login 200 in 12ms
+ GET / 200 in 30ms
+ GET / 200 in 13ms
+ GET /settings 200 in 5ms
+ GET / 200 in 36ms
  ○ Compiling /quick-sale ...
- ✓ Compiled /quick-sale in 583ms (2103 modules)
- GET /quick-sale 200 in 695ms
- GET /receipt/ELEGANT-000028?data=%7B%22id%22%3A%221760699481482%22%2C%22receiptNumber%22%3A%22ELEGANT-000028%22%2C%22clientId%22%3A%2268e717baecc1afec6a8946d6%22%2C%22clientName%22%3A%22Shubham%22%2C%22clientPhone%22%3A%227091140602%22%2C%22date%22%3A%222025-10-17T11%3A10%3A58.620Z%22%2C%22time%22%3A%2216%3A41%22%2C%22items%22%3A%5B%7B%22id%22%3A%221760699464869%22%2C%22name%22%3A%22Hydra%20Facial%22%2C%22type%22%3A%22service%22%2C%22quantity%22%3A1%2C%22price%22%3A2000%2C%22discount%22%3A0%2C%22discountType%22%3A%22percentage%22%2C%22staffId%22%3A%2268f1ffea04b921bd2e0dfc72%22%2C%22staffName%22%3A%22Suhani%22%2C%22total%22%3A2100%2C%22staffContributions%22%3A%5B%7B%22staffId%22%3A%2268f1ffea04b921bd2e0dfc72%22%2C%22staffName%22%3A%22Suhani%22%2C%22percentage%22%3A100%2C%22amount%22%3A2100%7D%5D%2C%22taxAmount%22%3A100%2C%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22totalWithTax%22%3A2100%7D%5D%2C%22subtotal%22%3A2100%2C%22tip%22%3A0%2C%22discount%22%3A0%2C%22tax%22%3A100%2C%22roundOff%22%3A-100%2C%22total%22%3A2100%2C%22taxBreakdown%22%3A%7B%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22igst%22%3A0%7D%2C%22payments%22%3A%5B%7B%22type%22%3A%22cash%22%2C%22amount%22%3A2100%7D%5D%2C%22staffId%22%3A%2268f1ffea04b921bd2e0dfc72%22%2C%22staffName%22%3A%22Suhani%22%2C%22notes%22%3A%22%22%7D&t=1760699481482 200 in 161ms
- GET /reports 200 in 37ms
- GET /receipt/ELEGANT-000028 200 in 7ms
- GET /reports 200 in 16ms
- GET /appointments 200 in 43ms
- ○ Compiling /appointments/new ...
- ✓ Compiled /appointments/new in 999ms (2112 modules)
- GET /appointments/new 200 in 1158ms
- ✓ Compiled in 2.2s (3461 modules)
- GET /login 200 in 124ms
- GET /receipt/ELEGANT-000027?data=%7B%22id%22%3A%221760692435043%22%2C%22receiptNumber%22%3A%22ELEGANT-000027%22%2C%22clientId%22%3A%2268dc62e26b24b7b4276770f6%22%2C%22clientName%22%3A%22Test+Client%22%2C%22clientPhone%22%3A%221234567890%22%2C%22date%22%3A%222025-10-16T18%3A30%3A00.000Z%22%2C%22time%22%3A%2214%3A43%22%2C%22items%22%3A%5B%7B%22id%22%3A%221760692343520%22%2C%22name%22%3A%22Hydra+Facial%22%2C%22type%22%3A%22service%22%2C%22quantity%22%3A1%2C%22price%22%3A2000%2C%22discount%22%3A0%2C%22discountType%22%3A%22percentage%22%2C%22staffId%22%3A%2268db504485343eddd44e3a56%22%2C%22staffName%22%3A%22John+Manager%22%2C%22total%22%3A2100%2C%22staffContributions%22%3A%5B%7B%22staffId%22%3A%2268db504485343eddd44e3a56%22%2C%22staffName%22%3A%22John+Manager%22%2C%22percentage%22%3A100%2C%22amount%22%3A2100%7D%5D%2C%22taxAmount%22%3A100%2C%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22totalWithTax%22%3A2100%7D%5D%2C%22subtotal%22%3A2100%2C%22tip%22%3A0%2C%22discount%22%3A0%2C%22tax%22%3A100%2C%22roundOff%22%3A-100%2C%22total%22%3A2100%2C%22taxBreakdown%22%3A%7B%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22igst%22%3A0%7D%2C%22payments%22%3A%5B%7B%22type%22%3A%22cash%22%2C%22amount%22%3A1000%7D%5D%2C%22staffId%22%3A%2268db504485343eddd44e3a56%22%2C%22staffName%22%3A%22John+Manager%22%2C%22notes%22%3A%22%22%7D&t=1760692435044 200 in 125ms
- GET /appointments/new 200 in 109ms
- GET /receipt/ELEGANT-000028?data=%7B%22id%22%3A%221760699481482%22%2C%22receiptNumber%22%3A%22ELEGANT-000028%22%2C%22clientId%22%3A%2268e717baecc1afec6a8946d6%22%2C%22clientName%22%3A%22Shubham%22%2C%22clientPhone%22%3A%227091140602%22%2C%22date%22%3A%222025-10-17T11%3A10%3A58.620Z%22%2C%22time%22%3A%2216%3A41%22%2C%22items%22%3A%5B%7B%22id%22%3A%221760699464869%22%2C%22name%22%3A%22Hydra+Facial%22%2C%22type%22%3A%22service%22%2C%22quantity%22%3A1%2C%22price%22%3A2000%2C%22discount%22%3A0%2C%22discountType%22%3A%22percentage%22%2C%22staffId%22%3A%2268f1ffea04b921bd2e0dfc72%22%2C%22staffName%22%3A%22Suhani%22%2C%22total%22%3A2100%2C%22staffContributions%22%3A%5B%7B%22staffId%22%3A%2268f1ffea04b921bd2e0dfc72%22%2C%22staffName%22%3A%22Suhani%22%2C%22percentage%22%3A100%2C%22amount%22%3A2100%7D%5D%2C%22taxAmount%22%3A100%2C%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22totalWithTax%22%3A2100%7D%5D%2C%22subtotal%22%3A2100%2C%22tip%22%3A0%2C%22discount%22%3A0%2C%22tax%22%3A100%2C%22roundOff%22%3A-100%2C%22total%22%3A2100%2C%22taxBreakdown%22%3A%7B%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22igst%22%3A0%7D%2C%22payments%22%3A%5B%7B%22type%22%3A%22cash%22%2C%22amount%22%3A2100%7D%5D%2C%22staffId%22%3A%2268f1ffea04b921bd2e0dfc72%22%2C%22staffName%22%3A%22Suhani%22%2C%22notes%22%3A%22%22%7D&t=1760699481482 200 in 111ms
- ✓ Compiled in 965ms (3461 modules)
- GET /login 200 in 115ms
- GET /receipt/ELEGANT-000027?data=%7B%22id%22%3A%221760692435043%22%2C%22receiptNumber%22%3A%22ELEGANT-000027%22%2C%22clientId%22%3A%2268dc62e26b24b7b4276770f6%22%2C%22clientName%22%3A%22Test+Client%22%2C%22clientPhone%22%3A%221234567890%22%2C%22date%22%3A%222025-10-16T18%3A30%3A00.000Z%22%2C%22time%22%3A%2214%3A43%22%2C%22items%22%3A%5B%7B%22id%22%3A%221760692343520%22%2C%22name%22%3A%22Hydra+Facial%22%2C%22type%22%3A%22service%22%2C%22quantity%22%3A1%2C%22price%22%3A2000%2C%22discount%22%3A0%2C%22discountType%22%3A%22percentage%22%2C%22staffId%22%3A%2268db504485343eddd44e3a56%22%2C%22staffName%22%3A%22John+Manager%22%2C%22total%22%3A2100%2C%22staffContributions%22%3A%5B%7B%22staffId%22%3A%2268db504485343eddd44e3a56%22%2C%22staffName%22%3A%22John+Manager%22%2C%22percentage%22%3A100%2C%22amount%22%3A2100%7D%5D%2C%22taxAmount%22%3A100%2C%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22totalWithTax%22%3A2100%7D%5D%2C%22subtotal%22%3A2100%2C%22tip%22%3A0%2C%22discount%22%3A0%2C%22tax%22%3A100%2C%22roundOff%22%3A-100%2C%22total%22%3A2100%2C%22taxBreakdown%22%3A%7B%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22igst%22%3A0%7D%2C%22payments%22%3A%5B%7B%22type%22%3A%22cash%22%2C%22amount%22%3A1000%7D%5D%2C%22staffId%22%3A%2268db504485343eddd44e3a56%22%2C%22staffName%22%3A%22John+Manager%22%2C%22notes%22%3A%22%22%7D&t=1760692435044 200 in 115ms
- GET /appointments/new 200 in 126ms
- GET /receipt/ELEGANT-000028?data=%7B%22id%22%3A%221760699481482%22%2C%22receiptNumber%22%3A%22ELEGANT-000028%22%2C%22clientId%22%3A%2268e717baecc1afec6a8946d6%22%2C%22clientName%22%3A%22Shubham%22%2C%22clientPhone%22%3A%227091140602%22%2C%22date%22%3A%222025-10-17T11%3A10%3A58.620Z%22%2C%22time%22%3A%2216%3A41%22%2C%22items%22%3A%5B%7B%22id%22%3A%221760699464869%22%2C%22name%22%3A%22Hydra+Facial%22%2C%22type%22%3A%22service%22%2C%22quantity%22%3A1%2C%22price%22%3A2000%2C%22discount%22%3A0%2C%22discountType%22%3A%22percentage%22%2C%22staffId%22%3A%2268f1ffea04b921bd2e0dfc72%22%2C%22staffName%22%3A%22Suhani%22%2C%22total%22%3A2100%2C%22staffContributions%22%3A%5B%7B%22staffId%22%3A%2268f1ffea04b921bd2e0dfc72%22%2C%22staffName%22%3A%22Suhani%22%2C%22percentage%22%3A100%2C%22amount%22%3A2100%7D%5D%2C%22taxAmount%22%3A100%2C%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22totalWithTax%22%3A2100%7D%5D%2C%22subtotal%22%3A2100%2C%22tip%22%3A0%2C%22discount%22%3A0%2C%22tax%22%3A100%2C%22roundOff%22%3A-100%2C%22total%22%3A2100%2C%22taxBreakdown%22%3A%7B%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22igst%22%3A0%7D%2C%22payments%22%3A%5B%7B%22type%22%3A%22cash%22%2C%22amount%22%3A2100%7D%5D%2C%22staffId%22%3A%2268f1ffea04b921bd2e0dfc72%22%2C%22staffName%22%3A%22Suhani%22%2C%22notes%22%3A%22%22%7D&t=1760699481482 200 in 71ms
- GET /appointments/new 200 in 104ms
- ✓ Compiled in 1572ms (3461 modules)
- GET /login 200 in 279ms
- GET /receipt/ELEGANT-000027?data=%7B%22id%22%3A%221760692435043%22%2C%22receiptNumber%22%3A%22ELEGANT-000027%22%2C%22clientId%22%3A%2268dc62e26b24b7b4276770f6%22%2C%22clientName%22%3A%22Test+Client%22%2C%22clientPhone%22%3A%221234567890%22%2C%22date%22%3A%222025-10-16T18%3A30%3A00.000Z%22%2C%22time%22%3A%2214%3A43%22%2C%22items%22%3A%5B%7B%22id%22%3A%221760692343520%22%2C%22name%22%3A%22Hydra+Facial%22%2C%22type%22%3A%22service%22%2C%22quantity%22%3A1%2C%22price%22%3A2000%2C%22discount%22%3A0%2C%22discountType%22%3A%22percentage%22%2C%22staffId%22%3A%2268db504485343eddd44e3a56%22%2C%22staffName%22%3A%22John+Manager%22%2C%22total%22%3A2100%2C%22staffContributions%22%3A%5B%7B%22staffId%22%3A%2268db504485343eddd44e3a56%22%2C%22staffName%22%3A%22John+Manager%22%2C%22percentage%22%3A100%2C%22amount%22%3A2100%7D%5D%2C%22taxAmount%22%3A100%2C%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22totalWithTax%22%3A2100%7D%5D%2C%22subtotal%22%3A2100%2C%22tip%22%3A0%2C%22discount%22%3A0%2C%22tax%22%3A100%2C%22roundOff%22%3A-100%2C%22total%22%3A2100%2C%22taxBreakdown%22%3A%7B%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22igst%22%3A0%7D%2C%22payments%22%3A%5B%7B%22type%22%3A%22cash%22%2C%22amount%22%3A1000%7D%5D%2C%22staffId%22%3A%2268db504485343eddd44e3a56%22%2C%22staffName%22%3A%22John+Manager%22%2C%22notes%22%3A%22%22%7D&t=1760692435044 200 in 271ms
- GET /receipt/ELEGANT-000028?data=%7B%22id%22%3A%221760699481482%22%2C%22receiptNumber%22%3A%22ELEGANT-000028%22%2C%22clientId%22%3A%2268e717baecc1afec6a8946d6%22%2C%22clientName%22%3A%22Shubham%22%2C%22clientPhone%22%3A%227091140602%22%2C%22date%22%3A%222025-10-17T11%3A10%3A58.620Z%22%2C%22time%22%3A%2216%3A41%22%2C%22items%22%3A%5B%7B%22id%22%3A%221760699464869%22%2C%22name%22%3A%22Hydra+Facial%22%2C%22type%22%3A%22service%22%2C%22quantity%22%3A1%2C%22price%22%3A2000%2C%22discount%22%3A0%2C%22discountType%22%3A%22percentage%22%2C%22staffId%22%3A%2268f1ffea04b921bd2e0dfc72%22%2C%22staffName%22%3A%22Suhani%22%2C%22total%22%3A2100%2C%22staffContributions%22%3A%5B%7B%22staffId%22%3A%2268f1ffea04b921bd2e0dfc72%22%2C%22staffName%22%3A%22Suhani%22%2C%22percentage%22%3A100%2C%22amount%22%3A2100%7D%5D%2C%22taxAmount%22%3A100%2C%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22totalWithTax%22%3A2100%7D%5D%2C%22subtotal%22%3A2100%2C%22tip%22%3A0%2C%22discount%22%3A0%2C%22tax%22%3A100%2C%22roundOff%22%3A-100%2C%22total%22%3A2100%2C%22taxBreakdown%22%3A%7B%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22igst%22%3A0%7D%2C%22payments%22%3A%5B%7B%22type%22%3A%22cash%22%2C%22amount%22%3A2100%7D%5D%2C%22staffId%22%3A%2268f1ffea04b921bd2e0dfc72%22%2C%22staffName%22%3A%22Suhani%22%2C%22notes%22%3A%22%22%7D&t=1760699481482 200 in 270ms
- GET /appointments/new 200 in 272ms
- ✓ Compiled in 613ms (3461 modules)
- GET /login 200 in 121ms
- GET /receipt/ELEGANT-000027?data=%7B%22id%22%3A%221760692435043%22%2C%22receiptNumber%22%3A%22ELEGANT-000027%22%2C%22clientId%22%3A%2268dc62e26b24b7b4276770f6%22%2C%22clientName%22%3A%22Test+Client%22%2C%22clientPhone%22%3A%221234567890%22%2C%22date%22%3A%222025-10-16T18%3A30%3A00.000Z%22%2C%22time%22%3A%2214%3A43%22%2C%22items%22%3A%5B%7B%22id%22%3A%221760692343520%22%2C%22name%22%3A%22Hydra+Facial%22%2C%22type%22%3A%22service%22%2C%22quantity%22%3A1%2C%22price%22%3A2000%2C%22discount%22%3A0%2C%22discountType%22%3A%22percentage%22%2C%22staffId%22%3A%2268db504485343eddd44e3a56%22%2C%22staffName%22%3A%22John+Manager%22%2C%22total%22%3A2100%2C%22staffContributions%22%3A%5B%7B%22staffId%22%3A%2268db504485343eddd44e3a56%22%2C%22staffName%22%3A%22John+Manager%22%2C%22percentage%22%3A100%2C%22amount%22%3A2100%7D%5D%2C%22taxAmount%22%3A100%2C%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22totalWithTax%22%3A2100%7D%5D%2C%22subtotal%22%3A2100%2C%22tip%22%3A0%2C%22discount%22%3A0%2C%22tax%22%3A100%2C%22roundOff%22%3A-100%2C%22total%22%3A2100%2C%22taxBreakdown%22%3A%7B%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22igst%22%3A0%7D%2C%22payments%22%3A%5B%7B%22type%22%3A%22cash%22%2C%22amount%22%3A1000%7D%5D%2C%22staffId%22%3A%2268db504485343eddd44e3a56%22%2C%22staffName%22%3A%22John+Manager%22%2C%22notes%22%3A%22%22%7D&t=1760692435044 200 in 120ms
- GET /receipt/ELEGANT-000028?data=%7B%22id%22%3A%221760699481482%22%2C%22receiptNumber%22%3A%22ELEGANT-000028%22%2C%22clientId%22%3A%2268e717baecc1afec6a8946d6%22%2C%22clientName%22%3A%22Shubham%22%2C%22clientPhone%22%3A%227091140602%22%2C%22date%22%3A%222025-10-17T11%3A10%3A58.620Z%22%2C%22time%22%3A%2216%3A41%22%2C%22items%22%3A%5B%7B%22id%22%3A%221760699464869%22%2C%22name%22%3A%22Hydra+Facial%22%2C%22type%22%3A%22service%22%2C%22quantity%22%3A1%2C%22price%22%3A2000%2C%22discount%22%3A0%2C%22discountType%22%3A%22percentage%22%2C%22staffId%22%3A%2268f1ffea04b921bd2e0dfc72%22%2C%22staffName%22%3A%22Suhani%22%2C%22total%22%3A2100%2C%22staffContributions%22%3A%5B%7B%22staffId%22%3A%2268f1ffea04b921bd2e0dfc72%22%2C%22staffName%22%3A%22Suhani%22%2C%22percentage%22%3A100%2C%22amount%22%3A2100%7D%5D%2C%22taxAmount%22%3A100%2C%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22totalWithTax%22%3A2100%7D%5D%2C%22subtotal%22%3A2100%2C%22tip%22%3A0%2C%22discount%22%3A0%2C%22tax%22%3A100%2C%22roundOff%22%3A-100%2C%22total%22%3A2100%2C%22taxBreakdown%22%3A%7B%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22igst%22%3A0%7D%2C%22payments%22%3A%5B%7B%22type%22%3A%22cash%22%2C%22amount%22%3A2100%7D%5D%2C%22staffId%22%3A%2268f1ffea04b921bd2e0dfc72%22%2C%22staffName%22%3A%22Suhani%22%2C%22notes%22%3A%22%22%7D&t=1760699481482 200 in 121ms
- GET /appointments/new 200 in 121ms
- GET /appointments/new 200 in 135ms
- GET /appointments/new 200 in 45ms
- GET /appointments/new 200 in 79ms
- ✓ Compiled in 1872ms (3461 modules)
- GET /login 200 in 127ms
- GET /receipt/ELEGANT-000027?data=%7B%22id%22%3A%221760692435043%22%2C%22receiptNumber%22%3A%22ELEGANT-000027%22%2C%22clientId%22%3A%2268dc62e26b24b7b4276770f6%22%2C%22clientName%22%3A%22Test+Client%22%2C%22clientPhone%22%3A%221234567890%22%2C%22date%22%3A%222025-10-16T18%3A30%3A00.000Z%22%2C%22time%22%3A%2214%3A43%22%2C%22items%22%3A%5B%7B%22id%22%3A%221760692343520%22%2C%22name%22%3A%22Hydra+Facial%22%2C%22type%22%3A%22service%22%2C%22quantity%22%3A1%2C%22price%22%3A2000%2C%22discount%22%3A0%2C%22discountType%22%3A%22percentage%22%2C%22staffId%22%3A%2268db504485343eddd44e3a56%22%2C%22staffName%22%3A%22John+Manager%22%2C%22total%22%3A2100%2C%22staffContributions%22%3A%5B%7B%22staffId%22%3A%2268db504485343eddd44e3a56%22%2C%22staffName%22%3A%22John+Manager%22%2C%22percentage%22%3A100%2C%22amount%22%3A2100%7D%5D%2C%22taxAmount%22%3A100%2C%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22totalWithTax%22%3A2100%7D%5D%2C%22subtotal%22%3A2100%2C%22tip%22%3A0%2C%22discount%22%3A0%2C%22tax%22%3A100%2C%22roundOff%22%3A-100%2C%22total%22%3A2100%2C%22taxBreakdown%22%3A%7B%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22igst%22%3A0%7D%2C%22payments%22%3A%5B%7B%22type%22%3A%22cash%22%2C%22amount%22%3A1000%7D%5D%2C%22staffId%22%3A%2268db504485343eddd44e3a56%22%2C%22staffName%22%3A%22John+Manager%22%2C%22notes%22%3A%22%22%7D&t=1760692435044 200 in 133ms
- GET /receipt/ELEGANT-000028?data=%7B%22id%22%3A%221760699481482%22%2C%22receiptNumber%22%3A%22ELEGANT-000028%22%2C%22clientId%22%3A%2268e717baecc1afec6a8946d6%22%2C%22clientName%22%3A%22Shubham%22%2C%22clientPhone%22%3A%227091140602%22%2C%22date%22%3A%222025-10-17T11%3A10%3A58.620Z%22%2C%22time%22%3A%2216%3A41%22%2C%22items%22%3A%5B%7B%22id%22%3A%221760699464869%22%2C%22name%22%3A%22Hydra+Facial%22%2C%22type%22%3A%22service%22%2C%22quantity%22%3A1%2C%22price%22%3A2000%2C%22discount%22%3A0%2C%22discountType%22%3A%22percentage%22%2C%22staffId%22%3A%2268f1ffea04b921bd2e0dfc72%22%2C%22staffName%22%3A%22Suhani%22%2C%22total%22%3A2100%2C%22staffContributions%22%3A%5B%7B%22staffId%22%3A%2268f1ffea04b921bd2e0dfc72%22%2C%22staffName%22%3A%22Suhani%22%2C%22percentage%22%3A100%2C%22amount%22%3A2100%7D%5D%2C%22taxAmount%22%3A100%2C%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22totalWithTax%22%3A2100%7D%5D%2C%22subtotal%22%3A2100%2C%22tip%22%3A0%2C%22discount%22%3A0%2C%22tax%22%3A100%2C%22roundOff%22%3A-100%2C%22total%22%3A2100%2C%22taxBreakdown%22%3A%7B%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22igst%22%3A0%7D%2C%22payments%22%3A%5B%7B%22type%22%3A%22cash%22%2C%22amount%22%3A2100%7D%5D%2C%22staffId%22%3A%2268f1ffea04b921bd2e0dfc72%22%2C%22staffName%22%3A%22Suhani%22%2C%22notes%22%3A%22%22%7D&t=1760699481482 200 in 299ms
- GET /appointments/new 200 in 314ms
- ✓ Compiled in 969ms (3461 modules)
- GET /login 200 in 134ms
- GET /receipt/ELEGANT-000027?data=%7B%22id%22%3A%221760692435043%22%2C%22receiptNumber%22%3A%22ELEGANT-000027%22%2C%22clientId%22%3A%2268dc62e26b24b7b4276770f6%22%2C%22clientName%22%3A%22Test+Client%22%2C%22clientPhone%22%3A%221234567890%22%2C%22date%22%3A%222025-10-16T18%3A30%3A00.000Z%22%2C%22time%22%3A%2214%3A43%22%2C%22items%22%3A%5B%7B%22id%22%3A%221760692343520%22%2C%22name%22%3A%22Hydra+Facial%22%2C%22type%22%3A%22service%22%2C%22quantity%22%3A1%2C%22price%22%3A2000%2C%22discount%22%3A0%2C%22discountType%22%3A%22percentage%22%2C%22staffId%22%3A%2268db504485343eddd44e3a56%22%2C%22staffName%22%3A%22John+Manager%22%2C%22total%22%3A2100%2C%22staffContributions%22%3A%5B%7B%22staffId%22%3A%2268db504485343eddd44e3a56%22%2C%22staffName%22%3A%22John+Manager%22%2C%22percentage%22%3A100%2C%22amount%22%3A2100%7D%5D%2C%22taxAmount%22%3A100%2C%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22totalWithTax%22%3A2100%7D%5D%2C%22subtotal%22%3A2100%2C%22tip%22%3A0%2C%22discount%22%3A0%2C%22tax%22%3A100%2C%22roundOff%22%3A-100%2C%22total%22%3A2100%2C%22taxBreakdown%22%3A%7B%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22igst%22%3A0%7D%2C%22payments%22%3A%5B%7B%22type%22%3A%22cash%22%2C%22amount%22%3A1000%7D%5D%2C%22staffId%22%3A%2268db504485343eddd44e3a56%22%2C%22staffName%22%3A%22John+Manager%22%2C%22notes%22%3A%22%22%7D&t=1760692435044 200 in 155ms
- GET /receipt/ELEGANT-000028?data=%7B%22id%22%3A%221760699481482%22%2C%22receiptNumber%22%3A%22ELEGANT-000028%22%2C%22clientId%22%3A%2268e717baecc1afec6a8946d6%22%2C%22clientName%22%3A%22Shubham%22%2C%22clientPhone%22%3A%227091140602%22%2C%22date%22%3A%222025-10-17T11%3A10%3A58.620Z%22%2C%22time%22%3A%2216%3A41%22%2C%22items%22%3A%5B%7B%22id%22%3A%221760699464869%22%2C%22name%22%3A%22Hydra+Facial%22%2C%22type%22%3A%22service%22%2C%22quantity%22%3A1%2C%22price%22%3A2000%2C%22discount%22%3A0%2C%22discountType%22%3A%22percentage%22%2C%22staffId%22%3A%2268f1ffea04b921bd2e0dfc72%22%2C%22staffName%22%3A%22Suhani%22%2C%22total%22%3A2100%2C%22staffContributions%22%3A%5B%7B%22staffId%22%3A%2268f1ffea04b921bd2e0dfc72%22%2C%22staffName%22%3A%22Suhani%22%2C%22percentage%22%3A100%2C%22amount%22%3A2100%7D%5D%2C%22taxAmount%22%3A100%2C%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22totalWithTax%22%3A2100%7D%5D%2C%22subtotal%22%3A2100%2C%22tip%22%3A0%2C%22discount%22%3A0%2C%22tax%22%3A100%2C%22roundOff%22%3A-100%2C%22total%22%3A2100%2C%22taxBreakdown%22%3A%7B%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22igst%22%3A0%7D%2C%22payments%22%3A%5B%7B%22type%22%3A%22cash%22%2C%22amount%22%3A2100%7D%5D%2C%22staffId%22%3A%2268f1ffea04b921bd2e0dfc72%22%2C%22staffName%22%3A%22Suhani%22%2C%22notes%22%3A%22%22%7D&t=1760699481482 200 in 235ms
- GET /appointments/new 200 in 236ms
- ✓ Compiled in 647ms (3461 modules)
- GET /login 200 in 139ms
- GET /receipt/ELEGANT-000027?data=%7B%22id%22%3A%221760692435043%22%2C%22receiptNumber%22%3A%22ELEGANT-000027%22%2C%22clientId%22%3A%2268dc62e26b24b7b4276770f6%22%2C%22clientName%22%3A%22Test+Client%22%2C%22clientPhone%22%3A%221234567890%22%2C%22date%22%3A%222025-10-16T18%3A30%3A00.000Z%22%2C%22time%22%3A%2214%3A43%22%2C%22items%22%3A%5B%7B%22id%22%3A%221760692343520%22%2C%22name%22%3A%22Hydra+Facial%22%2C%22type%22%3A%22service%22%2C%22quantity%22%3A1%2C%22price%22%3A2000%2C%22discount%22%3A0%2C%22discountType%22%3A%22percentage%22%2C%22staffId%22%3A%2268db504485343eddd44e3a56%22%2C%22staffName%22%3A%22John+Manager%22%2C%22total%22%3A2100%2C%22staffContributions%22%3A%5B%7B%22staffId%22%3A%2268db504485343eddd44e3a56%22%2C%22staffName%22%3A%22John+Manager%22%2C%22percentage%22%3A100%2C%22amount%22%3A2100%7D%5D%2C%22taxAmount%22%3A100%2C%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22totalWithTax%22%3A2100%7D%5D%2C%22subtotal%22%3A2100%2C%22tip%22%3A0%2C%22discount%22%3A0%2C%22tax%22%3A100%2C%22roundOff%22%3A-100%2C%22total%22%3A2100%2C%22taxBreakdown%22%3A%7B%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22igst%22%3A0%7D%2C%22payments%22%3A%5B%7B%22type%22%3A%22cash%22%2C%22amount%22%3A1000%7D%5D%2C%22staffId%22%3A%2268db504485343eddd44e3a56%22%2C%22staffName%22%3A%22John+Manager%22%2C%22notes%22%3A%22%22%7D&t=1760692435044 200 in 158ms
- GET /receipt/ELEGANT-000028?data=%7B%22id%22%3A%221760699481482%22%2C%22receiptNumber%22%3A%22ELEGANT-000028%22%2C%22clientId%22%3A%2268e717baecc1afec6a8946d6%22%2C%22clientName%22%3A%22Shubham%22%2C%22clientPhone%22%3A%227091140602%22%2C%22date%22%3A%222025-10-17T11%3A10%3A58.620Z%22%2C%22time%22%3A%2216%3A41%22%2C%22items%22%3A%5B%7B%22id%22%3A%221760699464869%22%2C%22name%22%3A%22Hydra+Facial%22%2C%22type%22%3A%22service%22%2C%22quantity%22%3A1%2C%22price%22%3A2000%2C%22discount%22%3A0%2C%22discountType%22%3A%22percentage%22%2C%22staffId%22%3A%2268f1ffea04b921bd2e0dfc72%22%2C%22staffName%22%3A%22Suhani%22%2C%22total%22%3A2100%2C%22staffContributions%22%3A%5B%7B%22staffId%22%3A%2268f1ffea04b921bd2e0dfc72%22%2C%22staffName%22%3A%22Suhani%22%2C%22percentage%22%3A100%2C%22amount%22%3A2100%7D%5D%2C%22taxAmount%22%3A100%2C%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22totalWithTax%22%3A2100%7D%5D%2C%22subtotal%22%3A2100%2C%22tip%22%3A0%2C%22discount%22%3A0%2C%22tax%22%3A100%2C%22roundOff%22%3A-100%2C%22total%22%3A2100%2C%22taxBreakdown%22%3A%7B%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22igst%22%3A0%7D%2C%22payments%22%3A%5B%7B%22type%22%3A%22cash%22%2C%22amount%22%3A2100%7D%5D%2C%22staffId%22%3A%2268f1ffea04b921bd2e0dfc72%22%2C%22staffName%22%3A%22Suhani%22%2C%22notes%22%3A%22%22%7D&t=1760699481482 200 in 199ms
- GET /appointments/new 200 in 112ms
- ✓ Compiled in 1832ms (3461 modules)
- GET /login 200 in 551ms
- GET /receipt/ELEGANT-000027?data=%7B%22id%22%3A%221760692435043%22%2C%22receiptNumber%22%3A%22ELEGANT-000027%22%2C%22clientId%22%3A%2268dc62e26b24b7b4276770f6%22%2C%22clientName%22%3A%22Test+Client%22%2C%22clientPhone%22%3A%221234567890%22%2C%22date%22%3A%222025-10-16T18%3A30%3A00.000Z%22%2C%22time%22%3A%2214%3A43%22%2C%22items%22%3A%5B%7B%22id%22%3A%221760692343520%22%2C%22name%22%3A%22Hydra+Facial%22%2C%22type%22%3A%22service%22%2C%22quantity%22%3A1%2C%22price%22%3A2000%2C%22discount%22%3A0%2C%22discountType%22%3A%22percentage%22%2C%22staffId%22%3A%2268db504485343eddd44e3a56%22%2C%22staffName%22%3A%22John+Manager%22%2C%22total%22%3A2100%2C%22staffContributions%22%3A%5B%7B%22staffId%22%3A%2268db504485343eddd44e3a56%22%2C%22staffName%22%3A%22John+Manager%22%2C%22percentage%22%3A100%2C%22amount%22%3A2100%7D%5D%2C%22taxAmount%22%3A100%2C%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22totalWithTax%22%3A2100%7D%5D%2C%22subtotal%22%3A2100%2C%22tip%22%3A0%2C%22discount%22%3A0%2C%22tax%22%3A100%2C%22roundOff%22%3A-100%2C%22total%22%3A2100%2C%22taxBreakdown%22%3A%7B%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22igst%22%3A0%7D%2C%22payments%22%3A%5B%7B%22type%22%3A%22cash%22%2C%22amount%22%3A1000%7D%5D%2C%22staffId%22%3A%2268db504485343eddd44e3a56%22%2C%22staffName%22%3A%22John+Manager%22%2C%22notes%22%3A%22%22%7D&t=1760692435044 200 in 552ms
- GET /appointments/new 200 in 304ms
- GET /receipt/ELEGANT-000028?data=%7B%22id%22%3A%221760699481482%22%2C%22receiptNumber%22%3A%22ELEGANT-000028%22%2C%22clientId%22%3A%2268e717baecc1afec6a8946d6%22%2C%22clientName%22%3A%22Shubham%22%2C%22clientPhone%22%3A%227091140602%22%2C%22date%22%3A%222025-10-17T11%3A10%3A58.620Z%22%2C%22time%22%3A%2216%3A41%22%2C%22items%22%3A%5B%7B%22id%22%3A%221760699464869%22%2C%22name%22%3A%22Hydra+Facial%22%2C%22type%22%3A%22service%22%2C%22quantity%22%3A1%2C%22price%22%3A2000%2C%22discount%22%3A0%2C%22discountType%22%3A%22percentage%22%2C%22staffId%22%3A%2268f1ffea04b921bd2e0dfc72%22%2C%22staffName%22%3A%22Suhani%22%2C%22total%22%3A2100%2C%22staffContributions%22%3A%5B%7B%22staffId%22%3A%2268f1ffea04b921bd2e0dfc72%22%2C%22staffName%22%3A%22Suhani%22%2C%22percentage%22%3A100%2C%22amount%22%3A2100%7D%5D%2C%22taxAmount%22%3A100%2C%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22totalWithTax%22%3A2100%7D%5D%2C%22subtotal%22%3A2100%2C%22tip%22%3A0%2C%22discount%22%3A0%2C%22tax%22%3A100%2C%22roundOff%22%3A-100%2C%22total%22%3A2100%2C%22taxBreakdown%22%3A%7B%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22igst%22%3A0%7D%2C%22payments%22%3A%5B%7B%22type%22%3A%22cash%22%2C%22amount%22%3A2100%7D%5D%2C%22staffId%22%3A%2268f1ffea04b921bd2e0dfc72%22%2C%22staffName%22%3A%22Suhani%22%2C%22notes%22%3A%22%22%7D&t=1760699481482 200 in 302ms
- ✓ Compiled in 1266ms (3461 modules)
- GET /login 200 in 205ms
- GET /receipt/ELEGANT-000028?data=%7B%22id%22%3A%221760699481482%22%2C%22receiptNumber%22%3A%22ELEGANT-000028%22%2C%22clientId%22%3A%2268e717baecc1afec6a8946d6%22%2C%22clientName%22%3A%22Shubham%22%2C%22clientPhone%22%3A%227091140602%22%2C%22date%22%3A%222025-10-17T11%3A10%3A58.620Z%22%2C%22time%22%3A%2216%3A41%22%2C%22items%22%3A%5B%7B%22id%22%3A%221760699464869%22%2C%22name%22%3A%22Hydra+Facial%22%2C%22type%22%3A%22service%22%2C%22quantity%22%3A1%2C%22price%22%3A2000%2C%22discount%22%3A0%2C%22discountType%22%3A%22percentage%22%2C%22staffId%22%3A%2268f1ffea04b921bd2e0dfc72%22%2C%22staffName%22%3A%22Suhani%22%2C%22total%22%3A2100%2C%22staffContributions%22%3A%5B%7B%22staffId%22%3A%2268f1ffea04b921bd2e0dfc72%22%2C%22staffName%22%3A%22Suhani%22%2C%22percentage%22%3A100%2C%22amount%22%3A2100%7D%5D%2C%22taxAmount%22%3A100%2C%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22totalWithTax%22%3A2100%7D%5D%2C%22subtotal%22%3A2100%2C%22tip%22%3A0%2C%22discount%22%3A0%2C%22tax%22%3A100%2C%22roundOff%22%3A-100%2C%22total%22%3A2100%2C%22taxBreakdown%22%3A%7B%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22igst%22%3A0%7D%2C%22payments%22%3A%5B%7B%22type%22%3A%22cash%22%2C%22amount%22%3A2100%7D%5D%2C%22staffId%22%3A%2268f1ffea04b921bd2e0dfc72%22%2C%22staffName%22%3A%22Suhani%22%2C%22notes%22%3A%22%22%7D&t=1760699481482 200 in 205ms
- GET /receipt/ELEGANT-000027?data=%7B%22id%22%3A%221760692435043%22%2C%22receiptNumber%22%3A%22ELEGANT-000027%22%2C%22clientId%22%3A%2268dc62e26b24b7b4276770f6%22%2C%22clientName%22%3A%22Test+Client%22%2C%22clientPhone%22%3A%221234567890%22%2C%22date%22%3A%222025-10-16T18%3A30%3A00.000Z%22%2C%22time%22%3A%2214%3A43%22%2C%22items%22%3A%5B%7B%22id%22%3A%221760692343520%22%2C%22name%22%3A%22Hydra+Facial%22%2C%22type%22%3A%22service%22%2C%22quantity%22%3A1%2C%22price%22%3A2000%2C%22discount%22%3A0%2C%22discountType%22%3A%22percentage%22%2C%22staffId%22%3A%2268db504485343eddd44e3a56%22%2C%22staffName%22%3A%22John+Manager%22%2C%22total%22%3A2100%2C%22staffContributions%22%3A%5B%7B%22staffId%22%3A%2268db504485343eddd44e3a56%22%2C%22staffName%22%3A%22John+Manager%22%2C%22percentage%22%3A100%2C%22amount%22%3A2100%7D%5D%2C%22taxAmount%22%3A100%2C%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22totalWithTax%22%3A2100%7D%5D%2C%22subtotal%22%3A2100%2C%22tip%22%3A0%2C%22discount%22%3A0%2C%22tax%22%3A100%2C%22roundOff%22%3A-100%2C%22total%22%3A2100%2C%22taxBreakdown%22%3A%7B%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22igst%22%3A0%7D%2C%22payments%22%3A%5B%7B%22type%22%3A%22cash%22%2C%22amount%22%3A1000%7D%5D%2C%22staffId%22%3A%2268db504485343eddd44e3a56%22%2C%22staffName%22%3A%22John+Manager%22%2C%22notes%22%3A%22%22%7D&t=1760692435044 200 in 205ms
- GET /appointments/new 200 in 207ms
- ✓ Compiled in 654ms (3461 modules)
- GET /login 200 in 119ms
- GET /receipt/ELEGANT-000027?data=%7B%22id%22%3A%221760692435043%22%2C%22receiptNumber%22%3A%22ELEGANT-000027%22%2C%22clientId%22%3A%2268dc62e26b24b7b4276770f6%22%2C%22clientName%22%3A%22Test+Client%22%2C%22clientPhone%22%3A%221234567890%22%2C%22date%22%3A%222025-10-16T18%3A30%3A00.000Z%22%2C%22time%22%3A%2214%3A43%22%2C%22items%22%3A%5B%7B%22id%22%3A%221760692343520%22%2C%22name%22%3A%22Hydra+Facial%22%2C%22type%22%3A%22service%22%2C%22quantity%22%3A1%2C%22price%22%3A2000%2C%22discount%22%3A0%2C%22discountType%22%3A%22percentage%22%2C%22staffId%22%3A%2268db504485343eddd44e3a56%22%2C%22staffName%22%3A%22John+Manager%22%2C%22total%22%3A2100%2C%22staffContributions%22%3A%5B%7B%22staffId%22%3A%2268db504485343eddd44e3a56%22%2C%22staffName%22%3A%22John+Manager%22%2C%22percentage%22%3A100%2C%22amount%22%3A2100%7D%5D%2C%22taxAmount%22%3A100%2C%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22totalWithTax%22%3A2100%7D%5D%2C%22subtotal%22%3A2100%2C%22tip%22%3A0%2C%22discount%22%3A0%2C%22tax%22%3A100%2C%22roundOff%22%3A-100%2C%22total%22%3A2100%2C%22taxBreakdown%22%3A%7B%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22igst%22%3A0%7D%2C%22payments%22%3A%5B%7B%22type%22%3A%22cash%22%2C%22amount%22%3A1000%7D%5D%2C%22staffId%22%3A%2268db504485343eddd44e3a56%22%2C%22staffName%22%3A%22John+Manager%22%2C%22notes%22%3A%22%22%7D&t=1760692435044 200 in 119ms
- GET /receipt/ELEGANT-000028?data=%7B%22id%22%3A%221760699481482%22%2C%22receiptNumber%22%3A%22ELEGANT-000028%22%2C%22clientId%22%3A%2268e717baecc1afec6a8946d6%22%2C%22clientName%22%3A%22Shubham%22%2C%22clientPhone%22%3A%227091140602%22%2C%22date%22%3A%222025-10-17T11%3A10%3A58.620Z%22%2C%22time%22%3A%2216%3A41%22%2C%22items%22%3A%5B%7B%22id%22%3A%221760699464869%22%2C%22name%22%3A%22Hydra+Facial%22%2C%22type%22%3A%22service%22%2C%22quantity%22%3A1%2C%22price%22%3A2000%2C%22discount%22%3A0%2C%22discountType%22%3A%22percentage%22%2C%22staffId%22%3A%2268f1ffea04b921bd2e0dfc72%22%2C%22staffName%22%3A%22Suhani%22%2C%22total%22%3A2100%2C%22staffContributions%22%3A%5B%7B%22staffId%22%3A%2268f1ffea04b921bd2e0dfc72%22%2C%22staffName%22%3A%22Suhani%22%2C%22percentage%22%3A100%2C%22amount%22%3A2100%7D%5D%2C%22taxAmount%22%3A100%2C%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22totalWithTax%22%3A2100%7D%5D%2C%22subtotal%22%3A2100%2C%22tip%22%3A0%2C%22discount%22%3A0%2C%22tax%22%3A100%2C%22roundOff%22%3A-100%2C%22total%22%3A2100%2C%22taxBreakdown%22%3A%7B%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22igst%22%3A0%7D%2C%22payments%22%3A%5B%7B%22type%22%3A%22cash%22%2C%22amount%22%3A2100%7D%5D%2C%22staffId%22%3A%2268f1ffea04b921bd2e0dfc72%22%2C%22staffName%22%3A%22Suhani%22%2C%22notes%22%3A%22%22%7D&t=1760699481482 200 in 121ms
- GET /appointments/new 200 in 179ms
- ✓ Compiled in 452ms (3461 modules)
- GET /login 200 in 108ms
- GET /receipt/ELEGANT-000027?data=%7B%22id%22%3A%221760692435043%22%2C%22receiptNumber%22%3A%22ELEGANT-000027%22%2C%22clientId%22%3A%2268dc62e26b24b7b4276770f6%22%2C%22clientName%22%3A%22Test+Client%22%2C%22clientPhone%22%3A%221234567890%22%2C%22date%22%3A%222025-10-16T18%3A30%3A00.000Z%22%2C%22time%22%3A%2214%3A43%22%2C%22items%22%3A%5B%7B%22id%22%3A%221760692343520%22%2C%22name%22%3A%22Hydra+Facial%22%2C%22type%22%3A%22service%22%2C%22quantity%22%3A1%2C%22price%22%3A2000%2C%22discount%22%3A0%2C%22discountType%22%3A%22percentage%22%2C%22staffId%22%3A%2268db504485343eddd44e3a56%22%2C%22staffName%22%3A%22John+Manager%22%2C%22total%22%3A2100%2C%22staffContributions%22%3A%5B%7B%22staffId%22%3A%2268db504485343eddd44e3a56%22%2C%22staffName%22%3A%22John+Manager%22%2C%22percentage%22%3A100%2C%22amount%22%3A2100%7D%5D%2C%22taxAmount%22%3A100%2C%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22totalWithTax%22%3A2100%7D%5D%2C%22subtotal%22%3A2100%2C%22tip%22%3A0%2C%22discount%22%3A0%2C%22tax%22%3A100%2C%22roundOff%22%3A-100%2C%22total%22%3A2100%2C%22taxBreakdown%22%3A%7B%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22igst%22%3A0%7D%2C%22payments%22%3A%5B%7B%22type%22%3A%22cash%22%2C%22amount%22%3A1000%7D%5D%2C%22staffId%22%3A%2268db504485343eddd44e3a56%22%2C%22staffName%22%3A%22John+Manager%22%2C%22notes%22%3A%22%22%7D&t=1760692435044 200 in 110ms
- GET /receipt/ELEGANT-000028?data=%7B%22id%22%3A%221760699481482%22%2C%22receiptNumber%22%3A%22ELEGANT-000028%22%2C%22clientId%22%3A%2268e717baecc1afec6a8946d6%22%2C%22clientName%22%3A%22Shubham%22%2C%22clientPhone%22%3A%227091140602%22%2C%22date%22%3A%222025-10-17T11%3A10%3A58.620Z%22%2C%22time%22%3A%2216%3A41%22%2C%22items%22%3A%5B%7B%22id%22%3A%221760699464869%22%2C%22name%22%3A%22Hydra+Facial%22%2C%22type%22%3A%22service%22%2C%22quantity%22%3A1%2C%22price%22%3A2000%2C%22discount%22%3A0%2C%22discountType%22%3A%22percentage%22%2C%22staffId%22%3A%2268f1ffea04b921bd2e0dfc72%22%2C%22staffName%22%3A%22Suhani%22%2C%22total%22%3A2100%2C%22staffContributions%22%3A%5B%7B%22staffId%22%3A%2268f1ffea04b921bd2e0dfc72%22%2C%22staffName%22%3A%22Suhani%22%2C%22percentage%22%3A100%2C%22amount%22%3A2100%7D%5D%2C%22taxAmount%22%3A100%2C%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22totalWithTax%22%3A2100%7D%5D%2C%22subtotal%22%3A2100%2C%22tip%22%3A0%2C%22discount%22%3A0%2C%22tax%22%3A100%2C%22roundOff%22%3A-100%2C%22total%22%3A2100%2C%22taxBreakdown%22%3A%7B%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22igst%22%3A0%7D%2C%22payments%22%3A%5B%7B%22type%22%3A%22cash%22%2C%22amount%22%3A2100%7D%5D%2C%22staffId%22%3A%2268f1ffea04b921bd2e0dfc72%22%2C%22staffName%22%3A%22Suhani%22%2C%22notes%22%3A%22%22%7D&t=1760699481482 200 in 111ms
- GET /appointments/new 200 in 114ms
- GET /quick-sale 200 in 56ms
- ✓ Compiled in 2.9s (3461 modules)
- GET /login 200 in 134ms
- GET /receipt/ELEGANT-000028?data=%7B%22id%22%3A%221760699481482%22%2C%22receiptNumber%22%3A%22ELEGANT-000028%22%2C%22clientId%22%3A%2268e717baecc1afec6a8946d6%22%2C%22clientName%22%3A%22Shubham%22%2C%22clientPhone%22%3A%227091140602%22%2C%22date%22%3A%222025-10-17T11%3A10%3A58.620Z%22%2C%22time%22%3A%2216%3A41%22%2C%22items%22%3A%5B%7B%22id%22%3A%221760699464869%22%2C%22name%22%3A%22Hydra+Facial%22%2C%22type%22%3A%22service%22%2C%22quantity%22%3A1%2C%22price%22%3A2000%2C%22discount%22%3A0%2C%22discountType%22%3A%22percentage%22%2C%22staffId%22%3A%2268f1ffea04b921bd2e0dfc72%22%2C%22staffName%22%3A%22Suhani%22%2C%22total%22%3A2100%2C%22staffContributions%22%3A%5B%7B%22staffId%22%3A%2268f1ffea04b921bd2e0dfc72%22%2C%22staffName%22%3A%22Suhani%22%2C%22percentage%22%3A100%2C%22amount%22%3A2100%7D%5D%2C%22taxAmount%22%3A100%2C%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22totalWithTax%22%3A2100%7D%5D%2C%22subtotal%22%3A2100%2C%22tip%22%3A0%2C%22discount%22%3A0%2C%22tax%22%3A100%2C%22roundOff%22%3A-100%2C%22total%22%3A2100%2C%22taxBreakdown%22%3A%7B%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22igst%22%3A0%7D%2C%22payments%22%3A%5B%7B%22type%22%3A%22cash%22%2C%22amount%22%3A2100%7D%5D%2C%22staffId%22%3A%2268f1ffea04b921bd2e0dfc72%22%2C%22staffName%22%3A%22Suhani%22%2C%22notes%22%3A%22%22%7D&t=1760699481482 200 in 362ms
- GET /receipt/ELEGANT-000027?data=%7B%22id%22%3A%221760692435043%22%2C%22receiptNumber%22%3A%22ELEGANT-000027%22%2C%22clientId%22%3A%2268dc62e26b24b7b4276770f6%22%2C%22clientName%22%3A%22Test+Client%22%2C%22clientPhone%22%3A%221234567890%22%2C%22date%22%3A%222025-10-16T18%3A30%3A00.000Z%22%2C%22time%22%3A%2214%3A43%22%2C%22items%22%3A%5B%7B%22id%22%3A%221760692343520%22%2C%22name%22%3A%22Hydra+Facial%22%2C%22type%22%3A%22service%22%2C%22quantity%22%3A1%2C%22price%22%3A2000%2C%22discount%22%3A0%2C%22discountType%22%3A%22percentage%22%2C%22staffId%22%3A%2268db504485343eddd44e3a56%22%2C%22staffName%22%3A%22John+Manager%22%2C%22total%22%3A2100%2C%22staffContributions%22%3A%5B%7B%22staffId%22%3A%2268db504485343eddd44e3a56%22%2C%22staffName%22%3A%22John+Manager%22%2C%22percentage%22%3A100%2C%22amount%22%3A2100%7D%5D%2C%22taxAmount%22%3A100%2C%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22totalWithTax%22%3A2100%7D%5D%2C%22subtotal%22%3A2100%2C%22tip%22%3A0%2C%22discount%22%3A0%2C%22tax%22%3A100%2C%22roundOff%22%3A-100%2C%22total%22%3A2100%2C%22taxBreakdown%22%3A%7B%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22igst%22%3A0%7D%2C%22payments%22%3A%5B%7B%22type%22%3A%22cash%22%2C%22amount%22%3A1000%7D%5D%2C%22staffId%22%3A%2268db504485343eddd44e3a56%22%2C%22staffName%22%3A%22John+Manager%22%2C%22notes%22%3A%22%22%7D&t=1760692435044 200 in 365ms
- GET /quick-sale 200 in 383ms
- ✓ Compiled in 1642ms (3461 modules)
- GET /login 200 in 121ms
- GET /receipt/ELEGANT-000028?data=%7B%22id%22%3A%221760699481482%22%2C%22receiptNumber%22%3A%22ELEGANT-000028%22%2C%22clientId%22%3A%2268e717baecc1afec6a8946d6%22%2C%22clientName%22%3A%22Shubham%22%2C%22clientPhone%22%3A%227091140602%22%2C%22date%22%3A%222025-10-17T11%3A10%3A58.620Z%22%2C%22time%22%3A%2216%3A41%22%2C%22items%22%3A%5B%7B%22id%22%3A%221760699464869%22%2C%22name%22%3A%22Hydra+Facial%22%2C%22type%22%3A%22service%22%2C%22quantity%22%3A1%2C%22price%22%3A2000%2C%22discount%22%3A0%2C%22discountType%22%3A%22percentage%22%2C%22staffId%22%3A%2268f1ffea04b921bd2e0dfc72%22%2C%22staffName%22%3A%22Suhani%22%2C%22total%22%3A2100%2C%22staffContributions%22%3A%5B%7B%22staffId%22%3A%2268f1ffea04b921bd2e0dfc72%22%2C%22staffName%22%3A%22Suhani%22%2C%22percentage%22%3A100%2C%22amount%22%3A2100%7D%5D%2C%22taxAmount%22%3A100%2C%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22totalWithTax%22%3A2100%7D%5D%2C%22subtotal%22%3A2100%2C%22tip%22%3A0%2C%22discount%22%3A0%2C%22tax%22%3A100%2C%22roundOff%22%3A-100%2C%22total%22%3A2100%2C%22taxBreakdown%22%3A%7B%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22igst%22%3A0%7D%2C%22payments%22%3A%5B%7B%22type%22%3A%22cash%22%2C%22amount%22%3A2100%7D%5D%2C%22staffId%22%3A%2268f1ffea04b921bd2e0dfc72%22%2C%22staffName%22%3A%22Suhani%22%2C%22notes%22%3A%22%22%7D&t=1760699481482 200 in 120ms
- GET /receipt/ELEGANT-000027?data=%7B%22id%22%3A%221760692435043%22%2C%22receiptNumber%22%3A%22ELEGANT-000027%22%2C%22clientId%22%3A%2268dc62e26b24b7b4276770f6%22%2C%22clientName%22%3A%22Test+Client%22%2C%22clientPhone%22%3A%221234567890%22%2C%22date%22%3A%222025-10-16T18%3A30%3A00.000Z%22%2C%22time%22%3A%2214%3A43%22%2C%22items%22%3A%5B%7B%22id%22%3A%221760692343520%22%2C%22name%22%3A%22Hydra+Facial%22%2C%22type%22%3A%22service%22%2C%22quantity%22%3A1%2C%22price%22%3A2000%2C%22discount%22%3A0%2C%22discountType%22%3A%22percentage%22%2C%22staffId%22%3A%2268db504485343eddd44e3a56%22%2C%22staffName%22%3A%22John+Manager%22%2C%22total%22%3A2100%2C%22staffContributions%22%3A%5B%7B%22staffId%22%3A%2268db504485343eddd44e3a56%22%2C%22staffName%22%3A%22John+Manager%22%2C%22percentage%22%3A100%2C%22amount%22%3A2100%7D%5D%2C%22taxAmount%22%3A100%2C%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22totalWithTax%22%3A2100%7D%5D%2C%22subtotal%22%3A2100%2C%22tip%22%3A0%2C%22discount%22%3A0%2C%22tax%22%3A100%2C%22roundOff%22%3A-100%2C%22total%22%3A2100%2C%22taxBreakdown%22%3A%7B%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22igst%22%3A0%7D%2C%22payments%22%3A%5B%7B%22type%22%3A%22cash%22%2C%22amount%22%3A1000%7D%5D%2C%22staffId%22%3A%2268db504485343eddd44e3a56%22%2C%22staffName%22%3A%22John+Manager%22%2C%22notes%22%3A%22%22%7D&t=1760692435044 200 in 123ms
- GET /quick-sale 200 in 80ms
-🔍 ClientStore: Loading clients from API...
- ⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ ✓ Compiled /quick-sale in 2.8s (4157 modules)
+ GET /quick-sale 200 in 2836ms
+ GET /login 200 in 87ms
+ GET /quick-sale 200 in 8ms
+ ○ Compiling /appointments ...
+ ✓ Compiled /appointments in 649ms (4160 modules)
+ GET /appointments 200 in 754ms
+ ○ Compiling /clients ...
+ ✓ Compiled /clients in 583ms (4204 modules)
+ GET /clients 200 in 659ms
+ ○ Compiling /services ...
+ ✓ Compiled /services in 952ms (4228 modules)
+ GET /services 200 in 994ms
+ GET /products 200 in 37ms
+ GET /cash-registry 200 in 25ms
+ ○ Compiling /analytics ...
+ ✓ Compiled /analytics in 1212ms (4351 modules)
+ GET /analytics 200 in 1295ms
+ GET /login 200 in 1152ms
+ GET /login 200 in 66ms
+ GET /login 200 in 79ms
+ GET /login 200 in 63ms
+ GET /login 200 in 129ms
+ GET /login 200 in 38ms
+ GET / 200 in 135ms
+ GET / 200 in 21ms
+ GET /quick-sale 200 in 108ms
+ ✓ Compiled in 4.8s (2077 modules)
+ GET /login 200 in 22ms
+ GET /quick-sale 200 in 17ms
+ ✓ Compiled in 437ms (2077 modules)
+ GET /login 200 in 8ms
+ GET /quick-sale 200 in 7ms
+ ✓ Compiled in 745ms (2077 modules)
+ GET /login 200 in 8ms
+ GET /quick-sale 200 in 7ms
+ ✓ Compiled in 461ms (2077 modules)
+ GET /login 200 in 18ms
+ GET /quick-sale 200 in 23ms
+ ✓ Compiled in 649ms (2077 modules)
+ GET /login 200 in 65ms
+ GET /quick-sale 200 in 66ms
+🔍 ClientStore: Loading all clients from API (paginated)...
+(node:68521) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ GET /quick-sale 200 in 171ms
 ❌ API Response Interceptor: Error response: {
+  message: 'Request failed with status code 401',
+  errorType: 'object',
   url: '/clients',
+  method: 'GET',
   status: 401,
-  method: 'get',
+  statusText: 'Unauthorized',
   data: { success: false, error: 'Access token required' },
-  message: 'Request failed with status code 401'
+  type: 'HTTP Error'
 }
-🔐 API Response Interceptor: Unauthorized, clearing auth data
+🔐 API Response Interceptor: Unauthorized, clearing auth data { isAuthCheck: false }
 ❌ ClientStore: Error loading clients: Error [AxiosError]: Request failed with status code 401
-    at async ClientsAPI.getAll (lib/api.ts:146:21)
-    at async ClientStore.loadClients (lib/client-store.ts:40:23)
-  144 | export class ClientsAPI {
-  145 |   static async getAll(params?: { page?: number; limit?: number; search?: string }): Promise<PaginatedResponse<any>> {
-> 146 |     const response = await apiClient.get('/clients', { params })
+    at async ClientsAPI.getAll (lib/api.ts:199:21)
+    at async ClientStore.loadClients (lib/client-store.ts:46:21)
+  197 | export class ClientsAPI {
+  198 |   static async getAll(params?: { page?: number; limit?: number; search?: string }): Promise<PaginatedResponse<any>> {
+> 199 |     const response = await apiClient.get('/clients', { params })
       |                     ^
-  147 |     return response.data
-  148 |   }
-  149 | {
+  200 |     return response.data
+  201 |   }
+  202 | {
   code: 'ERR_BAD_REQUEST',
   config: [Object],
   request: [ClientRequest],
@@ -387,13 +462,163 @@ Import trace for requested module:
   toJSON: [Function: toJSON]
 }
 API not available, no fallback in production
- GET /quick-sale 200 in 546ms
- ✓ Compiled in 2s (3461 modules)
- GET /login 200 in 142ms
- GET /receipt/ELEGANT-000027?data=%7B%22id%22%3A%221760692435043%22%2C%22receiptNumber%22%3A%22ELEGANT-000027%22%2C%22clientId%22%3A%2268dc62e26b24b7b4276770f6%22%2C%22clientName%22%3A%22Test+Client%22%2C%22clientPhone%22%3A%221234567890%22%2C%22date%22%3A%222025-10-16T18%3A30%3A00.000Z%22%2C%22time%22%3A%2214%3A43%22%2C%22items%22%3A%5B%7B%22id%22%3A%221760692343520%22%2C%22name%22%3A%22Hydra+Facial%22%2C%22type%22%3A%22service%22%2C%22quantity%22%3A1%2C%22price%22%3A2000%2C%22discount%22%3A0%2C%22discountType%22%3A%22percentage%22%2C%22staffId%22%3A%2268db504485343eddd44e3a56%22%2C%22staffName%22%3A%22John+Manager%22%2C%22total%22%3A2100%2C%22staffContributions%22%3A%5B%7B%22staffId%22%3A%2268db504485343eddd44e3a56%22%2C%22staffName%22%3A%22John+Manager%22%2C%22percentage%22%3A100%2C%22amount%22%3A2100%7D%5D%2C%22taxAmount%22%3A100%2C%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22totalWithTax%22%3A2100%7D%5D%2C%22subtotal%22%3A2100%2C%22tip%22%3A0%2C%22discount%22%3A0%2C%22tax%22%3A100%2C%22roundOff%22%3A-100%2C%22total%22%3A2100%2C%22taxBreakdown%22%3A%7B%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22igst%22%3A0%7D%2C%22payments%22%3A%5B%7B%22type%22%3A%22cash%22%2C%22amount%22%3A1000%7D%5D%2C%22staffId%22%3A%2268db504485343eddd44e3a56%22%2C%22staffName%22%3A%22John+Manager%22%2C%22notes%22%3A%22%22%7D&t=1760692435044 200 in 140ms
- GET /receipt/ELEGANT-000028?data=%7B%22id%22%3A%221760699481482%22%2C%22receiptNumber%22%3A%22ELEGANT-000028%22%2C%22clientId%22%3A%2268e717baecc1afec6a8946d6%22%2C%22clientName%22%3A%22Shubham%22%2C%22clientPhone%22%3A%227091140602%22%2C%22date%22%3A%222025-10-17T11%3A10%3A58.620Z%22%2C%22time%22%3A%2216%3A41%22%2C%22items%22%3A%5B%7B%22id%22%3A%221760699464869%22%2C%22name%22%3A%22Hydra+Facial%22%2C%22type%22%3A%22service%22%2C%22quantity%22%3A1%2C%22price%22%3A2000%2C%22discount%22%3A0%2C%22discountType%22%3A%22percentage%22%2C%22staffId%22%3A%2268f1ffea04b921bd2e0dfc72%22%2C%22staffName%22%3A%22Suhani%22%2C%22total%22%3A2100%2C%22staffContributions%22%3A%5B%7B%22staffId%22%3A%2268f1ffea04b921bd2e0dfc72%22%2C%22staffName%22%3A%22Suhani%22%2C%22percentage%22%3A100%2C%22amount%22%3A2100%7D%5D%2C%22taxAmount%22%3A100%2C%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22totalWithTax%22%3A2100%7D%5D%2C%22subtotal%22%3A2100%2C%22tip%22%3A0%2C%22discount%22%3A0%2C%22tax%22%3A100%2C%22roundOff%22%3A-100%2C%22total%22%3A2100%2C%22taxBreakdown%22%3A%7B%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22igst%22%3A0%7D%2C%22payments%22%3A%5B%7B%22type%22%3A%22cash%22%2C%22amount%22%3A2100%7D%5D%2C%22staffId%22%3A%2268f1ffea04b921bd2e0dfc72%22%2C%22staffName%22%3A%22Suhani%22%2C%22notes%22%3A%22%22%7D&t=1760699481482 200 in 142ms
- ✓ Compiled in 1078ms (3461 modules)
+ GET /quick-sale 200 in 130ms
+ GET /clients 200 in 145ms
+ ○ Compiling /clients/new ...
+ ✓ Compiled /clients/new in 2.3s (4263 modules)
+ GET /clients/new 200 in 2375ms
+ GET /clients/new 200 in 12ms
+ GET /quick-sale 200 in 83ms
+ ✓ Compiled in 4.5s (4017 modules)
+ GET /quick-sale 200 in 50ms
+ ✓ Compiled in 1520ms (4017 modules)
+ GET /quick-sale 200 in 41ms
+ ✓ Compiled in 2.2s (4017 modules)
+ GET /quick-sale 200 in 72ms
+ ✓ Compiled in 1013ms (4017 modules)
+ GET /quick-sale 200 in 55ms
+ ✓ Compiled in 1106ms (4017 modules)
+ GET /quick-sale 200 in 25ms
+ ○ Compiling /clients ...
+ ✓ Compiled /clients in 1274ms (2172 modules)
+ GET /clients 200 in 1409ms
+ GET /clients/new 200 in 97ms
+ ○ Compiling /appointments ...
+ ✓ Compiled /appointments in 1057ms (2118 modules)
+ GET /appointments 200 in 1124ms
+ ○ Compiling /appointments/new ...
+ ✓ Compiled /appointments/new in 1387ms (4195 modules)
+ GET /appointments/new 200 in 1447ms
+ GET /appointments/new 200 in 202ms
+ ✓ Compiled in 1493ms (3577 modules)
+ GET /appointments/new 200 in 112ms
+ ✓ Compiled in 1283ms (3577 modules)
+ GET /appointments/new 200 in 70ms
+ ✓ Compiled in 1790ms (3577 modules)
+ GET /appointments/new 200 in 80ms
+ ✓ Compiled in 715ms (3577 modules)
+ GET /appointments/new 200 in 63ms
+ ✓ Compiled in 835ms (3577 modules)
+ GET /appointments/new 200 in 65ms
+ ✓ Compiled in 675ms (3577 modules)
+ GET /appointments/new 200 in 36ms
+ ✓ Compiled in 942ms (3577 modules)
+ GET /appointments/new 200 in 36ms
+ ✓ Compiled in 761ms (3577 modules)
+ GET /appointments/new 200 in 49ms
+ ✓ Compiled in 890ms (3577 modules)
+ GET /appointments/new 200 in 35ms
+ ✓ Compiled in 676ms (3577 modules)
+ GET /appointments/new 200 in 35ms
+ ✓ Compiled in 1673ms (3577 modules)
+ GET /appointments/new 200 in 56ms
+ ✓ Compiled in 1280ms (3577 modules)
+ GET /appointments/new 200 in 23ms
+ ✓ Compiled in 1287ms (3577 modules)
+ GET /appointments/new 200 in 37ms
+ ✓ Compiled in 1642ms (3577 modules)
+ GET /appointments/new 200 in 75ms
+ ✓ Compiled in 1103ms (3577 modules)
+ GET /appointments/new 200 in 39ms
+ ✓ Compiled in 1116ms (3577 modules)
+ GET /appointments/new 200 in 70ms
+ ✓ Compiled in 289ms (2084 modules)
+ GET /appointments/new 200 in 24ms
+ ✓ Compiled in 769ms (3577 modules)
+ GET /appointments/new 200 in 53ms
+ ✓ Compiled in 920ms (3577 modules)
+ GET /appointments/new 200 in 30ms
+ ✓ Compiled in 919ms (2084 modules)
+ GET /appointments/new 200 in 9ms
+ ✓ Compiled in 1393ms (3577 modules)
+ GET /appointments/new 200 in 24ms
+ ✓ Compiled in 1648ms (3577 modules)
+ GET /appointments/new 200 in 45ms
+ GET /quick-sale 200 in 109ms
+ ○ Compiling /appointments ...
+ ✓ Compiled /appointments in 1463ms (1504 modules)
+ GET /appointments 200 in 1716ms
+ GET /appointments/new 200 in 45ms
+ GET /appointments/new 200 in 130ms
+ ✓ Compiled in 1486ms (2084 modules)
+ GET /appointments/new 200 in 18ms
+ ✓ Compiled in 518ms (2084 modules)
+ GET /appointments/new 200 in 23ms
+ ✓ Compiled in 1707ms (3577 modules)
+ GET /appointments/new 200 in 103ms
+ ○ Compiling / ...
+ ✓ Compiled / in 2.5s (2114 modules)
+ GET / 200 in 2746ms
+ GET /login 200 in 320ms
+ GET /login 200 in 39ms
+ GET /login 200 in 131ms
+ GET /login 200 in 81ms
  GET /login 200 in 133ms
- GET /quick-sale 200 in 131ms
- GET /receipt/ELEGANT-000027?data=%7B%22id%22%3A%221760692435043%22%2C%22receiptNumber%22%3A%22ELEGANT-000027%22%2C%22clientId%22%3A%2268dc62e26b24b7b4276770f6%22%2C%22clientName%22%3A%22Test+Client%22%2C%22clientPhone%22%3A%221234567890%22%2C%22date%22%3A%222025-10-16T18%3A30%3A00.000Z%22%2C%22time%22%3A%2214%3A43%22%2C%22items%22%3A%5B%7B%22id%22%3A%221760692343520%22%2C%22name%22%3A%22Hydra+Facial%22%2C%22type%22%3A%22service%22%2C%22quantity%22%3A1%2C%22price%22%3A2000%2C%22discount%22%3A0%2C%22discountType%22%3A%22percentage%22%2C%22staffId%22%3A%2268db504485343eddd44e3a56%22%2C%22staffName%22%3A%22John+Manager%22%2C%22total%22%3A2100%2C%22staffContributions%22%3A%5B%7B%22staffId%22%3A%2268db504485343eddd44e3a56%22%2C%22staffName%22%3A%22John+Manager%22%2C%22percentage%22%3A100%2C%22amount%22%3A2100%7D%5D%2C%22taxAmount%22%3A100%2C%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22totalWithTax%22%3A2100%7D%5D%2C%22subtotal%22%3A2100%2C%22tip%22%3A0%2C%22discount%22%3A0%2C%22tax%22%3A100%2C%22roundOff%22%3A-100%2C%22total%22%3A2100%2C%22taxBreakdown%22%3A%7B%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22igst%22%3A0%7D%2C%22payments%22%3A%5B%7B%22type%22%3A%22cash%22%2C%22amount%22%3A1000%7D%5D%2C%22staffId%22%3A%2268db504485343eddd44e3a56%22%2C%22staffName%22%3A%22John+Manager%22%2C%22notes%22%3A%22%22%7D&t=1760692435044 200 in 130ms
- GET /receipt/ELEGANT-000028?data=%7B%22id%22%3A%221760699481482%22%2C%22receiptNumber%22%3A%22ELEGANT-000028%22%2C%22clientId%22%3A%2268e717baecc1afec6a8946d6%22%2C%22clientName%22%3A%22Shubham%22%2C%22clientPhone%22%3A%227091140602%22%2C%22date%22%3A%222025-10-17T11%3A10%3A58.620Z%22%2C%22time%22%3A%2216%3A41%22%2C%22items%22%3A%5B%7B%22id%22%3A%221760699464869%22%2C%22name%22%3A%22Hydra+Facial%22%2C%22type%22%3A%22service%22%2C%22quantity%22%3A1%2C%22price%22%3A2000%2C%22discount%22%3A0%2C%22discountType%22%3A%22percentage%22%2C%22staffId%22%3A%2268f1ffea04b921bd2e0dfc72%22%2C%22staffName%22%3A%22Suhani%22%2C%22total%22%3A2100%2C%22staffContributions%22%3A%5B%7B%22staffId%22%3A%2268f1ffea04b921bd2e0dfc72%22%2C%22staffName%22%3A%22Suhani%22%2C%22percentage%22%3A100%2C%22amount%22%3A2100%7D%5D%2C%22taxAmount%22%3A100%2C%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22totalWithTax%22%3A2100%7D%5D%2C%22subtotal%22%3A2100%2C%22tip%22%3A0%2C%22discount%22%3A0%2C%22tax%22%3A100%2C%22roundOff%22%3A-100%2C%22total%22%3A2100%2C%22taxBreakdown%22%3A%7B%22cgst%22%3A50%2C%22sgst%22%3A50%2C%22igst%22%3A0%7D%2C%22payments%22%3A%5B%7B%22type%22%3A%22cash%22%2C%22amount%22%3A2100%7D%5D%2C%22staffId%22%3A%2268f1ffea04b921bd2e0dfc72%22%2C%22staffName%22%3A%22Suhani%22%2C%22notes%22%3A%22%22%7D&t=1760699481482 200 in 130ms
+ GET /login 200 in 201ms
+ GET /login 200 in 215ms
+ ✓ Compiled in 26.4s (4175 modules)
+ ✓ Compiled in 566ms (4175 modules)
+ ✓ Compiled in 1847ms (4175 modules)
+ ✓ Compiled in 754ms (4175 modules)
+ ✓ Compiled in 481ms (2084 modules)
+ ✓ Compiled in 436ms (2084 modules)
+ ✓ Compiled in 583ms (2084 modules)
+ ✓ Compiled in 744ms (2084 modules)
+ ✓ Compiled in 947ms (2084 modules)
+ ✓ Compiled in 478ms (2084 modules)
+ ✓ Compiled in 783ms (2084 modules)
+ ✓ Compiled in 410ms (2084 modules)
+ ✓ Compiled in 561ms (2084 modules)
+ ✓ Compiled in 1051ms (2084 modules)
+ ✓ Compiled in 615ms (2084 modules)
+ ✓ Compiled in 345ms (2084 modules)
+ ✓ Compiled in 413ms (2084 modules)
+ ✓ Compiled in 223ms (2084 modules)
+ ✓ Compiled in 1208ms (2084 modules)
+ ✓ Compiled in 767ms (2084 modules)
+ ✓ Compiled in 481ms (2084 modules)
+ ✓ Compiled in 477ms (2084 modules)
+ ✓ Compiled in 237ms (2084 modules)
+ ✓ Compiled in 495ms (2084 modules)
+ ✓ Compiled in 741ms (2084 modules)
+ ✓ Compiled in 462ms (2084 modules)
+ ✓ Compiled in 654ms (2084 modules)
+ ✓ Compiled in 467ms (2084 modules)
+ ✓ Compiled in 402ms (2084 modules)
+ ✓ Compiled in 220ms (2084 modules)
+ ✓ Compiled in 202ms (2084 modules)
+ ✓ Compiled in 864ms (2084 modules)
+ ✓ Compiled in 630ms (2084 modules)
+ ✓ Compiled in 279ms (2084 modules)
+ ✓ Compiled in 532ms (2084 modules)
+ ✓ Compiled in 452ms (2084 modules)
+ ✓ Compiled in 521ms (2084 modules)
+ ✓ Compiled in 1126ms (2084 modules)
+ ✓ Compiled in 416ms (2084 modules)
+ ✓ Compiled in 219ms (2084 modules)
+ ✓ Compiled in 12.3s (4175 modules)
+ ✓ Compiled in 1373ms (2084 modules)
+ ✓ Compiled in 532ms (2084 modules)
+ ✓ Compiled in 336ms (2084 modules)
+ ✓ Compiled in 643ms (2084 modules)
+ ✓ Compiled in 419ms (2084 modules)
+ ✓ Compiled in 383ms (2084 modules)
+ ✓ Compiled in 374ms (2084 modules)
+ ✓ Compiled in 195ms (2084 modules)
+ ✓ Compiled in 442ms (2084 modules)
+ ✓ Compiled in 200ms (2084 modules)
+ ✓ Compiled in 314ms (2084 modules)
+ ✓ Compiled in 411ms (2084 modules)
+ ✓ Compiled in 264ms (2084 modules)
+ ✓ Compiled in 354ms (2084 modules)
+ ✓ Compiled in 249ms (2084 modules)
+ ✓ Compiled in 270ms (2084 modules)
+ ✓ Compiled in 197ms (2084 modules)
+ ✓ Compiled in 774ms (2084 modules)
+ ✓ Compiled in 643ms (2084 modules)
+ ✓ Compiled in 712ms (2084 modules)
+ ✓ Compiled in 364ms (2084 modules)
+ ✓ Compiled in 2.2s (4175 modules)
+ ✓ Compiled in 989ms (2084 modules)
+ ✓ Compiled in 161ms (2084 modules)
+ ✓ Compiled in 472ms (2084 modules)

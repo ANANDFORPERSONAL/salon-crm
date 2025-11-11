@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 // Connect to MongoDB
-mongoose.connect('mongodb://localhost:27017/salon_crm_main', {
+mongoose.connect('mongodb://localhost:27017/ease_my_salon_main', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });

@@ -1,10 +1,10 @@
-# Salon CRM Documentation
+# Ease My Salon Documentation
 
-Welcome to the comprehensive documentation for the Salon CRM system. This documentation covers all major features and components of the application, providing detailed information about functionality, implementation, and usage.
+Welcome to the comprehensive documentation for the Ease My Salon system. This documentation covers all major features and components of the application, providing detailed information about functionality, implementation, and usage.
 
 ## 📚 Documentation Overview
 
-This documentation is organized by feature, with each document providing comprehensive information about specific functionality within the Salon CRM system.
+This documentation is organized by feature, with each document providing comprehensive information about specific functionality within the Ease My Salon system.
 
 ## 🚀 Quick Start
 

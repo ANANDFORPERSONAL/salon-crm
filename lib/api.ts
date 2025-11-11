@@ -96,8 +96,16 @@ apiClient.interceptors.response.use(
         errorInfo.code = String(error?.code || 'SETUP_ERROR')
       }
       
-      // Always log error info (should never be empty now)
-      console.error('❌ API Response Interceptor: Error response:', errorInfo)
+      // Log error info (skip empty objects for 404s to reduce noise)
+      if (errorInfo.status === 404) {
+        // For 404s, only log if there's meaningful info beyond status
+        if (errorInfo.url && errorInfo.url !== 'Unknown URL') {
+          console.warn(`⚠️ API 404: ${errorInfo.method} ${errorInfo.url} - ${errorInfo.message || 'Not Found'}`)
+        }
+      } else {
+        // For other errors, always log full details
+        console.error('❌ API Response Interceptor: Error response:', errorInfo)
+      }
     } catch (logError) {
       // If error logging itself fails, log the raw error
       console.error('❌ API Response Interceptor: Failed to process error:', logError)

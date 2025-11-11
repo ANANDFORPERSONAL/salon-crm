@@ -10,9 +10,9 @@ const connectDB = async () => {
     // Parse the URI to add database name properly
     let uri = PRODUCTION_MONGODB_URI;
     if (!uri.includes('?')) {
-      uri = `${uri}/salon_crm_main`;
+      uri = `${uri}/ease_my_salon_main`;
     } else {
-      uri = uri.replace('?', '/salon_crm_main?');
+      uri = uri.replace('?', '/ease_my_salon_main?');
     }
     
     await mongoose.connect(uri, {
@@ -85,7 +85,7 @@ const createAdmin = async () => {
     console.log('✅ Admin user created successfully!');
     console.log('📧 Email: admin@salon.com');
     console.log('🔑 Password: admin123');
-    console.log('\n🚀 You can now login at: https://salon-crm-production.up.railway.app/admin/login');
+    console.log('\n🚀 You can now login at: https://ease-my-salon-production.up.railway.app/admin/login');
     
   } catch (error) {
     console.error('❌ Error creating admin:', error);

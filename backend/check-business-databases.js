@@ -31,7 +31,7 @@ const checkBusinessDatabase = async (businessId, businessName, businessCode) => 
   try {
     const businessConnection = await databaseManager.getConnection(businessId);
     
-    console.log(`\n📊 Database: salon_crm_${businessId}`);
+    console.log(`\n📊 Database: ease_my_salon_${businessId}`);
     console.log(`   Business: ${businessName} (${businessCode})`);
     
     // Check if database exists and has collections

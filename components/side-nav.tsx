@@ -95,7 +95,7 @@ export function SideNav() {
               <Scissors className="h-6 w-6 text-white" />
             </div>
             <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-              Salon CRM
+              Ease My Salon
             </span>
           </Link>
         </div>

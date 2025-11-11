@@ -15,23 +15,23 @@ MongoDB Connected: localhost
 📥 Incoming GET /health
 ::1 - - [11/Oct/2025:01:22:18 +0000] "GET /health HTTP/1.1" 404 43 "-" "curl/8.7.1"
 📥 Incoming GET /api/admin/profile
-🔗 Connecting to main database: salon_crm_main
+🔗 Connecting to main database: ease_my_salon_main
 (node:20997) [MONGODB DRIVER] Warning: useNewUrlParser is a deprecated option: useNewUrlParser has no effect since Node.js Driver version 4.0.0 and will be removed in the next major version
 (node:20997) [MONGODB DRIVER] Warning: useUnifiedTopology is a deprecated option: useUnifiedTopology has no effect since Node.js Driver version 4.0.0 and will be removed in the next major version
-✅ Connected to main database: salon_crm_main
+✅ Connected to main database: ease_my_salon_main
 📥 Incoming GET /api/auth/profile
 🔍 AuthenticateToken middleware called
 🔍 JWT verification error: TokenExpiredError: jwt expired
-    at /Users/shubhamanand/salon-crm/backend/node_modules/jsonwebtoken/verify.js:190:21
-    at getSecret (/Users/shubhamanand/salon-crm/backend/node_modules/jsonwebtoken/verify.js:97:14)
-    at module.exports [as verify] (/Users/shubhamanand/salon-crm/backend/node_modules/jsonwebtoken/verify.js:101:10)
-    at authenticateToken (/Users/shubhamanand/salon-crm/backend/middleware/auth.js:26:7)
-    at Layer.handle [as handle_request] (/Users/shubhamanand/salon-crm/backend/node_modules/express/lib/router/layer.js:95:5)
-    at next (/Users/shubhamanand/salon-crm/backend/node_modules/express/lib/router/route.js:149:13)
-    at Route.dispatch (/Users/shubhamanand/salon-crm/backend/node_modules/express/lib/router/route.js:119:3)
-    at Layer.handle [as handle_request] (/Users/shubhamanand/salon-crm/backend/node_modules/express/lib/router/layer.js:95:5)
-    at /Users/shubhamanand/salon-crm/backend/node_modules/express/lib/router/index.js:284:15
-    at router.process_params (/Users/shubhamanand/salon-crm/backend/node_modules/express/lib/router/index.js:346:12) {
+    at /Users/shubhamanand/ease-my-salon/backend/node_modules/jsonwebtoken/verify.js:190:21
+    at getSecret (/Users/shubhamanand/ease-my-salon/backend/node_modules/jsonwebtoken/verify.js:97:14)
+    at module.exports [as verify] (/Users/shubhamanand/ease-my-salon/backend/node_modules/jsonwebtoken/verify.js:101:10)
+    at authenticateToken (/Users/shubhamanand/ease-my-salon/backend/middleware/auth.js:26:7)
+    at Layer.handle [as handle_request] (/Users/shubhamanand/ease-my-salon/backend/node_modules/express/lib/router/layer.js:95:5)
+    at next (/Users/shubhamanand/ease-my-salon/backend/node_modules/express/lib/router/route.js:149:13)
+    at Route.dispatch (/Users/shubhamanand/ease-my-salon/backend/node_modules/express/lib/router/route.js:119:3)
+    at Layer.handle [as handle_request] (/Users/shubhamanand/ease-my-salon/backend/node_modules/express/lib/router/layer.js:95:5)
+    at /Users/shubhamanand/ease-my-salon/backend/node_modules/express/lib/router/index.js:284:15
+    at router.process_params (/Users/shubhamanand/ease-my-salon/backend/node_modules/express/lib/router/index.js:346:12) {
   expiredAt: 2025-10-10T21:05:29.000Z
 }
 ::1 - - [11/Oct/2025:01:22:33 +0000] "GET /api/auth/profile HTTP/1.1" 403 52 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
@@ -78,8 +78,8 @@ MongoDB Connected: localhost
   businessId: new ObjectId('68db3d367d2a8df8f4023d6e')
 }
 🔍 Getting business connection for ID: new ObjectId('68db3d367d2a8df8f4023d6e')
-🔗 Connecting to database: salon_crm_68db3d367d2a8df8f4023d6e
-✅ Connected to business database: salon_crm_68db3d367d2a8df8f4023d6e
+🔗 Connecting to database: ease_my_salon_68db3d367d2a8df8f4023d6e
+✅ Connected to business database: ease_my_salon_68db3d367d2a8df8f4023d6e
 🔍 Business connection obtained: true
 🔍 Creating business models...
 🔍 Business models created: [
@@ -1133,7 +1133,7 @@ Total revenue: 0
   businessId: new ObjectId('68db3d367d2a8df8f4023d6e'),
   userEmail: 'admin@elegant.com',
   query: {},
-  database: 'salon_crm_68db3d367d2a8df8f4023d6e'
+  database: 'ease_my_salon_68db3d367d2a8df8f4023d6e'
 }
 📊 Total clients found: 4
 📋 Clients returned: 4
@@ -2831,7 +2831,7 @@ settings.receiptNumber: 25
   businessId: new ObjectId('68db3d367d2a8df8f4023d6e'),
   userEmail: 'admin@elegant.com',
   query: {},
-  database: 'salon_crm_68db3d367d2a8df8f4023d6e'
+  database: 'ease_my_salon_68db3d367d2a8df8f4023d6e'
 }
 📊 Total clients found: 4
 📋 Clients returned: 4
@@ -3121,7 +3121,7 @@ settings.receiptNumber: 25
   businessId: new ObjectId('68db3d367d2a8df8f4023d6e'),
   userEmail: 'admin@elegant.com',
   query: {},
-  database: 'salon_crm_68db3d367d2a8df8f4023d6e'
+  database: 'ease_my_salon_68db3d367d2a8df8f4023d6e'
 }
 ✅ Business settings found: Elegant Beauty Lounge
 ::1 - - [11/Oct/2025:01:25:46 +0000] "GET /api/settings/business HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
@@ -5592,13 +5592,13 @@ settings.receiptNumber: 25
 ::1 - - [12/Oct/2025:03:25:44 +0000] "POST /api/auth/logout HTTP/1.1" 401 49 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
 📥 Incoming GET /api/admin/profile
 Admin auth error: TokenExpiredError: jwt expired
-    at /Users/shubhamanand/salon-crm/backend/node_modules/jsonwebtoken/verify.js:190:21
-    at getSecret (/Users/shubhamanand/salon-crm/backend/node_modules/jsonwebtoken/verify.js:97:14)
-    at module.exports [as verify] (/Users/shubhamanand/salon-crm/backend/node_modules/jsonwebtoken/verify.js:101:10)
-    at authenticateAdmin (/Users/shubhamanand/salon-crm/backend/routes/admin.js:22:25)
-    at Layer.handle [as handle_request] (/Users/shubhamanand/salon-crm/backend/node_modules/express/lib/router/layer.js:95:5)
-    at next (/Users/shubhamanand/salon-crm/backend/node_modules/express/lib/router/route.js:149:13)
-    at setupMainDatabase (/Users/shubhamanand/salon-crm/backend/middleware/business-db.js:73:5)
+    at /Users/shubhamanand/ease-my-salon/backend/node_modules/jsonwebtoken/verify.js:190:21
+    at getSecret (/Users/shubhamanand/ease-my-salon/backend/node_modules/jsonwebtoken/verify.js:97:14)
+    at module.exports [as verify] (/Users/shubhamanand/ease-my-salon/backend/node_modules/jsonwebtoken/verify.js:101:10)
+    at authenticateAdmin (/Users/shubhamanand/ease-my-salon/backend/routes/admin.js:22:25)
+    at Layer.handle [as handle_request] (/Users/shubhamanand/ease-my-salon/backend/node_modules/express/lib/router/layer.js:95:5)
+    at next (/Users/shubhamanand/ease-my-salon/backend/node_modules/express/lib/router/route.js:149:13)
+    at setupMainDatabase (/Users/shubhamanand/ease-my-salon/backend/middleware/business-db.js:73:5)
     at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
   expiredAt: 2025-10-11T11:43:22.000Z
 }
@@ -6708,7 +6708,7 @@ Total revenue: 0
   businessId: new ObjectId('68db3d367d2a8df8f4023d6e'),
   userEmail: 'admin@elegant.com',
   query: {},
-  database: 'salon_crm_68db3d367d2a8df8f4023d6e'
+  database: 'ease_my_salon_68db3d367d2a8df8f4023d6e'
 }
 📊 Total clients found: 4
 📋 Clients returned: 4
@@ -6793,7 +6793,7 @@ Total revenue: 0
   businessId: new ObjectId('68db3d367d2a8df8f4023d6e'),
   userEmail: 'admin@elegant.com',
   query: {},
-  database: 'salon_crm_68db3d367d2a8df8f4023d6e'
+  database: 'ease_my_salon_68db3d367d2a8df8f4023d6e'
 }
 📥 Incoming GET /api/staff-directory
 🔍 AuthenticateToken middleware called
@@ -9223,7 +9223,7 @@ Total revenue: 0
   businessId: new ObjectId('68db3d367d2a8df8f4023d6e'),
   userEmail: 'admin@elegant.com',
   query: {},
-  database: 'salon_crm_68db3d367d2a8df8f4023d6e'
+  database: 'ease_my_salon_68db3d367d2a8df8f4023d6e'
 }
 🔍 Auth middleware user: {
   id: new ObjectId('68db3d367d2a8df8f4023d6c'),
@@ -9833,13 +9833,13 @@ Total revenue: 0
 🕐 Running daily inactivity check...
 🔍 Checking for inactive businesses...
 ❌ Failed to connect to main database: MongooseError: Can't call `openUri()` on an active connection with different connection strings. Make sure you aren't calling `mongoose.connect()` multiple times. See: https://mongoosejs.com/docs/connections.html#multiple_connections
-    at NativeConnection.createClient (/Users/shubhamanand/salon-crm/backend/node_modules/mongoose/lib/drivers/node-mongodb-native/connection.js:251:13)
-    at NativeConnection.openUri (/Users/shubhamanand/salon-crm/backend/node_modules/mongoose/lib/connection.js:1071:34)
-    at Mongoose.connect (/Users/shubhamanand/salon-crm/backend/node_modules/mongoose/lib/mongoose.js:450:15)
-    at connectToMainDatabase (/Users/shubhamanand/salon-crm/backend/inactivity-checker.js:7:20)
-    at checkInactiveBusinesses (/Users/shubhamanand/salon-crm/backend/inactivity-checker.js:24:11)
-    at cron.schedule.scheduled (/Users/shubhamanand/salon-crm/backend/server.js:4584:11)
-    at Runner.onMatch (/Users/shubhamanand/salon-crm/backend/node_modules/node-cron/dist/cjs/tasks/inline-scheduled-task.js:69:20)
-    at Timeout._onTimeout (/Users/shubhamanand/salon-crm/backend/node_modules/node-cron/dist/cjs/scheduler/runner.js:70:55)
+    at NativeConnection.createClient (/Users/shubhamanand/ease-my-salon/backend/node_modules/mongoose/lib/drivers/node-mongodb-native/connection.js:251:13)
+    at NativeConnection.openUri (/Users/shubhamanand/ease-my-salon/backend/node_modules/mongoose/lib/connection.js:1071:34)
+    at Mongoose.connect (/Users/shubhamanand/ease-my-salon/backend/node_modules/mongoose/lib/mongoose.js:450:15)
+    at connectToMainDatabase (/Users/shubhamanand/ease-my-salon/backend/inactivity-checker.js:7:20)
+    at checkInactiveBusinesses (/Users/shubhamanand/ease-my-salon/backend/inactivity-checker.js:24:11)
+    at cron.schedule.scheduled (/Users/shubhamanand/ease-my-salon/backend/server.js:4584:11)
+    at Runner.onMatch (/Users/shubhamanand/ease-my-salon/backend/node_modules/node-cron/dist/cjs/tasks/inline-scheduled-task.js:69:20)
+    at Timeout._onTimeout (/Users/shubhamanand/ease-my-salon/backend/node_modules/node-cron/dist/cjs/scheduler/runner.js:70:55)
     at listOnTimeout (node:internal/timers:608:17)
     at process.processTimers (node:internal/timers:543:7)

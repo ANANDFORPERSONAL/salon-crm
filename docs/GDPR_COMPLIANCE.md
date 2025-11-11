@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document outlines the GDPR (General Data Protection Regulation) compliance measures implemented in the Salon CRM system.
+This document outlines the GDPR (General Data Protection Regulation) compliance measures implemented in the Ease My Salon system.
 
 ## Compliance Status
 
