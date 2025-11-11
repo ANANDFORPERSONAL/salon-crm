@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
 import { CommissionProfile, CommissionProfileFormData, CALCULATION_INTERVALS, QUALIFYING_ITEMS } from "@/lib/commission-profile-types"
-import { useToast } from "@/hooks/use-toast"
+import { useToast } from "@/components/ui/use-toast"
 
 interface EditCommissionProfileModalProps {
   isOpen: boolean

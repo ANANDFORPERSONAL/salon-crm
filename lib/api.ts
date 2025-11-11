@@ -47,33 +47,86 @@ apiClient.interceptors.response.use(
     })
     return response
   },
-  (error: AxiosError) => {
-    console.error('❌ API Response Interceptor: Error response:', {
-      url: error.config?.url,
-      status: error.response?.status,
-      method: error.config?.method,
-      data: error.response?.data,
-      message: error.message
-    })
+  (error: AxiosError | any) => {
+    // Check if error exists
+    if (!error) {
+      console.error('❌ API Response Interceptor: Error is null or undefined')
+      return Promise.reject(error)
+    }
+    
+    try {
+      // Safely extract error information with fallbacks
+      const errorInfo: any = {
+        message: 'Unknown error', // Always start with a default
+        errorType: typeof error,
+      }
+      
+      // Always include a message
+      if (error?.message) {
+        errorInfo.message = String(error.message)
+      } else if (typeof error === 'string') {
+        errorInfo.message = error
+      } else if (error?.toString && typeof error.toString === 'function') {
+        try {
+          errorInfo.message = String(error.toString())
+        } catch (e) {
+          errorInfo.message = 'Error converting to string'
+        }
+      }
+      
+      // Extract request config if available
+      if (error?.config) {
+        errorInfo.url = String(error.config.url || 'Unknown URL')
+        errorInfo.method = String(error.config.method?.toUpperCase() || 'Unknown method')
+      }
+      
+      // Extract response data if available (HTTP error)
+      if (error?.response) {
+        errorInfo.status = Number(error.response.status)
+        errorInfo.statusText = String(error.response.statusText || '')
+        errorInfo.data = error.response.data
+        errorInfo.type = 'HTTP Error'
+      } else if (error?.request) {
+        // Request was made but no response received (network error)
+        errorInfo.type = 'Network Error'
+        errorInfo.code = String(error?.code || 'NETWORK_ERROR')
+      } else {
+        // Error setting up the request
+        errorInfo.type = 'Request Setup Error'
+        errorInfo.code = String(error?.code || 'SETUP_ERROR')
+      }
+      
+      // Always log error info (should never be empty now)
+      console.error('❌ API Response Interceptor: Error response:', errorInfo)
+    } catch (logError) {
+      // If error logging itself fails, log the raw error
+      console.error('❌ API Response Interceptor: Failed to process error:', logError)
+      console.error('❌ API Response Interceptor: Original error object:', error)
+      console.error('❌ API Response Interceptor: Error keys:', error ? Object.keys(error) : 'null')
+    }
     
     if (error.response?.status === 401) {
       // Handle unauthorized access - but only if we're not already on login page
-      console.log('🔐 API Response Interceptor: Unauthorized, clearing auth data')
+      // Don't redirect if this is the initial auth check (profile endpoint)
+      const isAuthCheck = error.config?.url?.includes('/auth/profile')
       
-      // Check if we're already on the login page to prevent infinite redirects
-      if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
+      console.log('🔐 API Response Interceptor: Unauthorized, clearing auth data', { isAuthCheck })
+      
+      // Clear tokens
+      if (typeof window !== 'undefined') {
         localStorage.removeItem('salon-auth-token')
         localStorage.removeItem('salon-auth-user')
-        
-        // Use router.push if available, otherwise fallback to window.location
+      }
+      
+      // Only redirect if not on login page and not during initial auth check
+      // The auth context will handle the redirect for auth checks
+      if (typeof window !== 'undefined' && 
+          !window.location.pathname.includes('/login') && 
+          !isAuthCheck) {
         try {
-          // Check if we're in a Next.js context
-          if (typeof window !== 'undefined') {
-            window.location.href = '/login'
-          }
-        } catch (redirectError) {
-          console.warn('Redirect failed, using fallback:', redirectError)
           window.location.href = '/login'
+        } catch (redirectError) {
+          console.warn('Redirect failed:', redirectError)
         }
       }
     }

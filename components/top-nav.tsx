@@ -42,20 +42,26 @@ export function TopNav({ showQuickAdd = true, rightSlot }: TopNavProps) {
 
   // Fetch business settings to get the business name
   useEffect(() => {
+    let isMounted = true
+
     const fetchBusinessSettings = async () => {
       try {
         setIsLoadingBusinessName(true)
         const response = await SettingsAPI.getBusinessSettings()
-        if (response.success && response.data?.name) {
-          setBusinessName(response.data.name)
-        } else {
-          console.warn("Business settings response missing name:", response)
+        if (isMounted) {
+          if (response.success && response.data?.name) {
+            setBusinessName(response.data.name)
+          } else {
+            console.warn("Business settings response missing name:", response)
+          }
+          setIsLoadingBusinessName(false)
         }
       } catch (error) {
         console.error("Failed to fetch business settings:", error)
         // Keep default name if API call fails
-      } finally {
-        setIsLoadingBusinessName(false)
+        if (isMounted) {
+          setIsLoadingBusinessName(false)
+        }
       }
     }
 
@@ -63,12 +69,15 @@ export function TopNav({ showQuickAdd = true, rightSlot }: TopNavProps) {
 
     // Listen for business settings updates from other components
     const handleBusinessSettingsUpdate = () => {
-      fetchBusinessSettings()
+      if (isMounted) {
+        fetchBusinessSettings()
+      }
     }
 
     window.addEventListener('business-settings-updated', handleBusinessSettingsUpdate)
     
     return () => {
+      isMounted = false
       window.removeEventListener('business-settings-updated', handleBusinessSettingsUpdate)
     }
   }, [])

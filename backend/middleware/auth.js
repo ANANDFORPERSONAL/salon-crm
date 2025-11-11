@@ -41,29 +41,44 @@ const authenticateToken = (req, res, next) => {
       if (!user) {
         console.log('🔍 User not found in main database, checking if it\'s a staff user');
         
-        // If not found in main database, check if it's a staff user
-        // We need to check all business databases for staff users
-        const Business = mainConnection.model('Business', require('../models/Business').schema);
-        const businesses = await Business.find({}).lean();
-        
         let staffUser = null;
-        let businessId = null;
+        let businessId = decoded.branchId || null;
         
-        for (const business of businesses) {
+        // If branchId is in token, directly check that business database
+        if (businessId) {
           try {
-            const businessDb = mainConnection.useDb(`salon_crm_${business._id}`);
+            const businessDb = await databaseManager.getConnection(businessId);
             const Staff = businessDb.model('Staff', require('../models/Staff').schema);
-            
-            const staff = await Staff.findById(decoded.id).select('-password');
-            if (staff) {
-              staffUser = staff;
-              businessId = business._id;
-              console.log('🔍 Staff user found in business database:', business.name, business._id);
-              break;
+            staffUser = await Staff.findById(decoded.id).select('-password');
+            if (staffUser) {
+              console.log('🔍 Staff user found in business database (from token branchId):', businessId);
             }
           } catch (error) {
-            console.log('🔍 Error checking business database:', business.name, error.message);
-            // Continue to next business
+            console.log('🔍 Error checking business database with branchId from token:', error.message);
+          }
+        }
+        
+        // If not found and no branchId in token, check all business databases
+        if (!staffUser && !businessId) {
+          const Business = mainConnection.model('Business', require('../models/Business').schema);
+          const businesses = await Business.find({}).lean();
+          
+          for (const business of businesses) {
+            try {
+              const businessDb = await databaseManager.getConnection(business._id);
+              const Staff = businessDb.model('Staff', require('../models/Staff').schema);
+              
+              const staff = await Staff.findById(decoded.id).select('-password');
+              if (staff) {
+                staffUser = staff;
+                businessId = business._id;
+                console.log('🔍 Staff user found in business database:', business.name, business._id);
+                break;
+              }
+            } catch (error) {
+              console.log('🔍 Error checking business database:', business.name, error.message);
+              // Continue to next business
+            }
           }
         }
         
@@ -80,7 +95,7 @@ const authenticateToken = (req, res, next) => {
           email: staffUser.email,
           mobile: staffUser.phone,
           role: staffUser.role,
-          branchId: businessId,
+          branchId: businessId || staffUser.branchId,
           hasLoginAccess: staffUser.hasLoginAccess,
           allowAppointmentScheduling: staffUser.allowAppointmentScheduling,
           isActive: staffUser.isActive,

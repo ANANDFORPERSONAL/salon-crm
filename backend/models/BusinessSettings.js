@@ -40,6 +40,18 @@ const businessSettingsSchema = new mongoose.Schema({
   
   // Tax Information
   gstNumber: { type: String, default: "" },
+  taxType: { type: String, enum: ['single', 'gst', 'vat', 'sales'], default: 'gst' },
+  cgstRate: { type: Number, default: 9 },
+  sgstRate: { type: Number, default: 9 },
+  igstRate: { type: Number, default: 18 },
+  serviceTaxRate: { type: Number, default: 5 },
+  productTaxRate: { type: Number, default: 18 },
+  essentialProductRate: { type: Number, default: 5 },
+  intermediateProductRate: { type: Number, default: 12 },
+  standardProductRate: { type: Number, default: 18 },
+  luxuryProductRate: { type: Number, default: 28 },
+  exemptProductRate: { type: Number, default: 0 },
+  taxCategories: { type: Array, default: [] }, // Array of tax category objects
   
   // Multi-tenant support
   branchId: {

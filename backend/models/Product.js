@@ -23,6 +23,11 @@ const productSchema = new mongoose.Schema({
     min: 0,
     default: 0
   },
+  minimumStock: {
+    type: Number,
+    min: 0,
+    default: 5
+  },
   sku: {
     type: String,
     unique: true,

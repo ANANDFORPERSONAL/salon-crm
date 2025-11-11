@@ -78,13 +78,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             localStorage.removeItem("salon-auth-token")
             localStorage.removeItem("salon-auth-user")
           }
-        } catch (apiError) {
-          console.warn('API not available, requiring fresh login')
-          
-          // In production, always require fresh login if API is unavailable
-          if (typeof window !== 'undefined') {
+        } catch (apiError: any) {
+          // Only clear tokens if it's a 401 (unauthorized) error
+          // Don't clear on network errors or other API issues
+          if (apiError?.response?.status === 401) {
+            console.log('❌ Token is invalid (401), clearing stored data')
             localStorage.removeItem("salon-auth-token")
             localStorage.removeItem("salon-auth-user")
+          } else {
+            // For other errors (network, timeout, 404, etc.), try to use stored user data
+            console.warn('⚠️ API validation error (non-401), attempting to use stored user data:', apiError?.message)
+            try {
+              const parsedUser = JSON.parse(storedUser || '{}')
+              if (parsedUser && (parsedUser.email || parsedUser._id || parsedUser.id)) {
+                console.log('✅ Using stored user data as fallback')
+                // Ensure user object has required fields
+                const fallbackUser: User = {
+                  _id: parsedUser._id || parsedUser.id || '',
+                  name: parsedUser.name || `${parsedUser.firstName || ''} ${parsedUser.lastName || ''}`.trim() || parsedUser.email || 'User',
+                  email: parsedUser.email || '',
+                  role: parsedUser.role || 'staff',
+                  avatar: parsedUser.avatar,
+                  createdAt: parsedUser.createdAt,
+                  updatedAt: parsedUser.updatedAt
+                }
+                setUser(fallbackUser)
+              } else {
+                console.log('❌ Stored user data is invalid - missing email/id')
+                // Don't clear tokens on 404 - might be temporary API issue
+                // Only clear if it's a critical error
+              }
+            } catch (parseError) {
+              console.error('❌ Failed to parse stored user data:', parseError)
+              // Don't clear tokens on parse error - might be corrupted but user might still be valid
+            }
           }
         }
       } catch (error) {

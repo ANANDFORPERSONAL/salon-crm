@@ -610,11 +610,26 @@ export function QuickSale() {
 
   // Handle customer search input
   const handleCustomerSearchChange = (value: string) => {
-    setCustomerSearch(value)
+    // Check if the value contains only digits (phone number search)
+    // If it's all digits, restrict to 10 digits
+    if (value.length > 0 && /^\d+$/.test(value)) {
+      // Only allow digits and limit to 10
+      const phoneValue = value.replace(/\D/g, '').slice(0, 10)
+      setCustomerSearch(phoneValue)
+    } else if (value.length === 0) {
+      // Allow empty string
+      setCustomerSearch(value)
+    } else {
+      // Allow text for name/email search (contains letters or special chars)
+      setCustomerSearch(value)
+    }
     setShowCustomerDropdown(true)
 
     // If search doesn't match selected customer, clear selection
-    if (selectedCustomer && !selectedCustomer.name.toLowerCase().includes(value.toLowerCase())) {
+    const finalValue = value.length > 0 && /^\d+$/.test(value) 
+      ? value.replace(/\D/g, '').slice(0, 10)
+      : value
+    if (selectedCustomer && !selectedCustomer.name.toLowerCase().includes(finalValue.toLowerCase())) {
       setSelectedCustomer(null)
     }
   }
@@ -648,10 +663,21 @@ export function QuickSale() {
       return
     }
 
+    // Validate phone number - must be exactly 10 digits
+    const phoneNumber = newCustomer.phone || customerSearch
+    if (!phoneNumber || !/^\d{10}$/.test(phoneNumber)) {
+      toast({
+        title: "Invalid Phone Number",
+        description: "Phone number must be exactly 10 digits.",
+        variant: "destructive",
+      })
+      return
+    }
+
     const customer: Client = {
       id: Date.now().toString(),
       name: newCustomer.lastName ? `${newCustomer.firstName} ${newCustomer.lastName}` : newCustomer.firstName,
-      phone: newCustomer.phone || customerSearch,
+      phone: phoneNumber,
       email: newCustomer.email,
       totalVisits: 0,
       totalSpent: 0,
@@ -2766,9 +2792,38 @@ export function QuickSale() {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="customer"
-                  placeholder="Search by name, phone, or email"
+                  type="tel"
+                  placeholder="Search by name, phone (10 digits), or email"
                   value={customerSearch}
-                  onChange={(e) => handleCustomerSearchChange(e.target.value)}
+                  onChange={(e) => {
+                    const value = e.target.value
+                    // If it's all digits, restrict immediately to 10 digits
+                    if (/^\d+$/.test(value)) {
+                      const restricted = value.slice(0, 10)
+                      handleCustomerSearchChange(restricted)
+                    } else {
+                      handleCustomerSearchChange(value)
+                    }
+                  }}
+                  onPaste={(e) => {
+                    // Handle paste events for phone numbers
+                    const pastedText = e.clipboardData.getData('text')
+                    if (/^\d+$/.test(pastedText)) {
+                      e.preventDefault()
+                      const restricted = pastedText.slice(0, 10)
+                      handleCustomerSearchChange(restricted)
+                    }
+                  }}
+                  onKeyDown={(e) => {
+                    // Prevent typing if it's a phone number and already 10 digits
+                    if (/^\d+$/.test(customerSearch) && customerSearch.length >= 10) {
+                      // Allow backspace, delete, arrow keys, tab, etc.
+                      if (!['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', 'Home', 'End'].includes(e.key) && 
+                          !e.ctrlKey && !e.metaKey) {
+                        e.preventDefault()
+                      }
+                    }
+                  }}
                   onFocus={() => setShowCustomerDropdown(true)}
                   className="pl-10 h-12 border-gray-200 focus:border-indigo-500 focus:ring-indigo-500/20 transition-all duration-300"
                 />
@@ -3923,17 +3978,22 @@ export function QuickSale() {
                   textTransform: 'uppercase',
                   letterSpacing: '0.5px'
                 }}>
-                  Phone Number
+                  Phone Number *
                 </label>
                 <input
                   type="tel"
                   value={newCustomer.phone}
-                  onChange={(e) => setNewCustomer({ ...newCustomer, phone: e.target.value })}
-                  placeholder="Enter phone number"
+                  onChange={(e) => {
+                    // Only allow digits and limit to 10
+                    const value = e.target.value.replace(/\D/g, '').slice(0, 10)
+                    setNewCustomer({ ...newCustomer, phone: value })
+                  }}
+                  placeholder="Enter 10-digit phone number"
+                  maxLength={10}
                   style={{
                     width: '100%',
                     padding: '14px 16px',
-                    border: '2px solid #e5e7eb',
+                    border: newCustomer.phone && newCustomer.phone.length !== 10 ? '2px solid #ef4444' : '2px solid #e5e7eb',
                     borderRadius: '12px',
                     fontSize: '15px',
                     backgroundColor: '#fafafa',
@@ -3941,16 +4001,23 @@ export function QuickSale() {
                     outline: 'none'
                   }}
                   onFocus={(e) => {
-                    e.target.style.borderColor = '#8b5cf6'
+                    e.target.style.borderColor = newCustomer.phone && newCustomer.phone.length !== 10 ? '#ef4444' : '#8b5cf6'
                     e.target.style.backgroundColor = 'white'
-                    e.target.style.boxShadow = '0 0 0 3px rgba(139, 92, 246, 0.1)'
+                    e.target.style.boxShadow = newCustomer.phone && newCustomer.phone.length !== 10 
+                      ? '0 0 0 3px rgba(239, 68, 68, 0.1)' 
+                      : '0 0 0 3px rgba(139, 92, 246, 0.1)'
                   }}
                   onBlur={(e) => {
-                    e.target.style.borderColor = '#e5e7eb'
+                    e.target.style.borderColor = newCustomer.phone && newCustomer.phone.length !== 10 ? '#ef4444' : '#e5e7eb'
                     e.target.style.backgroundColor = '#fafafa'
                     e.target.style.boxShadow = 'none'
                   }}
                 />
+                {newCustomer.phone && newCustomer.phone.length > 0 && newCustomer.phone.length !== 10 && (
+                  <p style={{ fontSize: '12px', color: '#ef4444', marginTop: '4px' }}>
+                    Phone number must be exactly 10 digits. Current: {newCustomer.phone.length} digits
+                  </p>
+                )}
               </div>
               
               <div style={{marginBottom: '20px'}}>

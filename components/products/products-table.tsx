@@ -26,9 +26,10 @@ import { format } from "date-fns"
 interface ProductsTableProps {
   productTypeFilter?: string
   onProductTypeFilterChange?: (filter: string) => void
+  lowStockFilter?: boolean
 }
 
-export function ProductsTable({ productTypeFilter: externalFilter, onProductTypeFilterChange }: ProductsTableProps = {}) {
+export function ProductsTable({ productTypeFilter: externalFilter, onProductTypeFilterChange, lowStockFilter = false }: ProductsTableProps = {}) {
   const { formatAmount } = useCurrency()
   const { toast } = useToast()
   const [searchTerm, setSearchTerm] = useState("")
@@ -125,7 +126,11 @@ export function ProductsTable({ productTypeFilter: externalFilter, onProductType
       const matchesType = productTypeFilter === "all" || 
         (product.productType || 'retail') === productTypeFilter
       
-      return matchesSearch && matchesType
+      // Low stock filter - use product's minimumStock or default to 10
+      const minimumStock = product.minimumStock || 10
+      const matchesLowStock = !lowStockFilter || (product.stock !== undefined && product.stock < minimumStock)
+      
+      return matchesSearch && matchesType && matchesLowStock
     }
   )
 
@@ -254,19 +259,9 @@ export function ProductsTable({ productTypeFilter: externalFilter, onProductType
 
   const getStockBadge = (stock: number, minStock: number) => {
     if (stock <= minStock) {
-      return <Badge variant="destructive">Low Stock</Badge>
-    } else if (stock <= minStock * 2) {
-      return (
-        <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
-          Medium
-        </Badge>
-      )
+      return <Badge variant="destructive" className="bg-red-500 text-white">Low</Badge>
     }
-    return (
-      <Badge variant="secondary" className="bg-green-100 text-green-800">
-        In Stock
-      </Badge>
-    )
+    return null
   }
 
   return (
@@ -545,7 +540,7 @@ export function ProductsTable({ productTypeFilter: externalFilter, onProductType
                     <TableCell className="px-4 py-3">
                       <div className="flex items-center space-x-2">
                         <div className="text-base font-medium text-gray-700">{product.stock}</div>
-                        {getStockBadge(product.stock, product.minStock || 10)}
+                        {getStockBadge(product.stock, product.minimumStock ?? product.minStock ?? 10)}
                       </div>
                     </TableCell>
                     <TableCell className="px-4 py-3">

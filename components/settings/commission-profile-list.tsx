@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { CommissionProfile, COMMISSION_PROFILE_TYPES, DEFAULT_COMMISSION_PROFILES, CommissionProfileFormData } from "@/lib/commission-profile-types"
-import { useToast } from "@/hooks/use-toast"
+import { useToast } from "@/components/ui/use-toast"
 import { AddCommissionProfileModal } from "./add-commission-profile-modal"
 import { EditCommissionProfileModal } from "./edit-commission-profile-modal"
 

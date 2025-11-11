@@ -65,7 +65,7 @@ export function CashRegistryReport({ isVerificationModalOpen, onVerificationModa
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined)
   const [datePeriod, setDatePeriod] = useState<DatePeriod>("today")
   const [shiftFilter, setShiftFilter] = useState<string>("all")
-  const [reportType, setReportType] = useState<string>("activity")
+  const [reportType, setReportType] = useState<string>("summary")
   const [cashRegistryData, setCashRegistryData] = useState<CashRegistryEntry[]>([])
   const [expensesData, setExpensesData] = useState<{ [date: string]: number }>({})
   const [salesData, setSalesData] = useState<any[]>([])
@@ -276,7 +276,9 @@ export function CashRegistryReport({ isVerificationModalOpen, onVerificationModa
       })
 
       if (response.success) {
-        // Find the verified entry (could be today's or back-dated)
+        // Get the verified entry from API response (has updated verifiedBy field)
+        const verifiedEntryFromAPI = response.data
+        // Find the verified entry in local data (could be today's or back-dated)
         const verifiedEntry = cashRegistryData.find(entry => entry.id === data.entryId)
         
         if (verifiedEntry) {
@@ -318,6 +320,12 @@ export function CashRegistryReport({ isVerificationModalOpen, onVerificationModa
           const cashInPos = verifiedEntry.posCash || 0
           const onlineCashDifference = cashInPos - onlineSales
 
+          // Get verifiedBy from API response, or use current user's name as fallback
+          const verifiedByName = verifiedEntryFromAPI?.verifiedBy || 
+                                 (user?.name || (user as any)?.firstName && (user as any)?.lastName 
+                                   ? `${(user as any).firstName} ${(user as any).lastName}`.trim() 
+                                   : user?.email || 'Unknown')
+
           // Create or update daily summary with the verification reasons
           const newSummary = {
             date: dateKey,
@@ -333,8 +341,8 @@ export function CashRegistryReport({ isVerificationModalOpen, onVerificationModa
             onlineCashDifference,
             onlineCashDifferenceReason: data.onlinePosDifferenceReason || '',
             isVerified: true,
-            verifiedAt: new Date().toISOString(),
-            verifiedBy: verifiedEntry.createdBy
+            verifiedAt: verifiedEntryFromAPI?.verifiedAt || new Date().toISOString(),
+            verifiedBy: verifiedByName
           }
 
           console.log('🔍 DEBUG Creating/updating summary with reasons:', {
@@ -362,9 +370,15 @@ export function CashRegistryReport({ isVerificationModalOpen, onVerificationModa
           title: "Success",
           description: "Cash registry has been verified and closed successfully. Summary by Day has been updated.",
         })
-        // Refresh data after successful verification
+        // Refresh all data after successful verification
         await fetchCashRegistryData()
-        // Don't regenerate daily summaries as we've already updated them manually with the correct reasons
+        await fetchSalesData()
+        await fetchExpensesData()
+        // Regenerate daily summaries to reflect the updated verification status
+        // The useEffect should handle this automatically, but we'll trigger it explicitly to ensure it happens
+        setTimeout(() => {
+          generateDailySummaries()
+        }, 300)
         onVerificationModalChange(false)
       } else {
         toast({
@@ -1907,57 +1921,79 @@ export function CashRegistryReport({ isVerificationModalOpen, onVerificationModa
                                           <CheckCircle className="h-3 w-3" />
                                           Verified
                                         </Badge>
-                                      ) : (
-                                        <Badge 
-                                          variant="secondary" 
-                                          className="bg-blue-100 text-blue-800 hover:bg-blue-200 flex items-center gap-1 cursor-pointer transition-colors"
-                                          onClick={async (e) => {
-                                            e.preventDefault()
-                                            e.stopPropagation()
-                                            
-                                            // Find the closing entry for this date
-                                            const closingEntry = cashRegistryData.find(registryEntry => {
-                                              const entryDate = new Date(registryEntry.date).toISOString().split('T')[0]
-                                              return entryDate === entry.date && registryEntry.shiftType === 'closing'
-                                            })
-                                            
-                                            if (!closingEntry) return
-                                            
-                                            // Check if there are any differences that need reasons
-                                            const hasCashDifference = entry.cashDifference !== 0
-                                            const hasOnlineDifference = entry.onlineCashDifference !== 0
-                                            
-                                            if (hasCashDifference || hasOnlineDifference) {
-                                              // Has differences - open modal to collect reasons
-                                              setSelectedClosingEntry(closingEntry)
-                                              onVerificationModalChange(true)
-                                            } else {
-                                              // No differences - verify immediately
-                                              try {
-                                                await handleVerification({
-                                                  entryId: closingEntry.id,
-                                                  balanceDifferenceReason: undefined,
-                                                  onlinePosDifferenceReason: undefined,
-                                                })
-                                                toast({
-                                                  title: "Verified Successfully",
-                                                  description: "Entry verified with no differences found.",
-                                                })
-                                              } catch (error) {
-                                                console.error("Verification failed:", error)
-                                                toast({
-                                                  title: "Verification Failed",
-                                                  description: "An error occurred during verification. Please try again.",
-                                                  variant: "destructive"
-                                                })
+                                      ) : (() => {
+                                        // Check for opening and closing entries for this date
+                                        const openingEntry = cashRegistryData.find(registryEntry => {
+                                          const entryDate = new Date(registryEntry.date).toISOString().split('T')[0]
+                                          return entryDate === entry.date && registryEntry.shiftType === 'opening'
+                                        })
+                                        
+                                        const closingEntry = cashRegistryData.find(registryEntry => {
+                                          const entryDate = new Date(registryEntry.date).toISOString().split('T')[0]
+                                          return entryDate === entry.date && registryEntry.shiftType === 'closing'
+                                        })
+                                        
+                                        // Determine the current stage
+                                        let statusText = "Click to Verify"
+                                        let statusColor = "bg-blue-100 text-blue-800 hover:bg-blue-200"
+                                        
+                                        if (!openingEntry) {
+                                          statusText = "Opening Balance Required"
+                                          statusColor = "bg-yellow-100 text-yellow-800 hover:bg-yellow-200"
+                                        } else if (!closingEntry) {
+                                          statusText = "Closing Balance Required"
+                                          statusColor = "bg-red-100 text-red-800 hover:bg-red-200"
+                                        }
+                                        
+                                        return (
+                                          <Badge 
+                                            variant="secondary" 
+                                            className={`${statusColor} flex items-center gap-1 cursor-pointer transition-colors`}
+                                            onClick={async (e) => {
+                                              e.preventDefault()
+                                              e.stopPropagation()
+                                              
+                                              // Only allow verification if both opening and closing entries exist
+                                              if (!openingEntry || !closingEntry) {
+                                                return
                                               }
-                                            }
-                                          }}
-                                        >
-                                          <CheckCircle className="h-3 w-3" />
-                                          Click to Verify
-                                        </Badge>
-                                      )}
+                                              
+                                              // Check if there are any differences that need reasons
+                                              const hasCashDifference = entry.cashDifference !== 0
+                                              const hasOnlineDifference = entry.onlineCashDifference !== 0
+                                              
+                                              if (hasCashDifference || hasOnlineDifference) {
+                                                // Has differences - open modal to collect reasons
+                                                setSelectedClosingEntry(closingEntry)
+                                                onVerificationModalChange(true)
+                                              } else {
+                                                // No differences - verify immediately
+                                                try {
+                                                  await handleVerification({
+                                                    entryId: closingEntry.id,
+                                                    balanceDifferenceReason: undefined,
+                                                    onlinePosDifferenceReason: undefined,
+                                                  })
+                                                  toast({
+                                                    title: "Verified Successfully",
+                                                    description: "Entry verified with no differences found.",
+                                                  })
+                                                } catch (error) {
+                                                  console.error("Verification failed:", error)
+                                                  toast({
+                                                    title: "Verification Failed",
+                                                    description: "An error occurred during verification. Please try again.",
+                                                    variant: "destructive"
+                                                  })
+                                                }
+                                              }
+                                            }}
+                                          >
+                                            <CheckCircle className="h-3 w-3" />
+                                            {statusText}
+                                          </Badge>
+                                        )
+                                      })()}
                                     </div>
                                   </PopoverTrigger>
                                   <PopoverContent className="w-64 p-3">

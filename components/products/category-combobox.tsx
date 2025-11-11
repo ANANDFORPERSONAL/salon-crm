@@ -28,15 +28,15 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { CategoriesAPI } from "@/lib/api"
+import { ProductsAPI } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
 
 interface Category {
-  _id: string
+  _id?: string
   name: string
-  type: 'product' | 'service' | 'both'
+  type?: 'product' | 'service' | 'both'
   description?: string
-  isActive: boolean
+  isActive?: boolean
 }
 
 interface CategoryComboboxProps {
@@ -59,20 +59,49 @@ export function CategoryCombobox({ value, onChange, disabled, type = 'both' }: C
   // Load categories on mount
   React.useEffect(() => {
     loadCategories()
-  }, [type])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []) // Load once on mount - categories are fetched from products
 
   const loadCategories = async () => {
     try {
       setLoading(true)
-      const response = await CategoriesAPI.getAll({ activeOnly: true, type })
-      if (response.success) {
-        setCategories(response.data)
+      // Fetch all products to extract unique categories
+      // Fetch with a high limit to get all products in one request
+      const response = await ProductsAPI.getAll({ limit: 10000 })
+      if (response.success && response.data) {
+        // Extract unique categories from products
+        const uniqueCategories = new Set<string>()
+        const categoryMap = new Map<string, Category>()
+        
+        // Handle both array and paginated response
+        const products = Array.isArray(response.data) ? response.data : (response.data?.data || [])
+        
+        products.forEach((product: any) => {
+          if (product.category && product.category.trim()) {
+            const categoryName = product.category.trim()
+            if (!uniqueCategories.has(categoryName)) {
+              uniqueCategories.add(categoryName)
+              categoryMap.set(categoryName, {
+                name: categoryName,
+                _id: categoryName, // Use name as ID for simplicity
+                isActive: true
+              })
+            }
+          }
+        })
+        
+        // Convert map to array and sort alphabetically
+        const categoriesArray = Array.from(categoryMap.values()).sort((a, b) => 
+          a.name.localeCompare(b.name)
+        )
+        
+        setCategories(categoriesArray)
       }
     } catch (error) {
-      console.error('Error loading categories:', error)
+      console.error('Error loading categories from products:', error)
       toast({
         title: "Error",
-        description: "Failed to load categories",
+        description: "Failed to load categories from products",
         variant: "destructive",
       })
     } finally {
@@ -92,31 +121,39 @@ export function CategoryCombobox({ value, onChange, disabled, type = 'both' }: C
 
     try {
       setAddingCategory(true)
-      const response = await CategoriesAPI.create({ 
+      // Since categories are fetched from products, we just need to select the new category
+      // The category will be created when a product with this category is saved
+      const newCategory: Category = {
         name: newCategoryName.trim(),
-        type: type === 'both' ? 'both' : type
+        _id: newCategoryName.trim(),
+        isActive: true
+      }
+      
+      // Add to local state
+      setCategories(prev => {
+        const updated = [...prev, newCategory].sort((a, b) => 
+          a.name.localeCompare(b.name)
+        )
+        return updated
       })
       
-      if (response.success) {
-        toast({
-          title: "Success",
-          description: "Category added successfully",
-        })
-        
-        // Reload categories and select the new one
-        await loadCategories()
-        onChange(newCategoryName.trim())
-        
-        // Close dialog and reset
-        setShowAddDialog(false)
-        setNewCategoryName("")
-        setOpen(false)
-      }
+      // Select the new category
+      onChange(newCategoryName.trim())
+      
+      toast({
+        title: "Success",
+        description: "Category will be saved when you create a product with this category",
+      })
+      
+      // Close dialog and reset
+      setShowAddDialog(false)
+      setNewCategoryName("")
+      setOpen(false)
     } catch (error: any) {
       console.error('Error adding category:', error)
       toast({
         title: "Error",
-        description: error.response?.data?.error || "Failed to add category",
+        description: "Failed to add category",
         variant: "destructive",
       })
     } finally {
@@ -159,7 +196,13 @@ export function CategoryCombobox({ value, onChange, disabled, type = 'both' }: C
               value={searchQuery}
               onValueChange={setSearchQuery}
             />
-            <CommandList>
+            <CommandList 
+              className="category-scroll-container max-h-[240px] overflow-y-auto overflow-x-hidden"
+              style={{ 
+                scrollbarWidth: 'thin',
+                scrollbarColor: '#cbd5e1 #f1f5f9'
+              }}
+            >
               <CommandEmpty>
                 {searchQuery && !exactMatch ? (
                   <div className="p-2">
@@ -182,7 +225,7 @@ export function CategoryCombobox({ value, onChange, disabled, type = 'both' }: C
               <CommandGroup>
                 {filteredCategories.map((category) => (
                   <CommandItem
-                    key={category._id}
+                    key={category._id || category.name}
                     value={category.name}
                     onSelect={(currentValue) => {
                       onChange(currentValue === value ? "" : currentValue)
@@ -224,7 +267,7 @@ export function CategoryCombobox({ value, onChange, disabled, type = 'both' }: C
           <DialogHeader>
             <DialogTitle>Add New Category</DialogTitle>
             <DialogDescription>
-              Create a new category to organize your {type === 'product' ? 'products' : type === 'service' ? 'services' : 'items'}.
+              Add a new category. It will be saved when you create a product with this category.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">

@@ -2,18 +2,12 @@
 
 import { useState } from "react"
 import { ProtectedLayout } from "@/components/layout/protected-layout"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ProtectedRoute } from "@/components/auth/protected-route"
 import { CashRegistryReport } from "@/components/cash-registry/cash-registry-report"
-import { Button } from "@/components/ui/button"
-import { CheckCircle, TrendingUp, Shield, Zap } from "lucide-react"
+import { TrendingUp } from "lucide-react"
 
 export default function CashRegistryPage() {
   const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false)
-
-  const handleVerifiedAndClose = () => {
-    setIsVerificationModalOpen(true)
-  }
 
   return (
     <ProtectedRoute requiredRole="manager">
@@ -24,7 +18,7 @@ export default function CashRegistryPage() {
             <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
               {/* Header Background */}
               <div className="bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 px-8 py-6">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center">
                   <div className="flex items-center gap-4">
                     <div className="p-3 bg-white rounded-xl shadow-sm">
                       <TrendingUp className="h-7 w-7 text-blue-600" />
@@ -37,16 +31,6 @@ export default function CashRegistryPage() {
                         Manage and track daily cash balances and shifts
                       </p>
                     </div>
-                  </div>
-                  
-                  <div className="text-right">
-                    <Button 
-                      onClick={handleVerifiedAndClose}
-                      className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-3 shadow-md hover:shadow-lg transition-all duration-300 rounded-xl font-semibold text-base"
-                    >
-                      <CheckCircle className="h-5 w-5 mr-2" />
-                      Verified & Close
-                    </Button>
                   </div>
                 </div>
               </div>

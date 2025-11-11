@@ -223,11 +223,26 @@ export function AppointmentForm() {
 
   // Handle customer search input
   const handleCustomerSearchChange = (value: string) => {
-    setCustomerSearch(value)
+    // Check if the value contains only digits (phone number search)
+    // If it's all digits, restrict to 10 digits
+    if (value.length > 0 && /^\d+$/.test(value)) {
+      // Only allow digits and limit to 10
+      const phoneValue = value.replace(/\D/g, '').slice(0, 10)
+      setCustomerSearch(phoneValue)
+    } else if (value.length === 0) {
+      // Allow empty string
+      setCustomerSearch(value)
+    } else {
+      // Allow text for name/email search (contains letters or special chars)
+      setCustomerSearch(value)
+    }
     setShowCustomerDropdown(true)
 
     // If search doesn't match selected customer, clear selection
-    if (selectedCustomer && !selectedCustomer.name.toLowerCase().includes(value.toLowerCase())) {
+    const finalValue = value.length > 0 && /^\d+$/.test(value) 
+      ? value.replace(/\D/g, '').slice(0, 10)
+      : value
+    if (selectedCustomer && !selectedCustomer.name.toLowerCase().includes(finalValue.toLowerCase())) {
       setSelectedCustomer(null)
     }
   }
@@ -256,11 +271,22 @@ export function AppointmentForm() {
       return
     }
 
+    // Validate phone number - must be exactly 10 digits
+    const phoneNumber = newClient.phone || customerSearch
+    if (!phoneNumber || !/^\d{10}$/.test(phoneNumber)) {
+      toast({
+        title: "Invalid Phone Number",
+        description: "Phone number must be exactly 10 digits.",
+        variant: "destructive",
+      })
+      return
+    }
+
     try {
              const newClientData = {
          id: `new-${Date.now()}`,
          name: newClient.lastName ? `${newClient.firstName} ${newClient.lastName}` : newClient.firstName,
-         phone: newClient.phone || customerSearch,
+         phone: phoneNumber,
          email: newClient.email,
          status: "active" as const,
        }
@@ -500,9 +526,38 @@ export function AppointmentForm() {
               <div className="relative customer-search-container">
                 <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
                 <Input
-                  placeholder="Search by name or phone..."
+                  type="tel"
+                  placeholder="Search by name or phone (10 digits)..."
                   value={customerSearch}
-                  onChange={(e) => handleCustomerSearchChange(e.target.value)}
+                  onChange={(e) => {
+                    const value = e.target.value
+                    // If it's all digits, restrict immediately to 10 digits
+                    if (/^\d+$/.test(value)) {
+                      const restricted = value.slice(0, 10)
+                      handleCustomerSearchChange(restricted)
+                    } else {
+                      handleCustomerSearchChange(value)
+                    }
+                  }}
+                  onPaste={(e) => {
+                    // Handle paste events for phone numbers
+                    const pastedText = e.clipboardData.getData('text')
+                    if (/^\d+$/.test(pastedText)) {
+                      e.preventDefault()
+                      const restricted = pastedText.slice(0, 10)
+                      handleCustomerSearchChange(restricted)
+                    }
+                  }}
+                  onKeyDown={(e) => {
+                    // Prevent typing if it's a phone number and already 10 digits
+                    if (/^\d+$/.test(customerSearch) && customerSearch.length >= 10) {
+                      // Allow backspace, delete, arrow keys, tab, etc.
+                      if (!['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', 'Home', 'End'].includes(e.key) && 
+                          !e.ctrlKey && !e.metaKey) {
+                        e.preventDefault()
+                      }
+                    }
+                  }}
                   onFocus={() => setShowCustomerDropdown(true)}
                   className="pl-12 h-12 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500 rounded-xl"
                 />
@@ -510,9 +565,9 @@ export function AppointmentForm() {
                 {showCustomerDropdown && customerSearch && (
                   <div className="absolute top-full left-0 right-0 z-10 mt-2 bg-white border border-slate-200 rounded-xl shadow-xl max-h-60 overflow-auto">
                     {filteredCustomers.length > 0 ? (
-                      filteredCustomers.map((customer) => (
+                      filteredCustomers.map((customer, index) => (
                         <div
-                          key={customer._id || customer.id}
+                          key={`${customer._id || customer.id || 'customer'}-${customer.phone || index}-${index}`}
                           className="p-4 hover:bg-indigo-50 cursor-pointer border-b border-slate-100 last:border-b-0 transition-colors"
                           onClick={(e) => {
                             e.preventDefault()
@@ -999,13 +1054,23 @@ export function AppointmentForm() {
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="phone">Phone</Label>
+              <Label htmlFor="phone">Phone *</Label>
               <Input
                 id="phone"
                 type="tel"
+                placeholder="Enter 10-digit phone number"
+                maxLength={10}
                 value={newClient.phone}
-                onChange={(e) => setNewClient({ ...newClient, phone: e.target.value })}
+                onChange={(e) => {
+                  // Only allow digits and limit to 10
+                  const value = e.target.value.replace(/\D/g, '').slice(0, 10)
+                  setNewClient({ ...newClient, phone: value })
+                }}
+                className={newClient.phone && newClient.phone.length !== 10 ? "border-red-500 focus:border-red-500" : ""}
               />
+              {newClient.phone && newClient.phone.length > 0 && newClient.phone.length !== 10 && (
+                <p className="text-sm text-red-500">Phone number must be exactly 10 digits. Current: {newClient.phone.length} digits</p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>

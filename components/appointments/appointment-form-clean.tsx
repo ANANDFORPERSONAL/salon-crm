@@ -128,20 +128,26 @@ export function AppointmentForm() {
   })
 
   // Search clients by phone number
-  const searchClientsByPhone = (phone: string) => {
+  const searchClientsByPhone = async (phone: string) => {
     if (!phone) {
       setSearchResults([])
       setSelectedClient(null)
       return
     }
 
-    // Use the client store to search
-    const results = clientStore.searchClients(phone)
-    console.log("Search results:", results)
-    setSearchResults(results)
+    // Use the client store to search (async)
+    try {
+      const results = await clientStore.searchClients(phone)
+      console.log("Search results:", results)
+      setSearchResults(results)
 
-    // Clear selected client if no results found
-    if (results.length === 0) {
+      // Clear selected client if no results found
+      if (results.length === 0) {
+        setSelectedClient(null)
+      }
+    } catch (error) {
+      console.error("Error searching clients:", error)
+      setSearchResults([])
       setSelectedClient(null)
     }
   }
@@ -158,12 +164,23 @@ export function AppointmentForm() {
       return
     }
 
+    // Validate phone number - must be exactly 10 digits
+    const phoneNumber = newClient.phone || phoneSearch
+    if (!phoneNumber || !/^\d{10}$/.test(phoneNumber)) {
+      toast({
+        title: "Invalid Phone Number",
+        description: "Phone number must be exactly 10 digits.",
+        variant: "destructive",
+      })
+      return
+    }
+
     // Create a new client object
     const newClientId = `new-${Date.now()}`
     const createdClient = {
       id: newClientId,
       name: `${newClient.firstName} ${newClient.lastName}`,
-      phone: newClient.phone || phoneSearch,
+      phone: phoneNumber,
       email: newClient.email,
       status: "active" as const,
       lastVisit: new Date().toLocaleDateString(),
@@ -345,11 +362,14 @@ export function AppointmentForm() {
                           <div className="flex gap-2">
                             <Input
                               type="tel"
-                              placeholder="Search by phone number"
+                              placeholder="Search by 10-digit phone number"
+                              maxLength={10}
                               value={phoneSearch}
                               onChange={(e) => {
-                                setPhoneSearch(e.target.value)
-                                searchClientsByPhone(e.target.value)
+                                // Only allow digits and limit to 10
+                                const value = e.target.value.replace(/\D/g, '').slice(0, 10)
+                                setPhoneSearch(value)
+                                searchClientsByPhone(value)
                               }}
                             />
                             <Button type="button" variant="outline" onClick={() => searchClientsByPhone(phoneSearch)}>
@@ -624,14 +644,25 @@ export function AppointmentForm() {
                 htmlFor="phone"
                 className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
               >
-                Phone
+                Phone *
               </label>
               <Input
                 id="phone"
                 type="tel"
+                placeholder="Enter 10-digit phone number"
+                maxLength={10}
                 value={newClient.phone || phoneSearch}
-                onChange={(e) => setNewClient({ ...newClient, phone: e.target.value })}
+                onChange={(e) => {
+                  // Only allow digits and limit to 10
+                  const value = e.target.value.replace(/\D/g, '').slice(0, 10)
+                  setNewClient({ ...newClient, phone: value })
+                  setPhoneSearch(value)
+                }}
+                className={(newClient.phone || phoneSearch) && (newClient.phone || phoneSearch).length !== 10 ? "border-red-500 focus:border-red-500" : ""}
               />
+              {(newClient.phone || phoneSearch) && (newClient.phone || phoneSearch).length > 0 && (newClient.phone || phoneSearch).length !== 10 && (
+                <p className="text-sm text-red-500">Phone number must be exactly 10 digits. Current: {(newClient.phone || phoneSearch).length} digits</p>
+              )}
             </div>
             <div className="space-y-2">
               <label

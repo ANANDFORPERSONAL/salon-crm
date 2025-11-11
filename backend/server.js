@@ -225,11 +225,18 @@ const checkPermission = (module, feature) => {
 
 // Helper function to generate JWT token
 const generateToken = (user) => {
-  return jwt.sign(
-    { id: user._id || user.id, email: user.email, role: user.role },
-    JWT_SECRET,
-    { expiresIn: '24h' }
-  );
+  const payload = {
+    id: user._id || user.id,
+    email: user.email,
+    role: user.role
+  };
+  
+  // Include branchId for staff users
+  if (user.branchId) {
+    payload.branchId = user.branchId;
+  }
+  
+  return jwt.sign(payload, JWT_SECRET, { expiresIn: '24h' });
 };
 
 // Helper function to hash password
@@ -451,23 +458,62 @@ app.post('/api/auth/logout', authenticateToken, (req, res) => {
   });
 });
 
-app.get('/api/auth/profile', authenticateToken, setupMainDatabase, async (req, res) => {
+app.get('/api/auth/profile', authenticateToken, async (req, res) => {
   try {
-    // Regular user lookup from main database
-    const { User } = req.mainModels;
-    const user = await User.findById(req.user.id || req.user._id);
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        error: 'User not found'
+    console.log('🔍 Profile endpoint - req.user:', {
+      id: req.user.id,
+      _id: req.user._id,
+      email: req.user.email,
+      branchId: req.user.branchId,
+      role: req.user.role
+    });
+
+    // Check if user is staff (has branchId) or regular user
+    if (req.user.branchId) {
+      // Staff user - req.user is already populated by authenticateToken middleware
+      // Just return the user data that was already validated
+      res.json({
+        success: true,
+        data: {
+          _id: req.user._id,
+          id: req.user.id,
+          firstName: req.user.firstName || '',
+          lastName: req.user.lastName || '',
+          name: req.user.firstName && req.user.lastName 
+            ? `${req.user.firstName} ${req.user.lastName}`.trim()
+            : req.user.email || 'User',
+          email: req.user.email,
+          mobile: req.user.mobile,
+          role: req.user.role,
+          branchId: req.user.branchId,
+          hasLoginAccess: req.user.hasLoginAccess,
+          allowAppointmentScheduling: req.user.allowAppointmentScheduling,
+          isActive: req.user.isActive,
+          specialties: req.user.specialties,
+          commissionProfileIds: req.user.commissionProfileIds,
+          notes: req.user.notes,
+          createdAt: req.user.createdAt,
+          updatedAt: req.user.updatedAt
+        }
+      });
+    } else {
+      // Regular user - lookup from main database
+      const mainConnection = await require('./config/database-manager').getMainConnection();
+      const User = mainConnection.model('User', require('./models/User').schema);
+      const user = await User.findById(req.user.id || req.user._id);
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          error: 'User not found'
+        });
+      }
+
+      const { password: _, ...userWithoutPassword } = user.toObject();
+      res.json({
+        success: true,
+        data: userWithoutPassword
       });
     }
-
-    const { password: _, ...userWithoutPassword } = user.toObject();
-    res.json({
-      success: true,
-      data: userWithoutPassword
-    });
   } catch (error) {
     console.error('Profile error:', error);
     res.status(500).json({
@@ -2212,10 +2258,10 @@ app.get('/api/products', authenticateToken, setupBusinessDatabase, requireStaff,
 app.post('/api/products', authenticateToken, setupBusinessDatabase, requireManager, async (req, res) => {
   try {
     const { Product, InventoryTransaction } = req.businessModels;
-    const { name, category, price, stock, sku, supplier, description, taxCategory, productType, transactionType } = req.body;
+    const { name, category, price, stock, minimumStock, sku, supplier, description, taxCategory, productType, transactionType } = req.body;
 
     console.log('🔍 Product creation request body:', req.body);
-    console.log('🔍 Extracted fields:', { name, category, price, stock, sku, supplier, description, taxCategory, productType });
+    console.log('🔍 Extracted fields:', { name, category, price, stock, minimumStock, sku, supplier, description, taxCategory, productType });
 
     // For service products, price is not required
     const isServiceProduct = productType === 'service';
@@ -2244,6 +2290,7 @@ app.post('/api/products', authenticateToken, setupBusinessDatabase, requireManag
       category,
       price: isServiceProduct ? 0 : parseFloat(price), // Service products have price 0
       stock: parseInt(stock),
+      minimumStock: minimumStock !== undefined ? parseInt(minimumStock) : undefined,
       sku: sku || `SKU-${Date.now()}`,
       supplier,
       description,
@@ -2297,7 +2344,7 @@ app.put('/api/products/:id', authenticateToken, setupBusinessDatabase, requireMa
     console.log('🔍 Request body:', req.body);
     
     const { Product, InventoryTransaction } = req.businessModels;
-    const { name, category, price, stock, sku, supplier, description, isActive, taxCategory, productType, transactionType } = req.body;
+    const { name, category, price, stock, minimumStock, sku, supplier, description, isActive, taxCategory, productType, transactionType } = req.body;
 
     // For service products, price is not required
     const isServiceProduct = productType === 'service';
@@ -2326,20 +2373,30 @@ app.put('/api/products/:id', authenticateToken, setupBusinessDatabase, requireMa
     const stockDifference = newStock - previousStock;
 
     // Update the product
+    const updateData = {
+      name,
+      category,
+      price: isServiceProduct ? 0 : parseFloat(price), // Service products have price 0
+      stock: newStock,
+      sku: sku || `SKU-${Date.now()}`,
+      supplier,
+      description,
+      taxCategory: taxCategory || 'standard',
+      productType: productType || 'retail',
+      isActive: isActive !== undefined ? isActive : true,
+    };
+    
+    // Add minimumStock if provided (handle empty string, null, and undefined)
+    if (minimumStock !== undefined && minimumStock !== null && minimumStock !== '') {
+      updateData.minimumStock = parseInt(minimumStock);
+    } else if (minimumStock === '' || minimumStock === null) {
+      // Allow clearing minimumStock by setting it to null
+      updateData.minimumStock = null;
+    }
+    
     const updatedProduct = await Product.findByIdAndUpdate(
       req.params.id,
-      {
-        name,
-        category,
-        price: isServiceProduct ? 0 : parseFloat(price), // Service products have price 0
-        stock: newStock,
-        sku: sku || `SKU-${Date.now()}`,
-        supplier,
-        description,
-        taxCategory: taxCategory || 'standard',
-        productType: productType || 'retail',
-        isActive: isActive !== undefined ? isActive : true,
-      },
+      updateData,
       { new: true }
     );
 
@@ -3920,7 +3977,7 @@ app.get('/api/receipts/client/:clientId', authenticateToken, setupBusinessDataba
 });
 
 // Reports routes
-app.get('/api/reports/dashboard', authenticateToken, setupBusinessDatabase, requireManager, async (req, res) => {
+app.get('/api/reports/dashboard', authenticateToken, setupBusinessDatabase, requireStaff, async (req, res) => {
   try {
     console.log('🔍 Dashboard stats request for user:', req.user?.email, 'branchId:', req.user?.branchId);
     
@@ -3973,7 +4030,7 @@ app.get('/api/reports/dashboard', authenticateToken, setupBusinessDatabase, requ
 });
 
 // --- SALES API ---
-app.get('/api/sales', authenticateToken, setupBusinessDatabase, requireManager, async (req, res) => {
+app.get('/api/sales', authenticateToken, setupBusinessDatabase, requireStaff, async (req, res) => {
   try {
     console.log('🔍 Sales request for user:', req.user?.email, 'branchId:', req.user?.branchId);
     
@@ -4828,6 +4885,40 @@ app.get("/api/settings/payment", authenticateToken, setupBusinessDatabase, async
       });
     }
 
+    // Build tax categories array from settings
+    let taxCategories = []
+    if (settings.taxCategories && Array.isArray(settings.taxCategories) && settings.taxCategories.length > 0) {
+      taxCategories = settings.taxCategories
+    } else {
+      // Fallback: Create categories from individual rate fields (backward compatibility)
+      if (settings.essentialProductRate !== undefined) {
+        taxCategories.push({ id: "essential", name: "Essential Products", rate: settings.essentialProductRate || 5 })
+      }
+      if (settings.intermediateProductRate !== undefined) {
+        taxCategories.push({ id: "intermediate", name: "Intermediate Products", rate: settings.intermediateProductRate || 12 })
+      }
+      if (settings.standardProductRate !== undefined) {
+        taxCategories.push({ id: "standard", name: "Standard Products", rate: settings.standardProductRate || 18 })
+      }
+      if (settings.luxuryProductRate !== undefined) {
+        taxCategories.push({ id: "luxury", name: "Luxury Products", rate: settings.luxuryProductRate || 28 })
+      }
+      if (settings.exemptProductRate !== undefined) {
+        taxCategories.push({ id: "exempt", name: "Exempt Products", rate: settings.exemptProductRate || 0 })
+      }
+      
+      // If still no categories, use defaults
+      if (taxCategories.length === 0) {
+        taxCategories = [
+          { id: "essential", name: "Essential Products", rate: 5 },
+          { id: "intermediate", name: "Intermediate Products", rate: 12 },
+          { id: "standard", name: "Standard Products", rate: 18 },
+          { id: "luxury", name: "Luxury Products", rate: 28 },
+          { id: "exempt", name: "Exempt Products", rate: 0 }
+        ]
+      }
+    }
+
     res.json({
       success: true,
       data: {
@@ -4836,7 +4927,19 @@ app.get("/api/settings/payment", authenticateToken, setupBusinessDatabase, async
         processingFee: settings.processingFee || 2.9,
         enableCurrency: settings.enableCurrency !== false,
         enableTax: settings.enableTax !== false,
-        enableProcessingFees: settings.enableProcessingFees !== false
+        enableProcessingFees: settings.enableProcessingFees !== false,
+        taxType: settings.taxType || "gst",
+        cgstRate: settings.cgstRate || 9,
+        sgstRate: settings.sgstRate || 9,
+        igstRate: settings.igstRate || 18,
+        serviceTaxRate: settings.serviceTaxRate || 5,
+        productTaxRate: settings.productTaxRate || 18,
+        essentialProductRate: settings.essentialProductRate || 5,
+        intermediateProductRate: settings.intermediateProductRate || 12,
+        standardProductRate: settings.standardProductRate || 18,
+        luxuryProductRate: settings.luxuryProductRate || 28,
+        exemptProductRate: settings.exemptProductRate || 0,
+        taxCategories: taxCategories
       }
     });
   } catch (error) {
@@ -4850,7 +4953,26 @@ app.get("/api/settings/payment", authenticateToken, setupBusinessDatabase, async
 
 app.put("/api/settings/payment", authenticateToken, setupBusinessDatabase, async (req, res) => {
   try {
-    const { currency, taxRate, processingFee, enableCurrency, enableTax, enableProcessingFees } = req.body;
+    const { 
+      currency, 
+      taxRate, 
+      processingFee, 
+      enableCurrency, 
+      enableTax, 
+      enableProcessingFees,
+      taxType,
+      cgstRate,
+      sgstRate,
+      igstRate,
+      serviceTaxRate,
+      productTaxRate,
+      essentialProductRate,
+      intermediateProductRate,
+      standardProductRate,
+      luxuryProductRate,
+      exemptProductRate,
+      taxCategories
+    } = req.body;
     const { BusinessSettings } = req.businessModels;
 
     let settings = await BusinessSettings.findOne();
@@ -4869,6 +4991,22 @@ app.put("/api/settings/payment", authenticateToken, setupBusinessDatabase, async
     if (enableCurrency !== undefined) settings.enableCurrency = enableCurrency;
     if (enableTax !== undefined) settings.enableTax = enableTax;
     if (enableProcessingFees !== undefined) settings.enableProcessingFees = enableProcessingFees;
+    
+    // Update tax settings
+    if (taxType !== undefined) settings.taxType = taxType;
+    if (cgstRate !== undefined) settings.cgstRate = cgstRate;
+    if (sgstRate !== undefined) settings.sgstRate = sgstRate;
+    if (igstRate !== undefined) settings.igstRate = igstRate;
+    if (serviceTaxRate !== undefined) settings.serviceTaxRate = serviceTaxRate;
+    if (productTaxRate !== undefined) settings.productTaxRate = productTaxRate;
+    if (essentialProductRate !== undefined) settings.essentialProductRate = essentialProductRate;
+    if (intermediateProductRate !== undefined) settings.intermediateProductRate = intermediateProductRate;
+    if (standardProductRate !== undefined) settings.standardProductRate = standardProductRate;
+    if (luxuryProductRate !== undefined) settings.luxuryProductRate = luxuryProductRate;
+    if (exemptProductRate !== undefined) settings.exemptProductRate = exemptProductRate;
+    if (taxCategories !== undefined && Array.isArray(taxCategories)) {
+      settings.taxCategories = taxCategories;
+    }
 
     await settings.save();
 

@@ -4,6 +4,8 @@ import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Users, CalendarDays, PieChart, Settings, Package, Clock, DollarSign } from "lucide-react"
 import { ReportsAPI, ServicesAPI, ProductsAPI, SalesAPI, AppointmentsAPI, CashRegistryAPI } from "@/lib/api"
+import { useAuth } from "@/lib/auth-context"
+import { cn } from "@/lib/utils"
 
 interface DashboardStats {
   totalClients: number
@@ -321,9 +323,14 @@ export function ServiceStatsCards() {
 
 interface ProductStatsCardsProps {
   productTypeFilter?: string
+  onLowStockClick?: () => void
+  lowStockFilterActive?: boolean
 }
 
-export function ProductStatsCards({ productTypeFilter = "all" }: ProductStatsCardsProps = {}) {
+export function ProductStatsCards({ productTypeFilter = "all", onLowStockClick, lowStockFilterActive = false }: ProductStatsCardsProps = {}) {
+  const { user } = useAuth()
+  const isAdmin = user?.role === 'admin'
+  
   const [stats, setStats] = useState<ProductStats>({
     totalProducts: 0,
     lowStockCount: 0,
@@ -355,7 +362,10 @@ export function ProductStatsCards({ productTypeFilter = "all" }: ProductStatsCar
         // "both" and "all" both show all products (no filtering needed)
         
         const totalProducts = products.length
-        const lowStockCount = products.filter((product: any) => product.stock < 10).length
+        const lowStockCount = products.filter((product: any) => {
+          const minimumStock = product.minimumStock || 10 // Default to 10 if not set
+          return product.stock !== undefined && product.stock < minimumStock
+        }).length
         const totalValue = products.reduce((sum: number, product: any) => sum + (product.price * product.stock), 0)
         const categories = new Set(products.map((product: any) => product.category)).size
 
@@ -388,9 +398,10 @@ export function ProductStatsCards({ productTypeFilter = "all" }: ProductStatsCar
   }, [])
 
   if (loading) {
+    const cardCount = isAdmin ? 4 : 3
     return (
-      <div className="grid gap-4 md:grid-cols-4">
-        {[1, 2, 3, 4].map((i) => (
+      <div className={`grid gap-4 ${isAdmin ? 'md:grid-cols-4' : 'md:grid-cols-3'}`}>
+        {Array.from({ length: cardCount }).map((_, i) => (
           <Card key={i}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <div className="h-4 w-20 bg-gray-200 rounded animate-pulse" />
@@ -407,7 +418,7 @@ export function ProductStatsCards({ productTypeFilter = "all" }: ProductStatsCar
   }
 
   return (
-    <div className="grid gap-4 md:grid-cols-4">
+    <div className={`grid gap-4 ${isAdmin ? 'md:grid-cols-4' : 'md:grid-cols-3'}`}>
       <Card className="group transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl border-0 bg-gradient-to-br from-teal-50 to-emerald-100 overflow-hidden animate-in slide-in-from-bottom-2" style={{ animationDelay: '0ms' }}>
         <div className="absolute inset-0 bg-gradient-to-r from-teal-600/10 to-emerald-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
@@ -425,7 +436,14 @@ export function ProductStatsCards({ productTypeFilter = "all" }: ProductStatsCar
         </CardContent>
       </Card>
       
-      <Card className="group transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl border-0 bg-gradient-to-br from-red-50 to-rose-100 overflow-hidden animate-in slide-in-from-bottom-2" style={{ animationDelay: '100ms' }}>
+      <Card 
+        className={cn(
+          "group transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl border-0 bg-gradient-to-br from-red-50 to-rose-100 overflow-hidden animate-in slide-in-from-bottom-2 cursor-pointer",
+          lowStockFilterActive && "ring-2 ring-red-500 ring-offset-2"
+        )}
+        style={{ animationDelay: '100ms' }}
+        onClick={onLowStockClick}
+      >
         <div className="absolute inset-0 bg-gradient-to-r from-red-600/10 to-rose-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
           <CardTitle className="text-sm font-medium text-red-800">Low Stock</CardTitle>
@@ -442,24 +460,26 @@ export function ProductStatsCards({ productTypeFilter = "all" }: ProductStatsCar
         </CardContent>
       </Card>
       
-      <Card className="group transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl border-0 bg-gradient-to-br from-amber-50 to-yellow-100 overflow-hidden animate-in slide-in-from-bottom-2" style={{ animationDelay: '200ms' }}>
-        <div className="absolute inset-0 bg-gradient-to-r from-amber-600/10 to-yellow-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
-          <CardTitle className="text-sm font-medium text-amber-800">Total Value</CardTitle>
-          <div className="p-2 bg-amber-100 rounded-lg group-hover:bg-amber-200 transition-colors duration-300">
-            <Package className="h-4 w-4 text-amber-600" />
-          </div>
-        </CardHeader>
-        <CardContent className="relative z-10">
-          <div className="text-3xl font-bold text-amber-900 mb-1">{safeFormatAmount(stats.totalValue)}</div>
-          <p className="text-xs text-amber-600 font-medium">Current inventory value</p>
-          <div className="w-full bg-amber-200 rounded-full h-1 mt-3 overflow-hidden">
-            <div className="bg-gradient-to-r from-amber-500 to-yellow-500 h-1 rounded-full transition-all duration-1000 ease-out animate-pulse" style={{ width: `${Math.min((stats.totalValue / 50000) * 100, 100)}%` }} />
-          </div>
-        </CardContent>
-      </Card>
+      {isAdmin && (
+        <Card className="group transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl border-0 bg-gradient-to-br from-amber-50 to-yellow-100 overflow-hidden animate-in slide-in-from-bottom-2" style={{ animationDelay: '200ms' }}>
+          <div className="absolute inset-0 bg-gradient-to-r from-amber-600/10 to-yellow-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
+            <CardTitle className="text-sm font-medium text-amber-800">Total Value</CardTitle>
+            <div className="p-2 bg-amber-100 rounded-lg group-hover:bg-amber-200 transition-colors duration-300">
+              <Package className="h-4 w-4 text-amber-600" />
+            </div>
+          </CardHeader>
+          <CardContent className="relative z-10">
+            <div className="text-3xl font-bold text-amber-900 mb-1">{safeFormatAmount(stats.totalValue)}</div>
+            <p className="text-xs text-amber-600 font-medium">Current inventory value</p>
+            <div className="w-full bg-amber-200 rounded-full h-1 mt-3 overflow-hidden">
+              <div className="bg-gradient-to-r from-amber-500 to-yellow-500 h-1 rounded-full transition-all duration-1000 ease-out animate-pulse" style={{ width: `${Math.min((stats.totalValue / 50000) * 100, 100)}%` }} />
+            </div>
+          </CardContent>
+        </Card>
+      )}
       
-      <Card className="group transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl border-0 bg-gradient-to-br from-indigo-50 to-blue-100 overflow-hidden animate-in slide-in-from-bottom-2" style={{ animationDelay: '300ms' }}>
+      <Card className="group transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl border-0 bg-gradient-to-br from-indigo-50 to-blue-100 overflow-hidden animate-in slide-in-from-bottom-2" style={{ animationDelay: isAdmin ? '300ms' : '200ms' }}>
         <div className="absolute inset-0 bg-gradient-to-r from-indigo-600/10 to-blue-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
           <CardTitle className="text-sm font-medium text-indigo-800">Categories</CardTitle>

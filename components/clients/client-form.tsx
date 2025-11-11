@@ -43,21 +43,23 @@ export function ClientForm({ client, isEditMode = false, onEditComplete }: Clien
     email: z.string().email({
       message: "Please enter a valid email address.",
     }).optional().or(z.literal("")),
-    phone: z.string().min(10, {
-      message: "Phone number must be at least 10 digits.",
-    }).refine((phone) => {
-      // Get all clients from the store
-      const allClients = clientStore.getClients()
-      // Check if phone number already exists (excluding current client when editing)
-      const existingClient = allClients.find(c => 
-        c.phone === phone && 
-        c.id !== client?.id && 
-        c._id !== client?._id
-      )
-      return !existingClient
-    }, {
-      message: "Phone number already exists. Please use a different number.",
-    }),
+    phone: z.string()
+      .regex(/^\d{10}$/, {
+        message: "Phone number must be exactly 10 digits.",
+      })
+      .refine((phone) => {
+        // Get all clients from the store
+        const allClients = clientStore.getClients()
+        // Check if phone number already exists (excluding current client when editing)
+        const existingClient = allClients.find(c => 
+          c.phone === phone && 
+          c.id !== client?.id && 
+          c._id !== client?._id
+        )
+        return !existingClient
+      }, {
+        message: "Phone number already exists. Please use a different number.",
+      }),
     address: z.string().optional(),
     notes: z.string().optional(),
     gender: z.enum(["male", "female", "other"], {
@@ -270,19 +272,33 @@ export function ClientForm({ client, isEditMode = false, onEditComplete }: Clien
                   name="phone"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-sm font-medium text-slate-700">Phone</FormLabel>
+                      <FormLabel className="text-sm font-medium text-slate-700">Phone *</FormLabel>
                       <FormControl>
                         <div className="relative">
                           <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
                           <Input 
-                            placeholder="Enter phone number" 
-                            className="pl-10 h-12 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500 rounded-xl"
-                            {...field} 
+                            placeholder="Enter 10-digit phone number" 
+                            className={`pl-10 h-12 border-slate-200 focus:border-indigo-500 focus:ring-indigo-500 rounded-xl ${
+                              form.formState.errors.phone || (field.value && field.value.length > 0 && field.value.length !== 10) 
+                                ? "border-red-500 focus:border-red-500" 
+                                : ""
+                            }`}
+                            {...field}
+                            type="tel"
+                            maxLength={10}
                             disabled={isViewMode}
+                            onChange={(e) => {
+                              // Only allow digits and limit to 10
+                              const value = e.target.value.replace(/\D/g, '').slice(0, 10)
+                              field.onChange(value)
+                            }}
                           />
                         </div>
                       </FormControl>
                       <FormMessage />
+                      {field.value && field.value.length > 0 && field.value.length !== 10 && !form.formState.errors.phone && (
+                        <p className="text-sm text-red-500 mt-1">Phone number must be exactly 10 digits. Current: {field.value.length} digits</p>
+                      )}
                     </FormItem>
                   )}
                 />

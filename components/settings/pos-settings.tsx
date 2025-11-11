@@ -8,10 +8,11 @@ import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Separator } from "@/components/ui/separator"
 import { Receipt, Settings } from "lucide-react"
-import { toast } from "@/hooks/use-toast"
+import { useToast } from "@/components/ui/use-toast"
 import { SettingsAPI } from "@/lib/api"
 
 export function POSSettings() {
+  const { toast } = useToast()
   const [invoicePrefix, setInvoicePrefix] = useState("INV")
   const [autoReset, setAutoReset] = useState(false)
   const [currentReceiptNumber, setCurrentReceiptNumber] = useState(1)

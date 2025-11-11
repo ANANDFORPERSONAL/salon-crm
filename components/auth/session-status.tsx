@@ -35,7 +35,8 @@ export function SessionStatus({ showAlways = false, className = "" }: SessionSta
     const interval = setInterval(updateTime, SESSION_CONFIG.UPDATE_INTERVAL)
 
     return () => clearInterval(interval)
-  }, [user, getTimeUntilTimeout, isWarningShown])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]) // getTimeUntilTimeout and isWarningShown are stable utility functions, don't need to be in deps
 
   // Don't show if user is not logged in
   if (!user) return null

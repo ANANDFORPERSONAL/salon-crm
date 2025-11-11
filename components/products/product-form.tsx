@@ -9,10 +9,17 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useToast } from "@/hooks/use-toast"
-import { ProductsAPI } from "@/lib/api"
+import { ProductsAPI, SettingsAPI } from "@/lib/api"
 import { SupplierCombobox } from "./supplier-combobox"
 import { CategoryCombobox } from "./category-combobox"
 import { Search, CheckCircle, AlertCircle } from "lucide-react"
+
+interface TaxCategory {
+  id: string
+  name: string
+  rate: number
+  description?: string
+}
 
 interface ProductFormProps {
   onClose: () => void
@@ -29,7 +36,7 @@ export function ProductForm({ onClose, product, onProductUpdated, onSwitchToEdit
     price: product?.price || "",
     cost: product?.cost || "",
     stock: product?.stock || "",
-    minStock: product?.minStock || "",
+    minStock: product?.minimumStock || product?.minStock || "5",
     supplier: product?.supplier || "",
     sku: product?.sku || "",
     description: product?.description || "",
@@ -46,6 +53,70 @@ export function ProductForm({ onClose, product, onProductUpdated, onSwitchToEdit
   const [showSearchResults, setShowSearchResults] = useState(false)
   const [searchStatus, setSearchStatus] = useState<'idle' | 'searching' | 'found' | 'not-found'>('idle')
 
+  // Tax categories from settings
+  const [taxCategories, setTaxCategories] = useState<TaxCategory[]>([])
+  const [isLoadingTaxCategories, setIsLoadingTaxCategories] = useState(false)
+
+  // Load tax categories from settings
+  useEffect(() => {
+    loadTaxCategories()
+  }, [])
+
+  const loadTaxCategories = async () => {
+    setIsLoadingTaxCategories(true)
+    try {
+      const response = await SettingsAPI.getPaymentSettings()
+      if (response.success && response.data) {
+        // Check if taxCategories array exists in response
+        if (response.data.taxCategories && Array.isArray(response.data.taxCategories)) {
+          setTaxCategories(response.data.taxCategories)
+        } else {
+          // Fallback: Create categories from individual rate fields (backward compatibility)
+          const defaultCategories: TaxCategory[] = []
+          if (response.data.essentialProductRate !== undefined) {
+            defaultCategories.push({ id: "essential", name: "Essential Products", rate: response.data.essentialProductRate || 5 })
+          }
+          if (response.data.intermediateProductRate !== undefined) {
+            defaultCategories.push({ id: "intermediate", name: "Intermediate Products", rate: response.data.intermediateProductRate || 12 })
+          }
+          if (response.data.standardProductRate !== undefined) {
+            defaultCategories.push({ id: "standard", name: "Standard Products", rate: response.data.standardProductRate || 18 })
+          }
+          if (response.data.luxuryProductRate !== undefined) {
+            defaultCategories.push({ id: "luxury", name: "Luxury Products", rate: response.data.luxuryProductRate || 28 })
+          }
+          if (response.data.exemptProductRate !== undefined) {
+            defaultCategories.push({ id: "exempt", name: "Exempt Products", rate: response.data.exemptProductRate || 0 })
+          }
+          
+          // If no categories found, use defaults
+          if (defaultCategories.length === 0) {
+            defaultCategories.push(
+              { id: "essential", name: "Essential Products", rate: 5 },
+              { id: "intermediate", name: "Intermediate Products", rate: 12 },
+              { id: "standard", name: "Standard Products", rate: 18 },
+              { id: "luxury", name: "Luxury Products", rate: 28 },
+              { id: "exempt", name: "Exempt Products", rate: 0 }
+            )
+          }
+          setTaxCategories(defaultCategories)
+        }
+      }
+    } catch (error) {
+      console.error("Error loading tax categories:", error)
+      // Use default categories on error
+      setTaxCategories([
+        { id: "essential", name: "Essential Products", rate: 5 },
+        { id: "intermediate", name: "Intermediate Products", rate: 12 },
+        { id: "standard", name: "Standard Products", rate: 18 },
+        { id: "luxury", name: "Luxury Products", rate: 28 },
+        { id: "exempt", name: "Exempt Products", rate: 0 }
+      ])
+    } finally {
+      setIsLoadingTaxCategories(false)
+    }
+  }
+
   // Update form data when product prop changes (for edit mode)
   useEffect(() => {
     if (product) {
@@ -55,7 +126,7 @@ export function ProductForm({ onClose, product, onProductUpdated, onSwitchToEdit
         price: product.price || "",
         cost: product.cost || "",
         stock: product.stock || "",
-        minStock: product.minStock || "",
+        minStock: product.minimumStock || product.minStock || "5",
         supplier: product.supplier || "",
         sku: product.sku || "",
         description: product.description || "",
@@ -118,7 +189,7 @@ export function ProductForm({ onClose, product, onProductUpdated, onSwitchToEdit
       price: selectedProduct.price || "",
       cost: selectedProduct.cost || "",
       stock: selectedProduct.stock || "",
-      minStock: selectedProduct.minStock || "",
+      minStock: selectedProduct.minimumStock || selectedProduct.minStock || "",
       supplier: selectedProduct.supplier || "",
       sku: selectedProduct.sku || "",
       description: selectedProduct.description || "",
@@ -153,7 +224,7 @@ export function ProductForm({ onClose, product, onProductUpdated, onSwitchToEdit
     e.preventDefault()
 
     try {
-      const productData = {
+      const productData: any = {
         name: formData.name,
         category: formData.category,
         price: formData.productType === 'service' ? 0 : parseFloat(formData.price),
@@ -165,6 +236,13 @@ export function ProductForm({ onClose, product, onProductUpdated, onSwitchToEdit
         productType: formData.productType,
         transactionType: formData.transactionType,
         isActive: true
+      }
+      
+      // Add minimumStock - default to 5 if not provided
+      if (formData.minStock !== undefined && formData.minStock !== null && formData.minStock !== '') {
+        productData.minimumStock = parseInt(formData.minStock.toString())
+      } else {
+        productData.minimumStock = 5 // Default value
       }
 
       console.log('Submitting product data:', productData)
@@ -364,13 +442,14 @@ export function ProductForm({ onClose, product, onProductUpdated, onSwitchToEdit
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="minStock">Minimum Stock Level</Label>
+          <Label htmlFor="minStock">Minimum Stock Level (Default 5)</Label>
           <Input
             id="minStock"
             type="number"
             value={formData.minStock}
             onChange={(e) => handleChange("minStock", e.target.value)}
             placeholder="5"
+            min="0"
           />
         </div>
 
@@ -397,16 +476,28 @@ export function ProductForm({ onClose, product, onProductUpdated, onSwitchToEdit
           <Select
             value={formData.taxCategory}
             onValueChange={(value) => handleChange("taxCategory", value)}
+            disabled={isLoadingTaxCategories}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Select tax category" />
+              <SelectValue placeholder={isLoadingTaxCategories ? "Loading categories..." : "Select tax category"} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="essential">Essential Products (5% GST)</SelectItem>
-              <SelectItem value="intermediate">Intermediate Products (12% GST)</SelectItem>
-              <SelectItem value="standard">Standard Products (18% GST)</SelectItem>
-              <SelectItem value="luxury">Luxury Products (28% GST)</SelectItem>
-              <SelectItem value="exempt">Exempt Products (0% GST)</SelectItem>
+              {taxCategories.length > 0 ? (
+                taxCategories.map((category) => (
+                  <SelectItem key={category.id} value={category.id}>
+                    {category.name} ({category.rate}% GST)
+                  </SelectItem>
+                ))
+              ) : (
+                // Fallback options if no categories loaded
+                <>
+                  <SelectItem value="essential">Essential Products (5% GST)</SelectItem>
+                  <SelectItem value="intermediate">Intermediate Products (12% GST)</SelectItem>
+                  <SelectItem value="standard">Standard Products (18% GST)</SelectItem>
+                  <SelectItem value="luxury">Luxury Products (28% GST)</SelectItem>
+                  <SelectItem value="exempt">Exempt Products (0% GST)</SelectItem>
+                </>
+              )}
             </SelectContent>
           </Select>
           <p className="text-xs text-slate-500">

@@ -7,15 +7,14 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Switch } from "@/components/ui/switch"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { useToast } from "@/hooks/use-toast"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
+import { useToast } from "@/components/ui/use-toast"
 import { SettingsAPI } from "@/lib/api"
-import { Receipt } from "lucide-react"
+import { Receipt, Plus, Pencil, Trash2 } from "lucide-react"
 
 const TAX_TYPES = [
-  { value: "single", label: "Single Tax Rate" },
   { value: "gst", label: "GST (Goods & Services Tax)" },
-  { value: "vat", label: "VAT (Value Added Tax)" },
-  { value: "sales", label: "Sales Tax" },
 ]
 
 const GST_RATES = [
@@ -26,34 +25,41 @@ const GST_RATES = [
   { value: "28", label: "28% - Luxury Goods" },
 ]
 
-const PRODUCT_CATEGORIES = [
-  { value: "essential", label: "Essential Products (5% GST)", rate: "5" },
-  { value: "intermediate", label: "Intermediate Products (12% GST)", rate: "12" },
-  { value: "standard", label: "Standard Products (18% GST)", rate: "18" },
-  { value: "luxury", label: "Luxury Products (28% GST)", rate: "28" },
-  { value: "exempt", label: "Exempt Products (0% GST)", rate: "0" },
-]
+interface TaxCategory {
+  id: string
+  name: string
+  rate: number
+  description?: string
+}
 
 export function TaxSettings() {
   const [settings, setSettings] = useState({
     enableTax: true,
-    taxType: "single",
+    taxType: "gst",
     taxRate: "18",
     cgstRate: "9",
     sgstRate: "9",
     igstRate: "18",
     serviceTaxRate: "5",
     productTaxRate: "18",
-    // Product category tax rates
-    essentialProductRate: "5",
-    intermediateProductRate: "12",
-    standardProductRate: "18",
-    luxuryProductRate: "28",
-    exemptProductRate: "0",
   })
+
+  const [taxCategories, setTaxCategories] = useState<TaxCategory[]>([
+    { id: "essential", name: "Essential Products", rate: 5, description: "Basic hair care products, soaps, etc." },
+    { id: "intermediate", name: "Intermediate Products", rate: 12, description: "Mid-range hair care products" },
+    { id: "standard", name: "Standard Products", rate: 18, description: "Styling products, conditioners, etc." },
+    { id: "luxury", name: "Luxury Products", rate: 28, description: "Premium brands, luxury hair care" },
+    { id: "exempt", name: "Exempt Products", rate: 0, description: "Medical products, basic necessities" },
+  ])
 
   const [isLoading, setIsLoading] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
+  const [showAddDialog, setShowAddDialog] = useState(false)
+  const [showEditDialog, setShowEditDialog] = useState(false)
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [deletingCategoryId, setDeletingCategoryId] = useState<string | null>(null)
+  const [editingCategory, setEditingCategory] = useState<TaxCategory | null>(null)
+  const [categoryForm, setCategoryForm] = useState({ name: "", rate: "", description: "" })
   const { toast } = useToast()
 
   // Load tax settings on component mount
@@ -68,19 +74,19 @@ export function TaxSettings() {
       if (response.success) {
         setSettings({
           enableTax: response.data.enableTax !== false,
-          taxType: response.data.taxType || "single",
+          taxType: response.data.taxType || "gst",
           taxRate: response.data.taxRate?.toString() || "18",
           cgstRate: response.data.cgstRate?.toString() || "9",
           sgstRate: response.data.sgstRate?.toString() || "9",
           igstRate: response.data.igstRate?.toString() || "18",
           serviceTaxRate: response.data.serviceTaxRate?.toString() || "5",
           productTaxRate: response.data.productTaxRate?.toString() || "18",
-          essentialProductRate: response.data.essentialProductRate?.toString() || "5",
-          intermediateProductRate: response.data.intermediateProductRate?.toString() || "12",
-          standardProductRate: response.data.standardProductRate?.toString() || "18",
-          luxuryProductRate: response.data.luxuryProductRate?.toString() || "28",
-          exemptProductRate: response.data.exemptProductRate?.toString() || "0",
         })
+        
+        // Load tax categories if available
+        if (response.data.taxCategories && Array.isArray(response.data.taxCategories)) {
+          setTaxCategories(response.data.taxCategories)
+        }
       }
     } catch (error) {
       toast({
@@ -96,6 +102,12 @@ export function TaxSettings() {
   const handleSave = async () => {
     setIsSaving(true)
     try {
+      // Convert tax categories to the old format for backward compatibility
+      const categoryRates: any = {}
+      taxCategories.forEach(cat => {
+        categoryRates[`${cat.id}ProductRate`] = cat.rate
+      })
+
       const response = await SettingsAPI.updatePaymentSettings({
         enableTax: settings.enableTax,
         taxType: settings.taxType,
@@ -105,11 +117,8 @@ export function TaxSettings() {
         igstRate: parseFloat(settings.igstRate),
         serviceTaxRate: parseFloat(settings.serviceTaxRate),
         productTaxRate: parseFloat(settings.productTaxRate),
-        essentialProductRate: parseFloat(settings.essentialProductRate),
-        intermediateProductRate: parseFloat(settings.intermediateProductRate),
-        standardProductRate: parseFloat(settings.standardProductRate),
-        luxuryProductRate: parseFloat(settings.luxuryProductRate),
-        exemptProductRate: parseFloat(settings.exemptProductRate),
+        taxCategories: taxCategories,
+        ...categoryRates,
       })
 
       if (response.success) {
@@ -130,6 +139,108 @@ export function TaxSettings() {
     } finally {
       setIsSaving(false)
     }
+  }
+
+  const handleAddCategory = () => {
+    setCategoryForm({ name: "", rate: "", description: "" })
+    setShowAddDialog(true)
+  }
+
+  const handleEditCategory = (category: TaxCategory) => {
+    setEditingCategory(category)
+    setCategoryForm({
+      name: category.name,
+      rate: category.rate.toString(),
+      description: category.description || "",
+    })
+    setShowEditDialog(true)
+  }
+
+  const handleDeleteCategory = (categoryId: string) => {
+    setDeletingCategoryId(categoryId)
+    setShowDeleteDialog(true)
+  }
+
+  const confirmDeleteCategory = () => {
+    if (deletingCategoryId) {
+      setTaxCategories(taxCategories.filter(cat => cat.id !== deletingCategoryId))
+      toast({
+        title: "Success",
+        description: "Tax category deleted successfully!",
+      })
+      setDeletingCategoryId(null)
+      setShowDeleteDialog(false)
+    }
+  }
+
+  const handleSaveCategory = () => {
+    if (!categoryForm.name.trim() || !categoryForm.rate) {
+      toast({
+        title: "Error",
+        description: "Please fill in all required fields.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    const rate = parseFloat(categoryForm.rate)
+    if (isNaN(rate) || rate < 0 || rate > 100) {
+      toast({
+        title: "Error",
+        description: "Please enter a valid tax rate between 0 and 100.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    if (showAddDialog) {
+      // Generate a unique ID for new category
+      const newId = categoryForm.name.toLowerCase().replace(/\s+/g, "-")
+      if (taxCategories.some(cat => cat.id === newId)) {
+        toast({
+          title: "Error",
+          description: "A category with this name already exists.",
+          variant: "destructive",
+        })
+        return
+      }
+
+      setTaxCategories([
+        ...taxCategories,
+        {
+          id: newId,
+          name: categoryForm.name.trim(),
+          rate: rate,
+          description: categoryForm.description.trim() || undefined,
+        },
+      ])
+      setShowAddDialog(false)
+      toast({
+        title: "Success",
+        description: "Tax category added successfully!",
+      })
+    } else if (showEditDialog && editingCategory) {
+      setTaxCategories(
+        taxCategories.map(cat =>
+          cat.id === editingCategory.id
+            ? {
+                ...cat,
+                name: categoryForm.name.trim(),
+                rate: rate,
+                description: categoryForm.description.trim() || undefined,
+              }
+            : cat
+        )
+      )
+      setShowEditDialog(false)
+      setEditingCategory(null)
+      toast({
+        title: "Success",
+        description: "Tax category updated successfully!",
+      })
+    }
+
+    setCategoryForm({ name: "", rate: "", description: "" })
   }
 
   if (isLoading) {
@@ -192,24 +303,6 @@ export function TaxSettings() {
                   </Select>
                 </div>
 
-                {settings.taxType === "single" && (
-                  <div className="space-y-2">
-                    <Label htmlFor="taxRate" className="text-sm font-medium text-slate-700">
-                      Tax Rate (%)
-                    </Label>
-                    <Input
-                      id="taxRate"
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      max="100"
-                      value={settings.taxRate}
-                      onChange={(e) => setSettings({ ...settings, taxRate: e.target.value })}
-                      placeholder="Enter tax rate"
-                    />
-                  </div>
-                )}
-
                 {settings.taxType === "gst" && (
                   <div className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -262,42 +355,6 @@ export function TaxSettings() {
                   </div>
                 )}
 
-                {settings.taxType === "vat" && (
-                  <div className="space-y-2">
-                    <Label htmlFor="taxRate" className="text-sm font-medium text-slate-700">
-                      VAT Rate (%)
-                    </Label>
-                    <Input
-                      id="taxRate"
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      max="100"
-                      value={settings.taxRate}
-                      onChange={(e) => setSettings({ ...settings, taxRate: e.target.value })}
-                      placeholder="Enter VAT rate"
-                    />
-                  </div>
-                )}
-
-                {settings.taxType === "sales" && (
-                  <div className="space-y-2">
-                    <Label htmlFor="taxRate" className="text-sm font-medium text-slate-700">
-                      Sales Tax Rate (%)
-                    </Label>
-                    <Input
-                      id="taxRate"
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      max="100"
-                      value={settings.taxRate}
-                      onChange={(e) => setSettings({ ...settings, taxRate: e.target.value })}
-                      placeholder="Enter sales tax rate"
-                    />
-                  </div>
-                )}
-
                 {/* Service and Product specific tax rates */}
                 <div className="border-t pt-4">
                   <h4 className="text-sm font-medium text-slate-700 mb-4">Item-Specific Tax Rates</h4>
@@ -323,94 +380,66 @@ export function TaxSettings() {
 
                   {/* Product Category Tax Rates */}
                   <div className="space-y-4">
-                    <h5 className="text-sm font-medium text-slate-700">Product Category Tax Rates</h5>
-                    <p className="text-sm text-slate-500">Different GST rates for different product categories as per Indian tax law</p>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h5 className="text-sm font-medium text-slate-700">Product Category Tax Rates</h5>
+                        <p className="text-sm text-slate-500">Different GST rates for different product categories as per Indian tax law</p>
+                      </div>
+                      <Button
+                        type="button"
+                        onClick={handleAddCategory}
+                        size="sm"
+                        className="flex items-center gap-2"
+                      >
+                        <Plus className="h-4 w-4" />
+                        Add Tax Category
+                      </Button>
+                    </div>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="essentialProductRate" className="text-sm font-medium text-slate-700">
-                          Essential Products (5% GST)
-                        </Label>
-                        <Input
-                          id="essentialProductRate"
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          max="100"
-                          value={settings.essentialProductRate}
-                          onChange={(e) => setSettings({ ...settings, essentialProductRate: e.target.value })}
-                          placeholder="5"
-                        />
-                        <p className="text-xs text-slate-500">Basic hair care products, soaps, etc.</p>
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <Label htmlFor="intermediateProductRate" className="text-sm font-medium text-slate-700">
-                          Intermediate Products (12% GST)
-                        </Label>
-                        <Input
-                          id="intermediateProductRate"
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          max="100"
-                          value={settings.intermediateProductRate}
-                          onChange={(e) => setSettings({ ...settings, intermediateProductRate: e.target.value })}
-                          placeholder="12"
-                        />
-                        <p className="text-xs text-slate-500">Mid-range hair care products</p>
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <Label htmlFor="standardProductRate" className="text-sm font-medium text-slate-700">
-                          Standard Products (18% GST)
-                        </Label>
-                        <Input
-                          id="standardProductRate"
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          max="100"
-                          value={settings.standardProductRate}
-                          onChange={(e) => setSettings({ ...settings, standardProductRate: e.target.value })}
-                          placeholder="18"
-                        />
-                        <p className="text-xs text-slate-500">Styling products, conditioners, etc.</p>
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <Label htmlFor="luxuryProductRate" className="text-sm font-medium text-slate-700">
-                          Luxury Products (28% GST)
-                        </Label>
-                        <Input
-                          id="luxuryProductRate"
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          max="100"
-                          value={settings.luxuryProductRate}
-                          onChange={(e) => setSettings({ ...settings, luxuryProductRate: e.target.value })}
-                          placeholder="28"
-                        />
-                        <p className="text-xs text-slate-500">Premium brands, luxury hair care</p>
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <Label htmlFor="exemptProductRate" className="text-sm font-medium text-slate-700">
-                          Exempt Products (0% GST)
-                        </Label>
-                        <Input
-                          id="exemptProductRate"
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          max="100"
-                          value={settings.exemptProductRate}
-                          onChange={(e) => setSettings({ ...settings, exemptProductRate: e.target.value })}
-                          placeholder="0"
-                        />
-                        <p className="text-xs text-slate-500">Medical products, basic necessities</p>
-                      </div>
+                      {taxCategories.map((category) => (
+                        <Card key={category.id} className="border-slate-200">
+                          <CardContent className="p-4">
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <h6 className="text-sm font-semibold text-slate-800">
+                                    {category.name}
+                                  </h6>
+                                  <span className="text-sm font-medium text-blue-600">
+                                    {category.rate}% GST
+                                  </span>
+                                </div>
+                                {category.description && (
+                                  <p className="text-xs text-slate-500 mt-1">
+                                    {category.description}
+                                  </p>
+                                )}
+                              </div>
+                              <div className="flex items-center gap-2 ml-4">
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleEditCategory(category)}
+                                  className="h-8 w-8 p-0"
+                                >
+                                  <Pencil className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleDeleteCategory(category.id)}
+                                  className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
                     </div>
                   </div>
                 </div>
@@ -429,6 +458,141 @@ export function TaxSettings() {
           {isSaving ? "Saving..." : "Save Tax Settings"}
         </Button>
       </div>
+
+      {/* Add Tax Category Dialog */}
+      <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add Tax Category</DialogTitle>
+            <DialogDescription>
+              Add a new product tax category with its GST rate.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="categoryName">Category Name *</Label>
+              <Input
+                id="categoryName"
+                value={categoryForm.name}
+                onChange={(e) => setCategoryForm({ ...categoryForm, name: e.target.value })}
+                placeholder="e.g., Essential Products"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="categoryRate">GST Rate (%) *</Label>
+              <Input
+                id="categoryRate"
+                type="number"
+                step="0.01"
+                min="0"
+                max="100"
+                value={categoryForm.rate}
+                onChange={(e) => setCategoryForm({ ...categoryForm, rate: e.target.value })}
+                placeholder="e.g., 5"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="categoryDescription">Description (Optional)</Label>
+              <Input
+                id="categoryDescription"
+                value={categoryForm.description}
+                onChange={(e) => setCategoryForm({ ...categoryForm, description: e.target.value })}
+                placeholder="e.g., Basic hair care products, soaps, etc."
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowAddDialog(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSaveCategory}>
+              Add Category
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Tax Category Dialog */}
+      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Tax Category</DialogTitle>
+            <DialogDescription>
+              Update the tax category details.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="editCategoryName">Category Name *</Label>
+              <Input
+                id="editCategoryName"
+                value={categoryForm.name}
+                onChange={(e) => setCategoryForm({ ...categoryForm, name: e.target.value })}
+                placeholder="e.g., Essential Products"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="editCategoryRate">GST Rate (%) *</Label>
+              <Input
+                id="editCategoryRate"
+                type="number"
+                step="0.01"
+                min="0"
+                max="100"
+                value={categoryForm.rate}
+                onChange={(e) => setCategoryForm({ ...categoryForm, rate: e.target.value })}
+                placeholder="e.g., 5"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="editCategoryDescription">Description (Optional)</Label>
+              <Input
+                id="editCategoryDescription"
+                value={categoryForm.description}
+                onChange={(e) => setCategoryForm({ ...categoryForm, description: e.target.value })}
+                placeholder="e.g., Basic hair care products, soaps, etc."
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => {
+              setShowEditDialog(false)
+              setEditingCategory(null)
+            }}>
+              Cancel
+            </Button>
+            <Button onClick={handleSaveCategory}>
+              Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Tax Category Alert Dialog */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Tax Category</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this tax category? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => {
+              setShowDeleteDialog(false)
+              setDeletingCategoryId(null)
+            }}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDeleteCategory}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
