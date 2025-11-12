@@ -26,12 +26,17 @@ interface Business {
   owner: {
     name: string
     email: string
-  }
+  } | null
   createdAt: string
   address: {
     city: string
     state: string
   }
+  deletedAt?: string
+  deletedBy?: {
+    name: string
+    email: string
+  } | null
 }
 
 export function BusinessManagement() {
@@ -170,6 +175,8 @@ export function BusinessManagement() {
         return 'bg-gray-100 text-gray-800'
       case 'suspended':
         return 'bg-red-100 text-red-800'
+      case 'deleted':
+        return 'bg-gray-200 text-gray-600'
       default:
         return 'bg-gray-100 text-gray-800'
     }
@@ -322,6 +329,7 @@ export function BusinessManagement() {
                 <SelectItem value="active">Active</SelectItem>
                 <SelectItem value="inactive">Inactive</SelectItem>
                 <SelectItem value="suspended">Suspended</SelectItem>
+                <SelectItem value="deleted">Deleted</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -369,14 +377,33 @@ export function BusinessManagement() {
                     </TableCell>
                     <TableCell>
                       <div>
-                        <div className="font-medium">{business.owner.name}</div>
-                        <div className="text-sm text-gray-500">{business.owner.email}</div>
+                        {business.owner ? (
+                          <>
+                            <div className="font-medium">{business.owner.name || 'N/A'}</div>
+                            <div className="text-sm text-gray-500">{business.owner.email || 'N/A'}</div>
+                          </>
+                        ) : (
+                          <>
+                            <div className="font-medium text-gray-400">Owner Deleted</div>
+                            <div className="text-sm text-gray-400">N/A</div>
+                          </>
+                        )}
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge className={getStatusColor(business.status)}>
-                        {business.status}
-                      </Badge>
+                      <div className="space-y-1">
+                        <Badge className={getStatusColor(business.status)}>
+                          {business.status}
+                        </Badge>
+                        {business.status === 'deleted' && business.deletedAt && (
+                          <div className="text-xs text-gray-500 mt-1">
+                            {formatDate(business.deletedAt)}
+                            {business.deletedBy && (
+                              <span className="ml-1">by {business.deletedBy.name}</span>
+                            )}
+                          </div>
+                        )}
+                      </div>
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center text-sm text-gray-500">

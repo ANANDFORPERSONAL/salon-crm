@@ -46,15 +46,37 @@ router.post('/login', setupMainDatabase, async (req, res) => {
     const { email, password } = req.body;
     const { Admin } = req.mainModels;
 
-    const admin = await Admin.findOne({ email, isActive: true });
+    console.log('🔍 Admin login attempt:', { email: email ? email.toLowerCase() : 'missing' });
+
+    if (!email || !password) {
+      console.log('❌ Admin login failed: Missing email or password');
+      return res.status(400).json({ success: false, error: 'Email and password are required' });
+    }
+
+    // Find admin by email (case-insensitive)
+    const emailLower = email.toLowerCase();
+    console.log('🔍 Looking for admin with email:', emailLower);
+    
+    const admin = await Admin.findOne({ email: emailLower, isActive: true });
     if (!admin) {
+      console.log(`❌ Admin login failed: No admin found with email ${emailLower}`);
+      // Check if admin exists but is inactive
+      const inactiveAdmin = await Admin.findOne({ email: emailLower });
+      if (inactiveAdmin) {
+        console.log('⚠️ Admin exists but is inactive');
+      }
       return res.status(401).json({ success: false, error: 'Invalid credentials' });
     }
 
+    console.log('✅ Admin found:', { id: admin._id, email: admin.email, role: admin.role });
+    
     const isPasswordValid = await bcrypt.compare(password, admin.password);
     if (!isPasswordValid) {
+      console.log('❌ Admin login failed: Invalid password');
       return res.status(401).json({ success: false, error: 'Invalid credentials' });
     }
+
+    console.log('✅ Password validated successfully');
 
     const token = jwt.sign(
       { id: admin._id, role: 'admin' },
@@ -66,12 +88,15 @@ router.post('/login', setupMainDatabase, async (req, res) => {
     admin.lastLogin = new Date();
     await admin.save();
 
+    // Get admin name (virtual or constructed)
+    const adminName = admin.name || `${admin.firstName || ''} ${admin.lastName || ''}`.trim() || 'Admin User';
+    
     res.json({
       success: true,
       data: {
         admin: {
           id: admin._id,
-          name: admin.name,
+          name: adminName,
           email: admin.email,
           role: admin.role,
           permissions: admin.permissions
@@ -88,30 +113,40 @@ router.post('/login', setupMainDatabase, async (req, res) => {
 // Get Admin Profile
 router.get('/profile', setupMainDatabase, authenticateAdmin, async (req, res) => {
   try {
+    // Get admin name (virtual or constructed)
+    const adminName = req.admin.name || `${req.admin.firstName || ''} ${req.admin.lastName || ''}`.trim() || 'Admin User';
+    
     res.json({
       success: true,
       data: {
         id: req.admin._id,
-        name: req.admin.name,
+        name: adminName,
         email: req.admin.email,
         role: req.admin.role,
-        permissions: req.admin.permissions,
+        permissions: req.admin.permissions || [],
         lastLogin: req.admin.lastLogin
       }
     });
   } catch (error) {
     console.error('Get admin profile error:', error);
-    res.status(500).json({ success: false, error: 'Internal server error' });
+    console.error('Error stack:', error.stack);
+    res.status(500).json({ success: false, error: 'Internal server error', details: error.message });
   }
 });
 
 // Get All Businesses
 router.get('/businesses', setupMainDatabase, authenticateAdmin, async (req, res) => {
   try {
-    const { page = 1, limit = 10, search, status, plan } = req.query;
+    const { page = 1, limit = 10, search, status, plan, includeDeleted = true } = req.query;
     const { Business } = req.mainModels;
     
     let query = {};
+    
+    // By default, include deleted businesses for accountability/audit trail
+    // Only exclude if explicitly requested
+    if (includeDeleted === 'false' || includeDeleted === false) {
+      query.status = { $ne: 'deleted' };
+    }
     
     // Search filter
     if (search) {
@@ -122,9 +157,17 @@ router.get('/businesses', setupMainDatabase, authenticateAdmin, async (req, res)
       ];
     }
     
-    // Status filter
+    // Status filter (if provided, override the default)
     if (status && status !== 'all') {
-      query.status = status;
+      if (status === 'deleted') {
+        query.status = 'deleted';
+      } else {
+        query.status = status;
+        // When filtering by specific status, still include deleted unless explicitly excluded
+        if (includeDeleted === 'false' || includeDeleted === false) {
+          query.status = { $in: [status, { $ne: 'deleted' }] };
+        }
+      }
     }
     
     // Plan filter
@@ -135,6 +178,7 @@ router.get('/businesses', setupMainDatabase, authenticateAdmin, async (req, res)
     const skip = (page - 1) * limit;
     const businesses = await Business.find(query)
       .populate('owner', 'firstName lastName email mobile lastLoginAt')
+      .populate('deletedBy', 'firstName lastName email') // Show who deleted it
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(parseInt(limit));
@@ -170,7 +214,8 @@ router.get('/businesses/:id', authenticateAdmin, async (req, res) => {
     
     const { Business } = req.mainModels;
     const business = await Business.findById(req.params.id)
-      .populate('owner', 'firstName lastName email mobile role');
+      .populate('owner', 'firstName lastName email mobile role')
+      .populate('deletedBy', 'firstName lastName email');
     
     if (!business) {
       return res.status(404).json({ success: false, error: 'Business not found' });
@@ -186,6 +231,12 @@ router.get('/businesses/:id', authenticateAdmin, async (req, res) => {
       address: business.address,
       contact: business.contact,
       subscription: business.subscription,
+      deletedAt: business.deletedAt,
+      deletedBy: business.deletedBy ? {
+        _id: business.deletedBy._id,
+        name: `${business.deletedBy.firstName || ''} ${business.deletedBy.lastName || ''}`.trim() || 'Admin',
+        email: business.deletedBy.email
+      } : null,
       owner: business.owner ? {
         _id: business.owner._id,
         name: `${business.owner.firstName || ''} ${business.owner.lastName || ''}`.trim() || 'Business Owner',
@@ -279,10 +330,13 @@ router.post('/businesses', setupMainDatabase, authenticateAdmin, async (req, res
     let attempts = 0;
     
     while (!isUnique && attempts < 10) {
-      const count = await req.mainModels.Business.countDocuments();
+      // Count only non-deleted businesses
+      const count = await req.mainModels.Business.countDocuments({ 
+        status: { $ne: 'deleted' } 
+      });
       businessCode = `BIZ${String(count + 1).padStart(4, '0')}`;
       
-      // Check if this code already exists
+      // Check if this code already exists (including deleted - codes are never reused)
       const existing = await req.mainModels.Business.findOne({ code: businessCode });
       if (!existing) {
         isUnique = true;
@@ -363,8 +417,14 @@ router.post('/businesses', setupMainDatabase, authenticateAdmin, async (req, res
 
     // Create default business settings in the business-specific database (optional)
     try {
-      // Get business-specific database connection
-      const businessConnection = await databaseManager.getConnection(business._id);
+      // Get business-specific database connection (use business code for naming)
+      // forceNewNaming = true ensures new businesses always use new naming convention
+      // IMPORTANT: business.code must be set before calling getConnection
+      if (!business.code) {
+        throw new Error('Business code is required but not set. Cannot create business database.');
+      }
+      console.log(`🔧 Creating business database for new business: ${business.name} (Code: ${business.code})`);
+      const businessConnection = await databaseManager.getConnection(business.code, req.mainConnection, true);
       const businessModels = modelFactory.createBusinessModels(businessConnection);
       
       // Create default business settings
@@ -593,13 +653,30 @@ router.get('/dashboard/stats', setupMainDatabase, authenticateAdmin, async (req,
       totalBusinesses,
       activeBusinesses,
       totalUsers,
-      recentBusinesses
+      recentBusinessesRaw
     ] = await Promise.all([
-      Business.countDocuments(),
+      Business.countDocuments({ status: { $ne: 'deleted' } }), // Exclude deleted
       Business.countDocuments({ status: 'active' }),
       User.countDocuments(),
-      Business.find().populate('owner', 'firstName lastName email').sort({ createdAt: -1 }).limit(5)
+      Business.find({ status: { $ne: 'deleted' } }) // Exclude deleted
+        .populate('owner', 'firstName lastName email')
+        .sort({ createdAt: -1 })
+        .limit(5)
+        .lean() // Use lean() for better performance
     ]);
+
+    // Transform recent businesses to handle null owners
+    const recentBusinesses = recentBusinessesRaw.map(business => ({
+      _id: business._id,
+      name: business.name,
+      code: business.code,
+      status: business.status,
+      createdAt: business.createdAt,
+      owner: business.owner ? {
+        name: `${business.owner.firstName || ''} ${business.owner.lastName || ''}`.trim() || 'N/A',
+        email: business.owner.email || 'N/A'
+      } : null
+    }));
 
     res.json({
       success: true,
@@ -655,11 +732,11 @@ router.get('/users', setupMainDatabase, authenticateAdmin, async (req, res) => {
     for (const business of businesses) {
       try {
         console.log(`🔍 Processing business: ${business.name} (${business.code})`);
-        // Connect to business database
+        // Connect to business database using business code
         const databaseManager = require('../config/database-manager');
-        const dbName = databaseManager.getDatabaseName(business._id.toString());
-        const businessDb = mongoose.connection.useDb(dbName);
-        console.log(`📡 Connected to database: ${dbName}`);
+        const mainConnection = await databaseManager.getMainConnection();
+        const businessDb = await databaseManager.getConnection(business.code || business._id, mainConnection);
+        console.log(`📡 Connected to database for business: ${business.name} (${business.code})`);
         
         const Staff = businessDb.model('Staff', require('../models/Staff').schema);
         console.log(`📋 Staff model created for ${business.name}`);
@@ -710,31 +787,60 @@ router.get('/users', setupMainDatabase, authenticateAdmin, async (req, res) => {
   }
 });
 
-// Delete Business
+// Delete Business (Soft Delete)
 router.delete('/businesses/:id', setupMainDatabase, authenticateAdmin, async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Find the business first to get owner info
+    // Find the business first to get info
     const business = await req.mainModels.Business.findById(id).populate('owner');
     if (!business) {
       return res.status(404).json({ success: false, error: 'Business not found' });
     }
 
-    // Delete the business owner from main database
+    // Check if already deleted
+    if (business.status === 'deleted') {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Business is already deleted' 
+      });
+    }
+
+    const businessCode = business.code;
+
+    // Soft delete: Mark business as deleted
+    business.status = 'deleted';
+    business.deletedAt = new Date();
+    business.deletedBy = req.admin._id; // Track who deleted it
+    await business.save();
+
+    // Delete the business owner from main database (hard delete owner)
     if (business.owner) {
       await req.mainModels.User.findByIdAndDelete(business.owner._id);
     }
 
-    // Delete the business from main database
-    await req.mainModels.Business.findByIdAndDelete(id);
-
-    // Note: Business-specific database will be cleaned up by a separate cleanup job
-    // or can be manually cleaned up later as it's not critical for immediate deletion
+    // Delete the business-specific database
+    try {
+      const databaseManager = require('../config/database-manager');
+      await databaseManager.deleteDatabase(businessCode);
+      console.log(`✅ Business database deleted: ease_my_salon_${businessCode}`);
+    } catch (dbError) {
+      console.error('⚠️  Error deleting business database:', dbError);
+      // Log but don't fail - business is already marked as deleted
+    }
 
     res.json({ 
       success: true, 
-      message: 'Business and associated data deleted successfully' 
+      message: 'Business marked as deleted and database removed successfully',
+      data: {
+        business: {
+          id: business._id,
+          code: business.code,
+          name: business.name,
+          status: business.status,
+          deletedAt: business.deletedAt
+        }
+      }
     });
   } catch (error) {
     console.error('Delete business error:', error);

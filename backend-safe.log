@@ -10,3 +10,40 @@
 🔐 API Base: http://localhost:3001/api
 ⏰ Inactivity checker scheduled to run daily at 2 AM IST
 MongoDB Connected: localhost
+📥 Incoming GET /api/admin/profile
+📥 Incoming GET /api/auth/profile
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '6913aabeadc31441c53cb86b',
+  email: 'shubhamanand222@gmail.com',
+  role: 'admin',
+  branchId: '6913aabeadc31441c53cb86f',
+  iat: 1762896588,
+  exp: 1762982988
+}
+🔗 Connecting to main database: salon_crm_main (legacy - backward compatible)
+✅ Connected to main database: salon_crm_main
+🔗 Connecting to main database: salon_crm_main (legacy - backward compatible)
+✅ Connected to main database: salon_crm_main
+🔍 User not found in main database, checking if it's a staff user
+127.0.0.1 - - [11/Nov/2025:22:12:45 +0000] "GET /api/admin/profile HTTP/1.1" 401 47 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+🔗 Connecting to business database: salon_crm_6913aabeadc31441c53cb86f (legacy - backward compatible)
+✅ Connected to business database: salon_crm_6913aabeadc31441c53cb86f
+🔍 User not found in any database for ID: 6913aabeadc31441c53cb86b
+127.0.0.1 - - [11/Nov/2025:22:12:45 +0000] "GET /api/auth/profile HTTP/1.1" 401 42 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming POST /api/admin/login
+127.0.0.1 - - [11/Nov/2025:22:13:13 +0000] "POST /api/admin/login HTTP/1.1" 401 47 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming POST /api/admin/login
+127.0.0.1 - - [11/Nov/2025:22:13:21 +0000] "POST /api/admin/login HTTP/1.1" 401 47 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming POST /api/admin/login
+127.0.0.1 - - [11/Nov/2025:22:13:46 +0000] "POST /api/admin/login HTTP/1.1" 401 47 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming POST /api/admin/login
+127.0.0.1 - - [11/Nov/2025:22:13:50 +0000] "POST /api/admin/login HTTP/1.1" 401 47 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming POST /api/admin/login
+127.0.0.1 - - [11/Nov/2025:22:15:42 +0000] "POST /api/admin/login HTTP/1.1" 401 47 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming POST /api/admin/login
+127.0.0.1 - - [11/Nov/2025:22:16:02 +0000] "POST /api/admin/login HTTP/1.1" 401 47 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming POST /api/admin/login
+127.0.0.1 - - [11/Nov/2025:22:18:35 +0000] "POST /api/admin/login HTTP/1.1" 401 47 "-" "curl/8.7.1"
+📥 Incoming POST /api/admin/login
+127.0.0.1 - - [11/Nov/2025:22:19:37 +0000] "POST /api/admin/login HTTP/1.1" 401 47 "-" "curl/8.7.1"

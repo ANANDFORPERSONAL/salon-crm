@@ -82,11 +82,13 @@ const businessSchema = new mongoose.Schema({
   // Status and Metadata
   status: { 
     type: String, 
-    enum: ['active', 'inactive', 'suspended'], 
+    enum: ['active', 'inactive', 'suspended', 'deleted'], 
     default: 'active' 
   },
   isOnboarded: { type: Boolean, default: false },
   onboardingStep: { type: Number, default: 0 },
+  deletedAt: { type: Date },
+  deletedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'Admin' }, // Track who deleted it
   
   // Multi-tenant support
   branchId: { type: mongoose.Schema.Types.ObjectId, ref: 'Business' },
@@ -106,10 +108,13 @@ businessSchema.pre('save', async function(next) {
     let attempts = 0;
     
     while (!isUnique && attempts < 10) {
-      const count = await mongoose.model('Business').countDocuments();
+      // Count only non-deleted businesses for code generation
+      const count = await mongoose.model('Business').countDocuments({ 
+        status: { $ne: 'deleted' } 
+      });
       code = `BIZ${String(count + 1).padStart(4, '0')}`;
       
-      // Check if this code already exists
+      // Check if this code already exists (including deleted ones - codes are never reused)
       const existing = await mongoose.model('Business').findOne({ code });
       if (!existing) {
         isUnique = true;

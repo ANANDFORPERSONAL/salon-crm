@@ -1,0 +1,29 @@
+🚀 Starting Ease My Salon Backend Server...
+🌍 Environment: development
+🔗 CORS Origins: [ 'http://localhost:3000', 'http://127.0.0.1:3000' ]
+🗄️ MongoDB URI: Not set
+🔑 JWT Secret: Not set
+(node:35747) [MONGOOSE] Warning: Duplicate schema index on {"phone":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(Use `node --trace-warnings ...` to show where the warning was created)
+🚀 Ease My Salon Backend running on port 3001
+📊 Health check: http://localhost:3001/api/health
+🔐 API Base: http://localhost:3001/api
+⏰ Inactivity checker scheduled to run daily at 2 AM IST
+MongoDB Connected: localhost
+📥 Incoming POST /api/admin/login
+🔗 Connecting to main database: salon_crm_main (legacy - backward compatible)
+✅ Connected to main database: salon_crm_main
+🔍 Admin login attempt: { email: 'admin@easemysalon.in' }
+🔍 Looking for admin with email: admin@easemysalon.in
+❌ Admin login failed: No admin found with email admin@easemysalon.in
+127.0.0.1 - - [11/Nov/2025:22:21:39 +0000] "POST /api/admin/login HTTP/1.1" 401 47 "-" "curl/8.7.1"
+📥 Incoming POST /api/admin/login
+🔍 Admin login attempt: { email: 'admin@easemysalon.in' }
+🔍 Looking for admin with email: admin@easemysalon.in
+✅ Admin found: {
+  id: new ObjectId('6913b75856c4476737d62d24'),
+  email: 'admin@easemysalon.in',
+  role: 'super_admin'
+}
+✅ Password validated successfully
+127.0.0.1 - - [11/Nov/2025:22:23:27 +0000] "POST /api/admin/login HTTP/1.1" 200 887 "-" "curl/8.7.1"

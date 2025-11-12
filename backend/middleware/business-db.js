@@ -27,9 +27,12 @@ const setupBusinessDatabase = async (req, res, next) => {
       });
     }
 
-    // Get business-specific database connection
+    // Get main connection to look up business code
+    const mainConnection = await databaseManager.getMainConnection();
+    
+    // Get business-specific database connection (will use business code if available)
     console.log('🔍 Getting business connection for ID:', businessId);
-    const businessConnection = await databaseManager.getConnection(businessId);
+    const businessConnection = await databaseManager.getConnection(businessId, mainConnection);
     console.log('🔍 Business connection obtained:', !!businessConnection);
     
     // Create business-specific models

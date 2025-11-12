@@ -47,7 +47,7 @@ const authenticateToken = (req, res, next) => {
         // If branchId is in token, directly check that business database
         if (businessId) {
           try {
-            const businessDb = await databaseManager.getConnection(businessId);
+            const businessDb = await databaseManager.getConnection(businessId, mainConnection);
             const Staff = businessDb.model('Staff', require('../models/Staff').schema);
             staffUser = await Staff.findById(decoded.id).select('-password');
             if (staffUser) {
@@ -65,7 +65,7 @@ const authenticateToken = (req, res, next) => {
           
           for (const business of businesses) {
             try {
-              const businessDb = await databaseManager.getConnection(business._id);
+              const businessDb = await databaseManager.getConnection(business.code || business._id, mainConnection);
               const Staff = businessDb.model('Staff', require('../models/Staff').schema);
               
               const staff = await Staff.findById(decoded.id).select('-password');

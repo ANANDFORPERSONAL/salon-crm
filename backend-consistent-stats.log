@@ -1,0 +1,150 @@
+🚀 Starting Ease My Salon Backend Server...
+🌍 Environment: development
+🔗 CORS Origins: [ 'http://localhost:3000', 'http://127.0.0.1:3000' ]
+🗄️ MongoDB URI: Not set
+🔑 JWT Secret: Not set
+(node:82131) [MONGOOSE] Warning: Duplicate schema index on {"phone":1} found. This is often due to declaring an index using both "index: true" and "schema.index()". Please remove the duplicate index definition.
+(Use `node --trace-warnings ...` to show where the warning was created)
+🚀 Ease My Salon Backend running on port 3001
+📊 Health check: http://localhost:3001/api/health
+🔐 API Base: http://localhost:3001/api
+⏰ Inactivity checker scheduled to run daily at 2 AM IST
+MongoDB Connected: localhost
+📥 Incoming GET /api/admin/profile
+🔗 Connecting to main database: ease_my_salon_main
+✅ Connected to main database: ease_my_salon_main
+📥 Incoming GET /api/auth/profile
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '69141b482899e80b026a49af',
+  email: 'abc@gmail.com',
+  role: 'admin',
+  branchId: '69141b482899e80b026a49b3',
+  iat: 1762925402,
+  exp: 1763011802
+}
+🔍 Auth middleware user: {
+  id: new ObjectId('69141b482899e80b026a49af'),
+  email: 'abc@gmail.com',
+  branchId: new ObjectId('69141b482899e80b026a49b3'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('69141b482899e80b026a49af'),
+  email: 'abc@gmail.com',
+  branchId: new ObjectId('69141b482899e80b026a49b3'),
+  role: 'admin'
+}
+🔍 Profile endpoint - req.user: {
+  id: new ObjectId('69141b482899e80b026a49af'),
+  _id: new ObjectId('69141b482899e80b026a49af'),
+  email: 'abc@gmail.com',
+  branchId: new ObjectId('69141b482899e80b026a49b3'),
+  role: 'admin'
+}
+127.0.0.1 - - [12/Nov/2025:06:58:39 +0000] "GET /api/auth/profile HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+127.0.0.1 - - [12/Nov/2025:06:58:39 +0000] "GET /api/admin/profile HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming GET /api/admin/businesses
+📥 Incoming GET /api/admin/dashboard/stats
+127.0.0.1 - - [12/Nov/2025:06:58:39 +0000] "GET /api/admin/dashboard/stats HTTP/1.1" 200 520 "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+127.0.0.1 - - [12/Nov/2025:06:58:39 +0000] "GET /api/admin/businesses?page=1&limit=10 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming GET /api/admin/dashboard/stats
+📥 Incoming GET /api/admin/businesses
+127.0.0.1 - - [12/Nov/2025:06:58:39 +0000] "GET /api/admin/dashboard/stats HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+127.0.0.1 - - [12/Nov/2025:06:58:39 +0000] "GET /api/admin/businesses?page=1&limit=10 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming GET /api/admin/dashboard/stats
+127.0.0.1 - - [12/Nov/2025:06:58:40 +0000] "GET /api/admin/dashboard/stats HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming GET /api/admin/dashboard/stats
+127.0.0.1 - - [12/Nov/2025:06:58:40 +0000] "GET /api/admin/dashboard/stats HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming GET /api/admin/profile
+127.0.0.1 - - [12/Nov/2025:06:58:56 +0000] "GET /api/admin/profile HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming GET /api/auth/profile
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '69141b482899e80b026a49af',
+  email: 'abc@gmail.com',
+  role: 'admin',
+  branchId: '69141b482899e80b026a49b3',
+  iat: 1762925402,
+  exp: 1763011802
+}
+🔍 Auth middleware user: {
+  id: new ObjectId('69141b482899e80b026a49af'),
+  email: 'abc@gmail.com',
+  branchId: new ObjectId('69141b482899e80b026a49b3'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('69141b482899e80b026a49af'),
+  email: 'abc@gmail.com',
+  branchId: new ObjectId('69141b482899e80b026a49b3'),
+  role: 'admin'
+}
+🔍 Profile endpoint - req.user: {
+  id: new ObjectId('69141b482899e80b026a49af'),
+  _id: new ObjectId('69141b482899e80b026a49af'),
+  email: 'abc@gmail.com',
+  branchId: new ObjectId('69141b482899e80b026a49b3'),
+  role: 'admin'
+}
+127.0.0.1 - - [12/Nov/2025:06:58:56 +0000] "GET /api/auth/profile HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming GET /api/admin/dashboard/stats
+127.0.0.1 - - [12/Nov/2025:06:58:56 +0000] "GET /api/admin/dashboard/stats HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming GET /api/admin/dashboard/stats
+127.0.0.1 - - [12/Nov/2025:06:58:56 +0000] "GET /api/admin/dashboard/stats HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming GET /api/admin/businesses
+127.0.0.1 - - [12/Nov/2025:06:59:00 +0000] "GET /api/admin/businesses?page=1&limit=10 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming GET /api/admin/businesses
+127.0.0.1 - - [12/Nov/2025:06:59:00 +0000] "GET /api/admin/businesses?page=1&limit=10 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming GET /api/admin/dashboard/stats
+127.0.0.1 - - [12/Nov/2025:06:59:02 +0000] "GET /api/admin/dashboard/stats HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming GET /api/admin/dashboard/stats
+127.0.0.1 - - [12/Nov/2025:06:59:02 +0000] "GET /api/admin/dashboard/stats HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming GET /api/admin/profile
+127.0.0.1 - - [12/Nov/2025:06:59:03 +0000] "GET /api/admin/profile HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming GET /api/auth/profile
+🔍 AuthenticateToken middleware called
+🔍 JWT decoded successfully: {
+  id: '69141b482899e80b026a49af',
+  email: 'abc@gmail.com',
+  role: 'admin',
+  branchId: '69141b482899e80b026a49b3',
+  iat: 1762925402,
+  exp: 1763011802
+}
+🔍 Auth middleware user: {
+  id: new ObjectId('69141b482899e80b026a49af'),
+  email: 'abc@gmail.com',
+  branchId: new ObjectId('69141b482899e80b026a49b3'),
+  role: 'admin'
+}
+🔍 Auth middleware req.user set: {
+  id: new ObjectId('69141b482899e80b026a49af'),
+  email: 'abc@gmail.com',
+  branchId: new ObjectId('69141b482899e80b026a49b3'),
+  role: 'admin'
+}
+🔍 Profile endpoint - req.user: {
+  id: new ObjectId('69141b482899e80b026a49af'),
+  _id: new ObjectId('69141b482899e80b026a49af'),
+  email: 'abc@gmail.com',
+  branchId: new ObjectId('69141b482899e80b026a49b3'),
+  role: 'admin'
+}
+127.0.0.1 - - [12/Nov/2025:06:59:03 +0000] "GET /api/auth/profile HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming GET /api/admin/dashboard/stats
+127.0.0.1 - - [12/Nov/2025:06:59:03 +0000] "GET /api/admin/dashboard/stats HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming GET /api/admin/dashboard/stats
+127.0.0.1 - - [12/Nov/2025:06:59:03 +0000] "GET /api/admin/dashboard/stats HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming GET /api/admin/businesses
+127.0.0.1 - - [12/Nov/2025:06:59:37 +0000] "GET /api/admin/businesses?page=1&limit=10 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming GET /api/admin/businesses
+127.0.0.1 - - [12/Nov/2025:06:59:37 +0000] "GET /api/admin/businesses?page=1&limit=10 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming GET /api/admin/dashboard/stats
+127.0.0.1 - - [12/Nov/2025:06:59:57 +0000] "GET /api/admin/dashboard/stats HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming GET /api/admin/dashboard/stats
+127.0.0.1 - - [12/Nov/2025:06:59:57 +0000] "GET /api/admin/dashboard/stats HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming GET /api/admin/businesses
+127.0.0.1 - - [12/Nov/2025:07:00:02 +0000] "GET /api/admin/businesses?page=1&limit=10 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+📥 Incoming GET /api/admin/businesses
+127.0.0.1 - - [12/Nov/2025:07:00:02 +0000] "GET /api/admin/businesses?page=1&limit=10 HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"

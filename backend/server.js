@@ -369,8 +369,8 @@ app.post('/api/auth/staff-login', async (req, res) => {
       });
     }
     
-    // Connect to business-specific database using business ID
-    const businessDb = await databaseManager.getConnection(business._id);
+    // Connect to business-specific database using business code
+    const businessDb = await databaseManager.getConnection(business.code || business._id, mainConnection);
     const Staff = businessDb.model('Staff', require('./models/Staff').schema);
     
     // Find staff member
@@ -4606,7 +4606,9 @@ app.post("/api/settings/business/increment-receipt", authenticateToken, async (r
     console.log('🔍 Getting business connection for ID:', businessId);
     let businessConnection;
     try {
-      businessConnection = await databaseManager.getConnection(businessId);
+      // Get main connection to look up business code
+      const mainConnection = await databaseManager.getMainConnection();
+      businessConnection = await databaseManager.getConnection(businessId, mainConnection);
     } catch (connectionError) {
       console.error('❌ Error getting business connection:', connectionError);
       return res.status(500).json({

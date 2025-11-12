@@ -29,10 +29,13 @@ const getBusinesses = async () => {
 // Check business-specific database
 const checkBusinessDatabase = async (businessId, businessName, businessCode) => {
   try {
-    const businessConnection = await databaseManager.getConnection(businessId);
+    // Use business code for database name
+    const mainConnection = await databaseManager.getMainConnection();
+    const businessConnection = await databaseManager.getConnection(businessCode || businessId, mainConnection);
     
-    console.log(`\n📊 Database: ease_my_salon_${businessId}`);
-    console.log(`   Business: ${businessName} (${businessCode})`);
+    const dbName = businessCode ? `ease_my_salon_${businessCode}` : `ease_my_salon_${businessId}`;
+    console.log(`\n📊 Database: ${dbName}`);
+    console.log(`   Business: ${businessName} (${businessCode || businessId})`);
     
     // Check if database exists and has collections
     try {

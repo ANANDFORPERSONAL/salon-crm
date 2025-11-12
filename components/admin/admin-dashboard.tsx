@@ -25,7 +25,7 @@ interface DashboardStats {
     owner: {
       name: string
       email: string
-    }
+    } | null
     createdAt: string
   }>
 }
@@ -325,8 +325,17 @@ export function AdminDashboard() {
                     </TableCell>
                     <TableCell>
                       <div>
-                        <div className="font-medium">{business.owner.name}</div>
-                        <div className="text-sm text-gray-500">{business.owner.email}</div>
+                        {business.owner ? (
+                          <>
+                            <div className="font-medium">{business.owner.name || 'N/A'}</div>
+                            <div className="text-sm text-gray-500">{business.owner.email || 'N/A'}</div>
+                          </>
+                        ) : (
+                          <>
+                            <div className="font-medium text-gray-400">Owner Deleted</div>
+                            <div className="text-sm text-gray-400">N/A</div>
+                          </>
+                        )}
                       </div>
                     </TableCell>
                     <TableCell>

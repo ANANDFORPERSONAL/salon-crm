@@ -8,77 +8,169 @@ class DatabaseManager {
 
   /**
    * Get database name for a business
-   * @param {string} businessId - The business ID
+   * @param {string} businessCode - The business code (e.g., "BIZ0001")
    * @returns {string} - Database name
    */
-  getDatabaseName(businessId) {
-    return `ease_my_salon_${businessId}`;
+  getDatabaseName(businessCode) {
+    return `ease_my_salon_${businessCode}`;
+  }
+
+  /**
+   * Get database name from business ID (looks up business code)
+   * @param {string} businessId - The business ObjectId
+   * @param {object} mainConnection - Main database connection to look up business
+   * @returns {Promise<string>} - Database name using business code
+   */
+  async getDatabaseNameFromId(businessId, mainConnection) {
+    try {
+      const Business = mainConnection.model('Business', require('../models/Business').schema);
+      const business = await Business.findById(businessId).select('code');
+      
+      if (business && business.code) {
+        return this.getDatabaseName(business.code);
+      }
+      
+      // Fallback to ObjectId if code not found (backward compatibility)
+      console.warn(`⚠️ Business code not found for ID ${businessId}, using ObjectId`);
+      return `ease_my_salon_${businessId}`;
+    } catch (error) {
+      console.error(`❌ Error looking up business code for ${businessId}:`, error.message);
+      // Fallback to ObjectId
+      return `ease_my_salon_${businessId}`;
+    }
   }
 
   /**
    * Get or create a database connection for a business
-   * @param {string} businessId - The business ID
+   * @param {string} businessIdOrCode - The business ID (ObjectId) or business code (e.g., "BIZ0001")
+   * @param {object} mainConnection - Optional main database connection to look up business code
+   * @param {boolean} forceNewNaming - If true, only use new naming convention (for new businesses)
    * @returns {Promise<mongoose.Connection>} - Database connection
-   * @note For production safety, checks old database name first for backward compatibility
+   * @note For new businesses, always uses new naming. For existing businesses, checks old names for backward compatibility.
    */
-  async getConnection(businessId) {
-    if (!businessId) {
-      throw new Error('Business ID is required');
+  async getConnection(businessIdOrCode, mainConnection = null, forceNewNaming = false) {
+    if (!businessIdOrCode) {
+      throw new Error('Business ID or code is required');
     }
 
-    const newDbName = this.getDatabaseName(businessId);
-    const oldDbName = `salon_crm_${businessId}`;
+    // Determine if it's a business code (starts with letters) or ObjectId (24 hex chars)
+    const isBusinessCode = /^[A-Z]/.test(businessIdOrCode);
+    let businessCode = businessIdOrCode;
+    let businessId = businessIdOrCode;
+
+    // If it's an ObjectId and we have mainConnection, try to get the business code
+    if (!isBusinessCode && mainConnection) {
+      try {
+        const Business = mainConnection.model('Business', require('../models/Business').schema);
+        const business = await Business.findById(businessId).select('code');
+        if (business && business.code) {
+          businessCode = business.code;
+          console.log(`📋 Found business code: ${businessCode} for ID: ${businessId}`);
+        }
+      } catch (error) {
+        console.warn(`⚠️ Could not look up business code for ${businessId}, using ObjectId`);
+      }
+    }
+
+    const newDbName = this.getDatabaseName(businessCode);
+    const oldDbNameByCode = `salon_crm_${businessCode}`;
+    const oldDbNameById = `salon_crm_${businessId}`;
     
-    // Return existing connection if available (check both names)
+    // Return existing connection if available (check all possible names)
     if (this.connections.has(newDbName)) {
       return this.connections.get(newDbName);
     }
-    if (this.connections.has(oldDbName)) {
-      return this.connections.get(oldDbName);
+    if (!forceNewNaming) {
+      // Only check old databases if not forcing new naming (for backward compatibility)
+      if (this.connections.has(oldDbNameByCode)) {
+        return this.connections.get(oldDbNameByCode);
+      }
+      if (this.connections.has(oldDbNameById)) {
+        return this.connections.get(oldDbNameById);
+      }
     }
 
-    // Try old database first for backward compatibility (production safety)
+    // For new businesses (forceNewNaming = true), only try new database name
+    // For existing businesses, try old databases first for backward compatibility
     let connection;
     let dbName = newDbName;
     
-    try {
-      const oldUri = `${this.baseUri}/${oldDbName}`;
-      connection = await mongoose.createConnection(oldUri, {
-        authSource: 'admin'
-      });
-      // Test if connection is successful and database has collections
-      await new Promise(resolve => setTimeout(resolve, 100));
-      if (connection.readyState === 1) {
-        try {
-          const collections = await connection.db.listCollections().toArray();
-          // If database exists and has collections (or connection is ready), use old database
-          dbName = oldDbName;
-          console.log(`🔗 Connecting to business database: ${oldDbName} (legacy - backward compatible)`);
-        } catch (testError) {
-          // Connection exists but test failed, still use it (might be empty but valid)
-          dbName = oldDbName;
-          console.log(`🔗 Connecting to business database: ${oldDbName} (legacy - backward compatible)`);
-        }
-      } else {
-        await connection.close();
-        throw new Error('Legacy database connection not ready');
+    if (forceNewNaming) {
+      // New business - only use new naming convention
+      // Ensure we're using business code, not ObjectId
+      if (!businessCode || businessCode === businessId) {
+        throw new Error(`Cannot create new business database: business code is required but got: ${businessCode || 'undefined'}`);
       }
-    } catch (error) {
-      // Old database doesn't exist or failed, use new one
-      try {
-        if (connection && connection.readyState !== 0) {
-          await connection.close();
-        }
-      } catch (closeError) {
-        // Ignore close errors
-      }
-      
       const newUri = `${this.baseUri}/${newDbName}`;
-      console.log(`🔗 Connecting to business database: ${newDbName}`);
+      console.log(`🔗 Creating new business database: ${newDbName} (using business code: ${businessCode})`);
       connection = await mongoose.createConnection(newUri, {
         authSource: 'admin'
       });
       dbName = newDbName;
+    } else {
+      // Existing business - check old databases for backward compatibility
+      const dbNamesToTry = [
+        { name: oldDbNameByCode, reason: 'legacy by code' },
+        { name: oldDbNameById, reason: 'legacy by ID' },
+        { name: newDbName, reason: 'new by code' }
+      ];
+      
+      for (const dbOption of dbNamesToTry) {
+        try {
+          const uri = `${this.baseUri}/${dbOption.name}`;
+          connection = await mongoose.createConnection(uri, {
+            authSource: 'admin'
+          });
+          // Test if connection is successful
+          await new Promise(resolve => setTimeout(resolve, 100));
+          if (connection.readyState === 1) {
+            try {
+              const collections = await connection.db.listCollections().toArray();
+              // If database exists and has collections (or connection is ready), use it
+              dbName = dbOption.name;
+              if (dbOption.reason.includes('legacy')) {
+                console.log(`🔗 Connecting to business database: ${dbName} (${dbOption.reason} - backward compatible)`);
+              } else {
+                console.log(`🔗 Connecting to business database: ${dbName} (${dbOption.reason})`);
+              }
+              break; // Found working database, exit loop
+            } catch (testError) {
+              // Connection exists but test failed, still use it (might be empty but valid)
+              dbName = dbOption.name;
+              if (dbOption.reason.includes('legacy')) {
+                console.log(`🔗 Connecting to business database: ${dbName} (${dbOption.reason} - backward compatible)`);
+              } else {
+                console.log(`🔗 Connecting to business database: ${dbName} (${dbOption.reason})`);
+              }
+              break;
+            }
+          } else {
+            await connection.close();
+            connection = null;
+          }
+        } catch (error) {
+          // This database doesn't exist, try next one
+          if (connection && connection.readyState !== 0) {
+            try {
+              await connection.close();
+            } catch (closeError) {
+              // Ignore close errors
+            }
+          }
+          connection = null;
+          continue; // Try next database name
+        }
+      }
+      
+      // If all failed, create new database with business code
+      if (!connection) {
+        const newUri = `${this.baseUri}/${newDbName}`;
+        console.log(`🔗 Creating new business database: ${newDbName}`);
+        connection = await mongoose.createConnection(newUri, {
+          authSource: 'admin'
+        });
+        dbName = newDbName;
+      }
     }
 
     // Store connection
@@ -91,67 +183,22 @@ class DatabaseManager {
   /**
    * Get the main database connection (for businesses, users, admins)
    * @returns {Promise<mongoose.Connection>} - Main database connection
-   * @note For production safety, checks old database name first for backward compatibility
+   * @note Uses new database naming convention only (ease_my_salon_main)
    */
   async getMainConnection() {
-    const newDbName = 'ease_my_salon_main';
-    const oldDbName = 'salon_crm_main';
+    const mainDbName = 'ease_my_salon_main';
     
-    // Return existing connection if available (check both names)
-    if (this.connections.has(newDbName)) {
-      return this.connections.get(newDbName);
+    // Return existing connection if available
+    if (this.connections.has(mainDbName)) {
+      return this.connections.get(mainDbName);
     }
-    if (this.connections.has(oldDbName)) {
-      return this.connections.get(oldDbName);
-    }
+
+    const uri = `${this.baseUri}/${mainDbName}`;
+    console.log(`🔗 Connecting to main database: ${mainDbName}`);
     
-    // Try to connect to old database first (for backward compatibility)
-    let connection;
-    let mainDbName = newDbName;
-    
-    try {
-      // First, try to connect to old database
-      const oldUri = `${this.baseUri}/${oldDbName}`;
-      connection = await mongoose.createConnection(oldUri, {
-        authSource: 'admin'
-      });
-      
-      // Wait a bit for connection to establish
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
-      // Test if connection is ready and database has collections
-      if (connection.readyState === 1) {
-        try {
-          const collections = await connection.db.listCollections().toArray();
-          // If database has collections or connection is ready, use old database
-          mainDbName = oldDbName;
-          console.log(`🔗 Connecting to main database: ${oldDbName} (legacy - backward compatible)`);
-        } catch (testError) {
-          // Connection exists but test failed, still use it (might be empty but valid)
-          mainDbName = oldDbName;
-          console.log(`🔗 Connecting to main database: ${oldDbName} (legacy - backward compatible)`);
-        }
-      } else {
-        await connection.close();
-        throw new Error('Legacy database connection not ready');
-      }
-    } catch (error) {
-      // Old database doesn't exist or failed, use new one
-      try {
-        if (connection && connection.readyState !== 0) {
-          await connection.close();
-        }
-      } catch (closeError) {
-        // Ignore close errors
-      }
-      
-      const newUri = `${this.baseUri}/${newDbName}`;
-      console.log(`🔗 Connecting to main database: ${newDbName}`);
-      connection = await mongoose.createConnection(newUri, {
-        authSource: 'admin'
-      });
-      mainDbName = newDbName;
-    }
+    const connection = await mongoose.createConnection(uri, {
+      authSource: 'admin'
+    });
 
     this.connections.set(mainDbName, connection);
     console.log(`✅ Connected to main database: ${mainDbName}`);
@@ -160,14 +207,43 @@ class DatabaseManager {
 
   /**
    * Close a specific business database connection
-   * @param {string} businessId - The business ID
+   * @param {string} businessCode - The business code (e.g., "BIZ0001")
    */
-  async closeConnection(businessId) {
-    const dbName = this.getDatabaseName(businessId);
+  async closeConnection(businessCode) {
+    const dbName = this.getDatabaseName(businessCode);
     if (this.connections.has(dbName)) {
       await this.connections.get(dbName).close();
       this.connections.delete(dbName);
       console.log(`🔌 Closed connection to: ${dbName}`);
+    }
+  }
+
+  /**
+   * Delete a business database completely
+   * @param {string} businessCode - The business code (e.g., "BIZ0001")
+   * @returns {Promise<boolean>} - True if deleted successfully
+   */
+  async deleteDatabase(businessCode) {
+    try {
+      const dbName = this.getDatabaseName(businessCode);
+      
+      // Close connection if open
+      if (this.connections.has(dbName)) {
+        await this.closeConnection(businessCode);
+      }
+      
+      // Get main connection to access admin commands
+      const mainConnection = await this.getMainConnection();
+      
+      // Use the database connection to drop it
+      const dbToDelete = mainConnection.useDb(dbName);
+      await dbToDelete.dropDatabase();
+      
+      console.log(`🗑️  Deleted business database: ${dbName}`);
+      return true;
+    } catch (error) {
+      console.error(`❌ Error deleting database ${businessCode}:`, error);
+      throw error;
     }
   }
 

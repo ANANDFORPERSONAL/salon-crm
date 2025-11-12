@@ -56,23 +56,35 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
           
           if (response.ok) {
             const data = await response.json()
-            if (data.success) {
+            if (data.success && data.data) {
               setAdmin(data.data)
             } else {
               // Clear invalid session
+              console.warn('Admin profile response invalid:', data)
               localStorage.removeItem("admin-auth-token")
               localStorage.removeItem("admin-auth-user")
             }
           } else {
-            // Clear invalid session
-            localStorage.removeItem("admin-auth-token")
-            localStorage.removeItem("admin-auth-user")
+            // Only clear on 401 (unauthorized), not on other errors
+            if (response.status === 401) {
+              console.warn('Admin token invalid (401), clearing session')
+              localStorage.removeItem("admin-auth-token")
+              localStorage.removeItem("admin-auth-user")
+            } else {
+              console.error('Admin profile fetch failed:', response.status, response.statusText)
+              // Don't clear session on server errors, just log
+            }
           }
         } catch (error) {
           console.error('Token validation error:', error)
-          // Clear invalid session
-          localStorage.removeItem("admin-auth-token")
-          localStorage.removeItem("admin-auth-user")
+          // Only clear on network errors if it's a clear auth failure
+          // Don't clear on temporary network issues
+          if (error instanceof TypeError && error.message.includes('fetch')) {
+            console.warn('Network error during admin auth check, keeping session')
+          } else {
+            localStorage.removeItem("admin-auth-token")
+            localStorage.removeItem("admin-auth-user")
+          }
         }
       } catch (error) {
         console.error('Auth check error:', error)

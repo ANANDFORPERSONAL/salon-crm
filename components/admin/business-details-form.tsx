@@ -46,6 +46,12 @@ interface BusinessDetails {
   updatedAt: string
   isOnboarded: boolean
   onboardingStep: number
+  deletedAt?: string
+  deletedBy?: {
+    _id: string
+    name: string
+    email: string
+  } | null
 }
 
 export function BusinessDetailsForm() {
@@ -1040,6 +1046,29 @@ export function BusinessDetailsForm() {
                   className="bg-gray-50 cursor-not-allowed"
                 />
               </div>
+              
+              {business.status === 'deleted' && business.deletedAt && (
+                <>
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium text-red-700">Deleted At</Label>
+                    <Input
+                      value={new Date(business.deletedAt).toLocaleString()}
+                      readOnly
+                      className="bg-red-50 cursor-not-allowed border-red-200"
+                    />
+                  </div>
+                  {business.deletedBy && (
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium text-red-700">Deleted By</Label>
+                      <Input
+                        value={`${business.deletedBy.name} (${business.deletedBy.email})`}
+                        readOnly
+                        className="bg-red-50 cursor-not-allowed border-red-200"
+                      />
+                    </div>
+                  )}
+                </>
+              )}
 
               <div className="space-y-2">
                 <Label className="text-sm font-medium text-gray-700">Created Date</Label>
