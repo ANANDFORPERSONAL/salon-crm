@@ -3,7 +3,30 @@ const mongoose = require('mongoose');
 class DatabaseManager {
   constructor() {
     this.connections = new Map(); // Store active connections
-    this.baseUri = process.env.MONGODB_URI || 'mongodb://localhost:27017';
+
+    const fullUri = process.env.MONGODB_URI || 'mongodb://localhost:27017';
+
+    try {
+      const [uriWithoutQuery, queryParams] = fullUri.split('?');
+      const uriParts = uriWithoutQuery.split('/');
+
+      if (uriParts.length > 3) {
+        this.baseUri = uriParts.slice(0, -1).join('/');
+      } else {
+        this.baseUri = uriWithoutQuery;
+      }
+
+      if (queryParams) {
+        this.baseUri = `${this.baseUri}?${queryParams}`;
+      }
+    } catch (error) {
+      console.error('⚠️  Error parsing MONGODB_URI, falling back to default:', error.message);
+      this.baseUri = fullUri.split('?')[0];
+    }
+
+    if (!this.baseUri || this.baseUri === 'mongodb:' || this.baseUri === 'mongodb+srv:') {
+      this.baseUri = 'mongodb://localhost:27017';
+    }
   }
 
   /**
@@ -101,7 +124,9 @@ class DatabaseManager {
       if (!businessCode || businessCode === businessId) {
         throw new Error(`Cannot create new business database: business code is required but got: ${businessCode || 'undefined'}`);
       }
-      const newUri = `${this.baseUri}/${newDbName}`;
+      const newUri = this.baseUri.includes('?')
+        ? this.baseUri.replace('?', `/${newDbName}?`)
+        : `${this.baseUri}/${newDbName}`;
       console.log(`🔗 Creating new business database: ${newDbName} (using business code: ${businessCode})`);
       connection = await mongoose.createConnection(newUri, {
         authSource: 'admin'
@@ -117,7 +142,9 @@ class DatabaseManager {
       
       for (const dbOption of dbNamesToTry) {
         try {
-          const uri = `${this.baseUri}/${dbOption.name}`;
+          const uri = this.baseUri.includes('?')
+            ? this.baseUri.replace('?', `/${dbOption.name}?`)
+            : `${this.baseUri}/${dbOption.name}`;
           connection = await mongoose.createConnection(uri, {
             authSource: 'admin'
           });
@@ -164,7 +191,9 @@ class DatabaseManager {
       
       // If all failed, create new database with business code
       if (!connection) {
-        const newUri = `${this.baseUri}/${newDbName}`;
+        const newUri = this.baseUri.includes('?')
+          ? this.baseUri.replace('?', `/${newDbName}?`)
+          : `${this.baseUri}/${newDbName}`;
         console.log(`🔗 Creating new business database: ${newDbName}`);
         connection = await mongoose.createConnection(newUri, {
           authSource: 'admin'
@@ -193,7 +222,9 @@ class DatabaseManager {
       return this.connections.get(mainDbName);
     }
 
-    const uri = `${this.baseUri}/${mainDbName}`;
+    const uri = this.baseUri.includes('?')
+      ? this.baseUri.replace('?', `/${mainDbName}?`)
+      : `${this.baseUri}/${mainDbName}`;
     console.log(`🔗 Connecting to main database: ${mainDbName}`);
     
     const connection = await mongoose.createConnection(uri, {
