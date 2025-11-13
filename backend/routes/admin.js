@@ -417,14 +417,13 @@ router.post('/businesses', setupMainDatabase, authenticateAdmin, async (req, res
 
     // Create default business settings in the business-specific database (optional)
     try {
-      // Get business-specific database connection (use business code for naming)
-      // forceNewNaming = true ensures new businesses always use new naming convention
+      // Get business-specific database connection (uses new naming convention: ease_my_salon_{businessCode})
       // IMPORTANT: business.code must be set before calling getConnection
       if (!business.code) {
         throw new Error('Business code is required but not set. Cannot create business database.');
       }
       console.log(`🔧 Creating business database for new business: ${business.name} (Code: ${business.code})`);
-      const businessConnection = await databaseManager.getConnection(business.code, req.mainConnection, true);
+      const businessConnection = await databaseManager.getConnection(business.code, req.mainConnection);
       const businessModels = modelFactory.createBusinessModels(businessConnection);
       
       // Create default business settings
