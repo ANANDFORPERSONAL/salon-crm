@@ -23,20 +23,42 @@ const authenticateAdmin = async (req, res, next) => {
     
     // Get main database connection
     const databaseManager = require('../config/database-manager');
+    console.log('🔐 Admin authentication: Getting main connection...');
     const mainConnection = await databaseManager.getMainConnection();
+    console.log('🔐 Admin authentication: Main connection established');
+    
     const Admin = mainConnection.model('Admin', require('../models/Admin').schema);
+    console.log('🔐 Admin authentication: Looking up admin by ID:', decoded.id);
     
     const admin = await Admin.findById(decoded.id).select('-password');
     
     if (!admin || !admin.isActive) {
+      console.warn('🔐 Admin authentication failed: Admin not found or inactive');
       return res.status(401).json({ success: false, error: 'Invalid admin token' });
     }
 
+    console.log('🔐 Admin authentication successful:', admin.email);
     req.admin = admin;
     next();
   } catch (error) {
-    console.error('Admin auth error:', error);
-    res.status(401).json({ success: false, error: 'Invalid token' });
+    console.error('❌ Admin auth error:', error);
+    console.error('❌ Error details:', {
+      message: error.message,
+      name: error.name,
+      stack: error.stack
+    });
+    
+    // Different error codes for different issues
+    if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
+      return res.status(401).json({ success: false, error: 'Invalid token' });
+    }
+    
+    // Database connection errors
+    res.status(500).json({ 
+      success: false, 
+      error: 'Authentication service error',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 };
 

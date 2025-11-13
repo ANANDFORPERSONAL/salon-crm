@@ -117,24 +117,42 @@ class DatabaseManager {
     
     console.log(`   URI: ${uri.replace(/\/\/[^:]+:[^@]+@/, '//***:***@')}`);
 
-    const connection = await mongoose.createConnection(uri);
-    
-    // Wait for connection to be ready
-    await new Promise(resolve => setTimeout(resolve, 200));
-    
-    // Verify the actual database name
-    const actualDbName = connection.db.databaseName;
-    console.log(`   Actual DB Name: ${actualDbName}`);
-    
-    if (actualDbName !== dbName) {
-      console.error(`   ❌ DATABASE NAME MISMATCH!`);
-      console.error(`   Expected: ${dbName}`);
-      console.error(`   Got: ${actualDbName}`);
-      await connection.close();
-      throw new Error(`Database creation failed: expected ${dbName} but got ${actualDbName}`);
+    let connection;
+    try {
+      connection = await mongoose.createConnection(uri);
+      
+      // Wait for connection to be ready
+      await new Promise(resolve => setTimeout(resolve, 200));
+      
+      // Verify connection state
+      if (connection.readyState !== 1) {
+        throw new Error(`Connection not ready. State: ${connection.readyState}`);
+      }
+      
+      // Verify the actual database name
+      const actualDbName = connection.db.databaseName;
+      console.log(`   Actual DB Name: ${actualDbName}`);
+      
+      if (actualDbName !== dbName) {
+        console.error(`   ❌ DATABASE NAME MISMATCH!`);
+        console.error(`   Expected: ${dbName}`);
+        console.error(`   Got: ${actualDbName}`);
+        await connection.close();
+        throw new Error(`Database creation failed: expected ${dbName} but got ${actualDbName}`);
+      }
+      
+      console.log(`   ✅ Database name verified`);
+    } catch (error) {
+      console.error(`   ❌ Connection failed:`, error.message);
+      if (connection) {
+        try {
+          await connection.close();
+        } catch (closeError) {
+          // Ignore close errors
+        }
+      }
+      throw new Error(`Failed to connect to ${dbName}: ${error.message}`);
     }
-    
-    console.log(`   ✅ Database name verified`);
 
     // Store connection
     this.connections.set(dbName, connection);
@@ -166,25 +184,46 @@ class DatabaseManager {
     
     console.log(`   URI: ${uri.replace(/\/\/[^:]+:[^@]+@/, '//***:***@')}`);
     
-    const connection = await mongoose.createConnection(uri);
-    
-    // Verify the database name
-    await new Promise(resolve => setTimeout(resolve, 100));
-    const actualDbName = connection.db.databaseName;
-    console.log(`   Actual DB Name: ${actualDbName}`);
-    
-    if (actualDbName !== mainDbName) {
-      console.error(`   ❌ MAIN DATABASE NAME MISMATCH!`);
-      console.error(`   Expected: ${mainDbName}`);
-      console.error(`   Got: ${actualDbName}`);
-      await connection.close();
-      throw new Error(`Main database connection failed: expected ${mainDbName} but got ${actualDbName}`);
-    }
+    let connection;
+    try {
+      connection = await mongoose.createConnection(uri);
+      
+      // Wait for connection to be ready
+      await new Promise(resolve => setTimeout(resolve, 200));
+      
+      // Verify connection state
+      if (connection.readyState !== 1) {
+        throw new Error(`Connection not ready. State: ${connection.readyState}`);
+      }
+      
+      // Verify the database name
+      const actualDbName = connection.db.databaseName;
+      console.log(`   Actual DB Name: ${actualDbName}`);
+      
+      if (actualDbName !== mainDbName) {
+        console.error(`   ❌ MAIN DATABASE NAME MISMATCH!`);
+        console.error(`   Expected: ${mainDbName}`);
+        console.error(`   Got: ${actualDbName}`);
+        await connection.close();
+        throw new Error(`Main database connection failed: expected ${mainDbName} but got ${actualDbName}`);
+      }
 
-    this.connections.set(mainDbName, connection);
-    console.log(`✅ Connected to main database: ${actualDbName}\n`);
-    
-    return connection;
+      this.connections.set(mainDbName, connection);
+      console.log(`✅ Connected to main database: ${actualDbName}\n`);
+      
+      return connection;
+    } catch (error) {
+      console.error(`   ❌ Main connection failed:`, error.message);
+      console.error(`   Error stack:`, error.stack);
+      if (connection) {
+        try {
+          await connection.close();
+        } catch (closeError) {
+          // Ignore close errors
+        }
+      }
+      throw new Error(`Failed to connect to main database: ${error.message}`);
+    }
   }
 
   /**

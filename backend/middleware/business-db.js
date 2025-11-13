@@ -75,10 +75,17 @@ const setupMainDatabase = async (req, res, next) => {
     
     next();
   } catch (error) {
-    console.error('Error setting up main database:', error);
+    console.error('❌ Error setting up main database:', error);
+    console.error('❌ Error stack:', error.stack);
+    console.error('❌ Error details:', {
+      message: error.message,
+      name: error.name,
+      code: error.code
+    });
     res.status(500).json({
       success: false,
-      error: 'Failed to connect to main database'
+      error: 'Failed to connect to main database',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 };
