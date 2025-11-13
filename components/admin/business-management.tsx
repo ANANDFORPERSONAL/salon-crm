@@ -123,7 +123,7 @@ export function BusinessManagement() {
     }
   }
 
-  const handleDeleteBusiness = async (businessId: string, businessName: string) => {
+  const handleDeleteBusiness = async (businessId: string, businessName: string, status: string) => {
     if (!businessId) {
       toast({
         title: "Error",
@@ -133,7 +133,12 @@ export function BusinessManagement() {
       return
     }
 
-    if (!confirm(`Are you sure you want to delete "${businessName}"? This action cannot be undone and will permanently remove all business data.`)) {
+    const isSoftDelete = status !== 'deleted'
+    const confirmMessage = isSoftDelete
+      ? `Are you sure you want to delete "${businessName}"? This will mark the business as deleted and remove its data, but you can still see it in the list for audit.`
+      : `This business is already marked as deleted. Permanently delete "${businessName}"? This will remove it from the list and free the business code for reuse.`
+
+    if (!confirm(confirmMessage)) {
       return
     }
 
@@ -147,9 +152,13 @@ export function BusinessManagement() {
       })
       
       if (response.ok) {
+        const successMessage = isSoftDelete
+          ? `"${businessName}" has been marked as deleted.`
+          : `"${businessName}" has been permanently deleted and the code can now be reused.`
+
         toast({
           title: "Business Deleted",
-          description: `"${businessName}" has been permanently deleted.`,
+          description: successMessage,
         })
         // Refresh the businesses list
         fetchBusinesses()
@@ -454,11 +463,11 @@ export function BusinessManagement() {
                             </DropdownMenuItem>
                           ) : null}
                           <DropdownMenuItem 
-                            onClick={() => handleDeleteBusiness(business._id, business.name)}
+                            onClick={() => handleDeleteBusiness(business._id, business.name, business.status)}
                             className="text-red-600 focus:text-red-600"
                           >
                             <Trash2 className="h-4 w-4 mr-2" />
-                            Delete Business
+                            {business.status === 'deleted' ? 'Permanently Delete' : 'Delete Business'}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>

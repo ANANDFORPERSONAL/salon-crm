@@ -154,8 +154,13 @@ export function AdminDashboard() {
     }
   }
 
-  const handleDeleteBusiness = async (businessId: string, businessName: string) => {
-    if (!confirm(`Are you sure you want to delete "${businessName}"? This action cannot be undone and will permanently remove all business data.`)) {
+  const handleDeleteBusiness = async (businessId: string, businessName: string, status: string) => {
+    const isSoftDelete = status !== 'deleted'
+    const confirmMessage = isSoftDelete
+      ? `Delete "${businessName}"? This will mark the business as deleted and remove its data, but keep it visible for audit.`
+      : `Permanently delete "${businessName}"? This will remove it from the list and free the business code for reuse.`
+
+    if (!confirm(confirmMessage)) {
       return
     }
 
@@ -171,7 +176,9 @@ export function AdminDashboard() {
       if (response.ok) {
         toast({
           title: "Business Deleted",
-          description: `"${businessName}" has been permanently deleted.`,
+          description: isSoftDelete
+            ? `"${businessName}" has been marked as deleted.`
+            : `"${businessName}" has been permanently deleted.`,
         })
         // Refresh the dashboard stats
         fetchDashboardStats()
@@ -367,11 +374,11 @@ export function AdminDashboard() {
                             Edit Business
                           </DropdownMenuItem>
                           <DropdownMenuItem 
-                            onClick={() => handleDeleteBusiness(business._id, business.name)}
+                            onClick={() => handleDeleteBusiness(business._id, business.name, business.status)}
                             className="text-red-600 focus:text-red-600"
                           >
                             <Trash2 className="h-4 w-4 mr-2" />
-                            Delete Business
+                            {business.status === 'deleted' ? 'Permanently Delete' : 'Delete Business'}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>

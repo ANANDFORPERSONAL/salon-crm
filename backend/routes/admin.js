@@ -798,15 +798,32 @@ router.delete('/businesses/:id', setupMainDatabase, authenticateAdmin, async (re
       return res.status(404).json({ success: false, error: 'Business not found' });
     }
 
-    // Check if already deleted
+    const businessCode = business.code;
+
+    // If business already deleted -> perform permanent deletion
     if (business.status === 'deleted') {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'Business is already deleted' 
+      try {
+        const databaseManager = require('../config/database-manager');
+        await databaseManager.deleteDatabase(businessCode);
+      } catch (dbError) {
+        console.error('⚠️  Error deleting business database during permanent delete:', dbError.message);
+      }
+
+      await req.mainModels.Business.findByIdAndDelete(id);
+
+      return res.json({
+        success: true,
+        message: 'Business permanently deleted and code is now reusable',
+        data: {
+          business: {
+            id,
+            code: businessCode,
+            name: business.name,
+            status: 'permanently_deleted'
+          }
+        }
       });
     }
-
-    const businessCode = business.code;
 
     // Soft delete: Mark business as deleted
     business.status = 'deleted';
