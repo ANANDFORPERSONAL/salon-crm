@@ -27,10 +27,15 @@ class DatabaseManager {
         console.log(`   ℹ️  No database name to remove`);
       }
 
-      // Preserve query parameters
+      // Preserve or add query parameters
       if (queryParams) {
         this.baseUri = `${this.baseUri}?${queryParams}`;
         console.log(`   ✅ Preserved query parameters`);
+      } else {
+        // If no query params exist, add authSource=admin for Railway MongoDB
+        // This is needed because Railway MongoDB users are created in the admin database
+        this.baseUri = `${this.baseUri}?authSource=admin`;
+        console.log(`   ✅ Added authSource=admin for authentication`);
       }
     } catch (error) {
       console.error('   ⚠️  Error parsing MONGODB_URI:', error.message);
