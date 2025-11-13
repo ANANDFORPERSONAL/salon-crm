@@ -120,9 +120,15 @@ export function CashRegistryReport({ isVerificationModalOpen, onVerificationModa
     console.log("📊 Sample salesData:", salesData.slice(0, 2))
     console.log("📊 Sample expensesData:", Object.entries(expensesData).slice(0, 2))
     
-    if (!cashRegistryData.length || !salesData.length) {
-      console.log("❌ Cannot generate summaries - missing data")
+    // Only require cash registry data - sales can be empty
+    if (!cashRegistryData.length) {
+      console.log("❌ Cannot generate summaries - no cash registry entries found")
       return
+    }
+    
+    // Sales data is optional - we can still generate summaries without sales
+    if (!salesData.length) {
+      console.log("ℹ️  No sales data found - will generate summaries with zero sales")
     }
     
     // Group entries by date
@@ -249,9 +255,17 @@ export function CashRegistryReport({ isVerificationModalOpen, onVerificationModa
 
     console.log("📊 Generated daily summaries:", summaries)
     console.log("📊 Summary count:", summaries.length)
-    console.log("📊 Setting dailySummaries state...")
-    setDailySummaries(summaries)
-    console.log("✅ Daily summaries state updated")
+    
+    if (summaries.length > 0) {
+      console.log("📊 Setting dailySummaries state with", summaries.length, "summaries")
+      setDailySummaries(summaries)
+      console.log("✅ Daily summaries state updated")
+    } else {
+      console.log("⚠️  No summaries to set (summaries.length = 0)")
+      console.log("   Cash Registry Entries:", cashRegistryData.length)
+      console.log("   Entries by Date:", Object.keys(entriesByDate))
+      setDailySummaries([])
+    }
   }, [cashRegistryData, salesData, expensesData])
 
   // Get today's closing entry for verification
@@ -427,7 +441,7 @@ export function CashRegistryReport({ isVerificationModalOpen, onVerificationModa
     
     // Also trigger daily summaries generation after a short delay
     setTimeout(() => {
-      if (cashRegistryData.length > 0 && salesData.length > 0) {
+      if (cashRegistryData.length > 0) {
         console.log("🔄 Manual trigger for generateDailySummaries...")
         generateDailySummaries()
       }
@@ -446,11 +460,12 @@ export function CashRegistryReport({ isVerificationModalOpen, onVerificationModa
       expensesDataKeys: Object.keys(expensesData)
     })
     
-    if (cashRegistryData.length > 0 && salesData.length > 0) {
-      console.log("✅ Conditions met, calling generateDailySummaries...")
+    // Generate summaries if we have cash registry data (sales data is optional)
+    if (cashRegistryData.length > 0) {
+      console.log("✅ Cash registry data available, calling generateDailySummaries...")
       generateDailySummaries()
     } else {
-      console.log("❌ Conditions not met for generating daily summaries")
+      console.log("❌ No cash registry data - cannot generate summaries")
     }
   }, [cashRegistryData, salesData, expensesData, generateDailySummaries])
 
