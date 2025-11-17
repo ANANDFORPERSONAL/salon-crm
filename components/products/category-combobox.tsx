@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Check, ChevronsUpDown, Plus } from "lucide-react"
+import { Check, ChevronsUpDown, Plus, Settings } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -12,6 +12,7 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
+  CommandSeparator,
 } from "@/components/ui/command"
 import {
   Popover,
@@ -28,7 +29,7 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { ProductsAPI } from "@/lib/api"
+import { CategoriesAPI, ProductsAPI, ServicesAPI } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
 
 interface Category {
@@ -44,9 +45,10 @@ interface CategoryComboboxProps {
   onChange: (value: string) => void
   disabled?: boolean
   type?: 'product' | 'service' | 'both' // Filter categories by type
+  onManageCategories?: () => void // Optional callback to open category management
 }
 
-export function CategoryCombobox({ value, onChange, disabled, type = 'both' }: CategoryComboboxProps) {
+export function CategoryCombobox({ value, onChange, disabled, type = 'both', onManageCategories }: CategoryComboboxProps) {
   const [open, setOpen] = React.useState(false)
   const [categories, setCategories] = React.useState<Category[]>([])
   const [loading, setLoading] = React.useState(false)
@@ -56,52 +58,105 @@ export function CategoryCombobox({ value, onChange, disabled, type = 'both' }: C
   const [addingCategory, setAddingCategory] = React.useState(false)
   const { toast } = useToast()
 
-  // Load categories on mount
+  // Load categories on mount and when type changes
   React.useEffect(() => {
     loadCategories()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []) // Load once on mount - categories are fetched from products
+  }, [type]) // Reload when type changes
 
   const loadCategories = async () => {
     try {
       setLoading(true)
-      // Fetch all products to extract unique categories
-      // Fetch with a high limit to get all products in one request
-      const response = await ProductsAPI.getAll({ limit: 10000 })
-      if (response.success && response.data) {
-        // Extract unique categories from products
-        const uniqueCategories = new Set<string>()
-        const categoryMap = new Map<string, Category>()
+      const uniqueCategories = new Set<string>()
+      const categoryMap = new Map<string, Category>()
+      
+      // First, try to fetch from the Categories API
+      try {
+        const response = await CategoriesAPI.getAll({ 
+          type, 
+          activeOnly: true 
+        })
         
-        // Handle both array and paginated response
-        const products = Array.isArray(response.data) ? response.data : (response.data?.data || [])
-        
-        products.forEach((product: any) => {
-          if (product.category && product.category.trim()) {
-            const categoryName = product.category.trim()
-            if (!uniqueCategories.has(categoryName)) {
+        if (response.success && response.data) {
+          response.data.forEach((category: any) => {
+            if (category.name && category.name.trim()) {
+              const categoryName = category.name.trim()
               uniqueCategories.add(categoryName)
               categoryMap.set(categoryName, {
                 name: categoryName,
-                _id: categoryName, // Use name as ID for simplicity
-                isActive: true
+                _id: category._id || categoryName,
+                type: category.type,
+                isActive: category.isActive
               })
             }
-          }
-        })
-        
-        // Convert map to array and sort alphabetically
-        const categoriesArray = Array.from(categoryMap.values()).sort((a, b) => 
-          a.name.localeCompare(b.name)
-        )
-        
-        setCategories(categoriesArray)
+          })
+        }
+      } catch (error) {
+        console.log('Categories API not available or empty, will extract from products/services')
       }
+      
+      // Also extract categories from existing products and services for backward compatibility
+      if (type === 'product' || type === 'both') {
+        try {
+          const response = await ProductsAPI.getAll({ limit: 10000 })
+          if (response.success && response.data) {
+            const products = Array.isArray(response.data) ? response.data : (response.data?.data || [])
+            
+            products.forEach((product: any) => {
+              if (product.category && product.category.trim()) {
+                const categoryName = product.category.trim()
+                if (!uniqueCategories.has(categoryName)) {
+                  uniqueCategories.add(categoryName)
+                  categoryMap.set(categoryName, {
+                    name: categoryName,
+                    _id: categoryName,
+                    isActive: true
+                  })
+                }
+              }
+            })
+          }
+        } catch (error) {
+          console.log('Error fetching products for categories:', error)
+        }
+      }
+      
+      if (type === 'service' || type === 'both') {
+        try {
+          const response = await ServicesAPI.getAll({ limit: 10000 })
+          if (response.success && response.data) {
+            const services = Array.isArray(response.data) ? response.data : (response.data?.data || [])
+            
+            services.forEach((service: any) => {
+              if (service.category && service.category.trim()) {
+                const categoryName = service.category.trim()
+                if (!uniqueCategories.has(categoryName)) {
+                  uniqueCategories.add(categoryName)
+                  categoryMap.set(categoryName, {
+                    name: categoryName,
+                    _id: categoryName,
+                    isActive: true
+                  })
+                }
+              }
+            })
+          }
+        } catch (error) {
+          console.log('Error fetching services for categories:', error)
+        }
+      }
+      
+      // Convert map to array and sort alphabetically
+      const categoriesArray = Array.from(categoryMap.values()).sort((a, b) => 
+        a.name.localeCompare(b.name)
+      )
+      
+      setCategories(categoriesArray)
     } catch (error) {
-      console.error('Error loading categories from products:', error)
+      console.error('Error loading categories:', error)
       toast({
         title: "Error",
-        description: "Failed to load categories from products",
+        description: "Failed to load categories",
         variant: "destructive",
       })
     } finally {
@@ -121,39 +176,38 @@ export function CategoryCombobox({ value, onChange, disabled, type = 'both' }: C
 
     try {
       setAddingCategory(true)
-      // Since categories are fetched from products, we just need to select the new category
-      // The category will be created when a product with this category is saved
-      const newCategory: Category = {
+      
+      // Create the category using the API
+      const response = await CategoriesAPI.create({
         name: newCategoryName.trim(),
-        _id: newCategoryName.trim(),
-        isActive: true
+        type: type === 'both' ? 'both' : type, // Use the specified type or 'both'
+        description: ''
+      })
+      
+      if (response.success && response.data) {
+        // Reload categories to get the updated list
+        await loadCategories()
+        
+        // Select the new category
+        onChange(response.data.name)
+        
+        toast({
+          title: "Success",
+          description: "Category created successfully",
+        })
+        
+        // Close dialog and reset
+        setShowAddDialog(false)
+        setNewCategoryName("")
+        setOpen(false)
+      } else {
+        throw new Error(response.error || 'Failed to create category')
       }
-      
-      // Add to local state
-      setCategories(prev => {
-        const updated = [...prev, newCategory].sort((a, b) => 
-          a.name.localeCompare(b.name)
-        )
-        return updated
-      })
-      
-      // Select the new category
-      onChange(newCategoryName.trim())
-      
-      toast({
-        title: "Success",
-        description: "Category will be saved when you create a product with this category",
-      })
-      
-      // Close dialog and reset
-      setShowAddDialog(false)
-      setNewCategoryName("")
-      setOpen(false)
     } catch (error: any) {
       console.error('Error adding category:', error)
       toast({
         title: "Error",
-        description: "Failed to add category",
+        description: error.message || "Failed to add category",
         variant: "destructive",
       })
     } finally {
@@ -256,6 +310,13 @@ export function CategoryCombobox({ value, onChange, disabled, type = 'both' }: C
                   </CommandItem>
                 </CommandGroup>
               )}
+              <CommandSeparator />
+              <div className="p-2 text-center">
+                <p className="text-xs text-muted-foreground">
+                  <Settings className="inline h-3 w-3 mr-1" />
+                  Go to <strong>Categories</strong> tab to edit/delete
+                </p>
+              </div>
             </CommandList>
           </Command>
         </PopoverContent>
@@ -267,7 +328,7 @@ export function CategoryCombobox({ value, onChange, disabled, type = 'both' }: C
           <DialogHeader>
             <DialogTitle>Add New Category</DialogTitle>
             <DialogDescription>
-              Add a new category. It will be saved when you create a product with this category.
+              Create a new category for your {type === 'product' ? 'products' : type === 'service' ? 'services' : 'products and services'}.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">

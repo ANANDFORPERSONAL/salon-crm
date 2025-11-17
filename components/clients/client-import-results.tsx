@@ -9,6 +9,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 interface ImportResult {
   success: boolean
   imported: number
+  created?: number
+  updated?: number
   errors: number
   skipped: number
   errorDetails: { row: number; field: string; message: string }[]
@@ -25,12 +27,22 @@ export function ClientImportResults({ result, onClose, onImportMore }: { result:
       {result.success && !hasErrors && !hasSkipped ? (
         <Alert className="border-green-500 bg-green-50">
           <CheckCircle className="h-4 w-4 text-green-600" />
-          <AlertDescription className="text-green-800">Successfully imported all {result.imported} clients!</AlertDescription>
+          <AlertDescription className="text-green-800">
+            Successfully processed all {result.imported} clients!
+            {result.created !== undefined && result.updated !== undefined && (
+              <span className="block mt-1 text-sm">({result.created} created, {result.updated} updated)</span>
+            )}
+          </AlertDescription>
         </Alert>
       ) : result.success ? (
         <Alert className="border-yellow-500 bg-yellow-50">
           <AlertCircle className="h-4 w-4 text-yellow-600" />
-          <AlertDescription className="text-yellow-800">Imported {result.imported} clients. {result.errors} failed, {result.skipped} skipped.</AlertDescription>
+          <AlertDescription className="text-yellow-800">
+            Processed {result.imported} clients. {result.errors} failed, {result.skipped} skipped.
+            {result.created !== undefined && result.updated !== undefined && (
+              <span className="block mt-1 text-sm">({result.created} created, {result.updated} updated)</span>
+            )}
+          </AlertDescription>
         </Alert>
       ) : (
         <Alert variant="destructive">
@@ -39,9 +51,15 @@ export function ClientImportResults({ result, onClose, onImportMore }: { result:
         </Alert>
       )}
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className={`grid grid-cols-2 ${result.created !== undefined ? 'md:grid-cols-5' : 'md:grid-cols-4'} gap-4`}>
         <Card><CardContent className="p-4"><div className="text-2xl font-bold text-gray-900">{totalProcessed}</div><p className="text-sm text-gray-600">Total Processed</p></CardContent></Card>
         <Card><CardContent className="p-4"><div className="text-2xl font-bold text-green-600">{result.imported}</div><p className="text-sm text-gray-600">Imported</p></CardContent></Card>
+        {result.created !== undefined && (
+          <Card><CardContent className="p-4"><div className="text-2xl font-bold text-blue-600">{result.created}</div><p className="text-sm text-gray-600">Created</p></CardContent></Card>
+        )}
+        {result.updated !== undefined && (
+          <Card><CardContent className="p-4"><div className="text-2xl font-bold text-purple-600">{result.updated}</div><p className="text-sm text-gray-600">Updated</p></CardContent></Card>
+        )}
         <Card><CardContent className="p-4"><div className="text-2xl font-bold text-red-600">{result.errors}</div><p className="text-sm text-gray-600">Errors</p></CardContent></Card>
         <Card><CardContent className="p-4"><div className="text-2xl font-bold text-yellow-600">{result.skipped}</div><p className="text-sm text-gray-600">Skipped</p></CardContent></Card>
       </div>

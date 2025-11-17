@@ -1,9 +1,11 @@
 "use client"
 
 import { useState } from "react"
-import { Package, Sparkles, TrendingUp, BarChart3 } from "lucide-react"
+import { Package, Sparkles, TrendingUp, BarChart3, FolderTree } from "lucide-react"
 import { ProductsTable } from "@/components/products/products-table"
 import { ProductStatsCards } from "@/components/dashboard/stats-cards"
+import { CategoryManagement } from "@/components/categories/category-management"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ProtectedLayout } from "@/components/layout/protected-layout"
 import { ProtectedRoute } from "@/components/auth/protected-route"
 
@@ -57,33 +59,59 @@ export default function ProductsPage() {
             </div>
           </div>
 
-          {/* Stats Cards Section */}
-          <div className="mb-6 animate-in slide-in-from-bottom-2" style={{ animationDelay: '400ms' }}>
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-1 h-6 bg-gradient-to-b from-emerald-500 to-teal-600 rounded-full"></div>
-              <h2 className="text-lg font-semibold text-gray-800">Inventory Analytics</h2>
-            </div>
-            <ProductStatsCards 
-              productTypeFilter={productTypeFilter} 
-              onLowStockClick={() => setLowStockFilter(!lowStockFilter)}
-              lowStockFilterActive={lowStockFilter}
-            />
-          </div>
+          {/* Tabs for Products and Categories */}
+          <Tabs defaultValue="products" className="w-full">
+            <TabsList className="mb-6 bg-white shadow-sm">
+              <TabsTrigger value="products" className="gap-2">
+                <Package className="h-4 w-4" />
+                Products
+              </TabsTrigger>
+              <TabsTrigger value="categories" className="gap-2">
+                <FolderTree className="h-4 w-4" />
+                Categories
+              </TabsTrigger>
+            </TabsList>
 
-          {/* Products Table Section */}
-          <div className="animate-in slide-in-from-bottom-2" style={{ animationDelay: '600ms' }}>
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-1 h-6 bg-gradient-to-b from-orange-500 to-red-600 rounded-full"></div>
-              <h2 className="text-lg font-semibold text-gray-800">Product Directory</h2>
-            </div>
-            <div className="bg-white/80 backdrop-blur-sm rounded-xl border border-gray-200/50 shadow-lg overflow-hidden">
-              <ProductsTable 
-                productTypeFilter={productTypeFilter} 
-                onProductTypeFilterChange={setProductTypeFilter}
-                lowStockFilter={lowStockFilter}
-              />
-            </div>
-          </div>
+            <TabsContent value="products" className="space-y-6">
+              {/* Stats Cards Section */}
+              <div className="animate-in slide-in-from-bottom-2" style={{ animationDelay: '400ms' }}>
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="w-1 h-6 bg-gradient-to-b from-emerald-500 to-teal-600 rounded-full"></div>
+                  <h2 className="text-lg font-semibold text-gray-800">Inventory Analytics</h2>
+                </div>
+                <ProductStatsCards 
+                  productTypeFilter={productTypeFilter} 
+                  onLowStockClick={() => setLowStockFilter(!lowStockFilter)}
+                  lowStockFilterActive={lowStockFilter}
+                />
+              </div>
+
+              {/* Products Table Section */}
+              <div className="animate-in slide-in-from-bottom-2" style={{ animationDelay: '600ms' }}>
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="w-1 h-6 bg-gradient-to-b from-orange-500 to-red-600 rounded-full"></div>
+                  <h2 className="text-lg font-semibold text-gray-800">Product Directory</h2>
+                </div>
+                <div className="bg-white/80 backdrop-blur-sm rounded-xl border border-gray-200/50 shadow-lg overflow-hidden">
+                  <ProductsTable 
+                    productTypeFilter={productTypeFilter} 
+                    onProductTypeFilterChange={setProductTypeFilter}
+                    lowStockFilter={lowStockFilter}
+                  />
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="categories">
+              <div className="bg-white rounded-xl border border-gray-200 shadow-lg p-6">
+                <CategoryManagement 
+                  type="product"
+                  title="Product Categories"
+                  description="Manage categories for your salon products"
+                />
+              </div>
+            </TabsContent>
+          </Tabs>
         </div>
       </ProtectedLayout>
     </ProtectedRoute>

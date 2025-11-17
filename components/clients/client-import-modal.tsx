@@ -18,6 +18,8 @@ interface ImportData { headers: string[]; rows: any[][]; totalRows: number }
 interface ImportResult {
   success: boolean
   imported: number
+  created?: number
+  updated?: number
   errors: number
   skipped: number
   errorDetails: { row: number; field: string; message: string }[]
@@ -30,7 +32,7 @@ export function ClientImportModal({ isOpen, onClose, onImportComplete }: { isOpe
   const [columnMapping, setColumnMapping] = useState<Record<string, string>>({})
   const [importResult, setImportResult] = useState<ImportResult | null>(null)
   const [isProcessing, setIsProcessing] = useState(false)
-  const [updateExisting, setUpdateExisting] = useState(true)
+  const [updateExisting, setUpdateExisting] = useState(false)  // Default to false to skip duplicates
   const { toast } = useToast()
 
   const handleFileUpload = useCallback((file: File) => {
@@ -94,6 +96,8 @@ export function ClientImportModal({ isOpen, onClose, onImportComplete }: { isOpe
       const mapped: ImportResult = {
         success: true,
         imported: result.data.successful,
+        created: result.data.created,
+        updated: result.data.updated,
         errors: result.data.errors,
         skipped: result.data.skipped,
         errorDetails: result.data.results.errors.map((e: any) => ({ row: e.row, field: '', message: e.error })),
@@ -102,7 +106,13 @@ export function ClientImportModal({ isOpen, onClose, onImportComplete }: { isOpe
       setImportResult(mapped)
       setCurrentStep('results')
       window.dispatchEvent(new Event('client-added'))
-      toast({ title: 'Import Completed', description: `Imported ${mapped.imported}. ${mapped.errors} errors, ${mapped.skipped} skipped.` })
+      const createdText = mapped.created !== undefined ? `${mapped.created} created` : ''
+      const updatedText = mapped.updated !== undefined ? `${mapped.updated} updated` : ''
+      const breakdown = [createdText, updatedText].filter(Boolean).join(', ')
+      toast({ 
+        title: 'Import Completed', 
+        description: `Processed ${mapped.imported} rows${breakdown ? ` (${breakdown})` : ''}. ${mapped.errors} errors, ${mapped.skipped} skipped.` 
+      })
     } catch (err: any) {
       toast({ title: 'Import Failed', description: err.message || 'Unknown error', variant: 'destructive' })
       setCurrentStep('mapping')
@@ -172,7 +182,7 @@ export function ClientImportModal({ isOpen, onClose, onImportComplete }: { isOpe
                       onChange={(e) => setUpdateExisting(e.target.checked)}
                       disabled={isProcessing}
                     />
-                    <span>Update existing clients (match by phone). Only mapped fields will be updated.</span>
+                    <span>Update existing clients if phone number matches (default: skip duplicates)</span>
                   </label>
                 </div>
               </div>

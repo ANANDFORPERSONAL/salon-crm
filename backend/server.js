@@ -1668,6 +1668,34 @@ app.post('/api/clients/import', authenticateToken, setupBusinessDatabase, requir
     }
 
     console.log(`📊 Processing ${clients.length} clients for import`);
+    console.log(`⚙️  Update existing clients: ${updateExisting ? 'YES' : 'NO'}`);
+    
+    // Count existing clients in database for reference
+    const existingCount = await Client.countDocuments({});
+    console.log(`📋 Current clients in database: ${existingCount}`);
+    
+    // Build a phone number lookup map for efficient duplicate detection
+    // This avoids querying the database for every row
+    const phoneLookupMap = new Map(); // last10 -> client _id
+    if (existingCount > 0) {
+      console.log(`🔍 Building phone number lookup map...`);
+      const allClients = await Client.find({ 
+        phone: { $exists: true, $ne: null, $ne: '' } 
+      }).select('phone _id').lean();
+      
+      for (const client of allClients) {
+        const clientPhone = String(client.phone || '').replace(/\D/g, ''); // Remove all non-digits
+        const clientLast10 = clientPhone.slice(-10);
+        if (clientLast10.length === 10) {
+          // Store both the normalized phone and last10 for lookup
+          phoneLookupMap.set(clientPhone, client._id);
+          phoneLookupMap.set(clientLast10, client._id);
+          // Also store with original phone format for exact match
+          phoneLookupMap.set(String(client.phone), client._id);
+        }
+      }
+      console.log(`✅ Built lookup map with ${phoneLookupMap.size} phone number entries`);
+    }
 
     // Robust Excel date parser: supports numbers (Excel serial), and common string formats
     const parseExcelDate = (input) => {
@@ -1706,8 +1734,13 @@ app.post('/api/clients/import', authenticateToken, setupBusinessDatabase, requir
     const results = {
       success: [],
       errors: [],
-      skipped: []
+      skipped: [],
+      created: 0,  // Track actual new clients created
+      updated: 0   // Track existing clients updated
     };
+
+    // Track phone numbers seen in this import batch to detect duplicates within the file
+    const seenPhonesInBatch = new Map(); // phone -> first row number where it appeared
 
     // Process each client
     for (let i = 0; i < clients.length; i++) {
@@ -1747,11 +1780,46 @@ app.post('/api/clients/import', authenticateToken, setupBusinessDatabase, requir
           continue;
         }
 
-        // Check if client already exists (by phone number). Try exact and last 10 digits match
-        const last10 = normalizedPhone.slice(-10)
-        let existingClient = await Client.findOne({ phone: normalizedPhone })
+        // Check for duplicate phone number within this import batch
+        const last10 = normalizedPhone.slice(-10);
+        if (seenPhonesInBatch.has(last10)) {
+          const firstRow = seenPhonesInBatch.get(last10);
+          results.skipped.push({
+            row: rowNumber,
+            reason: `Duplicate phone number in import file (first seen at row ${firstRow})`,
+            data: mappedData
+          });
+          continue;
+        }
+        seenPhonesInBatch.set(last10, rowNumber);
+
+        // Check if client already exists using the pre-built lookup map
+        // This is much more efficient than querying the database for each row
+        let existingClientId = null;
+        
+        // Try multiple lookup strategies using the map
+        if (phoneLookupMap.has(normalizedPhone)) {
+          existingClientId = phoneLookupMap.get(normalizedPhone);
+        } else if (last10 && phoneLookupMap.has(last10)) {
+          existingClientId = phoneLookupMap.get(last10);
+        }
+        
+        // If found in map, fetch the full client document
+        let existingClient = null;
+        if (existingClientId) {
+          existingClient = await Client.findById(existingClientId);
+        }
+        
+        // Fallback: If not found in map, try database queries (for edge cases)
+        // This handles cases where phone format changed or wasn't in the initial fetch
         if (!existingClient && last10) {
+          // Try regex match as fallback
           existingClient = await Client.findOne({ phone: { $regex: new RegExp(`${last10}$`) } })
+        }
+        
+        // Log for debugging (only log first few to avoid spam)
+        if (existingClient && (results.success.length + results.skipped.length) < 5) {
+          console.log(`📞 Found existing client for phone ${normalizedPhone} (last10: ${last10}): ${existingClient.name} (ID: ${existingClient._id})`)
         }
 
         if (existingClient) {
@@ -1787,6 +1855,7 @@ app.post('/api/clients/import', authenticateToken, setupBusinessDatabase, requir
 
             const updated = await Client.findByIdAndUpdate(existingClient._id, updateDoc, { new: true });
             results.success.push({ row: rowNumber, data: { id: updated._id, name: updated.name, phone: updated.phone }, updated: true });
+            results.updated++;
             continue;
           } else {
             results.skipped.push({
@@ -1837,8 +1906,10 @@ app.post('/api/clients/import', authenticateToken, setupBusinessDatabase, requir
             id: savedClient._id,
             name: savedClient.name,
             phone: savedClient.phone
-          }
+          },
+          updated: false
         });
+        results.created++;
 
       } catch (error) {
         console.error(`Error processing client row ${rowNumber}:`, error);
@@ -1850,13 +1921,19 @@ app.post('/api/clients/import', authenticateToken, setupBusinessDatabase, requir
       }
     }
 
-    console.log(`📊 Import completed: ${results.success.length} success, ${results.errors.length} errors, ${results.skipped.length} skipped`);
+    console.log(`📊 Import completed:`);
+    console.log(`   ✅ Success: ${results.success.length} (${results.created} created, ${results.updated} updated)`);
+    console.log(`   ❌ Errors: ${results.errors.length}`);
+    console.log(`   ⏭️  Skipped: ${results.skipped.length}`);
+    console.log(`   📋 Final database count: ${await Client.countDocuments({})}`);
 
     res.json({
       success: true,
       data: {
         totalProcessed: clients.length,
         successful: results.success.length,
+        created: results.created,
+        updated: results.updated,
         errors: results.errors.length,
         skipped: results.skipped.length,
         results: {

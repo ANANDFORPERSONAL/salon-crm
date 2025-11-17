@@ -51,9 +51,24 @@ class ClientStore {
         const batch = resp.data || []
         const normalized = batch.map((c: any) => ({ ...c, birthdate: c.birthdate || c.dob || undefined }))
         all = all.concat(normalized)
-        total = resp.pagination?.total ?? all.length
+        
+        // Get total from API response - don't update if we already have a valid total
+        const apiTotal = resp.pagination?.total
+        if (apiTotal !== undefined && apiTotal !== null) {
+          total = apiTotal
+        } else if (total === Infinity) {
+          // If API doesn't provide total and we haven't set it yet, use current length as fallback
+          total = all.length
+        }
+        
         console.log(`📥 ClientStore: fetched page ${page}, ${batch.length} items (total so far ${all.length}/${total})`)
-        if (!batch.length) break
+        console.log(`   API pagination:`, resp.pagination)
+        
+        // Stop if no more data or if we've fetched all available
+        if (!batch.length || (apiTotal !== undefined && all.length >= apiTotal)) {
+          console.log(`✅ ClientStore: Finished fetching. Total clients: ${all.length}`)
+          break
+        }
         page += 1
       }
 
