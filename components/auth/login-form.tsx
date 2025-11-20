@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
-import { Eye, EyeOff, Scissors } from "lucide-react"
+import { Eye, EyeOff, MessageCircle, Shield } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
@@ -124,29 +124,31 @@ export function LoginForm() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div className="text-center">
-          <div className="flex justify-center">
-            <div className="flex items-center gap-2">
-              <Scissors className="h-8 w-8 text-primary" />
-              <span className="text-2xl font-bold">Ease My Salon</span>
-            </div>
-          </div>
-          <h2 className="mt-6 text-3xl font-extrabold text-gray-900">Sign in to your account</h2>
-          <p className="mt-2 text-sm text-gray-600">Enter your credentials to access the salon management system</p>
+    <Card className="w-full border border-slate-100 bg-white/90 shadow-xl">
+      <CardHeader className="space-y-3 text-center">
+        <div className="mx-auto w-fit rounded-2xl bg-gradient-to-r from-purple-50 to-indigo-50 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-[#7C3AED]">
+          Secure login portal
         </div>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Login</CardTitle>
-            <CardDescription>Enter your credentials to access the salon management system</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="admin">Admin</TabsTrigger>
-                <TabsTrigger value="staff">Staff</TabsTrigger>
+        <CardTitle className="text-3xl text-slate-900">Access your Ease My Salon HQ</CardTitle>
+        <CardDescription className="text-base">
+          Choose your role and enter your credentials to continue
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full space-y-4">
+          <TabsList className="grid w-full grid-cols-2 rounded-full bg-slate-100 p-1">
+            <TabsTrigger
+              value="admin"
+              className="rounded-full text-sm font-semibold data-[state=active]:bg-white data-[state=active]:text-slate-900"
+            >
+              Admin
+            </TabsTrigger>
+            <TabsTrigger
+              value="staff"
+              className="rounded-full text-sm font-semibold data-[state=active]:bg-white data-[state=active]:text-slate-900"
+            >
+              Staff
+            </TabsTrigger>
               </TabsList>
               
               <TabsContent value="admin" className="space-y-6">
@@ -199,7 +201,11 @@ export function LoginForm() {
                       )}
                     />
 
-                    <Button type="submit" className="w-full" disabled={isSubmitting}>
+                    <Button
+                      type="submit"
+                      className="w-full bg-gradient-to-r from-[#7C3AED] to-[#8B5CF6] text-white shadow-lg shadow-purple-200 hover:from-[#6D28D9] hover:to-[#7C3AED]"
+                      disabled={isSubmitting}
+                    >
                       {isSubmitting ? "Signing in..." : "Sign in as Admin"}
                     </Button>
                   </form>
@@ -273,7 +279,11 @@ export function LoginForm() {
                       )}
                     />
 
-                    <Button type="submit" className="w-full" disabled={isSubmitting}>
+                    <Button
+                      type="submit"
+                      className="w-full bg-slate-900 text-white shadow-md hover:bg-slate-800"
+                      disabled={isSubmitting}
+                    >
                       {isSubmitting ? "Signing in..." : "Sign in as Staff"}
                     </Button>
                   </form>
@@ -285,15 +295,27 @@ export function LoginForm() {
               <Button
                 variant="link"
                 onClick={() => router.push("/forgot-password")}
-                className="text-sm text-gray-600 hover:text-gray-800"
+            className="text-sm text-[#7C3AED] hover:text-[#6D28D9]"
               >
                 Forgot your password?
               </Button>
             </div>
-
+        <div className="flex flex-col gap-3 rounded-2xl border border-slate-100 bg-slate-50/60 px-4 py-3 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-2 font-medium text-slate-700">
+            <Shield className="h-4 w-4 text-emerald-500" />
+            256-bit encryption + DPDP compliant
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-[#7C3AED] hover:bg-transparent hover:text-[#6D28D9]"
+            onClick={() => router.push("/contact")}
+          >
+            Need help? Chat with concierge
+            <MessageCircle className="ml-2 h-4 w-4" />
+          </Button>
+        </div>
           </CardContent>
         </Card>
-      </div>
-    </div>
   )
 }
