@@ -35,15 +35,25 @@ export function ConsentManagement() {
 
   useEffect(() => {
     const fetchConsent = async () => {
-      if (!user?._id) return
+      if (!user?._id) {
+        setIsLoading(false)
+        return
+      }
 
       try {
         const response = await GDPRAPI.getConsentStatus(user._id)
-        if (response.success && response.data?.consent) {
-          setPreferences(response.data.consent)
+        if (response.success) {
+          if (response.data?.consent) {
+            setPreferences(response.data.consent)
+          }
+          // If no consent exists yet, keep default preferences (this is normal for new users)
         }
-      } catch (error) {
-        console.error("Error fetching consent:", error)
+      } catch (error: any) {
+        // Only log if it's not a 404 (which means consent doesn't exist yet - this is normal)
+        if (error?.response?.status !== 404) {
+          console.error("Error fetching consent:", error)
+        }
+        // Keep default preferences if consent doesn't exist yet
       } finally {
         setIsLoading(false)
       }

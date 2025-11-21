@@ -1,18 +1,18 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { Check, Plus, Trash2, Search, User, Phone, Mail, X, CalendarDays, FileText, TrendingUp, Loader2, Calendar as CalendarIcon } from "lucide-react"
-import { format } from "date-fns"
+import { format, isBefore, startOfDay } from "date-fns"
+import { DayPicker } from "react-day-picker"
 
 import { Button } from "@/components/ui/button"
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -110,9 +110,17 @@ export function AppointmentForm() {
     email: "",
   })
 
+  // Date picker popover state
+  const [datePickerOpen, setDatePickerOpen] = useState(false)
+  
+  // Today's date for date picker (calculated once)
+  const today = useMemo(() => startOfDay(new Date()), [])
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      date: undefined,
+      time: "",
       notes: "",
     },
   })
@@ -209,13 +217,8 @@ export function AppointmentForm() {
       (client.email && client.email.toLowerCase().includes(customerSearch.toLowerCase())),
   )
 
-  console.log('Filtered customers:', filteredCustomers)
-  console.log('Customer search:', customerSearch)
-  console.log('All clients:', clients)
-
   // Handle customer selection
   const handleCustomerSelect = (customer: Client) => {
-    console.log('Customer selected:', customer)
     setSelectedCustomer(customer)
     setCustomerSearch(customer.name)
     setShowCustomerDropdown(false)
@@ -249,7 +252,6 @@ export function AppointmentForm() {
 
   // Handle creating new customer
   const handleCreateNewCustomer = () => {
-    console.log('Creating new customer for:', customerSearch)
     setNewClient({
       firstName: "",
       lastName: "",
@@ -572,7 +574,6 @@ export function AppointmentForm() {
                           onClick={(e) => {
                             e.preventDefault()
                             e.stopPropagation()
-                            console.log('Customer clicked:', customer)
                             handleCustomerSelect(customer)
                           }}
                         >
@@ -596,7 +597,6 @@ export function AppointmentForm() {
                         onClick={(e) => {
                           e.preventDefault()
                           e.stopPropagation()
-                          console.log('Create new customer clicked')
                           handleCreateNewCustomer()
                         }}
                       >
@@ -656,95 +656,76 @@ export function AppointmentForm() {
                 <p className="text-sm text-slate-500">Select the date and time for the appointment</p>
               </div>
               <div className="grid gap-6 md:grid-cols-2 pb-8">
-              <FormField
+                <FormField
                 control={form.control}
                 name="date"
-                render={({ field }) => (
-                  <FormItem className="flex flex-col space-y-2">
-                    <FormLabel className="text-sm font-semibold text-slate-700">Date *</FormLabel>
-                    <FormControl>
-                      <Popover>
+                render={({ field }) => {
+                  return (
+                    <FormItem className="flex flex-col space-y-2">
+                      <FormLabel className="text-sm font-semibold text-slate-700">Date *</FormLabel>
+                      <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
                         <PopoverTrigger asChild>
-                          <Button
-                            variant="outline"
-                            className={cn(
-                              "w-full h-12 px-4 justify-start text-left font-normal border-slate-200 hover:border-slate-400 hover:bg-slate-50 focus:border-slate-500 focus:ring-slate-500 rounded-xl font-medium text-slate-700 bg-white shadow-sm transition-all duration-200",
-                              !field.value && "text-slate-400"
-                            )}
-                          >
-                            <CalendarIcon className="mr-3 h-4 w-4 text-slate-500" />
-                            {field.value ? (
-                              <span className="font-medium">{format(field.value, "PPP")}</span>
-                            ) : (
-                              <span>Pick a date</span>
-                            )}
-                          </Button>
+                          <FormControl>
+                            <Button
+                              variant="outline"
+                              type="button"
+                              className={cn(
+                                "h-12 w-full justify-start px-4 border-slate-200 hover:border-slate-400 focus-visible:ring-indigo-500 rounded-xl font-medium text-slate-700 bg-white shadow-sm transition-all duration-200",
+                                !field.value && "text-slate-500"
+                              )}
+                            >
+                              {field.value ? format(field.value, "PPP") : "Select a date"}
+                              <CalendarIcon className="ml-auto h-4 w-4 opacity-60" />
+                            </Button>
+                          </FormControl>
                         </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0 z-50" align="start">
-                          <div className="p-4 bg-white rounded-xl shadow-xl border border-slate-200">
-                            <style dangerouslySetInnerHTML={{
-                              __html: `
-                                .rdp {
-                                  margin: 0;
-                                }
-                                .rdp-day {
-                                  width: 2rem;
-                                  height: 2rem;
-                                  border-radius: 0.375rem;
-                                  transition: all 0.2s ease;
-                                  cursor: pointer;
-                                  color: #374151;
-                                  display: flex;
-                                  align-items: center;
-                                  justify-content: center;
-                                }
-                                .rdp-day_selected {
-                                  background-color: #2563eb !important;
-                                  color: white !important;
-                                  font-weight: bold !important;
-                                  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
-                                  border: 2px solid #1d4ed8 !important;
-                                }
-                                .rdp-day_today {
-                                  background-color: #f1f5f9 !important;
-                                  color: #1e293b !important;
-                                  font-weight: 600 !important;
-                                }
-                                .rdp-day:hover {
-                                  background-color: #f1f5f9 !important;
-                                  color: #1e293b !important;
-                                  font-weight: 500 !important;
-                                }
-                                .rdp-head_cell {
-                                  color: #6b7280 !important;
-                                }
-                                .rdp-caption_label {
-                                  color: #1f2937 !important;
-                                }
-                                .rdp-nav_button {
-                                  color: #6b7280 !important;
-                                }
-                              `
-                            }} />
-                            <Calendar
+                        <PopoverContent align="start" className="w-auto p-0 border border-slate-200 shadow-lg">
+                          <div className="bg-white rounded-lg overflow-hidden">
+                            <div className="px-4 py-3 border-b border-slate-100 bg-slate-50">
+                              <p className="text-sm font-medium text-slate-700">Select appointment date</p>
+                            </div>
+                            <DayPicker
                               mode="single"
                               selected={field.value}
-                              onSelect={field.onChange}
-                              disabled={(date: Date) =>
-                                date < new Date(new Date().setHours(0, 0, 0, 0))
-                              }
-                              initialFocus
+                              onSelect={(date) => {
+                                field.onChange(date)
+                                if (date) {
+                                  setDatePickerOpen(false)
+                                }
+                              }}
+                              disabled={{ before: today }}
+                              className="p-4"
+                              classNames={{
+                                months: "flex",
+                                month: "space-y-4",
+                                caption: "flex justify-center items-center mb-4 relative",
+                                caption_label: "text-sm font-semibold text-slate-900",
+                                nav: "absolute inset-x-0 flex items-center justify-between px-1",
+                                nav_button: "h-8 w-8 bg-transparent hover:bg-slate-100 rounded-md inline-flex items-center justify-center transition-colors disabled:opacity-50",
+                                nav_button_previous: "",
+                                nav_button_next: "",
+                                table: "w-full border-collapse",
+                                head_row: "flex mb-2",
+                                head_cell: "text-slate-500 font-medium text-xs uppercase w-10 text-center",
+                                row: "flex w-full mt-1",
+                                cell: "relative p-0.5 text-center text-sm",
+                                day: "h-9 w-9 rounded-md font-normal text-sm",
+                                day_button: "h-9 w-9 rounded-md font-normal hover:bg-slate-100 transition-colors",
+                                day_selected: "bg-slate-900 text-white hover:bg-slate-800 font-medium",
+                                day_today: "font-semibold text-slate-900 border border-slate-300",
+                                day_outside: "text-slate-300",
+                                day_disabled: "text-slate-200 line-through cursor-not-allowed hover:bg-transparent",
+                              }}
                             />
                           </div>
                         </PopoverContent>
                       </Popover>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
+                      <FormMessage />
+                    </FormItem>
+                  )
+                }}
+                />
+                <FormField
                 control={form.control}
                 name="time"
                 render={({ field }) => (
@@ -767,7 +748,7 @@ export function AppointmentForm() {
                     <FormMessage />
                   </FormItem>
                 )}
-              />
+                />
               </div>
             </div>
 

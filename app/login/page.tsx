@@ -89,7 +89,7 @@ export default function LoginPage() {
                 size="lg"
                 className="border-2 border-white/60 bg-white/10 text-white hover:bg-white/20 px-8 py-6 h-auto text-lg font-semibold backdrop-blur"
               >
-                <Link href="/contact">Need help? Contact sales</Link>
+                <Link href="/contact">Need help? Contact Support</Link>
               </Button>
             </div>
           </div>

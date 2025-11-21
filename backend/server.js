@@ -3464,6 +3464,32 @@ app.get('/api/staff', authenticateToken, setupBusinessDatabase, requireManager, 
   }
 });
 
+// Get single staff member by ID
+app.get('/api/staff/:id', authenticateToken, setupBusinessDatabase, async (req, res) => {
+  try {
+    const { Staff } = req.businessModels;
+    const staff = await Staff.findById(req.params.id).select('-password');
+    
+    if (!staff) {
+      return res.status(404).json({
+        success: false,
+        error: 'Staff member not found'
+      });
+    }
+
+    res.json({
+      success: true,
+      data: staff
+    });
+  } catch (error) {
+    console.error('Error fetching staff member:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error'
+    });
+  }
+});
+
 // Staff Directory (includes business owner + staff members)
 app.get('/api/staff-directory', authenticateToken, setupBusinessDatabase, async (req, res) => {
   try {
@@ -3619,17 +3645,10 @@ app.post('/api/staff', authenticateToken, setupBusinessDatabase, requireAdmin, a
   }
 });
 
-app.put('/api/staff/:id', authenticateToken, setupBusinessDatabase, requireAdmin, async (req, res) => {
+app.put('/api/staff/:id', authenticateToken, setupBusinessDatabase, async (req, res) => {
   try {
     const { Staff } = req.businessModels;
     const { name, email, phone, role, specialties, salary, commissionProfileIds, notes, hasLoginAccess, allowAppointmentScheduling, password, isActive } = req.body;
-
-    if (!name || !email || !phone || !role) {
-      return res.status(400).json({
-        success: false,
-        error: 'Name, email, phone, and role are required'
-      });
-    }
 
     // Get existing staff to check current state
     const existingStaff = await Staff.findById(req.params.id);
@@ -3637,6 +3656,59 @@ app.put('/api/staff/:id', authenticateToken, setupBusinessDatabase, requireAdmin
       return res.status(404).json({
         success: false,
         error: 'Staff member not found'
+      });
+    }
+
+    // Check authorization: staff can only update their own profile, admins can update anyone
+    const isSelfUpdate = req.user._id?.toString() === req.params.id || req.user.id === req.params.id
+    const isAdmin = req.user.role === 'admin'
+    
+    if (!isSelfUpdate && !isAdmin) {
+      return res.status(403).json({
+        success: false,
+        error: 'Unauthorized: You can only update your own profile'
+      });
+    }
+
+    // For self-updates, only allow updating name, email, phone (not role, salary, etc.)
+    if (isSelfUpdate && !isAdmin) {
+      if (!name || !email || !phone) {
+        return res.status(400).json({
+          success: false,
+          error: 'Name, email, and phone are required'
+        });
+      }
+      
+      // Only update allowed fields for self-updates
+      const updateData = {
+        name,
+        email,
+        phone
+      };
+      
+      // Add password if provided
+      if (password && password.trim() !== '') {
+        const bcrypt = require('bcryptjs');
+        updateData.password = await bcrypt.hash(password, 10);
+      }
+
+      const updatedStaff = await Staff.findByIdAndUpdate(
+        req.params.id,
+        updateData,
+        { new: true }
+      ).select('-password');
+
+      return res.json({
+        success: true,
+        data: updatedStaff
+      });
+    }
+
+    // Admin updates - require all fields
+    if (!name || !email || !phone || !role) {
+      return res.status(400).json({
+        success: false,
+        error: 'Name, email, phone, and role are required'
       });
     }
 
@@ -5882,7 +5954,14 @@ app.delete('/api/gdpr/delete/:userId', authenticateToken, setupBusinessDatabase,
 app.get('/api/gdpr/consent/:userId', authenticateToken, setupBusinessDatabase, async (req, res) => {
   try {
     const { userId } = req.params
-    const { User } = req.businessModels
+    const { Staff } = req.businessModels
+
+    if (!Staff) {
+      return res.status(500).json({
+        success: false,
+        error: 'Staff model not available'
+      })
+    }
 
     if (req.user.role !== 'admin' && req.user._id?.toString() !== userId && req.user.id !== userId) {
       return res.status(403).json({
@@ -5891,19 +5970,20 @@ app.get('/api/gdpr/consent/:userId', authenticateToken, setupBusinessDatabase, a
       })
     }
 
-    const user = await User.findById(userId).select('consentPreferences')
+    const staff = await Staff.findById(userId).select('consentPreferences consentUpdatedAt')
     res.json({
       success: true,
       data: {
-        consent: user?.consentPreferences || null,
-        lastUpdated: user?.consentUpdatedAt || null
+        consent: staff?.consentPreferences || null,
+        lastUpdated: staff?.consentUpdatedAt || null
       }
     })
   } catch (error) {
     console.error('Error fetching consent status:', error)
     res.status(500).json({
       success: false,
-      error: 'Failed to fetch consent status'
+      error: 'Failed to fetch consent status',
+      message: error.message
     })
   }
 })
@@ -5913,7 +5993,14 @@ app.post('/api/gdpr/consent/:userId', authenticateToken, setupBusinessDatabase, 
   try {
     const { userId } = req.params
     const { consent } = req.body
-    const { User } = req.businessModels
+    const { Staff } = req.businessModels
+
+    if (!Staff) {
+      return res.status(500).json({
+        success: false,
+        error: 'Staff model not available'
+      })
+    }
 
     if (req.user.role !== 'admin' && req.user._id?.toString() !== userId && req.user.id !== userId) {
       return res.status(403).json({
@@ -5922,7 +6009,7 @@ app.post('/api/gdpr/consent/:userId', authenticateToken, setupBusinessDatabase, 
       })
     }
 
-    await User.findByIdAndUpdate(userId, {
+    await Staff.findByIdAndUpdate(userId, {
       consentPreferences: consent,
       consentUpdatedAt: new Date()
     })

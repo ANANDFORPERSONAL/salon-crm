@@ -15,7 +15,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "@/components/ui/use-toast"
 import { useAuth } from "@/lib/auth-context"
-import { UsersAPI, GDPRAPI } from "@/lib/api"
+import { StaffAPI, GDPRAPI } from "@/lib/api"
 import { ConsentManagement } from "@/components/gdpr/consent-management"
 import {
   AlertDialog,
@@ -116,23 +116,22 @@ export function ProfilePage() {
       
       try {
         setIsLoading(true)
-        const response = await UsersAPI.getById(user._id)
+        const response = await StaffAPI.getById(user._id)
         if (response.success && response.data) {
           const staff = response.data
           setStaffData(staff)
           
           // Update form with fetched data
+          // Staff model uses: name, email, phone (not firstName, lastName, mobile)
+          const nameParts = (staff.name || "").split(" ")
           form.reset({
-            firstName: staff.firstName || "",
-            lastName: staff.lastName || "",
+            firstName: nameParts[0] || "",
+            lastName: nameParts.slice(1).join(" ") || "",
             email: staff.email || "",
-            mobile: staff.mobile || "",
+            mobile: staff.phone || "",
           })
           
-          // Set profile photo if available
-          if (staff.avatar) {
-            setProfilePhoto(staff.avatar)
-          }
+          // Note: Staff model doesn't have avatar field, so we skip it
         }
       } catch (error) {
         console.error("Failed to fetch staff data:", error)
@@ -186,13 +185,14 @@ export function ProfilePage() {
     if (isEditMode) {
       // Cancel edit - reset form to original values
       if (staffData) {
+        const nameParts = (staffData.name || "").split(" ")
         form.reset({
-          firstName: staffData.firstName || "",
-          lastName: staffData.lastName || "",
+          firstName: nameParts[0] || "",
+          lastName: nameParts.slice(1).join(" ") || "",
           email: staffData.email || "",
-          mobile: staffData.mobile || "",
+          mobile: staffData.phone || "",
         })
-        setProfilePhoto(staffData.avatar || null)
+        setProfilePhoto(null) // Staff model doesn't have avatar field
       }
     }
   }
@@ -204,25 +204,29 @@ export function ProfilePage() {
 
     try {
       // Update staff data in database
+      // Staff model uses: name, email, phone (not firstName, lastName, mobile)
+      // Note: Staff model doesn't have avatar field, so we skip it
       const updateData = {
-        firstName: values.firstName,
-        lastName: values.lastName,
+        name: `${values.firstName} ${values.lastName}`.trim(),
         email: values.email,
-        mobile: values.mobile,
-        avatar: profilePhoto || staffData.avatar,
+        phone: values.mobile,
       }
 
-      const response = await UsersAPI.update(user._id, updateData)
+      const response = await StaffAPI.update(user._id, updateData)
       
       if (response.success) {
-        // Update local state
-        setStaffData({ ...staffData, ...updateData })
+        // Update local state (convert back to form format for consistency)
+        setStaffData({ 
+          ...staffData, 
+          name: updateData.name,
+          email: updateData.email,
+          phone: updateData.phone
+        })
         
         // Update auth context to sync with dropdown menu
         updateUser({
           name: `${values.firstName} ${values.lastName}`,
-          email: values.email,
-          avatar: profilePhoto || staffData.avatar
+          email: values.email
         })
         
         setIsEditMode(false)
@@ -331,7 +335,7 @@ export function ProfilePage() {
                   <div className="relative">
                     <Avatar className="h-20 w-20">
                       <AvatarImage 
-                        src={profilePhoto || staffData?.avatar || "/placeholder.svg"} 
+                        src={profilePhoto || "/placeholder.svg"} 
                         alt={staffData?.name || "User"} 
                       />
                       <AvatarFallback className="text-lg">

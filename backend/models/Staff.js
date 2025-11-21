@@ -54,6 +54,21 @@ const staffSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Business',
     required: true
+  },
+  consentPreferences: {
+    type: {
+      necessary: { type: Boolean, default: true },
+      analytics: { type: Boolean, default: false },
+      functional: { type: Boolean, default: false },
+      marketing: { type: Boolean, default: false },
+      dataProcessing: { type: Boolean, default: true },
+      dataSharing: { type: Boolean, default: false }
+    },
+    default: null
+  },
+  consentUpdatedAt: {
+    type: Date,
+    default: null
   }
 }, {
   timestamps: true

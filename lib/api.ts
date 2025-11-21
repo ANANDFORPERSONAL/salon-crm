@@ -103,8 +103,13 @@ apiClient.interceptors.response.use(
           console.warn(`⚠️ API 404: ${errorInfo.method} ${errorInfo.url} - ${errorInfo.message || 'Not Found'}`)
         }
       } else {
-        // For other errors, always log full details
-        console.error('❌ API Response Interceptor: Error response:', errorInfo)
+        // For other errors, only log if there's meaningful information
+        if (errorInfo && Object.keys(errorInfo).length > 0) {
+          console.error('❌ API Response Interceptor: Error response:', errorInfo)
+        } else if (error?.response?.status) {
+          // Log at least the status if errorInfo is empty
+          console.error(`❌ API Response Interceptor: Error ${error.response.status}`, error.response.statusText || 'Unknown error')
+        }
       }
     } catch (logError) {
       // If error logging itself fails, log the raw error
