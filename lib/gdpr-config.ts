@@ -65,8 +65,8 @@ export const GDPR_CONFIG = {
 
   // Contact Information
   CONTACT: {
-    DATA_PROTECTION_OFFICER: "privacy@saloncrm.com",
-    GRIEVANCE_OFFICER: "grievance@saloncrm.com", // DPDP Act requirement
+    DATA_PROTECTION_OFFICER: "privacy@easemysalon.in",
+    GRIEVANCE_OFFICER: "grievance@easemysalon.in", // DPDP Act requirement
     RESPONSE_TIME_DAYS: 30, // GDPR and DPDP Act require response within 30 days
   },
 

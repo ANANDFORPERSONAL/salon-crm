@@ -13,7 +13,7 @@ interface ClientStatsCardsProps {
 }
 
 export function ClientStatsCards({ clients, activeFilter, onFilterChange }: ClientStatsCardsProps) {
-  // Calculate date 3 months ago from current date (normalize to start of day for accurate comparison)
+  // Calculate date 3 months ago for status calculation (same as table)
   const threeMonthsAgo = useMemo(() => {
     const date = new Date()
     date.setMonth(date.getMonth() - 3)
@@ -21,7 +21,8 @@ export function ClientStatsCards({ clients, activeFilter, onFilterChange }: Clie
     return date
   }, [])
 
-  // Calculate stats (using same logic as filter)
+  // Calculate stats based on status field, but fall back to last visit calculation if status is unreliable
+  // This matches what the table shows
   const stats = useMemo(() => {
     const totalCustomers = clients.length
     
@@ -29,30 +30,25 @@ export function ClientStatsCards({ clients, activeFilter, onFilterChange }: Clie
     let inactiveCustomers = 0
 
     clients.forEach((client) => {
-      // Use only lastVisit (database value) for stats calculation to match filter logic
-      // realLastVisit is populated asynchronously and may not be available consistently
-      const lastVisit = client.lastVisit
-
-      if (!lastVisit) {
-        // No last visit means inactive
-        inactiveCustomers++
-        return
-      }
-
-      // Parse the last visit date
-      const lastVisitDate = new Date(lastVisit)
+      // Calculate active status based ONLY on last visit date (within 3 months)
+      // This matches what the table shows - ignore status field completely
+      const lastVisit = (client as any).realLastVisit ?? client.lastVisit
+      let isActive = false
       
-      // Check if date is valid
-      if (isNaN(lastVisitDate.getTime())) {
-        inactiveCustomers++
-        return
+      if (lastVisit) {
+        const lastVisitDate = new Date(lastVisit)
+        if (!isNaN(lastVisitDate.getTime())) {
+          lastVisitDate.setHours(0, 0, 0, 0)
+          // Active if last visit is within 3 months from today
+          isActive = lastVisitDate >= threeMonthsAgo
+        } else {
+          isActive = false // Invalid date = inactive
+        }
+      } else {
+        isActive = false // No last visit = inactive
       }
-
-      // Normalize to start of day for comparison (same as filter logic)
-      lastVisitDate.setHours(0, 0, 0, 0)
-
-      // Active if last visit is within 3 months
-      if (lastVisitDate >= threeMonthsAgo) {
+      
+      if (isActive) {
         activeCustomers++
       } else {
         inactiveCustomers++
@@ -84,7 +80,7 @@ export function ClientStatsCards({ clients, activeFilter, onFilterChange }: Clie
       activeBorderClass: "border-green-500",
       bgGradient: "from-green-500 to-green-600",
       hoverBg: "hover:from-green-600 hover:to-green-700",
-      description: "Last visit within 3 months",
+      description: "Active customers (last visit within 3 months)",
     },
     {
       id: "inactive" as const,
@@ -94,7 +90,7 @@ export function ClientStatsCards({ clients, activeFilter, onFilterChange }: Clie
       activeBorderClass: "border-red-500",
       bgGradient: "from-red-500 to-red-600",
       hoverBg: "hover:from-red-600 hover:to-red-700",
-      description: "Last visit more than 3 months ago",
+      description: "Inactive customers (no visit in 3+ months)",
     },
   ]
 

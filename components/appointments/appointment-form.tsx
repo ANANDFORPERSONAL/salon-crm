@@ -681,9 +681,6 @@ export function AppointmentForm() {
                         </PopoverTrigger>
                         <PopoverContent align="start" className="w-auto p-0 border border-slate-200 shadow-lg">
                           <div className="bg-white rounded-lg overflow-hidden">
-                            <div className="px-4 py-3 border-b border-slate-100 bg-slate-50">
-                              <p className="text-sm font-medium text-slate-700">Select appointment date</p>
-                            </div>
                             <DayPicker
                               mode="single"
                               selected={field.value}
@@ -697,14 +694,14 @@ export function AppointmentForm() {
                               className="p-4"
                               classNames={{
                                 months: "flex",
-                                month: "space-y-4",
-                                caption: "flex justify-center items-center mb-4 relative",
-                                caption_label: "text-sm font-semibold text-slate-900",
-                                nav: "absolute inset-x-0 flex items-center justify-between px-1",
-                                nav_button: "h-8 w-8 bg-transparent hover:bg-slate-100 rounded-md inline-flex items-center justify-center transition-colors disabled:opacity-50",
-                                nav_button_previous: "",
-                                nav_button_next: "",
-                                table: "w-full border-collapse",
+                                month: "space-y-8",
+                                caption: "flex justify-center items-center mb-16 relative h-10 pt-4",
+                                caption_label: "text-lg font-semibold text-slate-900 absolute left-1/2 -translate-x-1/2 z-10",
+                                nav: "absolute inset-x-0 flex items-center justify-between px-1 top-4",
+                                nav_button: "h-8 w-8 bg-transparent hover:bg-slate-100 rounded-md inline-flex items-center justify-center transition-colors disabled:opacity-50 z-20",
+                                nav_button_previous: "absolute left-1",
+                                nav_button_next: "absolute right-1",
+                                table: "w-full border-collapse mt-8",
                                 head_row: "flex mb-2",
                                 head_cell: "text-slate-500 font-medium text-xs uppercase w-10 text-center",
                                 row: "flex w-full mt-1",

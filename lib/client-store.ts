@@ -170,18 +170,46 @@ class ClientStore {
         this.notifyListeners()
         return true
       }
-      return false
-    } catch {
+
+      throw new Error(response.error || 'Failed to delete client.')
+    } catch (error: any) {
+      const status = error?.response?.status
+      const apiMessage = error?.response?.data?.error || 
+                        error?.response?.data?.message || 
+                        error?.message ||
+                        'Failed to delete client'
+
+      if (status) {
+        console.error('ClientStore: API error deleting client:', {
+          status,
+          message: apiMessage,
+          url: error?.config?.url,
+          fullError: error,
+        })
+        
+        // Provide user-friendly error messages based on status code
+        let userMessage = apiMessage
+        if (status === 403) {
+          userMessage = apiMessage || 'You do not have permission to delete clients. Only administrators can delete clients.'
+        } else if (status === 401) {
+          userMessage = apiMessage || 'Authentication required. Please log in again.'
+        } else if (status === 404) {
+          userMessage = apiMessage || 'Client not found.'
+        } else {
+          userMessage = apiMessage || `Request failed with status ${status}`
+        }
+        
+        throw new Error(userMessage)
+      }
+
       console.warn("API not available, using local storage fallback")
       
-      // Fallback to local storage
-      // Remove client by matching either id or _id
+      // Fallback to local storage (network/server unavailable only)
       const beforeCount = this.clients.length
       this.clients = this.clients.filter(c => c.id !== id && c._id !== id)
       const afterCount = this.clients.length
       console.log('ClientStore: Clients before deletion (fallback):', beforeCount, 'after deletion:', afterCount)
       
-      // In production, data is persisted via API only
       this.notifyListeners()
       return true
     }

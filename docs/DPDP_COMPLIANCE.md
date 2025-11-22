@@ -47,7 +47,7 @@ This document outlines the Digital Personal Data Protection Act, 2023 (DPDP Act)
 - Implementation: Grievance submission form
 - Location: `/grievance`
 - Response Time: Within 30 days (as per Section 12)
-- Contact: grievance@saloncrm.com
+- Contact: grievance@easemysalon.in
 
 ✅ **Right to Nominate Representative:**
 - Documentation: Privacy policy includes information about nomination rights
@@ -57,7 +57,7 @@ This document outlines the Digital Personal Data Protection Act, 2023 (DPDP Act)
 
 ✅ **Implemented:**
 - Grievance submission form at `/grievance`
-- Grievance Officer contact: grievance@saloncrm.com
+- Grievance Officer contact: grievance@easemysalon.in
 - Response time: 30 days (as required by DPDP Act)
 - Categories supported:
   - Right to Access Personal Data
@@ -209,11 +209,11 @@ This document outlines the Digital Personal Data Protection Act, 2023 (DPDP Act)
 ## Contact Information
 
 **Grievance Officer (DPDP Act Requirement)**
-- Email: grievance@saloncrm.com
+- Email: grievance@easemysalon.in
 - Response Time: Within 30 days (as required by Section 12)
 
 **Data Protection Officer**
-- Email: privacy@saloncrm.com
+- Email: privacy@easemysalon.in
 - Response Time: Within 30 days
 
 ## Key Differences: DPDP vs GDPR

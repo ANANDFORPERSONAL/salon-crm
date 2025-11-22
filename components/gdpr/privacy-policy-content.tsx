@@ -298,7 +298,7 @@ export function PrivacyPolicyContent() {
             <p>If you have questions about this Privacy Policy or wish to exercise your rights, please contact us:</p>
             <div className="p-4 bg-gray-50 rounded-lg">
               <p className="font-semibold">Data Protection Officer</p>
-              <p>Email: privacy@saloncrm.com</p>
+              <p>Email: privacy@easemysalon.in</p>
               <p className="mt-2 text-sm text-gray-600">
                 We will respond to your request within 30 days as required by GDPR.
               </p>
@@ -335,7 +335,7 @@ export function PrivacyPolicyContent() {
                 </p>
                 <div className="p-3 bg-white rounded-lg border">
                   <p className="font-semibold">Grievance Officer</p>
-                  <p>Email: grievance@saloncrm.com</p>
+                  <p>Email: grievance@easemysalon.in</p>
                   <p className="text-sm text-gray-600 mt-1">
                     We will respond to your grievance within 30 days as required under the DPDP Act.
                   </p>

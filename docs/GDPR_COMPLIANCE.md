@@ -210,7 +210,7 @@ This document outlines the GDPR (General Data Protection Regulation) compliance 
 ## Contact Information
 
 **Data Protection Officer (DPO)**
-- Email: privacy@saloncrm.com
+- Email: privacy@easemysalon.in
 - Response Time: Within 30 days (as required by GDPR)
 
 ## Regular Reviews

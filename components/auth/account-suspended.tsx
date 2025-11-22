@@ -49,7 +49,7 @@ export function AccountSuspended({ message, onBackToLogin }: AccountSuspendedPro
               <div className="space-y-2 text-sm text-gray-600">
                 <div className="flex items-center">
                   <Mail className="h-4 w-4 mr-2" />
-                  <span>Email: support@saloncrm.com</span>
+                  <span>Email: support@easemysalon.in</span>
                 </div>
                 <div className="flex items-center">
                   <Phone className="h-4 w-4 mr-2" />

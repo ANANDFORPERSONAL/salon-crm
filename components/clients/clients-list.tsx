@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { ClientsTable } from "@/components/clients/clients-table"
 import { ClientStatsCards } from "@/components/clients/client-stats-cards"
 import { clientStore, type Client } from "@/lib/client-store"
+import { SalesAPI } from "@/lib/api"
 import { useToast } from "@/hooks/use-toast"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import jsPDF from "jspdf"
@@ -21,6 +22,7 @@ export function ClientsListPage() {
   const [clients, setClients] = useState<Client[]>([])
   const [filteredClients, setFilteredClients] = useState<Client[]>([])
   const [statsFilter, setStatsFilter] = useState<"all" | "active" | "inactive">("all")
+  const [enrichedClientsForStats, setEnrichedClientsForStats] = useState<Client[]>([])
 
   // Subscribe to client store changes and force reload on mount
   useEffect(() => {
@@ -29,56 +31,115 @@ export function ClientsListPage() {
     
     const unsubscribe = clientStore.subscribe(() => {
       const updatedClients = clientStore.getClients()
-      console.log('ClientsListPage: Store updated, new client count:', updatedClients.length)
       setClients(updatedClients)
       setFilteredClients(updatedClients)
     })
     return unsubscribe
   }, [])
 
+  // Enrich clients with realLastVisit for stats cards (optimized for speed)
+  useEffect(() => {
+    if (clients.length === 0) return
+
+    const enrichClientsForStats = async () => {
+      // Start with clients that already have lastVisit - no need to fetch for them
+      const enriched: Client[] = clients.map(client => ({ ...client }))
+      
+      // Only enrich clients that don't have a lastVisit field
+      // This significantly reduces API calls
+      const clientsNeedingEnrichment = clients
+        .map((client, originalIndex) => ({ client, originalIndex }))
+        .filter(({ client }) => !client.lastVisit)
+      
+      if (clientsNeedingEnrichment.length === 0) {
+        // All clients already have lastVisit, use them as-is
+        setEnrichedClientsForStats(enriched)
+        return
+      }
+
+      // Show stats immediately with clients that have lastVisit
+      setEnrichedClientsForStats(enriched)
+
+      // Use higher concurrency for faster processing (but not too high to avoid overwhelming server)
+      const concurrency = 30 // Process 30 clients in parallel
+      const batches: typeof clientsNeedingEnrichment[] = []
+      
+      for (let i = 0; i < clientsNeedingEnrichment.length; i += concurrency) {
+        batches.push(clientsNeedingEnrichment.slice(i, i + concurrency))
+      }
+
+      // Process batches sequentially but clients within each batch in parallel
+      for (const batch of batches) {
+        const results = await Promise.allSettled(
+          batch.map(async ({ client, originalIndex }) => {
+            try {
+              const response = await SalesAPI.getByClient(client.name)
+              if (response.success && response.data && response.data.length > 0) {
+                const sales = response.data
+                const lastVisit = sales.sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime())[0]?.date
+                return { originalIndex, realLastVisit: lastVisit }
+              }
+              return { originalIndex, realLastVisit: undefined }
+            } catch (error) {
+              return { originalIndex, realLastVisit: undefined }
+            }
+          })
+        )
+
+        // Apply enrichment results as we go
+        results.forEach((result) => {
+          if (result.status === 'fulfilled') {
+            const { originalIndex, realLastVisit } = result.value
+            if (originalIndex !== undefined && realLastVisit) {
+              enriched[originalIndex] = { ...enriched[originalIndex], realLastVisit }
+            }
+          }
+        })
+
+        // Update stats cards incrementally as batches complete
+        setEnrichedClientsForStats([...enriched])
+      }
+    }
+
+    enrichClientsForStats()
+  }, [clients])
+
   // Stats are calculated by ClientStatsCards component from the clients array
 
-  // Calculate three months ago for filtering (normalize to start of day for accurate comparison)
+  // Calculate date 3 months ago for status calculation (same as table and stats cards)
   const threeMonthsAgo = useMemo(() => {
     const date = new Date()
     date.setMonth(date.getMonth() - 3)
-    date.setHours(0, 0, 0, 0) // Normalize to start of day
+    date.setHours(0, 0, 0, 0)
     return date
   }, [])
 
   // Filter clients based on stats filter and search query
   const displayClients = useMemo(() => {
+    const isClientActive = (client: Client) => {
+      // Calculate active status based ONLY on last visit date (within 3 months)
+      // This matches what the table shows - ignore status field completely
+      const lastVisit = (client as any).realLastVisit ?? client.lastVisit
+      
+      if (lastVisit) {
+        const lastVisitDate = new Date(lastVisit)
+        if (!isNaN(lastVisitDate.getTime())) {
+          lastVisitDate.setHours(0, 0, 0, 0)
+          // Active if last visit is within 3 months from today
+          return lastVisitDate >= threeMonthsAgo
+        }
+      }
+      
+      return false // No last visit or invalid date = inactive
+    }
+
     let filtered = clients
 
-    // Apply stats filter (all/active/inactive)
-    // Use only lastVisit (database value) for filtering, not realLastVisit (async populated)
-    // This ensures consistent filtering regardless of when realLastVisit is populated
+    // Apply stats filter (all/active/inactive) using same logic as stats cards
     if (statsFilter === "active") {
-      filtered = clients.filter((client) => {
-        const lastVisit = client.lastVisit // Use only database lastVisit for filtering
-        if (!lastVisit) return false
-        const lastVisitDate = new Date(lastVisit)
-        if (isNaN(lastVisitDate.getTime())) return false
-        // Normalize to start of day for comparison
-        lastVisitDate.setHours(0, 0, 0, 0)
-        const isActive = lastVisitDate >= threeMonthsAgo
-        return isActive
-      })
+      filtered = clients.filter((client) => isClientActive(client))
     } else if (statsFilter === "inactive") {
-      filtered = clients.filter((client) => {
-        const lastVisit = client.lastVisit // Use only database lastVisit for filtering
-        if (!lastVisit) {
-          return true // No last visit = inactive
-        }
-        const lastVisitDate = new Date(lastVisit)
-        if (isNaN(lastVisitDate.getTime())) {
-          return true // Invalid date = inactive
-        }
-        // Normalize to start of day for comparison
-        lastVisitDate.setHours(0, 0, 0, 0)
-        const isInactive = lastVisitDate < threeMonthsAgo
-        return isInactive
-      })
+      filtered = clients.filter((client) => !isClientActive(client))
     }
 
     // Apply search query
@@ -98,28 +159,16 @@ export function ClientsListPage() {
   // Update filtered clients when displayClients changes
   useEffect(() => {
     setFilteredClients(displayClients)
-    console.log('📊 Filter updated:', { 
-      statsFilter, 
-      totalClients: clients.length, 
-      filteredClients: displayClients.length,
-      sampleFiltered: displayClients.slice(0, 3).map(c => ({
-        name: c.name,
-        lastVisit: (c as any).realLastVisit || c.lastVisit,
-        hasRealLastVisit: !!(c as any).realLastVisit
-      }))
-    })
   }, [displayClients, statsFilter, clients.length])
 
   // Handle filter change from stats cards
   const handleFilterChange = (filter: "all" | "active" | "inactive") => {
-    console.log('🔄 Stats card clicked, changing filter to:', filter)
     setStatsFilter(filter)
   }
 
   // Listen for client-added event (from import)
   useEffect(() => {
     const handleClientAdded = () => {
-      console.log('ClientsListPage: client-added event received, reloading clients...')
       clientStore.loadClients()
     }
     window.addEventListener('client-added', handleClientAdded)
@@ -327,7 +376,7 @@ export function ClientsListPage() {
 
             {/* Stats Cards with Filters */}
             <ClientStatsCards 
-              clients={clients}
+              clients={enrichedClientsForStats.length > 0 ? enrichedClientsForStats : clients}
               activeFilter={statsFilter}
               onFilterChange={handleFilterChange}
             />

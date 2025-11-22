@@ -76,7 +76,7 @@ If you prefer MongoDB Atlas (free tier available):
 
 1. **Test the backend**: Visit `https://your-backend-app.railway.app/api/health`
 2. **Test the frontend**: Visit your frontend URL
-3. **Test login**: Use admin@saloncrm.com / admin123
+3. **Test login**: Use admin@easemysalon.in / admin123
 4. **Test password reset**: Use the forgot password feature
 
 ## 🔍 Troubleshooting

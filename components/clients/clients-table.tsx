@@ -168,42 +168,48 @@ export function ClientsTable({ clients }: ClientsTableProps) {
 
     try {
       const clientId = selectedClient._id || selectedClient.id
-      console.log('Deleting client:', selectedClient.name, 'with ID:', clientId)
       
       if (!clientId) {
         toast({
           title: "Error",
           description: "Client ID not found.",
           variant: "destructive",
+          duration: 5000,
         })
         return
       }
 
       const success = await clientStore.deleteClient(clientId)
-      console.log('Delete result:', success)
       
       if (success) {
         toast({
           title: "Client Deleted",
           description: "Client has been successfully deleted.",
+          duration: 3000,
         })
         setIsDeleteDialogOpen(false)
         setSelectedClient(null)
-        console.log('Client deleted successfully from store')
       } else {
         toast({
           title: "Error",
           description: "Failed to delete client. Please try again.",
           variant: "destructive",
+          duration: 5000,
         })
       }
     } catch (error) {
       console.error('Error deleting client:', error)
+      const errorMessage = error instanceof Error ? error.message : "Failed to delete client. Please try again."
+      
       toast({
-        title: "Error",
-        description: "Failed to delete client. Please try again.",
+        title: "Delete Failed",
+        description: errorMessage,
         variant: "destructive",
+        duration: 6000,
       })
+      
+      // Keep dialog open on error so user can see the message
+      // Don't close the dialog or clear selectedClient
     }
   }
 
@@ -217,41 +223,21 @@ export function ClientsTable({ clients }: ClientsTableProps) {
     //   return
     // }
 
-    console.log('🎯 Bill Activity clicked for client:', client.name)
-    console.log('🎯 Opening modal...')
-    
     setSelectedClient(client)
     setIsLoadingBills(true)
     setIsBillActivityOpen(true)
     
-    console.log('🎯 Modal should now be open')
-    
     try {
-      console.log('Fetching bills for client:', client.name)
-      console.log('User authenticated:', !!user)
-      console.log('Current user:', user)
-      
       // Use SalesAPI instead of direct fetch
       const response = await SalesAPI.getByClient(client.name)
-      console.log('SalesAPI response:', response)
       
       if (response.success && response.data && response.data.length > 0) {
-        console.log('Bills found:', response.data)
         setSelectedClientBills(response.data)
       } else {
-        console.log('No bills found or empty response')
-        console.log('Response success:', response.success)
-        console.log('Response data:', response.data)
-        console.log('Response data length:', response.data?.length)
         setSelectedClientBills([])
       }
     } catch (error) {
       console.error('Error fetching bills:', error)
-      console.error('Error details:', {
-        message: error instanceof Error ? error.message : 'Unknown error',
-        stack: error instanceof Error ? error.stack : 'No stack trace',
-        name: error instanceof Error ? error.name : 'Unknown error type'
-      })
       setSelectedClientBills([])
       // Show error toast
       toast({
@@ -394,27 +380,8 @@ export function ClientsTable({ clients }: ClientsTableProps) {
           if (!isNaN(lastVisitDate.getTime())) {
             lastVisitDate.setHours(0, 0, 0, 0) // Normalize to start of day
             
-            // Debug log for specific client (remove after debugging)
-            if (client.name === "Shivam") {
-              console.log('🔍 Status calculation for Shivam:', {
-                realLastVisit: client.realLastVisit,
-                lastVisit: client.lastVisit,
-                using: lastVisit,
-                lastVisitDate: lastVisitDate.toISOString(),
-                threeMonthsAgo: threeMonthsAgo.toISOString(),
-                now: now.toISOString(),
-                comparison: lastVisitDate >= threeMonthsAgo,
-                daysDiff: Math.floor((lastVisitDate.getTime() - threeMonthsAgo.getTime()) / (1000 * 60 * 60 * 24))
-              })
-            }
-            
             if (lastVisitDate >= threeMonthsAgo) {
               isActive = true
-            }
-          } else {
-            // Debug invalid date
-            if (client.name === "Shivam") {
-              console.warn('⚠️ Invalid date for Shivam:', lastVisit)
             }
           }
         }
@@ -524,13 +491,8 @@ export function ClientsTable({ clients }: ClientsTableProps) {
     onPaginationChange: (updater) => {
       // Ensure pagination updates are applied correctly
       if (typeof updater === 'function') {
-        setPagination(prev => {
-          const newPagination = updater(prev)
-          console.log('📄 Pagination update:', { from: prev, to: newPagination })
-          return newPagination
-        })
+        setPagination(prev => updater(prev))
       } else {
-        console.log('📄 Pagination set:', updater)
         setPagination(updater)
       }
     },
@@ -586,20 +548,6 @@ export function ClientsTable({ clients }: ClientsTableProps) {
               className="h-8 px-3 border-blue-300 text-blue-700 hover:bg-blue-50 hover:border-blue-400"
             >
               <Upload className="h-4 w-4 mr-2" /> Import Clients
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={fetchClientStats}
-              disabled={isLoadingStats}
-              className="h-8 px-3 border-gray-200 hover:border-gray-300"
-            >
-              {isLoadingStats ? (
-                <div className="w-4 h-4 border-2 border-gray-300 border-t-transparent rounded-full animate-spin" />
-              ) : (
-                "🔄"
-              )}
-              <span className="ml-2">Refresh Stats</span>
             </Button>
           </div>
         </div>

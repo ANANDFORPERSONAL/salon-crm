@@ -301,9 +301,9 @@ let adminSettings = {
       smtpSecure: false,
       smtpUser: "",
       smtpPassword: "",
-      fromEmail: "noreply@easemysalon.com",
+      fromEmail: "noreply@easemysalon.in",
       fromName: "Ease My Salon",
-      replyTo: "support@easemysalon.com",
+      replyTo: "support@easemysalon.in",
       maxRetries: 3,
       retryDelay: 5000
     },

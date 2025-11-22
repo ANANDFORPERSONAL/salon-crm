@@ -278,11 +278,11 @@ export function GrievanceForm() {
           <CardContent className="space-y-3">
             <div>
               <p className="font-semibold text-sm text-gray-700">Grievance Officer</p>
-              <p className="text-sm text-gray-600">Email: grievance@saloncrm.com</p>
+              <p className="text-sm text-gray-600">Email: grievance@easemysalon.in</p>
             </div>
             <div>
               <p className="font-semibold text-sm text-gray-700">Data Protection Officer</p>
-              <p className="text-sm text-gray-600">Email: privacy@saloncrm.com</p>
+              <p className="text-sm text-gray-600">Email: privacy@easemysalon.in</p>
             </div>
             <div className="pt-2 border-t">
               <p className="text-xs text-gray-500">

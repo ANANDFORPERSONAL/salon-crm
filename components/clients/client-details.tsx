@@ -75,6 +75,7 @@ export function ClientDetailsPage({ clientId }: ClientDetailsPageProps) {
         toast({
           title: "Client Deleted",
           description: "Client has been successfully deleted.",
+          duration: 3000,
         })
         // Redirect to clients list
         window.location.href = "/clients"
@@ -83,14 +84,18 @@ export function ClientDetailsPage({ clientId }: ClientDetailsPageProps) {
           title: "Error",
           description: "Failed to delete client. Please try again.",
           variant: "destructive",
+          duration: 5000,
         })
       }
     } catch (error) {
       console.error("Error deleting client:", error)
+      const errorMessage = error instanceof Error ? error.message : "Failed to delete client. Please try again."
+      
       toast({
-        title: "Error",
-        description: "Failed to delete client. Please try again.",
+        title: "Delete Failed",
+        description: errorMessage,
         variant: "destructive",
+        duration: 6000,
       })
     }
   }

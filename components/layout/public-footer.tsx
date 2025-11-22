@@ -77,8 +77,8 @@ export function PublicFooter() {
             <ul className="mt-4 space-y-3 text-sm text-slate-400">
               <li className="flex items-start gap-3">
                 <Mail className="h-4 w-4 mt-1 text-white" />
-                <a href="mailto:hello@easemysalon.com" className="hover:text-white transition">
-                  hello@easemysalon.com
+                <a href="mailto:hello@easemysalon.in" className="hover:text-white transition">
+                  hello@easemysalon.in
                 </a>
               </li>
               <li className="flex items-start gap-3">

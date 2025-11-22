@@ -15,7 +15,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "@/components/ui/use-toast"
 import { useAuth } from "@/lib/auth-context"
-import { StaffAPI, GDPRAPI } from "@/lib/api"
+import { StaffAPI, UsersAPI, GDPRAPI } from "@/lib/api"
 import { ConsentManagement } from "@/components/gdpr/consent-management"
 import {
   AlertDialog,
@@ -51,7 +51,7 @@ export function ProfilePage() {
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleExportData = async () => {
-    if (!user?._id) return
+    if (!user?._id || user?.role !== 'admin') return
 
     setIsExporting(true)
     try {
@@ -88,8 +88,10 @@ export function ProfilePage() {
     }
   }
 
-  // Check URL params for GDPR actions
+  // Check URL params for GDPR actions (only for admin)
   useEffect(() => {
+    if (user?.role !== 'admin') return
+    
     const action = searchParams.get('action')
     if (action === 'export-data') {
       handleExportData()
@@ -97,7 +99,7 @@ export function ProfilePage() {
       setShowDeleteDialog(true)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams])
+  }, [searchParams, user?.role])
 
   const form = useForm<z.infer<typeof profileSchema>>({
     resolver: zodResolver(profileSchema),
@@ -109,32 +111,49 @@ export function ProfilePage() {
     },
   })
 
-  // Fetch staff data from database
+  // Fetch user/staff data from database
   useEffect(() => {
-    const fetchStaffData = async () => {
+    const fetchUserData = async () => {
       if (!user?._id) return
       
       try {
         setIsLoading(true)
-        const response = await StaffAPI.getById(user._id)
+        let response
+        
+        // Admin users are in User collection, staff/manager are in Staff collection
+        if (user.role === 'admin') {
+          response = await UsersAPI.getById(user._id)
+        } else {
+          response = await StaffAPI.getById(user._id)
+        }
+        
         if (response.success && response.data) {
-          const staff = response.data
-          setStaffData(staff)
+          const userData = response.data
+          setStaffData(userData)
           
           // Update form with fetched data
-          // Staff model uses: name, email, phone (not firstName, lastName, mobile)
-          const nameParts = (staff.name || "").split(" ")
-          form.reset({
-            firstName: nameParts[0] || "",
-            lastName: nameParts.slice(1).join(" ") || "",
-            email: staff.email || "",
-            mobile: staff.phone || "",
-          })
-          
-          // Note: Staff model doesn't have avatar field, so we skip it
+          // User model uses: firstName, lastName, email, mobile
+          // Staff model uses: name, email, phone
+          if (user.role === 'admin') {
+            form.reset({
+              firstName: userData.firstName || "",
+              lastName: userData.lastName || "",
+              email: userData.email || "",
+              mobile: userData.mobile || userData.phone || "",
+            })
+          } else {
+            // Staff model
+            const nameParts = (userData.name || "").split(" ")
+            form.reset({
+              firstName: nameParts[0] || "",
+              lastName: nameParts.slice(1).join(" ") || "",
+              email: userData.email || "",
+              mobile: userData.phone || "",
+            })
+          }
         }
       } catch (error) {
-        console.error("Failed to fetch staff data:", error)
+        console.error("Failed to fetch user data:", error)
         toast({
           title: "Error",
           description: "Failed to load profile data",
@@ -145,8 +164,8 @@ export function ProfilePage() {
       }
     }
 
-    fetchStaffData()
-  }, [user?._id, form])
+    fetchUserData()
+  }, [user?._id, user?.role, form])
 
   const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
@@ -185,14 +204,25 @@ export function ProfilePage() {
     if (isEditMode) {
       // Cancel edit - reset form to original values
       if (staffData) {
-        const nameParts = (staffData.name || "").split(" ")
-        form.reset({
-          firstName: nameParts[0] || "",
-          lastName: nameParts.slice(1).join(" ") || "",
-          email: staffData.email || "",
-          mobile: staffData.phone || "",
-        })
-        setProfilePhoto(null) // Staff model doesn't have avatar field
+        if (user?.role === 'admin') {
+          // User model
+          form.reset({
+            firstName: staffData.firstName || "",
+            lastName: staffData.lastName || "",
+            email: staffData.email || "",
+            mobile: staffData.mobile || staffData.phone || "",
+          })
+        } else {
+          // Staff model
+          const nameParts = (staffData.name || "").split(" ")
+          form.reset({
+            firstName: nameParts[0] || "",
+            lastName: nameParts.slice(1).join(" ") || "",
+            email: staffData.email || "",
+            mobile: staffData.phone || "",
+          })
+        }
+        setProfilePhoto(null)
       }
     }
   }
@@ -203,26 +233,48 @@ export function ProfilePage() {
     setIsSubmitting(true)
 
     try {
-      // Update staff data in database
-      // Staff model uses: name, email, phone (not firstName, lastName, mobile)
-      // Note: Staff model doesn't have avatar field, so we skip it
-      const updateData = {
-        name: `${values.firstName} ${values.lastName}`.trim(),
-        email: values.email,
-        phone: values.mobile,
+      let response
+      
+      // Admin users use User model, staff/manager use Staff model
+      if (user.role === 'admin') {
+        // User model uses: firstName, lastName, email, mobile
+        const updateData = {
+          firstName: values.firstName,
+          lastName: values.lastName,
+          email: values.email,
+          mobile: values.mobile,
+        }
+        response = await UsersAPI.update(user._id, updateData)
+        
+        if (response.success) {
+          setStaffData({ 
+            ...staffData, 
+            firstName: updateData.firstName,
+            lastName: updateData.lastName,
+            email: updateData.email,
+            mobile: updateData.mobile
+          })
+        }
+      } else {
+        // Staff model uses: name, email, phone
+        const updateData = {
+          name: `${values.firstName} ${values.lastName}`.trim(),
+          email: values.email,
+          phone: values.mobile,
+        }
+        response = await StaffAPI.update(user._id, updateData)
+        
+        if (response.success) {
+          setStaffData({ 
+            ...staffData, 
+            name: updateData.name,
+            email: updateData.email,
+            phone: updateData.phone
+          })
+        }
       }
-
-      const response = await StaffAPI.update(user._id, updateData)
       
       if (response.success) {
-        // Update local state (convert back to form format for consistency)
-        setStaffData({ 
-          ...staffData, 
-          name: updateData.name,
-          email: updateData.email,
-          phone: updateData.phone
-        })
-        
         // Update auth context to sync with dropdown menu
         updateUser({
           name: `${values.firstName} ${values.lastName}`,
@@ -251,7 +303,7 @@ export function ProfilePage() {
   }
 
   const handleDeleteAccount = async () => {
-    if (!user?._id) return
+    if (!user?._id || user?.role !== 'admin') return
 
     setIsDeleting(true)
     try {
@@ -336,10 +388,10 @@ export function ProfilePage() {
                     <Avatar className="h-20 w-20">
                       <AvatarImage 
                         src={profilePhoto || "/placeholder.svg"} 
-                        alt={staffData?.name || "User"} 
+                        alt={staffData?.name || staffData?.firstName || user?.name || "User"} 
                       />
                       <AvatarFallback className="text-lg">
-                        {staffData?.firstName?.charAt(0) || staffData?.name?.charAt(0) || "U"}
+                        {(staffData?.firstName || staffData?.name || user?.name || "U").charAt(0).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                     {isEditMode && (
@@ -362,11 +414,13 @@ export function ProfilePage() {
                   </div>
                   <div className="space-y-1">
                     <h2 className="text-2xl font-semibold">
-                      {staffData?.firstName} {staffData?.lastName}
+                      {staffData?.firstName && staffData?.lastName 
+                        ? `${staffData.firstName} ${staffData.lastName}`
+                        : staffData?.name || user?.name || "User"}
                     </h2>
-                    <p className="text-muted-foreground">{staffData?.email}</p>
-                    <Badge variant={getRoleBadgeVariant(staffData?.role || "staff")}>
-                      {staffData?.role ? staffData.role.charAt(0).toUpperCase() + staffData.role.slice(1) : "Staff"}
+                    <p className="text-muted-foreground">{staffData?.email || user?.email}</p>
+                    <Badge variant={getRoleBadgeVariant(staffData?.role || user?.role || "staff")}>
+                      {(staffData?.role || user?.role || "staff").charAt(0).toUpperCase() + (staffData?.role || user?.role || "staff").slice(1)}
                     </Badge>
                   </div>
                 </div>
@@ -483,7 +537,8 @@ export function ProfilePage() {
               </CardContent>
             </Card>
 
-            {/* GDPR Data Rights Section */}
+            {/* GDPR Data Rights Section - Only for Admin */}
+            {user?.role === 'admin' && (
             <Card className="border-blue-200 bg-blue-50/50">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -612,16 +667,19 @@ export function ProfilePage() {
                 <div className="pt-4 border-t">
                   <p className="text-xs text-gray-500">
                     Need help? Contact our Data Protection Officer at{" "}
-                    <a href="mailto:privacy@saloncrm.com" className="text-blue-600 hover:underline">
-                      privacy@saloncrm.com
+                    <a href="mailto:privacy@easemysalon.in" className="text-blue-600 hover:underline">
+                      privacy@easemysalon.in
                     </a>
                   </p>
                 </div>
               </CardContent>
             </Card>
+            )}
 
-            {/* Consent Management Section */}
-            <ConsentManagement />
+            {/* Consent Management Section - Only for Admin */}
+            {user?.role === 'admin' && (
+              <ConsentManagement />
+            )}
           </div>
   )
 }

@@ -5043,7 +5043,7 @@ app.get("/api/settings/payment", authenticateToken, setupBusinessDatabase, async
       
       settings = new BusinessSettings({
         name: "Ease My Salon",
-        email: req.user?.email || "info@easemysalon.com",
+        email: req.user?.email || "info@easemysalon.in",
         phone: "",
         website: "",
         description: "",

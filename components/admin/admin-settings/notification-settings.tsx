@@ -35,9 +35,9 @@ export function NotificationSettings({ settings: propSettings, onSettingsChange 
       smtpSecure: false,
       smtpUser: "",
       smtpPassword: "",
-      fromEmail: "noreply@easemysalon.com",
+      fromEmail: "noreply@easemysalon.in",
       fromName: "Ease My Salon",
-      replyTo: "support@easemysalon.com",
+      replyTo: "support@easemysalon.in",
       maxRetries: 3,
       retryDelay: 5000
     },
@@ -266,7 +266,7 @@ export function NotificationSettings({ settings: propSettings, onSettingsChange 
                     value={settings.email.fromEmail}
                     onChange={(e) => handleSettingChange('email.fromEmail', e.target.value)}
                     className="w-full"
-                    placeholder="noreply@easemysalon.com"
+                    placeholder="noreply@easemysalon.in"
                   />
                 </div>
 
@@ -289,7 +289,7 @@ export function NotificationSettings({ settings: propSettings, onSettingsChange 
                     value={settings.email.replyTo}
                     onChange={(e) => handleSettingChange('email.replyTo', e.target.value)}
                     className="w-full"
-                    placeholder="support@easemysalon.com"
+                    placeholder="support@easemysalon.in"
                   />
                 </div>
               </div>
